@@ -9,11 +9,11 @@ import {IWhitelist} from "../interfaces/IWhitelist.sol";
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 import {Hevm} from "./utils/Hevm.sol";
-import {Autoleverage} from "../Autoleverage.sol";
+import {AutoleverageCurve} from "../AutoleverageCurve.sol";
 
 contract AutoleverageTest is DSTestPlus {
 
-    Autoleverage helper = new Autoleverage();
+    AutoleverageCurve helper = new AutoleverageCurve();
     address daiWhale = 0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0;
     IERC20 dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
     address wethWhale = 0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0;
