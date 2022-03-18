@@ -47,10 +47,8 @@ contract AutoleverageTest is DSTestPlus {
         // Impersonate the EOA whale
         hevm.startPrank(daiWhale, daiWhale);
         dai.approve(address(helper), collateralInitial);
-        console.log("approveMint()");
         IAlchemistV2(alchemist).approveMint(address(helper), type(uint).max);
         
-        console.log("autoleverage()");
         helper.autoleverage(
             metapool,
             metapoolI,
@@ -64,23 +62,22 @@ contract AutoleverageTest is DSTestPlus {
         );
 
         // Calculate collateral and ensure gte target
-        (uint shares, uint lastAccruedWeight) = IAlchemistV2(alchemist).positions(recipient, yieldToken);
-        console.log("shares:");
-        console.log(shares / 1 ether);
-        console.log("lastAccruedWeight:");
-        console.log(lastAccruedWeight);
+        (uint shares, ) = IAlchemistV2(alchemist).positions(recipient, yieldToken);
+
+        uint totalShares = IAlchemistV2(alchemist).getYieldTokenParameters(yieldToken).totalShares;
+        uint expectedValue = IAlchemistV2(alchemist).getYieldTokenParameters(yieldToken).expectedValue;
+        uint collateralValue = expectedValue * shares / totalShares;
+        console.log("collateralValue:");
+        console.log(collateralValue / 1 ether);
+        require(collateralValue >= collateralTotal, "Collateral doesn't meet or exceed target");
 
         // Calculate debt and ensure it matches the target
         (int256 iDebt, ) = IAlchemistV2(alchemist).accounts(recipient);
         require(iDebt > 0, "Debt should be positive");
         uint debt = uint256(iDebt);
         require(debt == targetDebt, "Debt doesn't match target");
-        console.log("debt:");
+        console.log("debtValue:");
         console.log(debt / 1 ether);
-
-        uint conversionFactor = IAlchemistV2(alchemist).getUnderlyingTokenParameters(address(dai)).conversionFactor;
-        console.log("conversionFactor:");
-        console.log(conversionFactor);
     }
 
 }
