@@ -63,11 +63,24 @@ contract AutoleverageTest is DSTestPlus {
             recipient
         );
 
+        // Calculate collateral and ensure gte target
         (uint shares, uint lastAccruedWeight) = IAlchemistV2(alchemist).positions(recipient, yieldToken);
         console.log("shares:");
         console.log(shares / 1 ether);
         console.log("lastAccruedWeight:");
         console.log(lastAccruedWeight);
+
+        // Calculate debt and ensure it matches the target
+        (int256 iDebt, ) = IAlchemistV2(alchemist).accounts(recipient);
+        require(iDebt > 0, "Debt should be positive");
+        uint debt = uint256(iDebt);
+        require(debt == targetDebt, "Debt doesn't match target");
+        console.log("debt:");
+        console.log(debt / 1 ether);
+
+        uint conversionFactor = IAlchemistV2(alchemist).getUnderlyingTokenParameters(address(dai)).conversionFactor;
+        console.log("conversionFactor:");
+        console.log(conversionFactor);
     }
 
 }
