@@ -1,3 +1,5 @@
+pragma solidity 0.8.13;
+
 /**
  * @title IFlashLoanReceiver interface
  * @notice Interface for the Aave fee IFlashLoanReceiver.
