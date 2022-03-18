@@ -21,6 +21,7 @@ contract Autoleverage is IERC3156FlashBorrower, IAaveFlashLoanReceiver {
         address alchemist;
         address yieldToken;
         address recipient;
+        uint repayAmount;
     }
 
     constructor() {
@@ -58,7 +59,8 @@ contract Autoleverage is IERC3156FlashBorrower, IAaveFlashLoanReceiver {
             flashLender: flashLender,
             alchemist: alchemist,
             yieldToken: yieldToken,
-            recipient: recipient
+            recipient: recipient,
+            repayAmount: 0
         }));
         console.log("flashLoan()");
 
@@ -81,19 +83,21 @@ contract Autoleverage is IERC3156FlashBorrower, IAaveFlashLoanReceiver {
         bytes calldata params
     ) external returns (bool) {
 
-        console.log("executeOperation");
-
+        console.log("executeOperation()");
         Details memory details;
-        
+
         {
-        details = abi.decode(params, (Details));
+            details = abi.decode(params, (Details));
+            details.repayAmount = amounts[0] + premiums[0];
+            console.log("repayAmount:");
+            console.log(details.repayAmount);
         }
 
         {
             uint collateralBalance = IERC20(assets[0]).balanceOf(address(this));
             uint targetDebt = collateralBalance / 2 - 1; // TODO: Get exact max
 
-            console.log("collateralBalance");
+            console.log("collateralBalance:");
             console.log(collateralBalance);
             // Deposit into recipient's account
             IERC20(assets[0]).approve(details.alchemist, type(uint).max);
@@ -106,7 +110,7 @@ contract Autoleverage is IERC3156FlashBorrower, IAaveFlashLoanReceiver {
         {
             address alAsset = IAlchemistV2(details.alchemist).debtToken();
             uint alBalance = IERC20(alAsset).balanceOf(address(this));
-            console.log("alBalance");
+            console.log("alBalance:");
             console.log(alBalance);
 
             // Curve swap
@@ -116,23 +120,27 @@ contract Autoleverage is IERC3156FlashBorrower, IAaveFlashLoanReceiver {
                 0, // index of coin to send (alUSD)
                 1, // index of coin to receive (DAI)
                 alBalance, // amountIn
-                // 0
-                // amounts[0] + premiums[0] // minAmountOut
-                amounts[0]
+                details.repayAmount
             );
+            console.log("amountOut:");
             console.log(amountOut);
+
+            // Deposit excess assets into the alchemist on behalf of the user
+            uint excessCollateral = amountOut - details.repayAmount;
+            IAlchemistV2(details.alchemist).depositUnderlying(details.yieldToken, excessCollateral, details.recipient, 0);
         }
 
         {
-        uint repayAmount = amounts[0] + premiums[0];
-        console.log("repayAmount");
-        console.log(repayAmount);
-        // Approve the LendingPool contract allowance to *pull* the owed amount
-        IERC20(assets[0]).approve(details.flashLender, repayAmount);
-        require(
-            IERC20(assets[0]).balanceOf(address(this)) >= repayAmount,
-            "Not enough tokens to repay flashloan"
-        );
+            // Approve the LendingPool contract allowance to *pull* the owed amount
+            IERC20(assets[0]).approve(details.flashLender, details.repayAmount);
+            require(
+                IERC20(assets[0]).balanceOf(address(this)) >= details.repayAmount,
+                "Not enough tokens to repay flashloan"
+            );
+            require(
+                IERC20(assets[0]).balanceOf(address(this)) == details.repayAmount,
+                "Excess tokens after repaying flashloan"
+            );
         }
 
         return true;
