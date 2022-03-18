@@ -25,14 +25,10 @@ contract AutoleverageTest is DSTestPlus {
     }
 
     function testFlashLoan() public {
-        address flashLender = 0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9; // Aave Lending Pool V2
         address metapool = 0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c; // alUSD-3CRV metapool
         int128 metapoolI = 0; // alUSD index
         int128 metapoolJ = 1; // DAI index
-        // address alchemist = 0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c; // Alchemist alETH V2
-        // address yieldToken = 0xa258C4606Ca8206D8aA700cE2143D7db854D168c; // yvWETH
         address alchemist = 0x5C6374a2ac4EBC38DeA0Fc1F8716e5Ea1AdD94dd; // Alchemist alUSD
-        // address yieldToken = 0x19D3364A399d251E894aC732651be8B0E4e85001; // yvDAI v2
         address yieldToken = 0xdA816459F1AB5631232FE5e97a05BBBb94970c95; // yvDAI
         uint collateralInitial = 1_000_000 ether;
         uint collateralTotal = 1_900_000 ether;
@@ -43,18 +39,19 @@ contract AutoleverageTest is DSTestPlus {
         console.log("targetDebt:");
         console.log(targetDebt / 1 ether);
 
-        // Disable whitelist for contract interaction
+        // Add helper contract to whitelist
         address whitelist = IAlchemistV2(alchemist).whitelist();
-        hevm.prank(whitelistOwner, whitelistOwner);
-        IWhitelist(whitelist).disable();
+        hevm.startPrank(whitelistOwner, whitelistOwner);
+        IWhitelist(whitelist).add(address(helper));
 
         // Impersonate the EOA whale
-        hevm.startPrank(daiWhale);
+        hevm.startPrank(daiWhale, daiWhale);
         dai.approve(address(helper), collateralInitial);
+        console.log("approveMint()");
         IAlchemistV2(alchemist).approveMint(address(helper), type(uint).max);
         
+        console.log("autoleverage()");
         helper.autoleverage(
-            // flashLender,
             metapool,
             metapoolI,
             metapoolJ,
