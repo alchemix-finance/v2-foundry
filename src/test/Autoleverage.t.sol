@@ -9,11 +9,11 @@ import {IWhitelist} from "../interfaces/IWhitelist.sol";
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 import {Hevm} from "./utils/Hevm.sol";
-import {AutoleverageCurve} from "../AutoleverageCurve.sol";
+import {AutoleverageCurveMetapool} from "../AutoleverageCurveMetapool.sol";
 
 contract AutoleverageTest is DSTestPlus {
 
-    AutoleverageCurve helper = new AutoleverageCurve();
+    AutoleverageCurveMetapool helper = new AutoleverageCurveMetapool();
     address daiWhale = 0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0;
     IERC20 dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
     address wethWhale = 0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0;
@@ -26,6 +26,9 @@ contract AutoleverageTest is DSTestPlus {
 
     function testFlashLoan() public {
         address flashLender = 0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9; // Aave Lending Pool V2
+        address metapool = 0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c; // alUSD-3CRV metapool
+        int128 metapoolI = 0; // alUSD index
+        int128 metapoolJ = 1; // DAI index
         // address alchemist = 0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c; // Alchemist alETH V2
         // address yieldToken = 0xa258C4606Ca8206D8aA700cE2143D7db854D168c; // yvWETH
         address alchemist = 0x5C6374a2ac4EBC38DeA0Fc1F8716e5Ea1AdD94dd; // Alchemist alUSD
@@ -51,7 +54,10 @@ contract AutoleverageTest is DSTestPlus {
         IAlchemistV2(alchemist).approveMint(address(helper), type(uint).max);
         
         helper.autoleverage(
-            flashLender,
+            // flashLender,
+            metapool,
+            metapoolI,
+            metapoolJ,
             alchemist,
             yieldToken,
             collateralInitial,
