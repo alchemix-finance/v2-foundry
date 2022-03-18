@@ -8,11 +8,9 @@ import {IAlchemistV2} from "./interfaces/IAlchemistV2.sol";
 import {IAaveFlashLoanReceiver} from "./interfaces/IAaveFlashLoanReceiver.sol";
 import {IAaveLendingPool} from "./interfaces/IAaveLendingPool.sol";
 import {ICurveMetapool} from "./interfaces/ICurveMetapool.sol";
-import {IERC3156FlashLender} from "./interfaces/IERC3156FlashLender.sol";
-import {IERC3156FlashBorrower} from "./interfaces/IERC3156FlashBorrower.sol";
 
 /// @title A zapper for DAI deposits into the alUSD pool
-contract Autoleverage is IERC3156FlashBorrower, IAaveFlashLoanReceiver {
+contract Autoleverage is IAaveFlashLoanReceiver {
 
     address alusd3crvMetapool = 0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c;
 
@@ -24,6 +22,8 @@ contract Autoleverage is IERC3156FlashBorrower, IAaveFlashLoanReceiver {
         uint targetDebt;
         uint repayAmount;
     }
+    
+    error InexactTokens(uint currentBalance, uint repayAmount);
 
     // @notice Transfer tokens from msg.sender here, then call flashloan which calls callback
     function autoleverage(
@@ -132,29 +132,13 @@ contract Autoleverage is IERC3156FlashBorrower, IAaveFlashLoanReceiver {
         {
             // Approve the LendingPool contract allowance to *pull* the owed amount
             IERC20(assets[0]).approve(details.flashLender, details.repayAmount);
-            // TODO: Compress these into a single equality after testing complete
-            require(
-                IERC20(assets[0]).balanceOf(address(this)) >= details.repayAmount,
-                "Not enough tokens to repay flashloan"
-            );
-            require(
-                IERC20(assets[0]).balanceOf(address(this)) == details.repayAmount,
-                "Excess tokens after repaying flashloan"
-            );
+            uint balance = IERC20(assets[0]).balanceOf(address(this));
+            if (balance != details.repayAmount) {
+                revert InexactTokens(balance, details.repayAmount);
+            }
         }
 
         return true;
-    }
-
-    function onFlashLoan(
-        address initiator,
-        address token,
-        uint amount,
-        uint fee,
-        bytes calldata data
-    ) external returns (bytes32) {
-
-        return keccak256("ERC3156FlashBorrower.onFlashLoan");
     }
 
 }
