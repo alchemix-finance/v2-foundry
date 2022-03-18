@@ -11,7 +11,7 @@ import {ICurveMetapool} from "./interfaces/ICurveMetapool.sol";
 import {IERC3156FlashLender} from "./interfaces/IERC3156FlashLender.sol";
 import {IERC3156FlashBorrower} from "./interfaces/IERC3156FlashBorrower.sol";
 
-/// @title A wrapper for single-sided ALCX staking
+/// @title A zapper for DAI deposits into the alUSD pool
 contract Autoleverage is IERC3156FlashBorrower, IAaveFlashLoanReceiver {
 
     address alusd3crvMetapool = 0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c;
@@ -21,37 +21,33 @@ contract Autoleverage is IERC3156FlashBorrower, IAaveFlashLoanReceiver {
         address alchemist;
         address yieldToken;
         address recipient;
+        uint targetDebt;
         uint repayAmount;
     }
 
-    constructor() {
-    }
-
+    // @notice Transfer tokens from msg.sender here, then call flashloan which calls callback
     function autoleverage(
         address flashLender,
         address alchemist,
         address yieldToken,
-        uint amountInitial,
-        uint amountTotal,
-        address recipient,
-        uint minimumAmountOut
+        uint collateralInitial,
+        uint collateralTotal,
+        uint targetDebt,
+        address recipient
     ) external {
         console.log("autoleverage()");
         // Get underlying token from alchemist
         address underlyingToken = IAlchemistV2(alchemist).getYieldTokenParameters(yieldToken).underlyingToken;
 
-        uint loanAmount = amountTotal - amountInitial;
-        console.log(loanAmount);
-
         // Transfer initial tokens to contract
-        console.log("transferFrom(amountInitial)");
-        IERC20(underlyingToken).transferFrom(msg.sender, address(this), amountInitial);
+        console.log("transferFrom(collateralInitial)");
+        IERC20(underlyingToken).transferFrom(msg.sender, address(this), collateralInitial);
 
         // Take out flashloan
         address[] memory assets = new address[](1);
         assets[0] = underlyingToken;
         uint256[] memory amounts = new uint256[](1);
-        amounts[0] = loanAmount;
+        amounts[0] = collateralTotal - collateralInitial;
         uint256[] memory modes = new uint256[](1);
         modes[0] = 0;
 
@@ -60,6 +56,7 @@ contract Autoleverage is IERC3156FlashBorrower, IAaveFlashLoanReceiver {
             alchemist: alchemist,
             yieldToken: yieldToken,
             recipient: recipient,
+            targetDebt: targetDebt,
             repayAmount: 0
         }));
         console.log("flashLoan()");
@@ -90,28 +87,30 @@ contract Autoleverage is IERC3156FlashBorrower, IAaveFlashLoanReceiver {
             details = abi.decode(params, (Details));
             details.repayAmount = amounts[0] + premiums[0];
             console.log("repayAmount:");
-            console.log(details.repayAmount);
+            console.log(details.repayAmount / 1 ether);
         }
 
         {
             uint collateralBalance = IERC20(assets[0]).balanceOf(address(this));
-            uint targetDebt = collateralBalance / 2 - 1; // TODO: Get exact max
 
             console.log("collateralBalance:");
-            console.log(collateralBalance);
+            console.log(collateralBalance / 1 ether);
             // Deposit into recipient's account
             IERC20(assets[0]).approve(details.alchemist, type(uint).max);
             IAlchemistV2(details.alchemist).depositUnderlying(details.yieldToken, collateralBalance, details.recipient, 0);
 
             // Mint from recipient's account
-            IAlchemistV2(details.alchemist).mintFrom(details.recipient, targetDebt, address(this));
+            console.log("mintFrom()");
+            IAlchemistV2(details.alchemist).mintFrom(details.recipient, details.targetDebt, address(this));
         }
+
+        console.log("Success: deposit and mintFrom");
 
         {
             address alAsset = IAlchemistV2(details.alchemist).debtToken();
             uint alBalance = IERC20(alAsset).balanceOf(address(this));
             console.log("alBalance:");
-            console.log(alBalance);
+            console.log(alBalance / 1 ether);
 
             // Curve swap
             IERC20(alAsset).approve(alusd3crvMetapool, type(uint).max);
@@ -120,10 +119,10 @@ contract Autoleverage is IERC3156FlashBorrower, IAaveFlashLoanReceiver {
                 0, // index of coin to send (alUSD)
                 1, // index of coin to receive (DAI)
                 alBalance, // amountIn
-                details.repayAmount
+                details.repayAmount // TODO: populate this with offchain calculations using slippage params
             );
             console.log("amountOut:");
-            console.log(amountOut);
+            console.log(amountOut / 1 ether);
 
             // Deposit excess assets into the alchemist on behalf of the user
             uint excessCollateral = amountOut - details.repayAmount;
@@ -133,6 +132,7 @@ contract Autoleverage is IERC3156FlashBorrower, IAaveFlashLoanReceiver {
         {
             // Approve the LendingPool contract allowance to *pull* the owed amount
             IERC20(assets[0]).approve(details.flashLender, details.repayAmount);
+            // TODO: Compress these into a single equality after testing complete
             require(
                 IERC20(assets[0]).balanceOf(address(this)) >= details.repayAmount,
                 "Not enough tokens to repay flashloan"

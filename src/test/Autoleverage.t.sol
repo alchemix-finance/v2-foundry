@@ -18,7 +18,6 @@ contract AutoleverageTest is DSTestPlus {
     IERC20 dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
     address wethWhale = 0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0;
     IERC20 weth = IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
-    // address whitelistOwner = 0x526D542FFBAe26D510cD610b8050438586fd203C;
     address whitelistOwner = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
 
 
@@ -32,10 +31,14 @@ contract AutoleverageTest is DSTestPlus {
         address alchemist = 0x5C6374a2ac4EBC38DeA0Fc1F8716e5Ea1AdD94dd; // Alchemist alUSD
         // address yieldToken = 0x19D3364A399d251E894aC732651be8B0E4e85001; // yvDAI v2
         address yieldToken = 0xdA816459F1AB5631232FE5e97a05BBBb94970c95; // yvDAI
-        uint amountInitial = 100;
-        uint amountTotal = 150;
+        uint collateralInitial = 1_000_000 ether;
+        uint collateralTotal = 1_900_000 ether;
+        uint slippageMultiplier = 10050; // out of 10000
+        uint targetDebt = (collateralTotal - collateralInitial) * slippageMultiplier / 10000;
         address recipient = daiWhale;
-        uint minimumAmountOut = 0;
+
+        console.log("targetDebt:");
+        console.log(targetDebt / 1 ether);
 
         // Disable whitelist for contract interaction
         address whitelist = IAlchemistV2(alchemist).whitelist();
@@ -44,18 +47,24 @@ contract AutoleverageTest is DSTestPlus {
 
         // Impersonate the EOA whale
         hevm.startPrank(daiWhale);
-        dai.approve(address(helper), amountInitial);
+        dai.approve(address(helper), collateralInitial);
         IAlchemistV2(alchemist).approveMint(address(helper), type(uint).max);
         
         helper.autoleverage(
             flashLender,
             alchemist,
             yieldToken,
-            amountInitial,
-            amountTotal,
-            recipient,
-            minimumAmountOut
+            collateralInitial,
+            collateralTotal,
+            targetDebt,
+            recipient
         );
+
+        (uint shares, uint lastAccruedWeight) = IAlchemistV2(alchemist).positions(recipient, yieldToken);
+        console.log("shares:");
+        console.log(shares / 1 ether);
+        console.log("lastAccruedWeight:");
+        console.log(lastAccruedWeight);
     }
 
 }
