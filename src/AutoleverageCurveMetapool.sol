@@ -84,54 +84,43 @@ contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
         bytes calldata params
     ) external returns (bool) {
 
-        Details memory details;
+        Details memory details = abi.decode(params, (Details));
+        details.repayAmount = amounts[0] + premiums[0];
 
-        {
-            details = abi.decode(params, (Details));
-            details.repayAmount = amounts[0] + premiums[0];
+        uint256 collateralBalance = IERC20(assets[0]).balanceOf(address(this));
+
+        // Deposit into recipient's account
+        IERC20(assets[0]).approve(details.alchemist, type(uint256).max);
+        IAlchemistV2(details.alchemist).depositUnderlying(details.yieldToken, collateralBalance, details.recipient, 0);
+
+        // Mint from recipient's account
+        try IAlchemistV2(details.alchemist).mintFrom(details.recipient, details.targetDebt, address(this)) {
+
+        } catch {
+            revert MintFailure();
         }
+        
+        address debtToken = IAlchemistV2(details.alchemist).debtToken();
+        uint256 debtTokenBalance = IERC20(debtToken).balanceOf(address(this));
 
-        {
-            uint256 collateralBalance = IERC20(assets[0]).balanceOf(address(this));
+        // Curve swap
+        IERC20(debtToken).approve(details.metapool, type(uint).max);
+        uint256 amountOut = ICurveMetapool(details.metapool).exchange_underlying(
+            details.metapoolI,
+            details.metapoolJ,
+            debtTokenBalance, // amountIn
+            details.repayAmount // minAmountOut
+        );
 
-            // Deposit into recipient's account
-            IERC20(assets[0]).approve(details.alchemist, type(uint256).max);
-            IAlchemistV2(details.alchemist).depositUnderlying(details.yieldToken, collateralBalance, details.recipient, 0);
+        // Deposit excess assets into the alchemist on behalf of the user
+        uint256 excessCollateral = amountOut - details.repayAmount;
+        IAlchemistV2(details.alchemist).depositUnderlying(details.yieldToken, excessCollateral, details.recipient, 0);
 
-            // Mint from recipient's account
-            try IAlchemistV2(details.alchemist).mintFrom(details.recipient, details.targetDebt, address(this)) {
-
-            } catch {
-                revert MintFailure();
-            }
-            
-        }
-
-        {
-            address debtToken = IAlchemistV2(details.alchemist).debtToken();
-            uint256 debtTokenBalance = IERC20(debtToken).balanceOf(address(this));
-
-            // Curve swap
-            IERC20(debtToken).approve(details.metapool, type(uint).max);
-            uint256 amountOut = ICurveMetapool(details.metapool).exchange_underlying(
-                details.metapoolI,
-                details.metapoolJ,
-                debtTokenBalance, // amountIn
-                details.repayAmount // minAmountOut
-            );
-
-            // Deposit excess assets into the alchemist on behalf of the user
-            uint256 excessCollateral = amountOut - details.repayAmount;
-            IAlchemistV2(details.alchemist).depositUnderlying(details.yieldToken, excessCollateral, details.recipient, 0);
-        }
-
-        {
-            // Approve the LendingPool contract allowance to *pull* the owed amount
-            IERC20(assets[0]).approve(details.flashLender, details.repayAmount);
-            uint256 balance = IERC20(assets[0]).balanceOf(address(this));
-            if (balance != details.repayAmount) {
-                revert InexactTokens(balance, details.repayAmount);
-            }
+        // Approve the LendingPool contract allowance to *pull* the owed amount
+        IERC20(assets[0]).approve(details.flashLender, details.repayAmount);
+        uint256 balance = IERC20(assets[0]).balanceOf(address(this));
+        if (balance != details.repayAmount) {
+            revert InexactTokens(balance, details.repayAmount);
         }
 
         return true;
