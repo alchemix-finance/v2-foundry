@@ -37,9 +37,6 @@ contract AutoleverageTest is DSTestPlus {
         uint256 targetDebt = (collateralTotal - collateralInitial) * slippageMultiplier / 10000;
         address recipient = daiWhale;
 
-        console.log("targetDebt:");
-        console.log(targetDebt / 1 ether);
-
         // Add helper contract to whitelist
         address whitelist = IAlchemistV2(alchemist).whitelist();
         hevm.startPrank(whitelistOwner, whitelistOwner);
@@ -68,8 +65,6 @@ contract AutoleverageTest is DSTestPlus {
 
         IAlchemistV2.YieldTokenParams memory yieldTokenParams = IAlchemistV2(alchemist).getYieldTokenParameters(yieldToken);
         uint256 collateralValue = yieldTokenParams.expectedValue * shares / yieldTokenParams.totalShares;
-        console.log("collateralValue:");
-        console.log(collateralValue / 1 ether);
         require(collateralValue >= collateralTotal, "Collateral doesn't meet or exceed target");
 
         // Calculate debt and ensure it matches the target
@@ -77,8 +72,6 @@ contract AutoleverageTest is DSTestPlus {
         require(iDebt > 0, "Debt should be positive");
         uint256 debt = uint256(iDebt);
         require(debt == targetDebt, "Debt doesn't match target");
-        console.log("debtValue:");
-        console.log(debt / 1 ether);
     }
 
 }
