@@ -111,6 +111,18 @@ contract DSTestPlus is DSTest {
         }
     }
 
+    function expectError(string memory message) internal {
+        hevm.expectRevert(bytes(message));
+    }
+
+    function expectIllegalArgumentError(string memory message) internal {
+        hevm.expectRevert(abi.encodeWithSignature("IllegalArgument(string)", message));
+    }
+
+    function expectIllegalStateError(string memory message) internal {
+        hevm.expectRevert(abi.encodeWithSignature("IllegalState(string)", message));
+    }
+
     function bound(
         uint256 x,
         uint256 min,

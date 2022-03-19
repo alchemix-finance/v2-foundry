@@ -1,7 +1,11 @@
 pragma solidity >=0.5.0;
 
+import "openzeppelin/token/ERC20/IERC20.sol";
+
+import "../IERC20Metadata.sol";
+
 /// @title IWETH9
-interface IWETH9 {
+interface IWETH9 is IERC20, IERC20Metadata {
   /// @notice Deposits `msg.value` ethereum into the contract and mints `msg.value` tokens.
   function deposit() external payable;
 
