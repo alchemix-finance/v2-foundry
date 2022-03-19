@@ -6,16 +6,19 @@ import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {IAlchemistV2} from "./interfaces/IAlchemistV2.sol";
 import {IAaveFlashLoanReceiver} from "./interfaces/IAaveFlashLoanReceiver.sol";
 import {IAaveLendingPool} from "./interfaces/IAaveLendingPool.sol";
-import {ICurveMetapool} from "./interfaces/ICurveMetapool.sol";
+import {ICurveFactoryethpool} from "./interfaces/ICurveFactoryethpool.sol";
+import {IWETH9} from "./interfaces/external/IWETH9.sol";
 
 /// @title A zapper for leveraged deposits into the Alchemist
-contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
+contract AutoleverageCurveFactoryethpool is IAaveFlashLoanReceiver {
+
+    address public constant wethAddress = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
     struct Details {
         address flashLender;
-        address metapool;
-        int128 metapoolI;
-        int128 metapoolJ;
+        address factoryethpool;
+        int128 factoryethpoolI;
+        int128 factoryethpoolJ;
         address alchemist;
         address yieldToken;
         address recipient;
@@ -27,25 +30,33 @@ contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
     error MintFailure(); // when the collateral is insufficient to mint targetDebt
     error InexactTokens(uint256 currentBalance, uint256 repayAmount); // when the helper contract ends up with too few or too many tokens
 
+    /// @notice Used to receive ETH from factory pool swaps
+    fallback() external payable {}
+
     /// @notice Transfer tokens from msg.sender here, then call flashloan which calls callback
     function autoleverage(
         address flashLender,
-        address metapool,
-        int128 metapoolI,
-        int128 metapoolJ,
+        address factoryethpool,
+        int128 factoryethpoolI,
+        int128 factoryethpoolJ,
         address alchemist,
         address yieldToken,
         uint256 collateralInitial,
         uint256 collateralTotal,
         uint256 targetDebt,
         address recipient
-    ) external {
+    ) external payable {
         // Get underlying token from alchemist
         address underlyingToken = IAlchemistV2(alchemist).getYieldTokenParameters(yieldToken).underlyingToken;
         if (underlyingToken == address(0x0)) revert UnsupportedYieldToken(yieldToken);
 
-        // Transfer initial tokens to contract
-        IERC20(underlyingToken).transferFrom(msg.sender, address(this), collateralInitial);
+        // Convert eth to weth if received eth, otherwise transfer weth
+        if (msg.value > 0) {
+            require(msg.value == collateralInitial, "eth amount does not match collateralInitial");
+            IWETH9(wethAddress).deposit{value: msg.value}();
+        } else {
+            IERC20(underlyingToken).transferFrom(msg.sender, address(this), collateralInitial);
+        }
 
         // Take out flashloan
         address[] memory assets = new address[](1);
@@ -57,9 +68,9 @@ contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
 
         bytes memory params = abi.encode(Details({
             flashLender: flashLender,
-            metapool: metapool,
-            metapoolI: metapoolI,
-            metapoolJ: metapoolJ,
+            factoryethpool: factoryethpool,
+            factoryethpoolI: factoryethpoolI,
+            factoryethpoolJ: factoryethpoolJ,
             alchemist: alchemist,
             yieldToken: yieldToken,
             recipient: recipient,
@@ -106,13 +117,16 @@ contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
         uint256 debtTokenBalance = IERC20(debtToken).balanceOf(address(this));
 
         // Curve swap
-        IERC20(debtToken).approve(details.metapool, type(uint).max);
-        uint256 amountOut = ICurveMetapool(details.metapool).exchange_underlying(
-            details.metapoolI,
-            details.metapoolJ,
+        IERC20(debtToken).approve(details.factoryethpool, type(uint).max);
+        uint256 amountOut = ICurveFactoryethpool(details.factoryethpool).exchange(
+            details.factoryethpoolI,
+            details.factoryethpoolJ,
             debtTokenBalance, // amountIn
             details.repayAmount // minAmountOut
         );
+
+        // Convert ETH output from Curve into WETH
+        IWETH9(wethAddress).deposit{value: amountOut}();
 
         // Deposit excess assets into the alchemist on behalf of the user
         uint256 excessCollateral = amountOut - details.repayAmount;

@@ -10,10 +10,12 @@ import {IWhitelist} from "../interfaces/IWhitelist.sol";
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 import {Hevm} from "./utils/Hevm.sol";
 import {AutoleverageCurveMetapool} from "../AutoleverageCurveMetapool.sol";
+import {AutoleverageCurveFactoryethpool} from "../AutoleverageCurveFactoryethpool.sol";
 
 contract AutoleverageTest is DSTestPlus {
 
-    AutoleverageCurveMetapool helper = new AutoleverageCurveMetapool();
+    AutoleverageCurveMetapool metapoolHelper = new AutoleverageCurveMetapool();
+    AutoleverageCurveFactoryethpool factoryethpoolHelper = new AutoleverageCurveFactoryethpool();
     address daiWhale = 0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0;
     address wethWhale = 0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0;
     IERC20 dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
@@ -24,7 +26,7 @@ contract AutoleverageTest is DSTestPlus {
     function setUp() public {
     }
 
-    function testFlashLoan() public {
+    function testFlashLoanMetapool() public {
         address flashLender = 0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9; // Aave v2 LendingPool
         address metapool = 0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c; // alUSD-3CRV metapool
         int128 metapoolI = 0; // alUSD index
@@ -37,17 +39,118 @@ contract AutoleverageTest is DSTestPlus {
         uint256 targetDebt = (collateralTotal - collateralInitial) * slippageMultiplier / 10000;
         address recipient = daiWhale;
 
-        // Add helper contract to whitelist
+        // Add metapoolHelper contract to whitelist
         address whitelist = IAlchemistV2(alchemist).whitelist();
         hevm.startPrank(whitelistOwner, whitelistOwner);
-        IWhitelist(whitelist).add(address(helper));
+        IWhitelist(whitelist).add(address(metapoolHelper));
 
         // Impersonate the EOA whale
         hevm.startPrank(daiWhale, daiWhale);
-        dai.approve(address(helper), collateralInitial);
-        IAlchemistV2(alchemist).approveMint(address(helper), type(uint256).max);
+        dai.approve(address(metapoolHelper), collateralInitial);
+        IAlchemistV2(alchemist).approveMint(address(metapoolHelper), type(uint256).max);
         
-        helper.autoleverage(
+        metapoolHelper.autoleverage(
+            flashLender,
+            metapool,
+            metapoolI,
+            metapoolJ,
+            alchemist,
+            yieldToken,
+            collateralInitial,
+            collateralTotal,
+            targetDebt,
+            recipient
+        );
+
+        // Calculate collateral and ensure gte target
+        (uint256 shares, ) = IAlchemistV2(alchemist).positions(recipient, yieldToken);
+
+        IAlchemistV2.YieldTokenParams memory yieldTokenParams = IAlchemistV2(alchemist).getYieldTokenParameters(yieldToken);
+        uint256 collateralValue = yieldTokenParams.expectedValue * shares / yieldTokenParams.totalShares;
+        require(collateralValue >= collateralTotal, "Collateral doesn't meet or exceed target");
+
+        // Calculate debt and ensure it matches the target
+        (int256 iDebt, ) = IAlchemistV2(alchemist).accounts(recipient);
+        require(iDebt > 0, "Debt should be positive");
+        uint256 debt = uint256(iDebt);
+        require(debt == targetDebt, "Debt doesn't match target");
+    }
+
+    function testFlashLoanFactoryethpoolFromWeth() public {
+        address flashLender = 0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9; // Aave v2 LendingPool
+        address metapool = 0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e; // alETH-ETH factoryethpool
+        int128 metapoolI = 1; // alETH index
+        int128 metapoolJ = 0; // ETH index
+        address alchemist = 0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c; // Alchemist alETH
+        address yieldToken = 0xa258C4606Ca8206D8aA700cE2143D7db854D168c; // yvWETH
+        uint256 collateralInitial = 100 ether;
+        uint256 collateralTotal = 150 ether;
+        uint256 slippageMultiplier = 10100; // out of 10000
+        uint256 targetDebt = (collateralTotal - collateralInitial) * slippageMultiplier / 10000;
+        address recipient = daiWhale;
+
+        // Add factoryethpoolHelper contract to whitelist
+        address whitelist = IAlchemistV2(alchemist).whitelist();
+        hevm.startPrank(whitelistOwner, whitelistOwner);
+        IWhitelist(whitelist).add(address(factoryethpoolHelper));
+
+        // Impersonate the EOA whale
+        hevm.startPrank(daiWhale, daiWhale);
+        weth.approve(address(factoryethpoolHelper), collateralInitial);
+        IAlchemistV2(alchemist).approveMint(address(factoryethpoolHelper), type(uint256).max);
+        
+        factoryethpoolHelper.autoleverage(
+            flashLender,
+            metapool,
+            metapoolI,
+            metapoolJ,
+            alchemist,
+            yieldToken,
+            collateralInitial,
+            collateralTotal,
+            targetDebt,
+            recipient
+        );
+
+        // Calculate collateral and ensure gte target
+        (uint256 shares, ) = IAlchemistV2(alchemist).positions(recipient, yieldToken);
+
+        IAlchemistV2.YieldTokenParams memory yieldTokenParams = IAlchemistV2(alchemist).getYieldTokenParameters(yieldToken);
+        uint256 collateralValue = yieldTokenParams.expectedValue * shares / yieldTokenParams.totalShares;
+        require(collateralValue >= collateralTotal, "Collateral doesn't meet or exceed target");
+
+        // Calculate debt and ensure it matches the target
+        (int256 iDebt, ) = IAlchemistV2(alchemist).accounts(recipient);
+        require(iDebt > 0, "Debt should be positive");
+        uint256 debt = uint256(iDebt);
+        require(debt == targetDebt, "Debt doesn't match target");
+    }
+
+    function testFlashLoanFactoryethpoolFromEth() public {
+        address flashLender = 0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9; // Aave v2 LendingPool
+        address metapool = 0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e; // alETH-ETH factoryethpool
+        int128 metapoolI = 1; // alETH index
+        int128 metapoolJ = 0; // ETH index
+        address alchemist = 0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c; // Alchemist alETH
+        address yieldToken = 0xa258C4606Ca8206D8aA700cE2143D7db854D168c; // yvWETH
+        uint256 collateralInitial = 100 ether;
+        uint256 collateralTotal = 150 ether;
+        uint256 slippageMultiplier = 10100; // out of 10000
+        uint256 targetDebt = (collateralTotal - collateralInitial) * slippageMultiplier / 10000;
+        address recipient = daiWhale;
+
+        // Add factoryethpoolHelper contract to whitelist
+        address whitelist = IAlchemistV2(alchemist).whitelist();
+        hevm.startPrank(whitelistOwner, whitelistOwner);
+        IWhitelist(whitelist).add(address(factoryethpoolHelper));
+
+        // Impersonate the EOA whale
+        hevm.startPrank(daiWhale, daiWhale);
+        // No weth approval here
+        // weth.approve(address(factoryethpoolHelper), collateralInitial);
+        IAlchemistV2(alchemist).approveMint(address(factoryethpoolHelper), type(uint256).max);
+        
+        factoryethpoolHelper.autoleverage{value: collateralInitial}(
             flashLender,
             metapool,
             metapoolI,
