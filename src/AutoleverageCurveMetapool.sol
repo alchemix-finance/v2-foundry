@@ -116,7 +116,7 @@ contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
                 details.metapoolI,
                 details.metapoolJ,
                 debtTokenBalance, // amountIn
-                details.repayAmount // TODO: populate this with offchain calculations using slippage params
+                details.repayAmount // minAmountOut
             );
 
             // Deposit excess assets into the alchemist on behalf of the user
