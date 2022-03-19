@@ -184,8 +184,7 @@ interface IAlchemistV2AdminActions {
     /// @param yieldToken The address of the yield token to set the maximum expected value for.
     /// @param value      The maximum expected value of the yield token denoted measured in its
     ///                   underlying token.
-    function setMaximumExpectedValue(address yieldToken, uint256 value)
-        external;
+    function setMaximumExpectedValue(address yieldToken, uint256 value) external;
 
     /// @notice Sets the maximum loss that a yield bearing token will permit before restricting
     ///         certain actions.
