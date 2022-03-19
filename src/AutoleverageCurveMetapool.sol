@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.13;
+pragma solidity ^0.8.11;
 
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
@@ -11,9 +11,8 @@ import {ICurveMetapool} from "./interfaces/ICurveMetapool.sol";
 /// @title A zapper for DAI deposits into the alUSD pool
 contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
 
-    address public constant flashLender = 0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9;
-
     struct Details {
+        address flashLender;
         address metapool;
         int128 metapoolI;
         int128 metapoolJ;
@@ -29,6 +28,7 @@ contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
 
     // @notice Transfer tokens from msg.sender here, then call flashloan which calls callback
     function autoleverage(
+        address flashLender,
         address metapool,
         int128 metapoolI,
         int128 metapoolJ,
@@ -54,6 +54,7 @@ contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
         modes[0] = 0;
 
         bytes memory params = abi.encode(Details({
+            flashLender: flashLender,
             metapool: metapool,
             metapoolI: metapoolI,
             metapoolJ: metapoolJ,
@@ -126,7 +127,7 @@ contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
 
         {
             // Approve the LendingPool contract allowance to *pull* the owed amount
-            IERC20(assets[0]).approve(flashLender, details.repayAmount);
+            IERC20(assets[0]).approve(details.flashLender, details.repayAmount);
             uint256 balance = IERC20(assets[0]).balanceOf(address(this));
             if (balance != details.repayAmount) {
                 revert InexactTokens(balance, details.repayAmount);

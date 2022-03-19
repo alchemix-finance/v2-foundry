@@ -1,4 +1,4 @@
-pragma solidity 0.8.13;
+pragma solidity ^0.8.11;
 
 interface ICurveMetapool {
     /// @notice Perform an exchange between two underlying coins

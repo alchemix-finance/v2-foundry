@@ -1,4 +1,4 @@
-pragma solidity 0.8.13;
+pragma solidity ^0.8.11;
 
 import {console} from "forge-std/console.sol";
 import {DSTest} from "ds-test/test.sol";
@@ -25,6 +25,7 @@ contract AutoleverageTest is DSTestPlus {
     }
 
     function testFlashLoan() public {
+        address flashLender = 0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9; // Aave v2 LendingPool
         address metapool = 0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c; // alUSD-3CRV metapool
         int128 metapoolI = 0; // alUSD index
         int128 metapoolJ = 1; // DAI index
@@ -50,6 +51,7 @@ contract AutoleverageTest is DSTestPlus {
         IAlchemistV2(alchemist).approveMint(address(helper), type(uint256).max);
         
         helper.autoleverage(
+            flashLender,
             metapool,
             metapoolI,
             metapoolJ,
