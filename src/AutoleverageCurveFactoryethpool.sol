@@ -23,9 +23,9 @@ contract AutoleverageCurveFactoryethpool is IAaveFlashLoanReceiver {
         address yieldToken;
         address recipient;
         uint256 targetDebt;
-        uint256 repayAmount;
     }
     
+    error IncorrectEthAmount(); // when the eth msg.value doesn't match the initialCollateral
     error UnsupportedYieldToken(address yieldToken); // when the yieldToken has no underlyingToken in the alchemist
     error MintFailure(); // when the collateral is insufficient to mint targetDebt
     error InexactTokens(uint256 currentBalance, uint256 repayAmount); // when the helper contract ends up with too few or too many tokens
@@ -52,7 +52,7 @@ contract AutoleverageCurveFactoryethpool is IAaveFlashLoanReceiver {
 
         // Convert eth to weth if received eth, otherwise transfer weth
         if (msg.value > 0) {
-            require(msg.value == collateralInitial, "eth amount does not match collateralInitial");
+            if (msg.value != collateralInitial) revert IncorrectEthAmount();
             IWETH9(wethAddress).deposit{value: msg.value}();
         } else {
             IERC20(underlyingToken).transferFrom(msg.sender, address(this), collateralInitial);
@@ -74,8 +74,7 @@ contract AutoleverageCurveFactoryethpool is IAaveFlashLoanReceiver {
             alchemist: alchemist,
             yieldToken: yieldToken,
             recipient: recipient,
-            targetDebt: targetDebt,
-            repayAmount: 0
+            targetDebt: targetDebt
         }));
 
         IAaveLendingPool(flashLender).flashLoan(
@@ -98,7 +97,7 @@ contract AutoleverageCurveFactoryethpool is IAaveFlashLoanReceiver {
     ) external returns (bool) {
 
         Details memory details = abi.decode(params, (Details));
-        details.repayAmount = amounts[0] + premiums[0];
+        uint256 repayAmount = amounts[0] + premiums[0];
 
         uint256 collateralBalance = IERC20(assets[0]).balanceOf(address(this));
 
@@ -122,21 +121,21 @@ contract AutoleverageCurveFactoryethpool is IAaveFlashLoanReceiver {
             details.factoryethpoolI,
             details.factoryethpoolJ,
             debtTokenBalance, // amountIn
-            details.repayAmount // minAmountOut
+            repayAmount // minAmountOut
         );
 
         // Convert ETH output from Curve into WETH
         IWETH9(wethAddress).deposit{value: amountOut}();
 
         // Deposit excess assets into the alchemist on behalf of the user
-        uint256 excessCollateral = amountOut - details.repayAmount;
+        uint256 excessCollateral = amountOut - repayAmount;
         IAlchemistV2(details.alchemist).depositUnderlying(details.yieldToken, excessCollateral, details.recipient, 0);
 
         // Approve the LendingPool contract allowance to *pull* the owed amount
-        IERC20(assets[0]).approve(details.flashLender, details.repayAmount);
+        IERC20(assets[0]).approve(details.flashLender, repayAmount);
         uint256 balance = IERC20(assets[0]).balanceOf(address(this));
-        if (balance != details.repayAmount) {
-            revert InexactTokens(balance, details.repayAmount);
+        if (balance != repayAmount) {
+            revert InexactTokens(balance, repayAmount);
         }
 
         return true;

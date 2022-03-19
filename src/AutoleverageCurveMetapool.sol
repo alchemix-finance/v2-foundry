@@ -20,7 +20,6 @@ contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
         address yieldToken;
         address recipient;
         uint256 targetDebt;
-        uint256 repayAmount;
     }
     
     error UnsupportedYieldToken(address yieldToken); // when the yieldToken has no underlyingToken in the alchemist
@@ -63,8 +62,7 @@ contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
             alchemist: alchemist,
             yieldToken: yieldToken,
             recipient: recipient,
-            targetDebt: targetDebt,
-            repayAmount: 0
+            targetDebt: targetDebt
         }));
 
         IAaveLendingPool(flashLender).flashLoan(
@@ -87,7 +85,7 @@ contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
     ) external returns (bool) {
 
         Details memory details = abi.decode(params, (Details));
-        details.repayAmount = amounts[0] + premiums[0];
+        uint256 repayAmount = amounts[0] + premiums[0];
 
         uint256 collateralBalance = IERC20(assets[0]).balanceOf(address(this));
 
@@ -111,18 +109,18 @@ contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
             details.metapoolI,
             details.metapoolJ,
             debtTokenBalance, // amountIn
-            details.repayAmount // minAmountOut
+            repayAmount // minAmountOut
         );
 
         // Deposit excess assets into the alchemist on behalf of the user
-        uint256 excessCollateral = amountOut - details.repayAmount;
+        uint256 excessCollateral = amountOut - repayAmount;
         IAlchemistV2(details.alchemist).depositUnderlying(details.yieldToken, excessCollateral, details.recipient, 0);
 
         // Approve the LendingPool contract allowance to *pull* the owed amount
-        IERC20(assets[0]).approve(details.flashLender, details.repayAmount);
+        IERC20(assets[0]).approve(details.flashLender, repayAmount);
         uint256 balance = IERC20(assets[0]).balanceOf(address(this));
-        if (balance != details.repayAmount) {
-            revert InexactTokens(balance, details.repayAmount);
+        if (balance != repayAmount) {
+            revert InexactTokens(balance, repayAmount);
         }
 
         return true;
