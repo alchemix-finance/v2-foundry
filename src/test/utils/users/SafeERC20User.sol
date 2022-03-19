@@ -12,8 +12,8 @@ contract SafeERC20User {
         token = _token;
     }
 
-    function expectDecimals(address token) external view returns (uint256) {
-        return SafeERC20.expectDecimals(token);
+    function expectDecimals(address _token) external view returns (uint256) {
+        return SafeERC20.expectDecimals(_token);
     }
 
     function safeApprove(address spender, uint256 value) external {

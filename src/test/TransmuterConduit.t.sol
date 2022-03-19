@@ -4,7 +4,7 @@ import "ds-test/test.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import "./utils/DSTestPlus.sol";
 import "../TransmuterConduit.sol";
-import "./mocks/ERC20Mock.sol";
+import "./utils/mocks/ERC20Mock.sol";
 import "./mocks/TransmuterBufferMock.sol";
 import "./utils/Hevm.sol";
 import "forge-std/console.sol";

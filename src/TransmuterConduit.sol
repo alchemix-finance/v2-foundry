@@ -26,13 +26,12 @@ contract TransmuterConduit {
 
     modifier onlySource() {
         if (msg.sender != sourceTransmuter) {
-            revert Unauthorized();
+            revert Unauthorized("TransmuterConduit");
         }
         _;
     }
 
     function distribute(address origin, uint256 amount) external onlySource() {
-        _onlySource();
         IERC20(token).safeTransferFrom(origin, sinkTransmuter, amount);
         IERC20TokenReceiver(sinkTransmuter).onERC20Received(token, amount);
     }
