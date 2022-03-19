@@ -15,8 +15,8 @@ contract AutoleverageTest is DSTestPlus {
 
     AutoleverageCurveMetapool helper = new AutoleverageCurveMetapool();
     address daiWhale = 0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0;
-    IERC20 dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
     address wethWhale = 0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0;
+    IERC20 dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
     IERC20 weth = IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
     address whitelistOwner = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
 
@@ -30,10 +30,10 @@ contract AutoleverageTest is DSTestPlus {
         int128 metapoolJ = 1; // DAI index
         address alchemist = 0x5C6374a2ac4EBC38DeA0Fc1F8716e5Ea1AdD94dd; // Alchemist alUSD
         address yieldToken = 0xdA816459F1AB5631232FE5e97a05BBBb94970c95; // yvDAI
-        uint collateralInitial = 1_000_000 ether;
-        uint collateralTotal = 1_900_000 ether;
-        uint slippageMultiplier = 10050; // out of 10000
-        uint targetDebt = (collateralTotal - collateralInitial) * slippageMultiplier / 10000;
+        uint256 collateralInitial = 1_000_000 ether;
+        uint256 collateralTotal = 1_900_000 ether;
+        uint256 slippageMultiplier = 10050; // out of 10000
+        uint256 targetDebt = (collateralTotal - collateralInitial) * slippageMultiplier / 10000;
         address recipient = daiWhale;
 
         console.log("targetDebt:");
@@ -47,7 +47,7 @@ contract AutoleverageTest is DSTestPlus {
         // Impersonate the EOA whale
         hevm.startPrank(daiWhale, daiWhale);
         dai.approve(address(helper), collateralInitial);
-        IAlchemistV2(alchemist).approveMint(address(helper), type(uint).max);
+        IAlchemistV2(alchemist).approveMint(address(helper), type(uint256).max);
         
         helper.autoleverage(
             metapool,
@@ -62,11 +62,10 @@ contract AutoleverageTest is DSTestPlus {
         );
 
         // Calculate collateral and ensure gte target
-        (uint shares, ) = IAlchemistV2(alchemist).positions(recipient, yieldToken);
+        (uint256 shares, ) = IAlchemistV2(alchemist).positions(recipient, yieldToken);
 
-        uint totalShares = IAlchemistV2(alchemist).getYieldTokenParameters(yieldToken).totalShares;
-        uint expectedValue = IAlchemistV2(alchemist).getYieldTokenParameters(yieldToken).expectedValue;
-        uint collateralValue = expectedValue * shares / totalShares;
+        IAlchemistV2.YieldTokenParams memory yieldTokenParams = IAlchemistV2(alchemist).getYieldTokenParameters(yieldToken);
+        uint256 collateralValue = yieldTokenParams.expectedValue * shares / yieldTokenParams.totalShares;
         console.log("collateralValue:");
         console.log(collateralValue / 1 ether);
         require(collateralValue >= collateralTotal, "Collateral doesn't meet or exceed target");
@@ -74,7 +73,7 @@ contract AutoleverageTest is DSTestPlus {
         // Calculate debt and ensure it matches the target
         (int256 iDebt, ) = IAlchemistV2(alchemist).accounts(recipient);
         require(iDebt > 0, "Debt should be positive");
-        uint debt = uint256(iDebt);
+        uint256 debt = uint256(iDebt);
         require(debt == targetDebt, "Debt doesn't match target");
         console.log("debtValue:");
         console.log(debt / 1 ether);

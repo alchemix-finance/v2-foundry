@@ -20,12 +20,12 @@ contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
         address alchemist;
         address yieldToken;
         address recipient;
-        uint targetDebt;
-        uint repayAmount;
+        uint256 targetDebt;
+        uint256 repayAmount;
     }
     
     error MintFailure(); // when the collateral is insufficient to mint targetDebt
-    error InexactTokens(uint currentBalance, uint repayAmount); // when the helper contract ends up with too few or too many tokens
+    error InexactTokens(uint256 currentBalance, uint256 repayAmount); // when the helper contract ends up with too few or too many tokens
 
     // @notice Transfer tokens from msg.sender here, then call flashloan which calls callback
     function autoleverage(
@@ -34,9 +34,9 @@ contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
         int128 metapoolJ,
         address alchemist,
         address yieldToken,
-        uint collateralInitial,
-        uint collateralTotal,
-        uint targetDebt,
+        uint256 collateralInitial,
+        uint256 collateralTotal,
+        uint256 targetDebt,
         address recipient
     ) external {
         // Get underlying token from alchemist
@@ -91,10 +91,10 @@ contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
         }
 
         {
-            uint collateralBalance = IERC20(assets[0]).balanceOf(address(this));
+            uint256 collateralBalance = IERC20(assets[0]).balanceOf(address(this));
 
             // Deposit into recipient's account
-            IERC20(assets[0]).approve(details.alchemist, type(uint).max);
+            IERC20(assets[0]).approve(details.alchemist, type(uint256).max);
             IAlchemistV2(details.alchemist).depositUnderlying(details.yieldToken, collateralBalance, details.recipient, 0);
 
             // Mint from recipient's account
@@ -107,12 +107,12 @@ contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
         }
 
         {
-            address alAsset = IAlchemistV2(details.alchemist).debtToken();
-            uint alBalance = IERC20(alAsset).balanceOf(address(this));
+            address debtToken = IAlchemistV2(details.alchemist).debtToken();
+            uint256 alBalance = IERC20(debtToken).balanceOf(address(this));
 
             // Curve swap
-            IERC20(alAsset).approve(details.metapool, type(uint).max);
-            uint amountOut = ICurveMetapool(details.metapool).exchange_underlying(
+            IERC20(debtToken).approve(details.metapool, type(uint).max);
+            uint256 amountOut = ICurveMetapool(details.metapool).exchange_underlying(
                 details.metapoolI,
                 details.metapoolJ,
                 alBalance, // amountIn
@@ -120,14 +120,14 @@ contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
             );
 
             // Deposit excess assets into the alchemist on behalf of the user
-            uint excessCollateral = amountOut - details.repayAmount;
+            uint256 excessCollateral = amountOut - details.repayAmount;
             IAlchemistV2(details.alchemist).depositUnderlying(details.yieldToken, excessCollateral, details.recipient, 0);
         }
 
         {
             // Approve the LendingPool contract allowance to *pull* the owed amount
             IERC20(assets[0]).approve(flashLender, details.repayAmount);
-            uint balance = IERC20(assets[0]).balanceOf(address(this));
+            uint256 balance = IERC20(assets[0]).balanceOf(address(this));
             if (balance != details.repayAmount) {
                 revert InexactTokens(balance, details.repayAmount);
             }
