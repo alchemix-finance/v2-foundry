@@ -78,9 +78,9 @@ contract AutoleverageTest is DSTestPlus {
 
     function testFlashLoanFactoryethpoolFromWeth() public {
         address flashLender = 0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9; // Aave v2 LendingPool
-        address metapool = 0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e; // alETH-ETH factoryethpool
-        int128 metapoolI = 1; // alETH index
-        int128 metapoolJ = 0; // ETH index
+        address factorypool = 0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e; // alETH-ETH factoryethpool
+        int128 factorypoolI = 1; // alETH index
+        int128 factorypoolJ = 0; // ETH index
         address alchemist = 0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c; // Alchemist alETH
         address yieldToken = 0xa258C4606Ca8206D8aA700cE2143D7db854D168c; // yvWETH
         uint256 collateralInitial = 100 ether;
@@ -101,9 +101,9 @@ contract AutoleverageTest is DSTestPlus {
         
         factoryethpoolHelper.autoleverage(
             flashLender,
-            metapool,
-            metapoolI,
-            metapoolJ,
+            factorypool,
+            factorypoolI,
+            factorypoolJ,
             alchemist,
             yieldToken,
             collateralInitial,
@@ -128,9 +128,9 @@ contract AutoleverageTest is DSTestPlus {
 
     function testFlashLoanFactoryethpoolFromEth() public {
         address flashLender = 0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9; // Aave v2 LendingPool
-        address metapool = 0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e; // alETH-ETH factoryethpool
-        int128 metapoolI = 1; // alETH index
-        int128 metapoolJ = 0; // ETH index
+        address factorypool = 0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e; // alETH-ETH factoryethpool
+        int128 factorypoolI = 1; // alETH index
+        int128 factorypoolJ = 0; // ETH index
         address alchemist = 0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c; // Alchemist alETH
         address yieldToken = 0xa258C4606Ca8206D8aA700cE2143D7db854D168c; // yvWETH
         uint256 collateralInitial = 100 ether;
@@ -152,9 +152,9 @@ contract AutoleverageTest is DSTestPlus {
         
         factoryethpoolHelper.autoleverage{value: collateralInitial}(
             flashLender,
-            metapool,
-            metapoolI,
-            metapoolJ,
+            factorypool,
+            factorypoolI,
+            factorypoolJ,
             alchemist,
             yieldToken,
             collateralInitial,
