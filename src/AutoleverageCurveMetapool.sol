@@ -108,14 +108,14 @@ contract AutoleverageCurveMetapool is IAaveFlashLoanReceiver {
 
         {
             address debtToken = IAlchemistV2(details.alchemist).debtToken();
-            uint256 alBalance = IERC20(debtToken).balanceOf(address(this));
+            uint256 debtTokenBalance = IERC20(debtToken).balanceOf(address(this));
 
             // Curve swap
             IERC20(debtToken).approve(details.metapool, type(uint).max);
             uint256 amountOut = ICurveMetapool(details.metapool).exchange_underlying(
                 details.metapoolI,
                 details.metapoolJ,
-                alBalance, // amountIn
+                debtTokenBalance, // amountIn
                 details.repayAmount // TODO: populate this with offchain calculations using slippage params
             );
 
