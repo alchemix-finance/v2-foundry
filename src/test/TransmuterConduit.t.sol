@@ -20,30 +20,30 @@ contract TransmuterConduitTest is DSTestPlus {
         token = new ERC20Mock("TestToken", "TEST", 18);
         transmuterBuffer = new TransmuterBufferMock(address(token));
         transmuterConduit = new TransmuterConduit(address(token), transmuterSource, address(transmuterBuffer));
-        token.mint(transmuterSource, 100*10**18);
+        token.mint(transmuterSource, 100*10e18);
     }
 
     function testDistribute() public {
-        uint256 amt = 10*10**18;
+        uint256 amount = 10*10e18;
         hevm.startPrank(transmuterSource);
-        token.approve(address(transmuterConduit), amt);
-        transmuterConduit.distribute(transmuterSource, amt);
+        token.approve(address(transmuterConduit), amount);
+        transmuterConduit.distribute(transmuterSource, amount);
         uint256 endingBal = token.balanceOf(address(transmuterBuffer));
         console.log(endingBal);
-        assertEq(endingBal, amt);
+        assertEq(endingBal, amount);
     }
 
     function testFailDistributeNoApproval() public {
-        uint256 amt = 10*10**18;
+        uint256 amount = 10*10e18;
         hevm.startPrank(transmuterSource);
-        transmuterConduit.distribute(transmuterSource, amt);
+        transmuterConduit.distribute(transmuterSource, amount);
     }
 
     function testFailDistrubteUnauthorized() public {
         address badSource = 0x0000000000000000000000000000000000000Bad;
-        uint256 amt = 10*10**18;
+        uint256 amount = 10*10e18;
         hevm.startPrank(badSource);
-        token.approve(address(transmuterConduit), amt);
-        transmuterConduit.distribute(transmuterSource, amt);
+        token.approve(address(transmuterConduit), amount);
+        transmuterConduit.distribute(transmuterSource, amount);
     }
 }

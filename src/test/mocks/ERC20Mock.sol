@@ -7,18 +7,14 @@ import {ERC20} from "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 ///
 /// @dev A mock of an ERC20 token which lets anyone burn and mint tokens.
 contract ERC20Mock is ERC20 {
-  uint8 public dec;
+  uint8 public override decimals;
 
   constructor(
     string memory _name,
     string memory _symbol,
     uint8 mockDecimals
   ) ERC20(_name, _symbol) {
-    dec = mockDecimals;
-  }
-
-  function decimals() public view override returns (uint8) {
-    return dec;
+    decimals = mockDecimals;
   }
 
   function mint(address _recipient, uint256 _amount) external {

@@ -4,12 +4,10 @@ import "./interfaces/ITransmuterV1.sol";
 import "./interfaces/IERC20TokenReceiver.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import "./base/Errors.sol";
 
 contract TransmuterConduit {
     using SafeERC20 for IERC20;
-
-    /// @notice Thrown when an unauthorized address attempts to access a gated function.
-    error Unauthorized();
 
     /// @notice The address of the underlying token that is being transmuted.
     address public token;
@@ -26,13 +24,14 @@ contract TransmuterConduit {
         sinkTransmuter = _sink;
     }
 
-    function _onlySource() internal {
+    modifier onlySource() {
         if (msg.sender != sourceTransmuter) {
             revert Unauthorized();
         }
+        _;
     }
 
-    function distribute(address origin, uint256 amount) external {
+    function distribute(address origin, uint256 amount) external onlySource() {
         _onlySource();
         IERC20(token).safeTransferFrom(origin, sinkTransmuter, amount);
         IERC20TokenReceiver(sinkTransmuter).onERC20Received(token, amount);
