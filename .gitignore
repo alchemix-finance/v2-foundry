@@ -1,3 +1,5 @@
 Makefile
-cache/
-out/
+
+.idea
+cache
+out
