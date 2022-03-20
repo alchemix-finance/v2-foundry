@@ -18,7 +18,11 @@ contract ERC20User {
         return token.transfer(receiver, amount);
     }
 
-    function transferFrom(address owner, address receiver, uint256 amount) external returns (bool) {
+    function transferFrom(
+        address owner,
+        address receiver,
+        uint256 amount
+    ) external returns (bool) {
         return token.transferFrom(owner, receiver, amount);
     }
 }

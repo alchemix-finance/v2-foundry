@@ -35,13 +35,17 @@ library SafeERC20 {
     /// @param token   The address of the token.
     /// @param spender The address to allow to transfer tokens.
     /// @param value   The amount of tokens to allow to be transferred.
-    function safeApprove(address token, address spender, uint256 value) internal {
+    function safeApprove(
+        address token,
+        address spender,
+        uint256 value
+    ) internal {
         bool status;
         assembly {
             let pointer := mload(0x40)
 
             mstore(pointer, 0x095ea7b300000000000000000000000000000000000000000000000000000000)
-            mstore(add(pointer,  4), and(spender, 0xffffffffffffffffffffffffffffffffffffffff))
+            mstore(add(pointer, 4), and(spender, 0xffffffffffffffffffffffffffffffffffffffff))
             mstore(add(pointer, 36), value)
 
             status := call(gas(), token, 0, pointer, 68, 0, 0)
@@ -57,13 +61,17 @@ library SafeERC20 {
     /// @param token    The address of the token.
     /// @param receiver The address to transfer tokens to.
     /// @param amount   The amount of tokens to transfer.
-    function safeTransfer(address token, address receiver, uint256 amount) internal {
+    function safeTransfer(
+        address token,
+        address receiver,
+        uint256 amount
+    ) internal {
         bool status;
         assembly {
             let pointer := mload(0x40)
 
             mstore(pointer, 0xa9059cbb00000000000000000000000000000000000000000000000000000000)
-            mstore(add(pointer,  4), and(receiver, 0xffffffffffffffffffffffffffffffffffffffff))
+            mstore(add(pointer, 4), and(receiver, 0xffffffffffffffffffffffffffffffffffffffff))
             mstore(add(pointer, 36), amount)
 
             status := call(gas(), token, 0, pointer, 68, 0, 0)
@@ -91,7 +99,7 @@ library SafeERC20 {
             let pointer := mload(0x40)
 
             mstore(pointer, 0x23b872dd00000000000000000000000000000000000000000000000000000000)
-            mstore(add(pointer,  4), and(owner,    0xffffffffffffffffffffffffffffffffffffffff))
+            mstore(add(pointer, 4), and(owner, 0xffffffffffffffffffffffffffffffffffffffff))
             mstore(add(pointer, 36), and(receiver, 0xffffffffffffffffffffffffffffffffffffffff))
             mstore(add(pointer, 68), amount)
 
@@ -164,7 +172,7 @@ library SafeERC20 {
             case 32 {
                 returndatacopy(0, 0, returndatasize())
 
-                value   := mload(0)
+                value := mload(0)
                 success := 1
             }
             default {

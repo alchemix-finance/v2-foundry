@@ -164,12 +164,7 @@ interface IAlchemistV2State {
     ///
     /// @return debt            The unrealized amount of debt that the account had incurred.
     /// @return depositedTokens The yield tokens that the owner has deposited.
-    function accounts(address owner)
-        external view
-        returns (
-            int256 debt,
-            address[] memory depositedTokens
-        );
+    function accounts(address owner) external view returns (int256 debt, address[] memory depositedTokens);
 
     /// @notice Gets information about a yield token position for the account owned by `owner`.
     ///
@@ -179,11 +174,9 @@ interface IAlchemistV2State {
     /// @return shares            The amount of shares of that `owner` owns of the yield token.
     /// @return lastAccruedWeight The last recorded accrued weight of the yield token.
     function positions(address owner, address yieldToken)
-        external view
-        returns (
-            uint256 shares,
-            uint256 lastAccruedWeight
-        );
+        external
+        view
+        returns (uint256 shares, uint256 lastAccruedWeight);
 
     /// @notice Gets the amount of debt tokens `spender` is allowed to mint on behalf of `owner`.
     ///
@@ -191,10 +184,7 @@ interface IAlchemistV2State {
     /// @param spender The address which is allowed to mint on behalf of `owner`.
     ///
     /// @return allowance The amount of debt tokens that `spender` can mint on behalf of `owner`.
-    function mintAllowance(
-        address owner,
-        address spender
-    ) external view returns (uint256 allowance);
+    function mintAllowance(address owner, address spender) external view returns (uint256 allowance);
 
     /// @notice Gets the amount of shares of `yieldToken` that `spender` is allowed to withdraw on
     ///         behalf of `owner`.
@@ -216,7 +206,8 @@ interface IAlchemistV2State {
     ///
     /// @return params The underlying token parameters.
     function getUnderlyingTokenParameters(address underlyingToken)
-        external view
+        external
+        view
         returns (UnderlyingTokenParams memory params);
 
     /// @notice Get the parameters and state of a yield-token.
@@ -224,9 +215,7 @@ interface IAlchemistV2State {
     /// @param yieldToken The address of the yield token.
     ///
     /// @return params The yield token parameters.
-    function getYieldTokenParameters(address yieldToken)
-        external view
-        returns (YieldTokenParams memory params);
+    function getYieldTokenParameters(address yieldToken) external view returns (YieldTokenParams memory params);
 
     /// @notice Gets current limit, maximum, and rate of the minting limiter.
     ///
@@ -235,7 +224,8 @@ interface IAlchemistV2State {
     /// @return maximum      The highest possible maximum amount of debt tokens that can be minted
     ///                      at a time.
     function getMintLimitInfo()
-        external view
+        external
+        view
         returns (
             uint256 currentLimit,
             uint256 rate,
@@ -251,7 +241,8 @@ interface IAlchemistV2State {
     ///                      in tokens per block.
     /// @return maximum      The maximum possible amount of tokens that can be repaid at a time.
     function getRepayLimitInfo(address underlyingToken)
-        external view
+        external
+        view
         returns (
             uint256 currentLimit,
             uint256 rate,
@@ -269,7 +260,8 @@ interface IAlchemistV2State {
     /// @return maximum      The highest possible maximum amount of debt tokens that can be
     ///                      liquidated at a time.
     function getLiquidationLimitInfo(address underlyingToken)
-        external view
+        external
+        view
         returns (
             uint256 currentLimit,
             uint256 rate,

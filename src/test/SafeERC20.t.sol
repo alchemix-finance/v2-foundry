@@ -49,7 +49,7 @@ contract SafeERC20Test is DSTestPlus {
 
     function testSafeApproveUnsuccessful() external {
         AlwaysUnsuccessfulERC20 token = new AlwaysUnsuccessfulERC20();
-        SafeERC20User user  = new SafeERC20User(token);
+        SafeERC20User user = new SafeERC20User(token);
 
         expectIllegalStateError("Expected approval to succeed");
         user.safeApprove(address(0xbeef), 1e18);

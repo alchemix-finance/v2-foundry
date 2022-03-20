@@ -88,17 +88,13 @@ interface IAlchemistV2AdminActions {
     ///
     /// @param underlyingToken The address of the underlying token to add.
     /// @param config          The initial underlying token configuration.
-    function addUnderlyingToken(
-        address underlyingToken,
-        UnderlyingTokenConfig calldata config
-    ) external;
+    function addUnderlyingToken(address underlyingToken, UnderlyingTokenConfig calldata config) external;
 
     /// @notice Adds a yield token to the system.
     ///
     /// @param yieldToken The address of the yield token to add.
     /// @param config     The initial yield token configuration.
-    function addYieldToken(address yieldToken, YieldTokenConfig calldata config)
-        external;
+    function addYieldToken(address yieldToken, YieldTokenConfig calldata config) external;
 
     /// @notice Sets an underlying token as either enabled or disabled.
     ///
