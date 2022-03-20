@@ -11,11 +11,13 @@ import {DSTestPlus} from "./utils/DSTestPlus.sol";
 import {Hevm} from "./utils/Hevm.sol";
 import {AutoleverageCurveMetapool} from "../AutoleverageCurveMetapool.sol";
 import {AutoleverageCurveFactoryethpool} from "../AutoleverageCurveFactoryethpool.sol";
+import {AutoleverageBase} from "../AutoleverageBase.sol";
 
 contract AutoleverageTest is DSTestPlus {
 
     AutoleverageCurveMetapool metapoolHelper = new AutoleverageCurveMetapool();
     AutoleverageCurveFactoryethpool factoryethpoolHelper = new AutoleverageCurveFactoryethpool();
+    // AutoleverageBase baseHelper = new AutoleverageBase();
     address daiWhale = 0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0;
     address wethWhale = 0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0;
     IERC20 dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
