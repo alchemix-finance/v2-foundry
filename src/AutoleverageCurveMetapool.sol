@@ -3,9 +3,6 @@ pragma solidity ^0.8.11;
 
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
-import {IAlchemistV2} from "./interfaces/IAlchemistV2.sol";
-import {IAaveFlashLoanReceiver} from "./interfaces/IAaveFlashLoanReceiver.sol";
-import {IAaveLendingPool} from "./interfaces/IAaveLendingPool.sol";
 import {ICurveMetapool} from "./interfaces/ICurveMetapool.sol";
 
 import {AutoleverageBase} from "./AutoleverageBase.sol";

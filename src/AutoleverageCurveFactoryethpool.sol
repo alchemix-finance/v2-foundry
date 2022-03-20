@@ -3,9 +3,6 @@ pragma solidity ^0.8.11;
 
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
-import {IAlchemistV2} from "./interfaces/IAlchemistV2.sol";
-import {IAaveFlashLoanReceiver} from "./interfaces/IAaveFlashLoanReceiver.sol";
-import {IAaveLendingPool} from "./interfaces/IAaveLendingPool.sol";
 import {ICurveFactoryethpool} from "./interfaces/ICurveFactoryethpool.sol";
 import {IWETH9} from "./interfaces/external/IWETH9.sol";
 
@@ -16,7 +13,9 @@ contract AutoleverageCurveFactoryethpool is AutoleverageBase {
 
     address public constant wethAddress = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     
-    error IncorrectEthAmount(); // when the eth msg.value doesn't match the initialCollateral
+    /// @notice When the eth msg.value doesn't match the initialCollateral
+    error IncorrectEthAmount();
+    
     /// @notice Used to receive ETH from factory pool swaps
     receive() external payable {}
 
