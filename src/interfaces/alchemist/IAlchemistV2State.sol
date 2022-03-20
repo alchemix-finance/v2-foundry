@@ -113,7 +113,7 @@ interface IAlchemistV2State {
     ///
     /// @return whitelist The address of the whitelist contract.
     function whitelist() external view returns (address whitelist);
-    
+
     /// @notice Gets the conversion rate of underlying tokens per share.
     ///
     /// @param yieldToken The address of the yield token to get the conversion rate for.

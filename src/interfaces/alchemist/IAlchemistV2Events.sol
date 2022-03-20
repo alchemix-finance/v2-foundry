@@ -77,7 +77,7 @@ interface IAlchemistV2Events {
     ///
     /// @param protocolFee The updated protocol fee.
     event ProtocolFeeUpdated(uint256 protocolFee);
-    
+
     /// @notice Emitted when the protocol fee receiver is updated.
     ///
     /// @param protocolFeeReceiver The updated address of the protocol fee receiver.
