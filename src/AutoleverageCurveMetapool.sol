@@ -10,7 +10,10 @@ import {AutoleverageBase} from "./AutoleverageBase.sol";
 /// @title A zapper for leveraged deposits into the Alchemist
 contract AutoleverageCurveMetapool is AutoleverageBase {
 
+    error IncorrectEthAmount();
+
     function _transferTokensToSelf(address msgSender, uint msgValue, address underlyingToken, uint collateralInitial) internal override {
+        if (msgValue > 0) revert IncorrectEthAmount();
         IERC20(underlyingToken).transferFrom(msg.sender, address(this), collateralInitial);
     }
 
