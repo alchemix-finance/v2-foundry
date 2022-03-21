@@ -22,6 +22,7 @@ struct InitializationParams {
     address curvePool;
     uint256 stEthPoolIndex;
     uint256 ethPoolIndex;
+    address referral;
 }
 
 contract WstETHAdapterV1 is ITokenAdapter, Mutex {
@@ -34,6 +35,7 @@ contract WstETHAdapterV1 is ITokenAdapter, Mutex {
     address public immutable curvePool;
     uint256 public immutable ethPoolIndex;
     uint256 public immutable stEthPoolIndex;
+    address public immutable referral;
 
     constructor(InitializationParams memory params) {
         alchemist       = params.alchemist;
@@ -43,6 +45,7 @@ contract WstETHAdapterV1 is ITokenAdapter, Mutex {
         curvePool       = params.curvePool;
         ethPoolIndex    = params.ethPoolIndex;
         stEthPoolIndex  = params.stEthPoolIndex;
+        referral        = params.referral;
 
         // Verify and make sure that the provided ETH matches the curve pool ETH.
         if (
@@ -88,23 +91,24 @@ contract WstETHAdapterV1 is ITokenAdapter, Mutex {
         // Transfer the tokens from the message sender.
         SafeERC20.safeTransferFrom(underlyingToken, msg.sender, address(this), amount);
 
-        // Unwrap the WETH into ETH. We do not check if the contract properly unwrapped the
-        // ethereum because it is an immutable contract and we expect that its output is reliable.
+        // Unwrap the WETH into ETH.
         IWETH9(underlyingToken).withdraw(amount);
 
-        // Wrap the ETH into wstETH. We can do this by using the receive function.
-        uint256 startingWstEthBalance = IERC20(token).balanceOf(address(this));
+        // Wrap the ETH into stETH.
+        uint256 startingStEthBalance = IERC20(token).balanceOf(address(this));
 
-        (bool ok,) = token.call{value: amount}(new bytes(0));
-        if (!ok) revert IllegalState("Failed to wrap ETH into wstETH");
+        IStETH(parentToken).submit{value: amount}(referral);
 
-        uint256 endingWstEthBalance = IERC20(token).balanceOf(address(this));
+        uint256 mintedStEth = IERC20(parentToken).balanceOf(address(this)) - startingStEthBalance;
+
+        // Wrap the stETH into wstETH.
+        SafeERC20.safeApprove(parentToken, address(token), mintedStEth);
+        uint256 mintedWstEth = IWstETH(token).wrap(mintedStEth);
 
         // Transfer the minted wstETH to the recipient.
-        uint256 mintedWstETh = endingWstEthBalance - startingWstEthBalance;
-        SafeERC20.safeTransfer(token, recipient, mintedWstETh);
+        SafeERC20.safeTransfer(token, recipient, mintedWstEth);
 
-        return mintedWstETh;
+        return mintedWstEth;
     }
 
     // @inheritdoc ITokenAdapter
@@ -116,20 +120,20 @@ contract WstETHAdapterV1 is ITokenAdapter, Mutex {
         SafeERC20.safeTransferFrom(token, msg.sender, address(this), amount);
 
         // Unwrap the wstETH into stETH.
-        uint256 startingWstEthBalance = IStETH(parentToken).balanceOf(address(this));
+        uint256 startingStEthBalance = IStETH(parentToken).balanceOf(address(this));
         IWstETH(token).unwrap(amount);
-        uint256 endingWstEthBalance = IStETH(parentToken).balanceOf(address(this));
+        uint256 endingStEthBalance = IStETH(parentToken).balanceOf(address(this));
 
         // Approve the curve pool to transfer the tokens.
-        uint256 unwrappedWstEth = endingWstEthBalance - startingWstEthBalance;
-        SafeERC20.safeApprove(parentToken, curvePool, unwrappedWstEth);
+        uint256 unwrappedStEth = endingStEthBalance - startingStEthBalance;
+        SafeERC20.safeApprove(parentToken, curvePool, unwrappedStEth);
 
         // Exchange the stETH for ETH. We do not check the curve pool because it is an immutable
         // contract and we expect that its output is reliable.
         uint256 received = IStableSwap2Pool(curvePool).exchange(
             int128(uint128(stEthPoolIndex)), // Why are we here, just to suffer?
             int128(uint128(ethPoolIndex)),   //                       (╥﹏╥)
-            unwrappedWstEth,
+            unwrappedStEth,
             0                                // <- Slippage is handled upstream
         );
 

@@ -32,7 +32,8 @@ contract WstETHAdapterV1Test is DSTestPlus, stdCheats {
             underlyingToken: address(weth),
             curvePool:       address(curvePool),
             ethPoolIndex:    0,
-            stEthPoolIndex:  1
+            stEthPoolIndex:  1,
+            referral:        address(0)
         }));
     }
 
@@ -49,7 +50,6 @@ contract WstETHAdapterV1Test is DSTestPlus, stdCheats {
 
         assertEq(weth.allowance(address(this), address(adapter)), 0);
         assertEq(wstETH.balanceOf(address(0xbeef)), wrapped);
-        assertEq(wstETH.balanceOf(address(0xbeef)), wstETH.getWstETHByStETH(1e18));
     }
 
     function testUnwrap() external {
