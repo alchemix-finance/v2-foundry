@@ -4,7 +4,6 @@ out = 'out'
 libs = ['lib']
 remappings = ['ds-test/=lib/ds-test/src/', 'openzeppelin/=lib/openzeppelin-contracts/contracts']
 solc_version = "0.8.13"
-# solc = "/opt/homebrew/bin/solc" # Using 0.8.13 which isn't in foundry yet
 optimizer_runs = 200
 ignored_error_codes = [1878]
 viaIr = true
