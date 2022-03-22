@@ -28,11 +28,24 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
     /// @notice When the helper contract ends up with too few or too many tokens
     error InexactTokens(uint256 currentBalance, uint256 repayAmount);
 
-    /// @dev Either convert received eth to weth, or transfer ERC20 from the msg.sender to this contract
+    /// @notice Either convert received eth to weth, or transfer ERC20 from the msg.sender to this contract
+    /// @param msgSender msg.sender in outer function
+    /// @param msgValue msg.value in outer function
+    /// @param underlyingToken The ERC20 desired to transfer
+    /// @param collateralInitial The amount of tokens taken from the user
     function _transferTokensToSelf(address msgSender, uint msgValue, address underlyingToken, uint collateralInitial) internal virtual;
-    /// @dev Convert received eth to weth, or do nothing
+
+    /// @notice Convert received eth to weth, or do nothing
+    /// @param amountOut The amount received from the curve swap
     function _maybeConvertCurveOutput(uint amountOut) internal virtual;
-    /// @dev Swap on curve using the supplied params
+
+    /// @notice Swap on curve using the supplied params
+    /// @param poolAddress Curve pool address
+    /// @param debtToken The alAsset debt token address
+    /// @param i Curve swap param
+    /// @param j Curve swap param
+    /// @param minAmountOut Minimum amount received from swap
+    /// @return amountOut The actual amount received from swap
     function _curveSwap(address poolAddress, address debtToken, int128 i, int128 j, uint256 minAmountOut) internal virtual returns (uint256 amountOut);
 
     /// @notice Approve a contract to spend tokens
@@ -108,6 +121,7 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
     /// @param premiums An array of length 1, with the flashloan fee. We will pay back amounts[0] + premiums[0] to the flashloan provider
     /// @param initiator Points to who initiated the flashloan, not used
     /// @param params ABI-encoded `Details` struct containing many details about desired functionality
+    /// @return success Always true unless reverts, required by Aave flashloan
     function executeOperation(
         address[] calldata assets,
         uint[] calldata amounts,

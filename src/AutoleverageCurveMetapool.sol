@@ -13,13 +13,16 @@ contract AutoleverageCurveMetapool is AutoleverageBase {
     /// @notice When the eth msg.value is nonzero
     error IncorrectEthAmount();
 
+    /// @inheritdoc AutoleverageBase
     function _transferTokensToSelf(address msgSender, uint msgValue, address underlyingToken, uint collateralInitial) internal override {
         if (msgValue > 0) revert IncorrectEthAmount();
         IERC20(underlyingToken).transferFrom(msg.sender, address(this), collateralInitial);
     }
 
+    /// @inheritdoc AutoleverageBase
     function _maybeConvertCurveOutput(uint amountOut) internal override {}
 
+    /// @inheritdoc AutoleverageBase
     function _curveSwap(address poolAddress, address debtToken, int128 i, int128 j, uint256 minAmountOut) internal override returns (uint256 amountOut) {
         // Curve swap
         uint256 debtTokenBalance = IERC20(debtToken).balanceOf(address(this));

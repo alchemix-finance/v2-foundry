@@ -19,6 +19,7 @@ contract AutoleverageCurveFactoryethpool is AutoleverageBase {
     /// @notice Used to receive ETH from factory pool swaps
     receive() external payable {}
 
+    /// @inheritdoc AutoleverageBase
     function _transferTokensToSelf(address msgSender, uint msgValue, address underlyingToken, uint collateralInitial) internal override {
         // Convert eth to weth if received eth, otherwise transfer weth
         if (msgValue > 0) {
@@ -29,11 +30,13 @@ contract AutoleverageCurveFactoryethpool is AutoleverageBase {
         }
     }
 
+    /// @inheritdoc AutoleverageBase
     function _maybeConvertCurveOutput(uint amountOut) internal override {
         // Convert ETH output from Curve into WETH
         IWETH9(wethAddress).deposit{value: amountOut}();
     }
 
+    /// @inheritdoc AutoleverageBase
     function _curveSwap(address poolAddress, address debtToken, int128 i, int128 j, uint256 minAmountOut) internal override returns (uint256 amountOut) {
         // Curve swap
         uint256 debtTokenBalance = IERC20(debtToken).balanceOf(address(this));
