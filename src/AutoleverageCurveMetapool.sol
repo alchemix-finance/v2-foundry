@@ -26,7 +26,7 @@ contract AutoleverageCurveMetapool is AutoleverageBase {
     function _curveSwap(address poolAddress, address debtToken, int128 i, int128 j, uint256 minAmountOut) internal override returns (uint256 amountOut) {
         // Curve swap
         uint256 debtTokenBalance = IERC20(debtToken).balanceOf(address(this));
-        IERC20(debtToken).approve(poolAddress, type(uint).max);
+        approve(debtToken, poolAddress);
         return ICurveMetapool(poolAddress).exchange_underlying(
             i,
             j,
