@@ -33,11 +33,11 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
     /// @param msgValue msg.value in outer function
     /// @param underlyingToken The ERC20 desired to transfer
     /// @param collateralInitial The amount of tokens taken from the user
-    function _transferTokensToSelf(address msgSender, uint msgValue, address underlyingToken, uint collateralInitial) internal virtual;
+    function _transferTokensToSelf(address msgSender, uint256 msgValue, address underlyingToken, uint256 collateralInitial) internal virtual;
 
     /// @notice Convert received eth to weth, or do nothing
     /// @param amountOut The amount received from the curve swap
-    function _maybeConvertCurveOutput(uint amountOut) internal virtual;
+    function _maybeConvertCurveOutput(uint256 amountOut) internal virtual;
 
     /// @notice Swap on curve using the supplied params
     /// @param poolAddress Curve pool address
@@ -146,7 +146,7 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
         }
 
         address debtToken = IAlchemistV2(details.alchemist).debtToken();
-        uint amountOut = _curveSwap(
+        uint256 amountOut = _curveSwap(
             details.pool, 
             debtToken, 
             details.poolI, 

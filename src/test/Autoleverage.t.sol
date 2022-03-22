@@ -68,13 +68,13 @@ contract AutoleverageTest is DSTestPlus {
 
         IAlchemistV2.YieldTokenParams memory yieldTokenParams = IAlchemistV2(alchemist).getYieldTokenParameters(yieldToken);
         uint256 collateralValue = yieldTokenParams.expectedValue * shares / yieldTokenParams.totalShares;
-        require(collateralValue >= collateralTotal, "Collateral doesn't meet or exceed target");
+        assertGe(collateralValue, collateralTotal, "Collateral doesn't meet or exceed target");
 
         // Calculate debt and ensure it matches the target
         (int256 iDebt, ) = IAlchemistV2(alchemist).accounts(recipient);
-        require(iDebt > 0, "Debt should be positive");
+        require(iDebt > 0, "Debt should be positive"); // Can't do ds-test assertGt here because int128 instead of uint256
         uint256 debt = uint256(iDebt);
-        require(debt == targetDebt, "Debt doesn't match target");
+        assertEq(debt, targetDebt, "Debt doesn't match target");
     }
 
     function testFlashLoanFactoryethpoolFromWeth() public {
@@ -118,13 +118,13 @@ contract AutoleverageTest is DSTestPlus {
 
         IAlchemistV2.YieldTokenParams memory yieldTokenParams = IAlchemistV2(alchemist).getYieldTokenParameters(yieldToken);
         uint256 collateralValue = yieldTokenParams.expectedValue * shares / yieldTokenParams.totalShares;
-        require(collateralValue >= collateralTotal, "Collateral doesn't meet or exceed target");
+        assertGe(collateralValue, collateralTotal, "Collateral doesn't meet or exceed target");
 
         // Calculate debt and ensure it matches the target
         (int256 iDebt, ) = IAlchemistV2(alchemist).accounts(recipient);
         require(iDebt > 0, "Debt should be positive");
         uint256 debt = uint256(iDebt);
-        require(debt == targetDebt, "Debt doesn't match target");
+        assertEq(debt, targetDebt, "Debt doesn't match target");
     }
 
     function testFlashLoanFactoryethpoolFromEth() public {
@@ -169,13 +169,13 @@ contract AutoleverageTest is DSTestPlus {
 
         IAlchemistV2.YieldTokenParams memory yieldTokenParams = IAlchemistV2(alchemist).getYieldTokenParameters(yieldToken);
         uint256 collateralValue = yieldTokenParams.expectedValue * shares / yieldTokenParams.totalShares;
-        require(collateralValue >= collateralTotal, "Collateral doesn't meet or exceed target");
+        assertGe(collateralValue, collateralTotal, "Collateral doesn't meet or exceed target");
 
         // Calculate debt and ensure it matches the target
         (int256 iDebt, ) = IAlchemistV2(alchemist).accounts(recipient);
         require(iDebt > 0, "Debt should be positive");
         uint256 debt = uint256(iDebt);
-        require(debt == targetDebt, "Debt doesn't match target");
+        assertEq(debt, targetDebt, "Debt doesn't match target");
     }
 
 }

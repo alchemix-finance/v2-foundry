@@ -20,7 +20,7 @@ contract AutoleverageCurveFactoryethpool is AutoleverageBase {
     receive() external payable {}
 
     /// @inheritdoc AutoleverageBase
-    function _transferTokensToSelf(address msgSender, uint msgValue, address underlyingToken, uint collateralInitial) internal override {
+    function _transferTokensToSelf(address msgSender, uint256 msgValue, address underlyingToken, uint256 collateralInitial) internal override {
         // Convert eth to weth if received eth, otherwise transfer weth
         if (msgValue > 0) {
             if (msgValue != collateralInitial) revert IncorrectEthAmount();
@@ -31,7 +31,7 @@ contract AutoleverageCurveFactoryethpool is AutoleverageBase {
     }
 
     /// @inheritdoc AutoleverageBase
-    function _maybeConvertCurveOutput(uint amountOut) internal override {
+    function _maybeConvertCurveOutput(uint256 amountOut) internal override {
         // Convert ETH output from Curve into WETH
         IWETH9(wethAddress).deposit{value: amountOut}();
     }
