@@ -21,15 +21,38 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
         uint256 targetDebt;
     }
     
-    error UnsupportedYieldToken(address yieldToken); // when the yieldToken has no underlyingToken in the alchemist
-    error MintFailure(); // when the collateral is insufficient to mint targetDebt
-    error InexactTokens(uint256 currentBalance, uint256 repayAmount); // when the helper contract ends up with too few or too many tokens
+    /// @notice When the yieldToken has no underlyingToken in the alchemist
+    error UnsupportedYieldToken(address yieldToken);
+    /// @notice When the collateral is insufficient to mint targetDebt
+    error MintFailure(); 
+    /// @notice When the helper contract ends up with too few or too many tokens
+    error InexactTokens(uint256 currentBalance, uint256 repayAmount);
 
+    /// @dev Either convert received eth to weth, or transfer ERC20 from the msg.sender to this contract
     function _transferTokensToSelf(address msgSender, uint msgValue, address underlyingToken, uint collateralInitial) internal virtual;
+    /// @dev Convert received eth to weth, or do nothing
     function _maybeConvertCurveOutput(uint amountOut) internal virtual;
+    /// @dev Swap on curve using the supplied params
     function _curveSwap(address poolAddress, address debtToken, int128 i, int128 j, uint256 minAmountOut) internal virtual returns (uint256 amountOut);
 
+    /// @notice Approve a contract to spend tokens
+    /// @dev Callable by anyone to top-up new alchemists
+    function approve(address token, address spender) public {
+        IERC20(token).approve(spender, type(uint256).max);
+    }
+
     /// @notice Transfer tokens from msg.sender here, then call flashloan which calls callback
+    /// @dev Must have targetDebt > collateralTotal - collateralInitial, otherwise flashloan payback will fail
+    /// @param flashLender The address of the Aave V2 lending pool
+    /// @param pool The address of the curve pool to swap on
+    /// @param poolI The `i` param for the curve swap
+    /// @param poolJ The `j` param for the curve swap
+    /// @param alchemist The alchemist to deposit and mint from
+    /// @param yieldToken The yieldToken to convert deposits into
+    /// @param collateralInitial The amount of tokens that will be taken from the user
+    /// @param collateralTotal The amount of tokens that will be deposited as collateral for the user
+    /// @param targetDebt The amount of debt that the user will incur
+    /// @param recipient The user to perform actions on, can be different from msg.sender since msg.sender is paying for it
     function autoleverage(
         address flashLender,
         address pool,
@@ -78,6 +101,13 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
         );
     }
 
+    /// @notice Flashloan callback receiver, will be called by IAaveLendingPool.flashloan()
+    /// @dev Never call this function directly
+    /// @param assets An array of length 1, pointing to the ERC20 received in the flashloan
+    /// @param amounts An array of length 1, with the ERC20 amount received in the flashloan
+    /// @param premiums An array of length 1, with the flashloan fee. We will pay back amounts[0] + premiums[0] to the flashloan provider
+    /// @param initiator Points to who initiated the flashloan, not used
+    /// @param params ABI-encoded `Details` struct containing many details about desired functionality
     function executeOperation(
         address[] calldata assets,
         uint[] calldata amounts,
@@ -91,7 +121,7 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
         uint256 collateralBalance = IERC20(assets[0]).balanceOf(address(this));
 
         // Deposit into recipient's account
-        IERC20(assets[0]).approve(details.alchemist, type(uint256).max);
+        approve(assets[0], details.alchemist);
         IAlchemistV2(details.alchemist).depositUnderlying(details.yieldToken, collateralBalance, details.recipient, 0);
 
         // Mint from recipient's account
@@ -114,10 +144,12 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
 
         // Deposit excess assets into the alchemist on behalf of the user
         uint256 excessCollateral = amountOut - repayAmount;
-        IAlchemistV2(details.alchemist).depositUnderlying(details.yieldToken, excessCollateral, details.recipient, 0);
+        if (excessCollateral > 0) {
+            IAlchemistV2(details.alchemist).depositUnderlying(details.yieldToken, excessCollateral, details.recipient, 0);
+        }
 
         // Approve the LendingPool contract allowance to *pull* the owed amount
-        IERC20(assets[0]).approve(details.flashLender, repayAmount);
+        approve(assets[0], details.flashLender);
         uint256 balance = IERC20(assets[0]).balanceOf(address(this));
         if (balance != repayAmount) {
             revert InexactTokens(balance, repayAmount);

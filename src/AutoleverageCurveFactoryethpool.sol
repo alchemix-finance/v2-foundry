@@ -23,9 +23,9 @@ contract AutoleverageCurveFactoryethpool is AutoleverageBase {
         // Convert eth to weth if received eth, otherwise transfer weth
         if (msgValue > 0) {
             if (msgValue != collateralInitial) revert IncorrectEthAmount();
-            IWETH9(wethAddress).deposit{value: msg.value}();
+            IWETH9(wethAddress).deposit{value: msgValue}();
         } else {
-            IERC20(underlyingToken).transferFrom(msg.sender, address(this), collateralInitial);
+            IERC20(underlyingToken).transferFrom(msgSender, address(this), collateralInitial);
         }
     }
 
