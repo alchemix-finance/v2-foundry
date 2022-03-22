@@ -80,7 +80,7 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
     ) external payable {
         // Get underlying token from alchemist
         address underlyingToken = IAlchemistV2(alchemist).getYieldTokenParameters(yieldToken).underlyingToken;
-        if (underlyingToken == address(0x0)) revert UnsupportedYieldToken(yieldToken);
+        if (underlyingToken == address(0)) revert UnsupportedYieldToken(yieldToken);
 
         _transferTokensToSelf(msg.sender, msg.value, underlyingToken, collateralInitial);
 
