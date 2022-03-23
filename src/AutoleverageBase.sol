@@ -13,8 +13,8 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
     struct Details {
         address flashLender;
         address pool;
-        int128 poolI;
-        int128 poolJ;
+        int128 poolInputIndex;
+        int128 poolOutputIndex;
         address alchemist;
         address yieldToken;
         address recipient;
@@ -61,8 +61,8 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
     /// @dev Must have targetDebt > collateralTotal - collateralInitial, otherwise flashloan payback will fail
     /// @param flashLender The address of the Aave V2 lending pool
     /// @param pool The address of the curve pool to swap on
-    /// @param poolI The `i` param for the curve swap
-    /// @param poolJ The `j` param for the curve swap
+    /// @param poolInputIndex The `i` param for the curve swap
+    /// @param poolOutputIndex The `j` param for the curve swap
     /// @param alchemist The alchemist to deposit and mint from
     /// @param yieldToken The yieldToken to convert deposits into
     /// @param collateralInitial The amount of tokens that will be taken from the user
@@ -72,8 +72,8 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
     function autoleverage(
         address flashLender,
         address pool,
-        int128 poolI,
-        int128 poolJ,
+        int128 poolInputIndex,
+        int128 poolOutputIndex,
         address alchemist,
         address yieldToken,
         uint256 collateralInitial,
@@ -98,8 +98,8 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
         bytes memory params = abi.encode(Details({
             flashLender: flashLender,
             pool: pool,
-            poolI: poolI,
-            poolJ: poolJ,
+            poolInputIndex: poolInputIndex,
+            poolOutputIndex: poolOutputIndex,
             alchemist: alchemist,
             yieldToken: yieldToken,
             recipient: recipient,
@@ -153,8 +153,8 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
         uint256 amountOut = _curveSwap(
             details.pool, 
             debtToken, 
-            details.poolI, 
-            details.poolJ, 
+            details.poolInputIndex, 
+            details.poolOutputIndex, 
             repayAmount
         );
 
