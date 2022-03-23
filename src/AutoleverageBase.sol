@@ -6,12 +6,15 @@ import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {IAlchemistV2} from "./interfaces/IAlchemistV2.sol";
 import {IAaveFlashLoanReceiver} from "./interfaces/IAaveFlashLoanReceiver.sol";
 import {IAaveLendingPool} from "./interfaces/IAaveLendingPool.sol";
+import {IWhitelist} from "./interfaces/IWhitelist.sol";
 
 /// @title A zapper for leveraged deposits into the Alchemist
 abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
 
+    IWhitelist constant whitelist = IWhitelist(0xA3dfCcbad1333DC69997Da28C961FF8B2879e653);
+    IAaveLendingPool constant flashLender = IAaveLendingPool(0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9);
+
     struct Details {
-        address flashLender;
         address pool;
         int128 poolInputIndex;
         int128 poolOutputIndex;
@@ -20,6 +23,9 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
         address recipient;
         uint256 targetDebt;
     }
+
+    /// @notice When the msg.sender is not whitelisted
+    error Unauthorized(address sender);
 
     /// @notice When we're passed invalid parameters
     error IllegalArgument(string reason);
@@ -59,7 +65,6 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
 
     /// @notice Transfer tokens from msg.sender here, then call flashloan which calls callback
     /// @dev Must have targetDebt > collateralTotal - collateralInitial, otherwise flashloan payback will fail
-    /// @param flashLender The address of the Aave V2 lending pool
     /// @param pool The address of the curve pool to swap on
     /// @param poolInputIndex The `i` param for the curve swap
     /// @param poolOutputIndex The `j` param for the curve swap
@@ -70,7 +75,6 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
     /// @param targetDebt The amount of debt that the user will incur
     /// @param recipient The user to perform actions on, can be different from msg.sender since msg.sender is paying for it
     function autoleverage(
-        address flashLender,
         address pool,
         int128 poolInputIndex,
         int128 poolOutputIndex,
@@ -81,6 +85,9 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
         uint256 targetDebt,
         address recipient
     ) external payable {
+        // Gate on EOA or whitelisted
+        if (!(tx.origin == msg.sender || whitelist.isWhitelisted(msg.sender))) revert Unauthorized(msg.sender);
+
         // Get underlying token from alchemist
         address underlyingToken = IAlchemistV2(alchemist).getYieldTokenParameters(yieldToken).underlyingToken;
         if (underlyingToken == address(0)) revert UnsupportedYieldToken(yieldToken);
@@ -96,7 +103,6 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
         modes[0] = 0;
 
         bytes memory params = abi.encode(Details({
-            flashLender: flashLender,
             pool: pool,
             poolInputIndex: poolInputIndex,
             poolOutputIndex: poolOutputIndex,
@@ -106,7 +112,7 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
             targetDebt: targetDebt
         }));
 
-        IAaveLendingPool(flashLender).flashLoan(
+        flashLender.flashLoan(
             address(this),
             assets,
             amounts,
@@ -132,6 +138,8 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
         address initiator,
         bytes calldata params
     ) external returns (bool) {
+        // Only called by flashLender
+        if (msg.sender != address(flashLender)) revert Unauthorized(msg.sender);
         if (initiator != address(this)) revert IllegalArgument("flashloan initiator must be self");
         Details memory details = abi.decode(params, (Details));
         uint256 repayAmount = amounts[0] + premiums[0];
@@ -167,7 +175,7 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
         }
 
         // Approve the LendingPool contract allowance to *pull* the owed amount
-        approve(assets[0], details.flashLender);
+        approve(assets[0], address(flashLender));
         uint256 balance = IERC20(assets[0]).balanceOf(address(this));
         if (balance != repayAmount) {
             revert InexactTokens(balance, repayAmount);

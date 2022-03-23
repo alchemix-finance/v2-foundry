@@ -15,20 +15,19 @@ import {AutoleverageBase} from "../AutoleverageBase.sol";
 
 contract AutoleverageTest is DSTestPlus {
 
-    AutoleverageCurveMetapool metapoolHelper = new AutoleverageCurveMetapool();
-    AutoleverageCurveFactoryethpool factoryethpoolHelper = new AutoleverageCurveFactoryethpool();
-    address daiWhale = 0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0;
-    address wethWhale = 0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0;
-    IERC20 dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
-    IERC20 weth = IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
-    address whitelistOwner = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
+    AutoleverageCurveMetapool immutable metapoolHelper = new AutoleverageCurveMetapool();
+    AutoleverageCurveFactoryethpool immutable factoryethpoolHelper = new AutoleverageCurveFactoryethpool();
+    address constant daiWhale = 0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0;
+    address constant wethWhale = 0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0;
+    IERC20 constant dai = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+    IERC20 constant weth = IERC20(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+    address constant whitelistOwner = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
 
 
     function setUp() public {
     }
 
     function testFlashLoanMetapool() public {
-        address flashLender = 0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9; // Aave v2 LendingPool
         address metapool = 0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c; // alUSD-3CRV metapool
         int128 metapoolI = 0; // alUSD index
         int128 metapoolJ = 1; // DAI index
@@ -51,7 +50,6 @@ contract AutoleverageTest is DSTestPlus {
         IAlchemistV2(alchemist).approveMint(address(metapoolHelper), type(uint256).max);
         
         metapoolHelper.autoleverage(
-            flashLender,
             metapool,
             metapoolI,
             metapoolJ,
@@ -78,7 +76,6 @@ contract AutoleverageTest is DSTestPlus {
     }
 
     function testFlashLoanFactoryethpoolFromWeth() public {
-        address flashLender = 0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9; // Aave v2 LendingPool
         address factorypool = 0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e; // alETH-ETH factoryethpool
         int128 factorypoolI = 1; // alETH index
         int128 factorypoolJ = 0; // ETH index
@@ -101,7 +98,6 @@ contract AutoleverageTest is DSTestPlus {
         IAlchemistV2(alchemist).approveMint(address(factoryethpoolHelper), type(uint256).max);
         
         factoryethpoolHelper.autoleverage(
-            flashLender,
             factorypool,
             factorypoolI,
             factorypoolJ,
@@ -128,7 +124,6 @@ contract AutoleverageTest is DSTestPlus {
     }
 
     function testFlashLoanFactoryethpoolFromEth() public {
-        address flashLender = 0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9; // Aave v2 LendingPool
         address factorypool = 0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e; // alETH-ETH factoryethpool
         int128 factorypoolI = 1; // alETH index
         int128 factorypoolJ = 0; // ETH index
@@ -152,7 +147,6 @@ contract AutoleverageTest is DSTestPlus {
         IAlchemistV2(alchemist).approveMint(address(factoryethpoolHelper), type(uint256).max);
         
         factoryethpoolHelper.autoleverage{value: collateralInitial}(
-            flashLender,
             factorypool,
             factorypoolI,
             factorypoolJ,
