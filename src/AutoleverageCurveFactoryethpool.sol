@@ -13,20 +13,17 @@ contract AutoleverageCurveFactoryethpool is AutoleverageBase {
 
     address public constant wethAddress = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     
-    /// @notice When the eth msg.value doesn't match the initialCollateral
-    error IncorrectEthAmount();
-    
     /// @notice Used to receive ETH from factory pool swaps
     receive() external payable {}
 
     /// @inheritdoc AutoleverageBase
-    function _transferTokensToSelf(address msgSender, uint256 msgValue, address underlyingToken, uint256 collateralInitial) internal override {
+    function _transferTokensToSelf(address underlyingToken, uint256 collateralInitial) internal override {
         // Convert eth to weth if received eth, otherwise transfer weth
-        if (msgValue > 0) {
-            if (msgValue != collateralInitial) revert IncorrectEthAmount();
-            IWETH9(wethAddress).deposit{value: msgValue}();
+        if (msg.value > 0) {
+            if (msg.value != collateralInitial) revert IllegalArgument("msg.value doesn't match collateralInitial");
+            IWETH9(wethAddress).deposit{value: msg.value}();
         } else {
-            IERC20(underlyingToken).transferFrom(msgSender, address(this), collateralInitial);
+            IERC20(underlyingToken).transferFrom(msg.sender, address(this), collateralInitial);
         }
     }
 

@@ -10,12 +10,9 @@ import {AutoleverageBase} from "./AutoleverageBase.sol";
 /// @title A zapper for leveraged deposits into the Alchemist
 contract AutoleverageCurveMetapool is AutoleverageBase {
 
-    /// @notice When the eth msg.value is nonzero
-    error IncorrectEthAmount();
-
     /// @inheritdoc AutoleverageBase
-    function _transferTokensToSelf(address msgSender, uint256 msgValue, address underlyingToken, uint256 collateralInitial) internal override {
-        if (msgValue > 0) revert IncorrectEthAmount();
+    function _transferTokensToSelf(address underlyingToken, uint256 collateralInitial) internal override {
+        if (msg.value > 0) revert IllegalArgument("msg.value should be 0");
         IERC20(underlyingToken).transferFrom(msg.sender, address(this), collateralInitial);
     }
 

@@ -20,20 +20,23 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
         address recipient;
         uint256 targetDebt;
     }
+
+    /// @notice When we're passed invalid parameters
+    error IllegalArgument(string reason);
     
     /// @notice When the yieldToken has no underlyingToken in the alchemist
     error UnsupportedYieldToken(address yieldToken);
+
     /// @notice When the collateral is insufficient to mint targetDebt
-    error MintFailure(); 
+    error MintFailure();
+
     /// @notice When the helper contract ends up with too few or too many tokens
     error InexactTokens(uint256 currentBalance, uint256 repayAmount);
 
     /// @notice Either convert received eth to weth, or transfer ERC20 from the msg.sender to this contract
-    /// @param msgSender msg.sender in outer function
-    /// @param msgValue msg.value in outer function
     /// @param underlyingToken The ERC20 desired to transfer
     /// @param collateralInitial The amount of tokens taken from the user
-    function _transferTokensToSelf(address msgSender, uint256 msgValue, address underlyingToken, uint256 collateralInitial) internal virtual;
+    function _transferTokensToSelf(address underlyingToken, uint256 collateralInitial) internal virtual;
 
     /// @notice Convert received eth to weth, or do nothing
     /// @param amountOut The amount received from the curve swap
@@ -82,7 +85,7 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
         address underlyingToken = IAlchemistV2(alchemist).getYieldTokenParameters(yieldToken).underlyingToken;
         if (underlyingToken == address(0)) revert UnsupportedYieldToken(yieldToken);
 
-        _transferTokensToSelf(msg.sender, msg.value, underlyingToken, collateralInitial);
+        _transferTokensToSelf(underlyingToken, collateralInitial);
 
         // Take out flashloan
         address[] memory assets = new address[](1);
@@ -108,7 +111,7 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
             assets,
             amounts,
             modes,
-            address(0x0), // onBehalfOf, not used here
+            address(0), // onBehalfOf, not used here
             params, // params, passed to callback func to decode as struct
             0 // referralCode
         );
@@ -119,7 +122,7 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
     /// @param assets An array of length 1, pointing to the ERC20 received in the flashloan
     /// @param amounts An array of length 1, with the ERC20 amount received in the flashloan
     /// @param premiums An array of length 1, with the flashloan fee. We will pay back amounts[0] + premiums[0] to the flashloan provider
-    /// @param initiator Points to who initiated the flashloan, not used
+    /// @param initiator Points to who initiated the flashloan
     /// @param params ABI-encoded `Details` struct containing many details about desired functionality
     /// @return success Always true unless reverts, required by Aave flashloan
     function executeOperation(
@@ -129,6 +132,7 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
         address initiator,
         bytes calldata params
     ) external returns (bool) {
+        if (initiator != address(this)) revert IllegalArgument("flashloan initiator must be self");
         Details memory details = abi.decode(params, (Details));
         uint256 repayAmount = amounts[0] + premiums[0];
 
