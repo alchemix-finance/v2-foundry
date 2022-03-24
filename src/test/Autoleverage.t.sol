@@ -1,6 +1,7 @@
 pragma solidity ^0.8.11;
 
 import {console} from "forge-std/console.sol";
+import {stdCheats} from "forge-std/stdlib.sol";
 import {DSTest} from "ds-test/test.sol";
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
@@ -13,7 +14,7 @@ import {AutoleverageCurveMetapool} from "../AutoleverageCurveMetapool.sol";
 import {AutoleverageCurveFactoryethpool} from "../AutoleverageCurveFactoryethpool.sol";
 import {AutoleverageBase} from "../AutoleverageBase.sol";
 
-contract AutoleverageTest is DSTestPlus {
+contract AutoleverageTest is DSTestPlus, stdCheats {
 
     AutoleverageCurveMetapool immutable metapoolHelper = new AutoleverageCurveMetapool();
     AutoleverageCurveFactoryethpool immutable factoryethpoolHelper = new AutoleverageCurveFactoryethpool();
@@ -43,6 +44,8 @@ contract AutoleverageTest is DSTestPlus {
         address whitelist = IAlchemistV2(alchemist).whitelist();
         hevm.prank(whitelistOwner, whitelistOwner);
         IWhitelist(whitelist).add(address(metapoolHelper));
+
+        // tip(address(weth), daiWhale, 1);
 
         // Impersonate the EOA whale
         hevm.startPrank(daiWhale, daiWhale);
