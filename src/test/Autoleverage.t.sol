@@ -2,7 +2,7 @@ pragma solidity 0.8.13;
 
 import {console} from "forge-std/console.sol";
 import {DSTest} from "ds-test/test.sol";
-import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {IERC20} from "openzeppelin/token/ERC20/IERC20.sol";
 
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
