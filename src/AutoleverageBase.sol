@@ -73,7 +73,6 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
     /// @param collateralInitial The amount of tokens that will be taken from the user
     /// @param collateralTotal The amount of tokens that will be deposited as collateral for the user
     /// @param targetDebt The amount of debt that the user will incur
-    /// @param recipient The user to perform actions on, can be different from msg.sender since msg.sender is paying for it
     function autoleverage(
         address pool,
         int128 poolInputIndex,
@@ -82,8 +81,7 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
         address yieldToken,
         uint256 collateralInitial,
         uint256 collateralTotal,
-        uint256 targetDebt,
-        address recipient
+        uint256 targetDebt
     ) external payable {
         // Gate on EOA or whitelisted
         if (!(tx.origin == msg.sender || whitelist.isWhitelisted(msg.sender))) revert Unauthorized(msg.sender);
@@ -108,7 +106,7 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
             poolOutputIndex: poolOutputIndex,
             alchemist: alchemist,
             yieldToken: yieldToken,
-            recipient: recipient,
+            recipient: msg.sender,
             targetDebt: targetDebt
         }));
 
