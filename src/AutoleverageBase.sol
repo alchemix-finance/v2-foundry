@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.11;
+pragma solidity 0.8.13;
 
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
@@ -63,6 +63,80 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
         IERC20(token).approve(spender, type(uint256).max);
     }
 
+    // address pool,                -- CAN BE INVALID (attacking contract)
+    // int128 poolInputIndex,       -- CAN BE INVALID (noop)
+    // int128 poolOutputIndex,      -- CAN BE INVALID (noop)
+    // address alchemist,           -- MUST BE VALID  (required to pull funds)
+    // address yieldToken,          -- MUST BE VALID  (required to pull funds)
+    // uint256 collateralInitial,
+    // uint256 collateralTotal,
+    // uint256 targetDebt,          -- CAN BE INVALID (attacking amount)
+    // address recipient            -- CAN BE INVALID (attacking address)
+
+    // Checks
+    // ------
+    //
+    // ---
+    //
+    // Have to send from either a whitelisted address or an EOA.
+    //
+    // if (!(tx.origin == msg.sender || whitelist.isWhitelisted(msg.sender))) {
+    //     revert Unauthorized(msg.sender);
+    // }
+    //
+    // ---
+    //
+    // Have to make sure that the yield token is valid and accepted by the alchemist.
+    //
+    // address underlyingToken = IAlchemistV2(alchemist).getYieldTokenParameters(yieldToken).underlyingToken;
+    // if (underlyingToken == address(0)) {
+    //     revert UnsupportedYieldToken(yieldToken);
+    // }
+    //
+    // ---
+    //
+    // Payable should be zero.
+    //
+    // if (msg.value > 0) {
+    //     revert IllegalArgument("msg.value should be 0");
+    // }
+    //
+    // ---
+    //
+    // Can potentially send zero here as collateral initial. Depends on the token. For DAI I think
+    // a zero balance transfer is allowed. Not sure about others.
+    //
+    // IERC20(underlyingToken).transferFrom(msg.sender, address(this), collateralInitial);
+    //
+    // ---
+    //
+    // The message sender must be flash lender. Following the natural flow this is not a problem.
+    //
+    // if (msg.sender != address(flashLender)) {
+    //     revert Unauthorized(msg.sender);
+    // }
+    //
+    // if (initiator != address(this)) {
+    //     revert IllegalArgument("Flashloan initiator must be self");
+    // }
+    //
+    // ---
+    //
+    // The amount that we are depositing must be greater than zero so collateral balance must be greater than zero.
+    //
+    // uint256 collateralBalance = IERC20(assets[0]).balanceOf(address(this));
+    // IAlchemistV2(details.alchemist).depositUnderlying(details.yieldToken, collateralBalance, details.recipient, 0);
+    //
+    // ---
+    //
+    // At this point all we have to do is send the amount of DAI required in order to repay the
+    // flash loan. After this, the transaction will succeed.
+    //
+    // uint256 balance = IERC20(assets[0]).balanceOf(address(this));
+    // if (balance != repayAmount) {
+    //    revert InexactTokens(balance, repayAmount);
+    // }
+
     /// @notice Transfer tokens from msg.sender here, then call flashloan which calls callback
     /// @dev Must have targetDebt > collateralTotal - collateralInitial, otherwise flashloan payback will fail
     /// @param pool The address of the curve pool to swap on
@@ -86,7 +160,9 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
         address recipient
     ) external payable {
         // Gate on EOA or whitelisted
-        if (!(tx.origin == msg.sender || whitelist.isWhitelisted(msg.sender))) revert Unauthorized(msg.sender);
+        // Commented out for now.
+        // if (!(tx.origin == msg.sender || whitelist.isWhitelisted(msg.sender))) revert
+        // Unauthorized(msg.sender);
 
         // Get underlying token from alchemist
         address underlyingToken = IAlchemistV2(alchemist).getYieldTokenParameters(yieldToken).underlyingToken;

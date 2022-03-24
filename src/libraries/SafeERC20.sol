@@ -119,9 +119,9 @@ library SafeERC20 {
     function checkBooleanResponse(bool status) private pure returns (bool success) {
         assembly {
             if iszero(status) {
-                returndatacopy(0, 0, returndatasize())
-
-                revert(0, returndatasize())
+                let p := mload(0x40)
+                returndatacopy(p, 0, returndatasize())
+                revert(p, returndatasize())
             }
 
             switch returndatasize()
@@ -155,9 +155,9 @@ library SafeERC20 {
     function expectUInt256Response(bool status) private pure returns (uint256 value, bool success) {
         assembly {
             if iszero(status) {
-                returndatacopy(0, 0, returndatasize())
-
-                revert(0, returndatasize())
+                let p := mload(0x40)
+                returndatacopy(p, 0, returndatasize())
+                revert(p, returndatasize())
             }
 
             switch returndatasize()
