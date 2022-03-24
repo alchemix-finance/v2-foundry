@@ -155,21 +155,24 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
             revert MintFailure();
         }
 
-        address debtToken = IAlchemistV2(details.alchemist).debtToken();
-        uint256 amountOut = _curveSwap(
-            details.pool, 
-            debtToken, 
-            details.poolInputIndex, 
-            details.poolOutputIndex, 
-            repayAmount
-        );
+        {
+            address debtToken = IAlchemistV2(details.alchemist).debtToken();
+            uint256 amountOut = _curveSwap(
+                details.pool, 
+                debtToken, 
+                details.poolInputIndex, 
+                details.poolOutputIndex, 
+                repayAmount
+            );
 
-        _maybeConvertCurveOutput(amountOut);
+            _maybeConvertCurveOutput(amountOut);
 
-        // Deposit excess assets into the alchemist on behalf of the user
-        uint256 excessCollateral = amountOut - repayAmount;
-        if (excessCollateral > 0) {
-            IAlchemistV2(details.alchemist).depositUnderlying(details.yieldToken, excessCollateral, details.recipient, 0);
+
+            // Deposit excess assets into the alchemist on behalf of the user
+            uint256 excessCollateral = amountOut - repayAmount;
+            if (excessCollateral > 0) {
+                IAlchemistV2(details.alchemist).depositUnderlying(details.yieldToken, excessCollateral, details.recipient, 0);
+            }
         }
 
         // Approve the LendingPool contract allowance to *pull* the owed amount
