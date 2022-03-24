@@ -57,8 +57,7 @@ contract AutoleverageTest is DSTestPlus {
             yieldToken,
             collateralInitial,
             collateralTotal,
-            targetDebt,
-            recipient
+            targetDebt
         );
 
         // Calculate collateral and ensure gte target
@@ -105,8 +104,7 @@ contract AutoleverageTest is DSTestPlus {
             yieldToken,
             collateralInitial,
             collateralTotal,
-            targetDebt,
-            recipient
+            targetDebt
         );
 
         // Calculate collateral and ensure gte target
@@ -154,8 +152,7 @@ contract AutoleverageTest is DSTestPlus {
             yieldToken,
             collateralInitial,
             collateralTotal,
-            targetDebt,
-            recipient
+            targetDebt
         );
 
         // Calculate collateral and ensure gte target
