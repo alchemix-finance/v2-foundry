@@ -41,7 +41,7 @@ contract AutoleverageTest is DSTestPlus {
 
         // Add metapoolHelper contract to whitelist
         address whitelist = IAlchemistV2(alchemist).whitelist();
-        hevm.startPrank(whitelistOwner, whitelistOwner);
+        hevm.prank(whitelistOwner, whitelistOwner);
         IWhitelist(whitelist).add(address(metapoolHelper));
 
         // Impersonate the EOA whale
@@ -88,7 +88,7 @@ contract AutoleverageTest is DSTestPlus {
 
         // Add factoryethpoolHelper contract to whitelist
         address whitelist = IAlchemistV2(alchemist).whitelist();
-        hevm.startPrank(whitelistOwner, whitelistOwner);
+        hevm.prank(whitelistOwner, whitelistOwner);
         IWhitelist(whitelist).add(address(factoryethpoolHelper));
 
         // Impersonate the EOA whale
@@ -135,7 +135,7 @@ contract AutoleverageTest is DSTestPlus {
 
         // Add factoryethpoolHelper contract to whitelist
         address whitelist = IAlchemistV2(alchemist).whitelist();
-        hevm.startPrank(whitelistOwner, whitelistOwner);
+        hevm.prank(whitelistOwner, whitelistOwner);
         IWhitelist(whitelist).add(address(factoryethpoolHelper));
 
         // Impersonate the EOA whale
