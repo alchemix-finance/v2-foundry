@@ -42,7 +42,7 @@ contract AutoleverageTest is DSTestPlus, stdCheats {
         address yieldToken = 0xdA816459F1AB5631232FE5e97a05BBBb94970c95; // yvDAI
         uint256 collateralInitial = 1_000_000 ether;
         uint256 collateralTotal = 1_900_000 ether;
-        uint256 slippageMultiplier = 10100; // out of 10000
+        uint256 slippageMultiplier = 10050; // out of 10000
         uint256 targetDebt = (collateralTotal - collateralInitial) * slippageMultiplier / 10000;
         address recipient = daiWhale;
 
