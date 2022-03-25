@@ -1,7 +1,5 @@
 pragma solidity ^0.8.11;
 
-import {console} from "forge-std/console.sol";
-import {stdCheats} from "forge-std/stdlib.sol";
 import {DSTest} from "ds-test/test.sol";
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
@@ -14,7 +12,7 @@ import {AutoleverageCurveMetapool} from "../AutoleverageCurveMetapool.sol";
 import {AutoleverageCurveFactoryethpool} from "../AutoleverageCurveFactoryethpool.sol";
 import {AutoleverageBase} from "../AutoleverageBase.sol";
 
-contract AutoleverageTest is DSTestPlus, stdCheats {
+contract AutoleverageTest is DSTestPlus {
 
     AutoleverageCurveMetapool immutable metapoolHelper = new AutoleverageCurveMetapool();
     AutoleverageCurveFactoryethpool immutable factoryethpoolHelper = new AutoleverageCurveFactoryethpool();
@@ -26,6 +24,11 @@ contract AutoleverageTest is DSTestPlus, stdCheats {
 
 
     function setUp() public {
+        hevm.label(address(metapoolHelper), "helper");
+        hevm.label(address(factoryethpoolHelper), "helper");
+        hevm.label(daiWhale, "whale");
+        hevm.label(address(dai), "dai");
+        hevm.label(address(weth), "weth");
     }
 
     function testFlashLoanMetapool() public {
@@ -36,16 +39,19 @@ contract AutoleverageTest is DSTestPlus, stdCheats {
         address yieldToken = 0xdA816459F1AB5631232FE5e97a05BBBb94970c95; // yvDAI
         uint256 collateralInitial = 1_000_000 ether;
         uint256 collateralTotal = 1_900_000 ether;
-        uint256 slippageMultiplier = 10050; // out of 10000
+        uint256 slippageMultiplier = 10100; // out of 10000
         uint256 targetDebt = (collateralTotal - collateralInitial) * slippageMultiplier / 10000;
         address recipient = daiWhale;
+
+        hevm.label(alchemist, "alchemist");
+        hevm.label(yieldToken, "yieldToken");
 
         // Add metapoolHelper contract to whitelist
         address whitelist = IAlchemistV2(alchemist).whitelist();
         hevm.prank(whitelistOwner, whitelistOwner);
         IWhitelist(whitelist).add(address(metapoolHelper));
 
-        // tip(address(weth), daiWhale, 1);
+        hevm.label(whitelist, "whitelist");
 
         // Impersonate the EOA whale
         hevm.startPrank(daiWhale, daiWhale);
