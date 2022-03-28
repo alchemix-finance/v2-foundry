@@ -58,8 +58,7 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
     function _curveSwap(address poolAddress, address debtToken, int128 i, int128 j, uint256 minAmountOut) internal virtual returns (uint256 amountOut);
 
     /// @notice Approve a contract to spend tokens
-    /// @dev Callable by anyone to top-up new alchemists
-    function approve(address token, address spender) public {
+    function approve(address token, address spender) internal {
         IERC20(token).approve(spender, type(uint256).max);
     }
 
