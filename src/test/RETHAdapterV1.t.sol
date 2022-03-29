@@ -30,9 +30,10 @@ contract RocketStakedEthereumAdapterV1Test is DSTestPlus, stdCheats {
         adapter = new RETHAdapterV1(AdapterInitializationParams({
             alchemist:       address(this),
             token:           address(rETH),
-            underlyingToken: address(weth),
-            rocketStorage:   address(rocketStorage)
+            underlyingToken: address(weth)
         }));
+
+        console.log(adapter.token());
     }
 
     function testPrice() external {

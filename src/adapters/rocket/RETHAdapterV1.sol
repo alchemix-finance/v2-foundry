@@ -24,7 +24,6 @@ struct InitializationParams {
     address alchemist;
     address token;
     address underlyingToken;
-    address rocketStorage;
 }
 
 contract RETHAdapterV1 is ITokenAdapter, Mutex {
@@ -35,13 +34,11 @@ contract RETHAdapterV1 is ITokenAdapter, Mutex {
     address public immutable alchemist;
     address public immutable override token;
     address public immutable override underlyingToken;
-    address public immutable rocketStorage;
 
     constructor(InitializationParams memory params) {
         alchemist       = params.alchemist;
         token           = params.token;
         underlyingToken = params.underlyingToken;
-        rocketStorage   = params.rocketStorage;
     }
 
     /// @dev Checks that the message sender is the alchemist that the adapter is bound to.
@@ -60,8 +57,7 @@ contract RETHAdapterV1 is ITokenAdapter, Mutex {
 
     /// @inheritdoc ITokenAdapter
     function price() external view returns (uint256) {
-        IRETH rETH = IRocketStorage(rocketStorage).getRETH();
-        return rETH.getEthValue(10**SafeERC20.expectDecimals(address(rETH)));
+        return IRETH(token).getEthValue(10**SafeERC20.expectDecimals(token));
     }
 
     /// @inheritdoc ITokenAdapter
