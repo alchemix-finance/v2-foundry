@@ -20,8 +20,8 @@ struct InitializationParams {
     address parentToken;
     address underlyingToken;
     address curvePool;
-    uint256 stEthPoolIndex;
     uint256 ethPoolIndex;
+    uint256 stEthPoolIndex;
     address referral;
 }
 
