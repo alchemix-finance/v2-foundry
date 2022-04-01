@@ -123,6 +123,10 @@ contract DSTestPlus is DSTest {
         hevm.expectRevert(abi.encodeWithSignature("IllegalState(string)", message));
     }
 
+    function expectUnsupportedOperationError(string memory message) internal {
+        hevm.expectRevert(abi.encodeWithSignature("UnsupportedOperation(string)", message));
+    }
+
     function bound(
         uint256 x,
         uint256 min,
