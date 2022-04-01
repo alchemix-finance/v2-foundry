@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.5.0;
 
 /// @title  IAlchemistV2Events
@@ -51,16 +52,14 @@ interface IAlchemistV2Events {
     ///
     /// @param underlyingToken The address of the underlying token.
     /// @param maximum         The updated maximum repay limit.
-    /// @param blocks          The updated number of blocks it will take for the maximum repayment
-    ///                        limit to be replenished when it is completely exhausted.
+    /// @param blocks          The updated number of blocks it will take for the maximum repayment limit to be replenished when it is completely exhausted.
     event RepayLimitUpdated(address indexed underlyingToken, uint256 maximum, uint256 blocks);
 
     /// @notice Emitted when the liquidation limit of an underlying token is updated.
     ///
     /// @param underlyingToken The address of the underlying token.
     /// @param maximum         The updated maximum liquidation limit.
-    /// @param blocks          The updated number of blocks it will take for the maximum liquidation
-    ///                        limit to be replenished when it is completely exhausted.
+    /// @param blocks          The updated number of blocks it will take for the maximum liquidation limit to be replenished when it is completely exhausted.
     event LiquidationLimitUpdated(address indexed underlyingToken, uint256 maximum, uint256 blocks);
 
     /// @notice Emitted when the transmuter is updated.
@@ -86,8 +85,7 @@ interface IAlchemistV2Events {
     /// @notice Emitted when the minting limit is updated.
     ///
     /// @param maximum The updated maximum minting limit.
-    /// @param blocks  The updated number of blocks it will take for the maximum minting limit to be
-    ///                replenished when it is completely exhausted.
+    /// @param blocks  The updated number of blocks it will take for the maximum minting limit to be replenished when it is completely exhausted.
     event MintingLimitUpdated(uint256 maximum, uint256 blocks);
 
     /// @notice Emitted when the credit unlock rate is updated.
@@ -127,49 +125,38 @@ interface IAlchemistV2Events {
     /// @param amount  The amount of debt tokens that `spender` is allowed to mint.
     event ApproveMint(address indexed owner, address indexed spender, uint256 amount);
 
-    /// @notice Emitted when `owner` grants `spender` the ability to withdraw `yieldToken` from its
-    ///         account.
+    /// @notice Emitted when `owner` grants `spender` the ability to withdraw `yieldToken` from its account.
     ///
     /// @param owner      The address of the account owner.
     /// @param spender    The address which is being permitted to mint tokens on the behalf of `owner`.
     /// @param yieldToken The address of the yield token that `spender` is allowed to withdraw.
     /// @param amount     The amount of shares of `yieldToken` that `spender` is allowed to withdraw.
-    event ApproveWithdraw(
-        address indexed owner,
-        address indexed spender,
-        address indexed yieldToken,
-        uint256 amount
-    );
+    event ApproveWithdraw(address indexed owner, address indexed spender, address indexed yieldToken, uint256 amount);
 
     /// @notice Emitted when a user deposits `amount of `yieldToken` to `recipient`.
+    ///
+    /// @notice This event does not imply that `sender` directly deposited yield tokens. It is possible that the
+    ///         underlying tokens were wrapped.
     ///
     /// @param sender       The address of the user which deposited funds.
     /// @param yieldToken   The address of the yield token that was deposited.
     /// @param amount       The amount of yield tokens that were deposited.
     /// @param recipient    The address that received the deposited funds.
-    event Deposit(
-        address indexed sender,
-        address indexed yieldToken,
-        uint256 amount,
-        address recipient
-    );
+    event Deposit(address indexed sender, address indexed yieldToken, uint256 amount, address recipient);
 
-    /// @notice Emitted when `shares` shares of `yieldToken` are burned to withdraw `yieldToken`
-    ///         from the account owned by `owner` to `recipient`.
+    /// @notice Emitted when `shares` shares of `yieldToken` are burned to withdraw `yieldToken` from the account owned
+    ///         by `owner` to `recipient`.
+    ///
+    /// @notice This event does not imply that `recipient` received yield tokens. It is possible that the yield tokens
+    ///         were unwrapped.
     ///
     /// @param owner      The address of the account owner.
     /// @param yieldToken The address of the yield token that was withdrawn.
     /// @param shares     The amount of shares that were burned.
     /// @param recipient  The address that received the withdrawn funds.
-    event Withdraw(
-        address indexed owner,
-        address indexed yieldToken,
-        uint256 shares,
-        address recipient
-    );
+    event Withdraw(address indexed owner, address indexed yieldToken, uint256 shares, address recipient);
 
-    /// @notice Emitted when `amount` debt tokens are minted to `recipient` using the account owned
-    ///         by `owner`.
+    /// @notice Emitted when `amount` debt tokens are minted to `recipient` using the account owned by `owner`.
     ///
     /// @param owner     The address of the account owner.
     /// @param amount    The amount of tokens that were minted.
@@ -189,12 +176,7 @@ interface IAlchemistV2Events {
     /// @param underlyingToken The address of the underlying token that was used to repay debt.
     /// @param amount          The amount of the underlying token that was used to repay debt.
     /// @param recipient       The address that received credit for the repaid tokens.
-    event Repay(
-        address indexed sender,
-        address indexed underlyingToken,
-        uint256 amount,
-        address recipient
-    );
+    event Repay(address indexed sender, address indexed underlyingToken, uint256 amount, address recipient);
 
     /// @notice Emitted when `sender` liquidates `share` shares of `yieldToken`.
     ///
@@ -202,15 +184,9 @@ interface IAlchemistV2Events {
     /// @param yieldToken      The address of the yield token.
     /// @param underlyingToken The address of the underlying token.
     /// @param shares          The amount of the shares of `yieldToken` that were liquidated.
-    event Liquidate(
-        address indexed owner,
-        address indexed yieldToken,
-        address indexed underlyingToken,
-        uint256 shares
-    );
+    event Liquidate(address indexed owner, address indexed yieldToken, address indexed underlyingToken, uint256 shares);
 
-    /// @notice Emitted when `sender` burns `amount` debt tokens to grant credit to users who have
-    ///         deposited `yieldToken`.
+    /// @notice Emitted when `sender` burns `amount` debt tokens to grant credit to users who have deposited `yieldToken`.
     ///
     /// @param sender     The address which burned debt tokens.
     /// @param yieldToken The address of the yield token.
@@ -219,9 +195,8 @@ interface IAlchemistV2Events {
 
     /// @notice Emitted when `yieldToken` is harvested.
     ///
-    /// @param yieldToken       The address of the yield token that was harvested.
-    /// @param minimumAmountOut The maximum amount of loss that is acceptable when unwrapping the
-    ///                         underlying tokens into yield tokens, measured in basis points.
-    /// @param totalHarvested   The total amount of underlying tokens harvested.
+    /// @param yieldToken     The address of the yield token that was harvested.
+    /// @param minimumAmountOut    The maximum amount of loss that is acceptable when unwrapping the underlying tokens into yield tokens, measured in basis points.
+    /// @param totalHarvested The total amount of underlying tokens harvested.
     event Harvest(address indexed yieldToken, uint256 minimumAmountOut, uint256 totalHarvested);
 }
