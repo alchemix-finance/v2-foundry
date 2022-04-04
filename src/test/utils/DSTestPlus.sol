@@ -66,8 +66,8 @@ contract DSTestPlus is DSTest {
 
         if (delta > maxDelta) {
             emit log("Error: a ~= b not satisfied [uint]");
-            emit log_named_uint("  Expected", a);
-            emit log_named_uint("    Actual", b);
+            emit log_named_uint("  Expected", b);
+            emit log_named_uint("    Actual", a);
             emit log_named_uint(" Max Delta", maxDelta);
             emit log_named_uint("     Delta", delta);
             fail();
