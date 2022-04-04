@@ -19,7 +19,7 @@ library SafeERC20 {
 
             mstore(pointer, 0x313ce56700000000000000000000000000000000000000000000000000000000)
 
-            status := staticcall(gas(), token, pointer, 4, 0, 0)
+            status := staticcall(gas(), token, pointer, 4, 0, 32)
         }
 
         (uint256 decimals, bool success) = expectUInt256Response(status);
@@ -44,7 +44,7 @@ library SafeERC20 {
             mstore(add(pointer,  4), and(spender, 0xffffffffffffffffffffffffffffffffffffffff))
             mstore(add(pointer, 36), value)
 
-            status := call(gas(), token, 0, pointer, 68, 0, 0)
+            status := call(gas(), token, 0, pointer, 68, 0, 32)
         }
 
         if (!checkBooleanResponse(status)) {
@@ -66,7 +66,7 @@ library SafeERC20 {
             mstore(add(pointer,  4), and(receiver, 0xffffffffffffffffffffffffffffffffffffffff))
             mstore(add(pointer, 36), amount)
 
-            status := call(gas(), token, 0, pointer, 68, 0, 0)
+            status := call(gas(), token, 0, pointer, 68, 0, 32)
         }
 
         if (!checkBooleanResponse(status)) {
@@ -95,7 +95,7 @@ library SafeERC20 {
             mstore(add(pointer, 36), and(receiver, 0xffffffffffffffffffffffffffffffffffffffff))
             mstore(add(pointer, 68), amount)
 
-            status := call(gas(), token, 0, pointer, 100, 0, 0)
+            status := call(gas(), token, 0, pointer, 100, 0, 32)
         }
 
         if (!checkBooleanResponse(status)) {
@@ -108,10 +108,8 @@ library SafeERC20 {
     /// When a call is unsuccessful the return data is expected to be error data. The data is
     /// rethrown to bubble up the error to the caller.
     ///
-    /// When a call is successful it is expected that the return data is empty or exactly 32
-    /// bytes in length. Any other return size is treated as an error. When the return data is
-    /// non-empty, it is expected that the return data is non-zero to indicate that the call was
-    /// successful.
+    /// When a call is successful it is expected that the return data is empty or greater than 31
+    /// bytes in length and the value returned is exactly equal to 1.
     ///
     /// @param status A flag indicating if the call has reverted or not.
     ///
@@ -124,18 +122,10 @@ library SafeERC20 {
                 revert(0, returndatasize())
             }
 
-            switch returndatasize()
-            case 32 {
-                returndatacopy(0, 0, returndatasize())
-
-                success := iszero(iszero(mload(0)))
-            }
-            case 0 {
-                success := 1
-            }
-            default {
-                success := 0
-            }
+            success := or(
+                and(eq(mload(0), 1), gt(returndatasize(), 31)),
+                iszero(returndatasize())
+            )
         }
     }
 
@@ -162,8 +152,6 @@ library SafeERC20 {
 
             switch returndatasize()
             case 32 {
-                returndatacopy(0, 0, returndatasize())
-
                 value   := mload(0)
                 success := 1
             }

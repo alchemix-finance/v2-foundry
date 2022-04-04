@@ -15,7 +15,10 @@ interface IStableSwap2Pool {
         bool deposit
     ) external view returns (uint256 amount);
 
-    function add_liquidity(uint256[N_COINS] calldata amounts, uint256 minimumMintAmount) external;
+    function add_liquidity(
+        uint256[N_COINS] calldata amounts,
+        uint256 minimumMintAmount
+    ) external payable returns (uint256);
 
     function get_dy(int128 i, int128 j, uint256 dx) external view returns (uint256 dy);
 
@@ -41,5 +44,5 @@ interface IStableSwap2Pool {
         uint256 tokenAmount,
         int128 i,
         uint256 minimumAmount
-    ) external;
+    ) external returns (uint256);
 }
