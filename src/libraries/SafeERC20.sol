@@ -2,6 +2,7 @@
 pragma solidity >=0.8.4;
 
 import {IllegalState} from "../base/Errors.sol";
+import "forge-std/console.sol";
 
 /// @title  SafeERC20
 /// @author Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/utils/SafeTransferLib.sol)
@@ -150,8 +151,8 @@ library SafeERC20 {
                 revert(0, returndatasize())
             }
 
-            switch returndatasize()
-            case 32 {
+            switch gt(returndatasize(), 31)
+            case 1 {
                 value   := mload(0)
                 success := 1
             }
