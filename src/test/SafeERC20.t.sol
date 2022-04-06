@@ -23,14 +23,6 @@ contract SafeERC20Test is DSTestPlus {
         assertEq(SafeERC20.expectDecimals(address(token)), decimals);
     }
 
-    function testExpectDecimalsBadFormat() external {
-        BadDecimalsERC20 token = new BadDecimalsERC20();
-        SafeERC20User user = new SafeERC20User(token);
-
-        expectIllegalStateError("Decimals call malformed response");
-        user.expectDecimals(address(token));
-    }
-
     function testFailExpectDecimalsNotPresent() external {
         NoDecimalsERC20 token = new NoDecimalsERC20();
         SafeERC20User user = new SafeERC20User(token);
@@ -184,40 +176,6 @@ contract AlwaysRevertERC20 is IERC20 {
 }
 
 contract NoDecimalsERC20 is IERC20 {
-    function totalSupply() external view returns (uint256) {
-        return 0;
-    }
-
-    function allowance(address owner, address spender) external view returns (uint256) {
-        return 0;
-    }
-
-    function balanceOf(address holder) external view returns (uint256) {
-        return 0;
-    }
-
-    function approve(address spender, uint256 value) external returns (bool success) {
-        return false;
-    }
-
-    function transfer(address receiver, uint256 amount) external returns (bool success) {
-        return false;
-    }
-
-    function transferFrom(
-        address owner,
-        address receiver,
-        uint256 amount
-    ) external returns (bool success) {
-        return false;
-    }
-}
-
-contract BadDecimalsERC20 is IERC20 {
-    function decimals() external view returns (string memory) {
-        return "\xF0\x9F\x98\x81";
-    }
-
     function totalSupply() external view returns (uint256) {
         return 0;
     }
