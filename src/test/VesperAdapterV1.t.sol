@@ -50,6 +50,6 @@ contract VesperAdapterV1Test is DSTestPlus, stdCheats {
 
         uint256 unWrapped = adapter.unwrap(1e18, address(0xbeef));
         
-        assertApproxEq(1e18 , (unWrapped * 1e36) / (1e18 * adapter.price()), 2e16);
+        assertApproxEq(adapter.price() , unWrapped, 1e17);
     }
 }

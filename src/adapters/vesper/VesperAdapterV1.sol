@@ -25,7 +25,6 @@ struct InitializationParams {
 }
 
 contract VesperAdapterV1 is ITokenAdapter, Mutex {
-    // using RocketPool for IRocketStorage;
 
     string public override version = "1.0.0";
 
@@ -47,12 +46,6 @@ contract VesperAdapterV1 is ITokenAdapter, Mutex {
         _;
     }
 
-    receive() external payable {
-        if (msg.sender != underlyingToken && msg.sender != token) {
-            revert Unauthorized("Payments only permitted from WETH or vETH");
-        }
-    }
-
     /// @inheritdoc ITokenAdapter
     function price() external view returns (uint256) {
         return IVesperPool(token).getPricePerShare();
@@ -65,15 +58,21 @@ contract VesperAdapterV1 is ITokenAdapter, Mutex {
     ) external onlyAlchemist returns (uint256) {
         // Transfer the underlying tokens from the message sender.
         SafeERC20.safeTransferFrom(underlyingToken, msg.sender, address(this), amount);
-        SafeERC20.safeApprove(underlyingToken, token, 1e18);
+        SafeERC20.safeApprove(underlyingToken, token, amount);
 
-        IVesperPool(token).deposit(amount);
+        uint256 balanceBefore = IERC20(token).balanceOf(address(this));
 
         // Vesper deposit does not accept a recipient argument and does not return mint amount
-        // We must transfer to recipient after and use IERC20.balanceOf() for amount
-        SafeERC20.safeTransfer(token, recipient, IERC20(token).balanceOf(address(this)));
+        IVesperPool(token).deposit(amount);
 
-        return IERC20(token).balanceOf(recipient);
+        uint256 balanceAfter = IERC20(token).balanceOf(address(this));
+        
+        uint256 minted = balanceAfter - balanceBefore;
+
+        // We must transfer to recipient after and use IERC20.balanceOf() for amount
+        SafeERC20.safeTransfer(token, recipient, minted);
+
+        return minted;
     }
 
     // @inheritdoc ITokenAdapter
@@ -84,25 +83,18 @@ contract VesperAdapterV1 is ITokenAdapter, Mutex {
         // Transfer the tokens from the message sender.
         SafeERC20.safeTransferFrom(token, msg.sender, address(this), amount);
 
-        uint256 balanceBefore = IERC20(token).balanceOf(address(this));
-
+        uint256 balanceBefore = IERC20(underlyingToken).balanceOf(address(this));
+        
+        // Vesper withdraw does not accept a recipient argument and does not return withdrawn amount
         IVesperPool(token).withdraw(amount);
 
-        uint256 balanceAfter = IERC20(token).balanceOf(address(this));
+        uint256 balanceAfter = IERC20(underlyingToken).balanceOf(address(this));
 
-        // If the vault did not burn all of the shares then revert. This is critical in mathematical operations
-        // performed by the system because the system always expects that all of the tokens were unwrapped.
-        // This sometimes does not happen in cases where strategies cannot withdraw all of the requested tokens (an
-        // example strategy where this can occur is with Compound and AAVE where funds may not be accessible because
-        // they were lent out).
-        if (balanceBefore - balanceAfter != amount) {
-            revert IllegalState("Not all shares burned");
-        }
+        uint256 withdrawn = balanceAfter - balanceBefore;
 
-        // Vesper deposit does not accept a recipient argument and does not return withdrawn amount
         // We must transfer to recipient after and use IERC20.balanceOf() for amount
-        SafeERC20.safeTransfer(underlyingToken, recipient, IERC20(underlyingToken).balanceOf(address(this)));
+        SafeERC20.safeTransfer(underlyingToken, recipient, withdrawn);
 
-        return IERC20(underlyingToken).balanceOf(recipient);
+        return withdrawn;
     }
 }
