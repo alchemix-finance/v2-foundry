@@ -17,6 +17,7 @@ import {
     InitializationParams as ManagerInitializationParams
 } from "../ThreePoolAssetManager.sol";
 
+import {ITransmuterBuffer} from "../interfaces/ITransmuterBuffer.sol";
 import {IERC20TokenReceiver} from "../interfaces/IERC20TokenReceiver.sol";
 import {IConvexBooster} from "../interfaces/external/convex/IConvexBooster.sol";
 import {IConvexRewards} from "../interfaces/external/convex/IConvexRewards.sol";
@@ -25,6 +26,8 @@ import {IStableMetaPool} from "../interfaces/external/curve/IStableMetaPool.sol"
 import {IStableSwap3Pool} from "../interfaces/external/curve/IStableSwap3Pool.sol";
 
 contract ThreePoolAssetManagerTest is DSTestPlus, stdCheats {
+    ITransmuterBuffer constant transmuterBuffer = ITransmuterBuffer(0x1EEd2DbeB9fc23Ab483F447F38F289cA15f79Bac);
+    address constant transmuterBufferAdmin = address(0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9);
     IERC20 constant crv = IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52);
     IStableSwap3Pool constant threePool = IStableSwap3Pool(0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7);
     IStableMetaPool constant metaPool =  IStableMetaPool(0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c);
@@ -40,8 +43,6 @@ contract ThreePoolAssetManagerTest is DSTestPlus, stdCheats {
     IERC20 threePoolToken;
 
     function setUp() external {
-        MockTransmuterBuffer transmuterBuffer = new MockTransmuterBuffer();
-
         manager = new ThreePoolAssetManager(ManagerInitializationParams({
             admin:             address(this),
             operator:          address(this),
@@ -245,6 +246,17 @@ contract ThreePoolAssetManagerTest is DSTestPlus, stdCheats {
         assertGt(minted, expectedOutput * manager.threePoolSlippage() / SLIPPAGE_PRECISION);
     }
 
+    function testMintThreePoolTokensWithUSDT() external {
+        tip(address(usdt), address(manager), 1e6);
+
+        uint256 expectedOutput = 1e18 * CURVE_PRECISION / threePool.get_virtual_price();
+        uint256 minted         = manager.mintThreePoolTokens(ThreePoolAsset.USDT, 1e6);
+
+        assertEq(usdt.balanceOf(address(manager)), 0);
+        assertEq(threePoolToken.balanceOf(address(manager)), minted);
+        assertGt(minted, expectedOutput * manager.threePoolSlippage() / SLIPPAGE_PRECISION);
+    }
+
     function testMintThreePoolTokensSingleAssetSenderNotOperator() external {
         hevm.prank(address(0xdead));
         expectUnauthorizedError("Not operator");
@@ -270,6 +282,17 @@ contract ThreePoolAssetManagerTest is DSTestPlus, stdCheats {
 
         assertEq(threePoolToken.balanceOf(address(manager)), 0);
         assertEq(usdc.balanceOf(address(manager)), withdrawn);
+        assertGt(withdrawn, expectedOutput * manager.threePoolSlippage() / SLIPPAGE_PRECISION);
+    }
+
+    function testBurnThreePoolTokensIntoUSDT() external {
+        tip(address(threePoolToken), address(manager), 1e18);
+
+        uint256 expectedOutput = 1e6 * threePool.get_virtual_price() / CURVE_PRECISION;
+        uint256 withdrawn      = manager.burnThreePoolTokens(ThreePoolAsset.USDT, 1e18);
+
+        assertEq(threePoolToken.balanceOf(address(manager)), 0);
+        assertEq(usdt.balanceOf(address(manager)), withdrawn);
         assertGt(withdrawn, expectedOutput * manager.threePoolSlippage() / SLIPPAGE_PRECISION);
     }
 
@@ -449,6 +472,9 @@ contract ThreePoolAssetManagerTest is DSTestPlus, stdCheats {
     function testReclaimThreePoolAsset() external {
         tip(address(dai), address(manager), 1e18);
 
+        hevm.prank(transmuterBufferAdmin);
+        transmuterBuffer.setSource(address(manager), true);
+
         hevm.expectCall(
             manager.transmuterBuffer(),
             abi.encodeWithSelector(
@@ -459,9 +485,6 @@ contract ThreePoolAssetManagerTest is DSTestPlus, stdCheats {
         );
 
         manager.reclaimThreePoolAsset(ThreePoolAsset.DAI, 1e18);
-
-        assertEq(dai.balanceOf(address(manager)), 0);
-        assertEq(dai.balanceOf(manager.transmuterBuffer()), 1e18);
     }
 
     function testFailReclaimThreePoolAssetSenderNotAdmin() external {

@@ -3,6 +3,7 @@ pragma solidity 0.8.13;
 
 import {IERC20} from "openzeppelin/token/ERC20/IERC20.sol";
 
+
 import {IllegalArgument, IllegalState, Unauthorized} from "./base/Errors.sol";
 import {Multicall} from "./base/Multicall.sol";
 import {Mutex} from "./base/Mutex.sol";
@@ -190,11 +191,11 @@ contract ThreePoolAssetManager is Multicall, Mutex, IERC20TokenReceiver {
     IStableMetaPool public immutable metaPool;
 
     /// @notice The amount of slippage that will be tolerated when depositing and withdrawing assets
-    ///         from the stable swap pool.
+    ///         from the stable swap pool. In units of basis points.
     uint256 public threePoolSlippage;
 
     /// @notice The amount of slippage that will be tolerated when depositing and withdrawing assets
-    ///         from the meta pool.
+    ///         from the meta pool. In units of basis points.
     uint256 public metaPoolSlippage;
 
     /// @notice The convex token.
@@ -1022,17 +1023,17 @@ contract ThreePoolAssetManager is Multicall, Mutex, IERC20TokenReceiver {
     /// @param y The second integer.
     ///
     /// @return The minimum value.
-    function min(uint256 x , uint256 y) internal pure returns (uint256) {
+    function min(uint256 x , uint256 y) private pure returns (uint256) {
         return x > y ? y : x;
     }
 
-    /// @dev Gets the absolute value of two integers.
+    /// @dev Gets the absolute value of the difference of two integers.
     ///
     /// @param x The first integer.
     /// @param y The second integer.
     ///
     /// @return The absolute value.
-    function abs(uint256 x , uint256 y) internal pure returns (uint256) {
+    function abs(uint256 x , uint256 y) private pure returns (uint256) {
         return x > y ? x - y : y - x;
     }
 }
