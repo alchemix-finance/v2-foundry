@@ -200,14 +200,17 @@ contract ThreePoolAssetManagerTest is DSTestPlus, stdCheats {
 
     function testMintThreePoolTokensMultipleAssets() external {
         tip(address(dai), address(manager), 1e18);
+        tip(address(usdc), address(manager), 1e6);
 
         uint256[3] memory amounts;
-        amounts[uint256(ThreePoolAsset.DAI)] = 1e18;
+        amounts[uint256(ThreePoolAsset.DAI)]  = 1e18;
+        amounts[uint256(ThreePoolAsset.USDC)] = 1e6;
 
-        uint256 expectedOutput = 1e18 * CURVE_PRECISION / threePool.get_virtual_price();
+        uint256 expectedOutput = 2e18 * CURVE_PRECISION / threePool.get_virtual_price();
         uint256 minted         = manager.mintThreePoolTokens(amounts);
 
         assertEq(dai.balanceOf(address(manager)), 0);
+        assertEq(usdc.balanceOf(address(manager)), 0);
         assertEq(threePoolToken.balanceOf(address(manager)), minted);
         assertGt(minted, expectedOutput * manager.threePoolSlippage() / SLIPPAGE_PRECISION);
     }
@@ -220,7 +223,7 @@ contract ThreePoolAssetManagerTest is DSTestPlus, stdCheats {
         manager.mintThreePoolTokens(amounts);
     }
 
-    function testMintThreePoolTokensSingleAsset() external {
+    function testMintThreePoolTokensWithDAI() external {
         tip(address(dai), address(manager), 1e18);
 
         uint256 expectedOutput = 1e18 * CURVE_PRECISION / threePool.get_virtual_price();
@@ -231,13 +234,24 @@ contract ThreePoolAssetManagerTest is DSTestPlus, stdCheats {
         assertGt(minted, expectedOutput * manager.threePoolSlippage() / SLIPPAGE_PRECISION);
     }
 
+    function testMintThreePoolTokensWithUSDC() external {
+        tip(address(usdc), address(manager), 1e6);
+
+        uint256 expectedOutput = 1e18 * CURVE_PRECISION / threePool.get_virtual_price();
+        uint256 minted         = manager.mintThreePoolTokens(ThreePoolAsset.USDC, 1e6);
+
+        assertEq(usdc.balanceOf(address(manager)), 0);
+        assertEq(threePoolToken.balanceOf(address(manager)), minted);
+        assertGt(minted, expectedOutput * manager.threePoolSlippage() / SLIPPAGE_PRECISION);
+    }
+
     function testMintThreePoolTokensSingleAssetSenderNotOperator() external {
         hevm.prank(address(0xdead));
         expectUnauthorizedError("Not operator");
         manager.mintThreePoolTokens(ThreePoolAsset.DAI, 0);
     }
 
-    function testBurnThreePoolTokens() external {
+    function testBurnThreePoolTokensIntoDAI() external {
         tip(address(threePoolToken), address(manager), 1e18);
 
         uint256 expectedOutput = 1e18 * threePool.get_virtual_price() / CURVE_PRECISION;
@@ -248,6 +262,17 @@ contract ThreePoolAssetManagerTest is DSTestPlus, stdCheats {
         assertGt(withdrawn, expectedOutput * manager.threePoolSlippage() / SLIPPAGE_PRECISION);
     }
 
+    function testBurnThreePoolTokensIntoUSDC() external {
+        tip(address(threePoolToken), address(manager), 1e18);
+
+        uint256 expectedOutput = 1e6 * threePool.get_virtual_price() / CURVE_PRECISION;
+        uint256 withdrawn      = manager.burnThreePoolTokens(ThreePoolAsset.USDC, 1e18);
+
+        assertEq(threePoolToken.balanceOf(address(manager)), 0);
+        assertEq(usdc.balanceOf(address(manager)), withdrawn);
+        assertGt(withdrawn, expectedOutput * manager.threePoolSlippage() / SLIPPAGE_PRECISION);
+    }
+
     function testBurnThreePoolTokensSenderNotOperator() external {
         hevm.prank(address(0xdead));
         expectUnauthorizedError("Not operator");
@@ -255,12 +280,14 @@ contract ThreePoolAssetManagerTest is DSTestPlus, stdCheats {
     }
 
     function testMintMetaPoolTokensMultipleAssets() external {
+        tip(address(alUSD), address(manager), 1e18);
         tip(address(threePoolToken), address(manager), 1e18);
 
         uint256[2] memory amounts;
+        amounts[uint256(MetaPoolAsset.ALUSD)]      = 1e18;
         amounts[uint256(MetaPoolAsset.THREE_POOL)] = 1e18;
 
-        uint256 expectedOutput = 1e18 * CURVE_PRECISION / metaPool.get_virtual_price();
+        uint256 expectedOutput = 2e18 * CURVE_PRECISION / metaPool.get_virtual_price();
         uint256 minted         = manager.mintMetaPoolTokens(amounts);
 
         assertEq(threePoolToken.balanceOf(address(manager)), 0);

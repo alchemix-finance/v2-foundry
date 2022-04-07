@@ -2,7 +2,6 @@
 pragma solidity 0.8.13;
 
 import {IERC20} from "openzeppelin/token/ERC20/IERC20.sol";
-import {console} from "forge-std/console.sol";
 
 import {IllegalArgument, IllegalState, Unauthorized} from "./base/Errors.sol";
 import {Multicall} from "./base/Multicall.sol";
@@ -314,19 +313,19 @@ contract ThreePoolAssetManager is Multicall, Mutex, IERC20TokenReceiver {
         uint256 minimum;
         uint256 maximum;
         uint256 minimumDistance;
-        uint256 minimumDistanceBalance;
+        uint256 minimizedBalance;
+        uint256 startingBalance;
     }
 
-    /// @notice Calculates how much alUSD needs to be removed from the metapool to reach a minimum
-    ///         price point. This will execute a binary search over the balance to determine the
-    ///         the optimal balance to reach the specified exchange rate.
+    /// @notice Calculates how much alUSD or 3pool needs to be added or removed from the metapool
+    ///         to reach a target exchange rate for a specified 3pool asset.
     ///
     /// @param rebalanceAsset      The meta pool asset to use to rebalance the pool.
     /// @param targetExchangeAsset The 3pool asset to balance the price relative to.
     /// @param targetExchangeRate  The target exchange rate.
     ///
-    /// @return delta The amount of alUSD that needs to be added to the pool or removed.
-    /// @return add   If the alUSD needs to be removed or added.
+    /// @return delta The amount of alUSD or 3pool that needs to be added or removed from the pool.
+    /// @return add   If the alUSD or 3pool needs to be removed or added.
     function calculateRebalance(
         MetaPoolAsset rebalanceAsset,
         ThreePoolAsset targetExchangeAsset,
@@ -342,21 +341,19 @@ contract ThreePoolAssetManager is Multicall, Mutex, IERC20TokenReceiver {
         uint256[NUM_META_COINS] memory currentBalances  = [startingBalances[0], startingBalances[1]];
 
         CalculateRebalanceLocalVars memory v;
-        v.minimum                = 0;
-        v.maximum                = type(uint96).max;
-        v.minimumDistance        = type(uint256).max;
-        v.minimumDistanceBalance = type(uint256).max;
+        v.minimum          = 0;
+        v.maximum          = type(uint96).max;
+        v.minimumDistance  = type(uint256).max;
+        v.minimizedBalance = type(uint256).max;
+        v.startingBalance  = startingBalances[uint256(rebalanceAsset)];
 
         uint256 previousBalance;
 
         for (uint256 i = 0; i < 256; i++) {
             uint256 examineBalance;
+            if ((examineBalance = (v.maximum + v.minimum) / 2) == previousBalance) break;
 
-            currentBalances[
-                uint256(rebalanceAsset)
-            ] = (examineBalance = (v.maximum + v.minimum) / 2);
-
-            if (examineBalance == previousBalance) break;
+            currentBalances[uint256(rebalanceAsset)] = examineBalance;
 
             uint256 amountThreePool = metaPool.get_dy(
                 int128(uint128(uint256(MetaPoolAsset.ALUSD))),
@@ -370,15 +367,15 @@ contract ThreePoolAssetManager is Multicall, Mutex, IERC20TokenReceiver {
                 int128(uint128(uint256(targetExchangeAsset)))
             );
 
-            uint256 distance = exchangeRate > targetExchangeRate
-                ? exchangeRate - targetExchangeRate
-                : targetExchangeRate - exchangeRate;
+            uint256 distance = abs(exchangeRate, targetExchangeRate);
 
             if (distance < v.minimumDistance) {
-                v.minimumDistance        = distance;
-                v.minimumDistanceBalance = examineBalance;
-
-                if (v.minimumDistance == 0) break;
+                v.minimumDistance  = distance;
+                v.minimizedBalance = examineBalance;
+            } else if(distance == v.minimumDistance) {
+                uint256 examineDelta = abs(examineBalance, v.startingBalance);
+                uint256 currentDelta = abs(v.minimizedBalance, v.startingBalance);
+                v.minimizedBalance = currentDelta > examineDelta ? examineBalance : v.minimizedBalance;
             }
 
             if (exchangeRate > targetExchangeRate) {
@@ -398,11 +395,9 @@ contract ThreePoolAssetManager is Multicall, Mutex, IERC20TokenReceiver {
             previousBalance = examineBalance;
         }
 
-        uint256 startingBalance = startingBalances[uint256(rebalanceAsset)];
-
-        return v.minimumDistanceBalance > startingBalance
-            ? (v.minimumDistanceBalance - startingBalance, true)
-            : (startingBalance - v.minimumDistanceBalance, false);
+        return v.minimizedBalance > v.startingBalance
+            ? (v.minimizedBalance - v.startingBalance, true)
+            : (v.startingBalance - v.minimizedBalance, false);
     }
 
     /// @notice Gets the amount of curve tokens and convex tokens that can be claimed.
@@ -607,7 +602,9 @@ contract ThreePoolAssetManager is Multicall, Mutex, IERC20TokenReceiver {
     /// @param amount The amount of meta pool tokens to deposit.
     ///
     /// @return success If the tokens were successfully deposited.
-    function depositMetaPoolTokens(uint256 amount) external lock onlyOperator returns (bool success) {
+    function depositMetaPoolTokens(
+        uint256 amount
+    ) external lock onlyOperator returns (bool success) {
         return _depositMetaPoolTokens(amount);
     }
 
@@ -616,7 +613,9 @@ contract ThreePoolAssetManager is Multicall, Mutex, IERC20TokenReceiver {
     /// @param amount The amount of meta pool tokens to withdraw.
     ///
     /// @return success If the tokens were successfully withdrawn.
-    function withdrawMetaPoolTokens(uint256 amount) external lock onlyOperator returns (bool success) {
+    function withdrawMetaPoolTokens(
+        uint256 amount
+    ) external lock onlyOperator returns (bool success) {
         return _withdrawMetaPoolTokens(amount);
     }
 
@@ -1015,5 +1014,25 @@ contract ThreePoolAssetManager is Multicall, Mutex, IERC20TokenReceiver {
         SafeERC20.safeTransfer(address(convexToken), rewardReceiver, convexBalance);
 
         emit ClaimRewards(success, curveBalance, convexBalance);
+    }
+
+    /// @dev Gets the minimum of two integers.
+    ///
+    /// @param x The first integer.
+    /// @param y The second integer.
+    ///
+    /// @return The minimum value.
+    function min(uint256 x , uint256 y) internal pure returns (uint256) {
+        return x > y ? y : x;
+    }
+
+    /// @dev Gets the absolute value of two integers.
+    ///
+    /// @param x The first integer.
+    /// @param y The second integer.
+    ///
+    /// @return The absolute value.
+    function abs(uint256 x , uint256 y) internal pure returns (uint256) {
+        return x > y ? x - y : y - x;
     }
 }
