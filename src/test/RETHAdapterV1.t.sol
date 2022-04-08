@@ -32,8 +32,6 @@ contract RocketStakedEthereumAdapterV1Test is DSTestPlus, stdCheats {
             token:           address(rETH),
             underlyingToken: address(weth)
         }));
-
-        console.log(adapter.token());
     }
 
     function testPrice() external {
