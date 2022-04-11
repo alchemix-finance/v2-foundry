@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-pragma solidity >=0.8.4;
+pragma solidity 0.8.13;
 
 import {IERC20} from "openzeppelin/token/ERC20/IERC20.sol";
 

@@ -18,9 +18,9 @@ import {LibFuse} from "../libraries/LibFuse.sol";
 contract FuseTokenAdapterV1Test is DSTestPlus, stdCheats {
     FuseTokenAdapterV1 adapter;
 
-    function setUp() external {
-        ICERC20 fDAI = ICERC20(0x7e9cE3CAa9910cc048590801e64174957Ed41d43);
+    ICERC20 fDAI = ICERC20(0x7e9cE3CAa9910cc048590801e64174957Ed41d43);
 
+    function setUp() external {
         adapter = new FuseTokenAdapterV1(AdapterInitializationParams({
             alchemist:       address(this),
             token:           address(fDAI),
@@ -31,8 +31,7 @@ contract FuseTokenAdapterV1Test is DSTestPlus, stdCheats {
     }
 
     function testPrice() external {
-        console.log(adapter.price());
-        console.log(adapter.underlyingToken());
+        assertApproxEq(adapter.price(), fDAI.exchangeRateStored(), 1e14);
     }
 
     function testWrap() external {
