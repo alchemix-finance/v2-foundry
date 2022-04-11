@@ -92,6 +92,10 @@ contract VesperAdapterV1 is ITokenAdapter, Mutex {
 
         uint256 withdrawn = balanceAfter - balanceBefore;
 
+        if (withdrawn != amount) {
+            revert IllegalState();
+        }
+
         // We must transfer to recipient after and use IERC20.balanceOf() for amount
         SafeERC20.safeTransfer(underlyingToken, recipient, withdrawn);
 
