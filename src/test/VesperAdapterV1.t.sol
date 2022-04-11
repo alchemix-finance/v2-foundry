@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.13;
 
+import {IERC20} from "openzeppelin/token/ERC20/IERC20.sol";
+
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 import {stdCheats} from "forge-std/stdlib.sol";
 import "forge-std/console.sol";
@@ -19,6 +21,8 @@ contract VesperAdapterV1Test is DSTestPlus, stdCheats {
     IVesperPool constant vesperPool = IVesperPool(0xcA0c34A3F35520B9490C1d58b35A19AB64014D80);
     VesperAdapterV1 adapter;
 
+    uint256 constant BPS = 10000;
+
     function setUp() external {
         adapter = new VesperAdapterV1(AdapterInitializationParams({
             alchemist:       address(this),
@@ -33,23 +37,42 @@ contract VesperAdapterV1Test is DSTestPlus, stdCheats {
         assertEq(adapter.price(), vesperPool.getPricePerShare());
     }
 
-    function testWrap() external {
-        tip(adapter.underlyingToken(), address(this), 1e18);
+    function testUnwrap() external {
+        uint256 amount = 1e18;
 
-        SafeERC20.safeApprove(adapter.underlyingToken(), address(adapter), 1e18);
+        tip(adapter.underlyingToken(), address(this), amount);
 
-        uint256 wrapped = adapter.wrap(1e18, address(0xbeef));
+        SafeERC20.safeApprove(adapter.underlyingToken(), address(adapter), amount);
 
-        assertApproxEq(1e18, (wrapped * adapter.price()) / 1e18, 100);
+        uint256 wrapped = adapter.wrap(amount, address(this));
+
+        assertGt(wrapped * adapter.price(), (amount * 9900 / BPS));
+        
+        SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
+
+        uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
+        
+        assertGt(unwrapped, amount * 9900 / BPS);
     }
 
-    function testUnwrap() external {
-        tip(adapter.token(), address(this), 1e18);
-
-        SafeERC20.safeApprove(adapter.token(), address(adapter), 1e18);
-
-        uint256 unWrapped = adapter.unwrap(1e18, address(0xbeef));
+    function testUnwrap(uint256 amount) external {
+        hevm.assume(
+            amount >= 10**SafeERC20.expectDecimals(adapter.underlyingToken()) && 
+            amount < type(uint96).max
+        );
         
-        assertApproxEq(adapter.price() , unWrapped, 1e17);
+        tip(adapter.underlyingToken(), address(this), amount);
+
+        SafeERC20.safeApprove(adapter.underlyingToken(), address(adapter), amount);
+
+        uint256 wrapped = adapter.wrap(amount, address(this));
+
+        assertGt(wrapped * adapter.price(), (amount * 9900 / BPS));
+        
+        SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
+
+        uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
+        
+        assertGt(unwrapped, amount * 9900 / BPS);
     }
 }
