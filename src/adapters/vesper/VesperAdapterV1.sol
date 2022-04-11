@@ -83,17 +83,19 @@ contract VesperAdapterV1 is ITokenAdapter, Mutex {
         // Transfer the tokens from the message sender.
         SafeERC20.safeTransferFrom(token, msg.sender, address(this), amount);
 
-        uint256 balanceBefore = IERC20(underlyingToken).balanceOf(address(this));
+        uint256 balanceBeforeUnderlying = IERC20(underlyingToken).balanceOf(address(this));
+        uint256 balanceBeforeYieldToken = IERC20(token).balanceOf(address(this));
         
         // Vesper withdraw does not accept a recipient argument and does not return withdrawn amount
         IVesperPool(token).withdraw(amount);
 
-        uint256 balanceAfter = IERC20(underlyingToken).balanceOf(address(this));
+        uint256 balanceAfterUnderlying = IERC20(underlyingToken).balanceOf(address(this));
+        uint256 balanceAfterYieldToken = IERC20(token).balanceOf(address(this));
 
-        uint256 withdrawn = balanceAfter - balanceBefore;
+        uint256 withdrawn = balanceAfterUnderlying - balanceBeforeUnderlying;
 
-        if (withdrawn != amount) {
-            revert IllegalState("Max shares not burned");
+        if (balanceBeforeYieldToken - balanceAfterYieldToken != amount) {
+            revert IllegalState("Not all shares were burned");
         }
 
         // We must transfer to recipient after and use IERC20.balanceOf() for amount
