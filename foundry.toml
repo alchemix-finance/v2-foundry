@@ -6,3 +6,4 @@ remappings = ['ds-test/=lib/ds-test/src/', 'openzeppelin/=lib/openzeppelin-contr
 solc_version = "0.8.13"
 optimizer_runs = 200
 ignored_error_codes = [1878]
+bytecode_hash="ipfs"
