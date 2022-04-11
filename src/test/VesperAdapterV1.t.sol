@@ -26,8 +26,8 @@ contract VesperAdapterV1Test is DSTestPlus, stdCheats {
     function setUp() external {
         adapter = new VesperAdapterV1(AdapterInitializationParams({
             alchemist:       address(this),
-            token:           address(0xcA0c34A3F35520B9490C1d58b35A19AB64014D80),
-            underlyingToken: address(0x6B175474E89094C44Da98b954EedeAC495271d0F)
+            token:           0xcA0c34A3F35520B9490C1d58b35A19AB64014D80,
+            underlyingToken: 0x6B175474E89094C44Da98b954EedeAC495271d0F
         }));
 
         console.log(adapter.token());
@@ -53,6 +53,7 @@ contract VesperAdapterV1Test is DSTestPlus, stdCheats {
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
         
         assertGt(unwrapped, amount * 9900 / BPS);
+        assertGt(IERC20(adapter.underlyingToken()).balanceOf(address(0xbeef)), amount * 9900 / BPS);
     }
 
     function testUnwrap(uint256 amount) external {
@@ -74,5 +75,6 @@ contract VesperAdapterV1Test is DSTestPlus, stdCheats {
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
         
         assertGt(unwrapped, amount * 9900 / BPS);
+        assertGt(IERC20(adapter.underlyingToken()).balanceOf(address(0xbeef)), amount * 9900 / BPS);
     }
 }
