@@ -14,7 +14,7 @@ import {IConvexRewards} from "./interfaces/external/convex/IConvexRewards.sol";
 import {IConvexToken} from "./interfaces/external/convex/IConvexToken.sol";
 
 import {
-IEthStableMetaPool,
+    IEthStableMetaPool,
     N_COINS as NUM_META_COINS
 } from "./interfaces/external/curve/IEthStableMetaPool.sol";
 
@@ -241,7 +241,9 @@ contract EthAssetManager is Multicall, Mutex, IERC20TokenReceiver {
     /// @return The reserves.
     function metaPoolAssetReserves(MetaPoolAsset asset) external view returns (uint256) {
         IERC20 token = getTokenForMetaPoolAsset(asset);
-        if (asset == MetaPoolAsset.ETH) return address(this).balance + token.balanceOf(address(this));
+        if (asset == MetaPoolAsset.ETH) {
+            return address(this).balance + token.balanceOf(address(this));
+        }
         return token.balanceOf(address(this));
     }
 
@@ -429,12 +431,12 @@ contract EthAssetManager is Multicall, Mutex, IERC20TokenReceiver {
         emit ClaimRewards(success, curveBalance, convexBalance);
     }
 
-    /// @notice Flushes ethereum into convex by minting meta pool tokens using the meta pool tokens,
+    /// @notice Flushes meta pool assets into convex by minting meta pool tokens using the assets,
     ///         and then depositing the meta pool tokens into convex.
     ///
     /// This function is provided for ease of use.
     ///
-    /// @param amounts The amounts of the 3pool assets to flush.
+    /// @param amounts The amounts of the meta pool assets to flush.
     ///
     /// @return The amount of meta pool tokens deposited into convex.
     function flush(
@@ -449,14 +451,13 @@ contract EthAssetManager is Multicall, Mutex, IERC20TokenReceiver {
         return mintedMetaPoolTokens;
     }
 
-    /// @notice Flushes a three pool asset into convex by minting 3pool tokens using the asset,
-    ///         minting meta pool tokens using the 3pool tokens, and then depositing the meta pool
-    ///         tokens into convex.
+    /// @notice Flushes a meta pool asset into convex by minting meta pool tokens using the asset,
+    ///         and then depositing the meta pool tokens into convex.
     ///
     /// This function is provided for ease of use.
     ///
     /// @param asset  The meta pool asset to flush.
-    /// @param amount The amount of the 3pool asset to flush.
+    /// @param amount The amount of the meta pool asset to flush.
     ///
     /// @return The amount of meta pool tokens deposited into convex.
     function flush(
@@ -564,7 +565,10 @@ contract EthAssetManager is Multicall, Mutex, IERC20TokenReceiver {
 
         uint256 total = 0;
         for (uint256 i = 0; i < NUM_META_COINS; i++) {
-            if (i == uint256(MetaPoolAsset.ETH) || amounts[i] == 0) continue;
+            // Skip over approving WETH since we are directly swapping ETH.
+            if (i == uint256(MetaPoolAsset.ETH)) continue;
+
+            if (amounts[i] == 0) continue;
 
             total += amounts[i];
 
@@ -573,9 +577,9 @@ contract EthAssetManager is Multicall, Mutex, IERC20TokenReceiver {
             SafeERC20.safeApprove(address(tokens[i]), address(metaPool), amounts[i]);
         }
 
-        // Calculate the minimum amount of 3pool lp tokens that we are expecting out when
+        // Calculate the minimum amount of meta pool tokens that we are expecting out when
         // adding liquidity for all of the assets. This value is based off the optimistic
-        // assumption that one of each token is approximately equal to one 3pool lp token.
+        // assumption that one of each token is approximately equal to one meta pool token.
         uint256 expectedOutput    = total * CURVE_PRECISION / metaPool.get_virtual_price();
         uint256 minimumMintAmount = expectedOutput * metaPoolSlippage / SLIPPAGE_PRECISION;
 
@@ -600,12 +604,12 @@ contract EthAssetManager is Multicall, Mutex, IERC20TokenReceiver {
         MetaPoolAsset asset,
         uint256 amount
     ) internal returns (uint256 minted) {
-
         uint256[NUM_META_COINS] memory amounts;
         amounts[uint256(asset)] = amount;
 
-        // Calculate the minimum amount of 3pool lp tokens that we are expecting out when
-        // adding single sided liquidity. This value is based off the optimistic assumption that
+        // Calculate the minimum amount of meta pool tokens that we are expecting out when
+        // adding liquidity for all of the assets. This value is based off the optimistic
+        // assumption that one of each token is approximately equal to one meta pool token.
         uint256 minimumMintAmount = amount * metaPoolSlippage / SLIPPAGE_PRECISION;
 
         // Set an approval if not working with ethereum.

@@ -78,7 +78,7 @@ contract EthAssetManagerTest is DSTestPlus, stdCheats {
         assertEq(manager.admin(), address(pendingAdmin));
     }
 
-    function testFailAcceptTimelockNotPendingAdmin() external {
+    function testFailAcceptAdminNotPendingAdmin() external {
         EthAssetManagerUser pendingAdmin = new EthAssetManagerUser(manager);
 
         manager.setPendingAdmin(address(pendingAdmin));
@@ -370,7 +370,7 @@ contract EthAssetManagerTest is DSTestPlus, stdCheats {
         manager.reclaimEth(2e18);
     }
 
-    function testFailReclaimThreePoolAssetSenderNotAdmin() external {
+    function testFailReclaimETHSenderNotAdmin() external {
         tip(address(weth), address(manager), 1e18);
 
         hevm.prank(address(0xdead));
