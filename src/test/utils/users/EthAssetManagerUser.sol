@@ -8,6 +8,8 @@ contract EthAssetManagerUser {
 
     constructor(EthAssetManager _manager) { manager = _manager; }
 
+    receive() external payable {}
+
     function acceptAdmin() external {
         manager.acceptAdmin();
     }

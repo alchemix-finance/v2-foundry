@@ -24,7 +24,7 @@ import {IConvexRewards} from "../interfaces/external/convex/IConvexRewards.sol";
 import {IConvexToken} from "../interfaces/external/convex/IConvexToken.sol";
 import {IEthStableMetaPool} from "../interfaces/external/curve/IEthStableMetaPool.sol";
 
-contract ThreePoolAssetManagerTest is DSTestPlus, stdCheats {
+contract EthAssetManagerTest is DSTestPlus, stdCheats {
     ITransmuterBuffer constant transmuterBuffer = ITransmuterBuffer(0xbc2FB245594a68c927C930FBE2d00680A8C90B9e);
     address constant transmuterBufferAdmin = address(0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9);
     IERC20 constant crv = IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52);
@@ -56,49 +56,7 @@ contract ThreePoolAssetManagerTest is DSTestPlus, stdCheats {
         alETH = manager.getTokenForMetaPoolAsset(MetaPoolAsset.ALETH);
     }
 
-    function testCalculateRebalanceAlETH() external {
-        tip(address(alETH), address(manager), type(uint96).max);
-        tip(address(metaPool), address(manager), type(uint96).max);
-
-        (uint256 delta, bool add) = manager.calculateRebalance(
-            MetaPoolAsset.ALETH,
-            1.0e18
-        );
-
-        if (add) {
-            manager.mintMetaPoolTokens(MetaPoolAsset.ALETH, delta);
-        } else {
-            uint256[2] memory amounts;
-            amounts[uint256(MetaPoolAsset.ALETH)] = delta;
-
-            uint256 burnAmount = metaPool.calc_token_amount(amounts, false);
-            manager.burnMetaPoolTokens(MetaPoolAsset.ALETH, burnAmount);
-        }
-
-        assertApproxEq(1.0e18, manager.exchangeRate(), 0.0001e18);
-    }
-
-    function testCalculateRebalanceETH() external {
-        tip(address(weth), address(manager), type(uint96).max);
-        tip(address(metaPool), address(manager), type(uint96).max);
-
-        (uint256 delta, bool add) = manager.calculateRebalance(
-            MetaPoolAsset.ETH,
-            1.0e18
-        );
-
-        if (add) {
-            manager.mintMetaPoolTokens(MetaPoolAsset.ETH, delta);
-        } else {
-            uint256[2] memory amounts;
-            amounts[uint256(MetaPoolAsset.ETH)] = delta;
-
-            uint256 burnAmount = metaPool.calc_token_amount(amounts, false);
-            manager.burnMetaPoolTokens(MetaPoolAsset.ETH, burnAmount);
-        }
-
-        assertApproxEq(1.0e18, manager.exchangeRate(), 0.0001e18);
-    }
+    receive() external payable {}
 
     function testSetPendingAdmin() external {
         manager.setPendingAdmin(address(0xdead));
@@ -171,7 +129,7 @@ contract ThreePoolAssetManagerTest is DSTestPlus, stdCheats {
     }
 
     function testMintMetaPoolTokensMultipleAssets() external {
-        hevm.deal(address(manager), 1e18);
+        tip(address(weth), address(manager), 1e18);
         tip(address(alETH), address(manager), 1e18);
 
         uint256[2] memory amounts;
@@ -179,6 +137,35 @@ contract ThreePoolAssetManagerTest is DSTestPlus, stdCheats {
         amounts[uint256(MetaPoolAsset.ALETH)] = 1e18;
 
         uint256 expectedOutput = 2e18 * CURVE_PRECISION / metaPool.get_virtual_price();
+        uint256 minted         = manager.mintMetaPoolTokens(amounts);
+
+        assertEq(address(manager).balance, 0);
+        assertEq(weth.balanceOf(address(manager)), 0);
+        assertEq(metaPool.balanceOf(address(manager)), minted);
+        assertGt(minted, expectedOutput * manager.metaPoolSlippage() / SLIPPAGE_PRECISION);
+    }
+
+    function testMintMetaPoolTokensMultipleAssetsETH() external {
+        hevm.deal(address(manager), 1e18);
+
+        uint256[2] memory amounts;
+        amounts[uint256(MetaPoolAsset.ETH)] = 1e18;
+
+        uint256 expectedOutput = 1e18 * CURVE_PRECISION / metaPool.get_virtual_price();
+        uint256 minted         = manager.mintMetaPoolTokens(amounts);
+
+        assertEq(address(manager).balance, 0);
+        assertEq(metaPool.balanceOf(address(manager)), minted);
+        assertGt(minted, expectedOutput * manager.metaPoolSlippage() / SLIPPAGE_PRECISION);
+    }
+
+    function testMintMetaPoolTokensMultipleAssetsWETH() external {
+        tip(address(weth), address(manager), 1e18);
+
+        uint256[2] memory amounts;
+        amounts[uint256(MetaPoolAsset.ETH)] = 1e18;
+
+        uint256 expectedOutput = 1e18 * CURVE_PRECISION / metaPool.get_virtual_price();
         uint256 minted         = manager.mintMetaPoolTokens(amounts);
 
         assertEq(address(manager).balance, 0);
@@ -291,15 +278,19 @@ contract ThreePoolAssetManagerTest is DSTestPlus, stdCheats {
 
     function testFlushMultipleAssets() external {
         hevm.deal(address(manager), 1e18);
+
         tip(address(weth), address(manager), 1e18);
+        tip(address(alETH), address(manager), 1e18);
 
         uint256[2] memory amounts;
-        amounts[uint256(MetaPoolAsset.ETH)] = 2e18;
+        amounts[uint256(MetaPoolAsset.ETH)]   = 2e18;
+        amounts[uint256(MetaPoolAsset.ALETH)] = 1e18;
 
         uint256 minted = manager.flush(amounts);
 
         assertEq(address(manager).balance, 0);
         assertEq(weth.balanceOf(address(manager)), 0);
+        assertEq(alETH.balanceOf(address(manager)), 0);
         assertEq(metaPool.balanceOf(address(manager)), 0);
         assertEq(convexRewards.balanceOf(address(manager)), minted);
     }
@@ -403,12 +394,18 @@ contract ThreePoolAssetManagerTest is DSTestPlus, stdCheats {
     }
 
     function testSweepETH() external {
+        EthAssetManagerUser admin = new EthAssetManagerUser(manager);
+
+        manager.setPendingAdmin(address(admin));
+        admin.acceptAdmin();
+
         hevm.deal(address(manager), 1e18);
 
+        hevm.prank(address(admin));
         manager.sweepEth(1e18);
 
         assertEq(address(manager).balance, 0);
-        assertEq(address(manager.admin()).balance, 1e18);
+        assertEq(address(admin).balance, 1e18);
     }
 
     function testFailSweepSenderNotAdmin() external {

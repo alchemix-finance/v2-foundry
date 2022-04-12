@@ -225,6 +225,8 @@ contract EthAssetManager is Multicall, Mutex, IERC20TokenReceiver {
         emit MetaPoolSlippageUpdated(metaPoolSlippage);
     }
 
+    receive() external payable { }
+
     /// @notice Gets the amount of meta pool tokens that this contract has in reserves.
     ///
     /// @return The reserves.
@@ -256,91 +258,6 @@ contract EthAssetManager is Multicall, Mutex, IERC20TokenReceiver {
             10**SafeERC20.expectDecimals(address(alETH)),
             metaBalances
         );
-    }
-
-    /// @dev Struct used to declare local variables for the calculate rebalance function.
-    struct CalculateRebalanceLocalVars {
-        uint256 minimum;
-        uint256 maximum;
-        uint256 minimumDistance;
-        uint256 minimizedBalance;
-        uint256 startingBalance;
-    }
-
-    /// @notice Calculates how much alETH or ethereum needs to be added or removed from the metapool
-    ///         to reach a target exchange rate.
-    ///
-    /// @param rebalanceAsset      The meta pool asset to use to rebalance the pool.
-    /// @param targetExchangeRate  The target exchange rate.
-    ///
-    /// @return delta The amount of alETH or ethereum that needs to be added or removed from the pool.
-    /// @return add   If the alETH or ethereum needs to be removed or added.
-    function calculateRebalance(
-        MetaPoolAsset rebalanceAsset,
-        uint256 targetExchangeRate
-    ) public view returns (uint256 delta, bool add) {
-        uint256 decimals;
-        {
-            IERC20 alETH = getTokenForMetaPoolAsset(MetaPoolAsset.ALETH);
-            decimals     = SafeERC20.expectDecimals(address(alETH));
-        }
-
-        uint256[NUM_META_COINS] memory startingBalances = metaPool.get_balances();
-        uint256[NUM_META_COINS] memory currentBalances  = [startingBalances[0], startingBalances[1]];
-
-        CalculateRebalanceLocalVars memory v;
-        v.minimum          = 0;
-        v.maximum          = type(uint96).max;
-        v.minimumDistance  = type(uint256).max;
-        v.minimizedBalance = type(uint256).max;
-        v.startingBalance  = startingBalances[uint256(rebalanceAsset)];
-
-        uint256 previousBalance;
-
-        for (uint256 i = 0; i < 256; i++) {
-            uint256 examineBalance;
-            if ((examineBalance = (v.maximum + v.minimum) / 2) == previousBalance) break;
-
-            currentBalances[uint256(rebalanceAsset)] = examineBalance;
-
-            uint256 exchangeRate = metaPool.get_dy(
-                int128(uint128(uint256(MetaPoolAsset.ALETH))),
-                int128(uint128(uint256(MetaPoolAsset.ETH))),
-                10**decimals,
-                currentBalances
-            );
-
-            uint256 distance = abs(exchangeRate, targetExchangeRate);
-
-            if (distance < v.minimumDistance) {
-                v.minimumDistance  = distance;
-                v.minimizedBalance = examineBalance;
-            } else if(distance == v.minimumDistance) {
-                uint256 examineDelta = abs(examineBalance, v.startingBalance);
-                uint256 currentDelta = abs(v.minimizedBalance, v.startingBalance);
-                v.minimizedBalance = currentDelta > examineDelta ? examineBalance : v.minimizedBalance;
-            }
-
-            if (exchangeRate > targetExchangeRate) {
-                if (rebalanceAsset == MetaPoolAsset.ALETH) {
-                    v.minimum = examineBalance;
-                } else {
-                    v.maximum = examineBalance;
-                }
-            } else {
-                if (rebalanceAsset == MetaPoolAsset.ALETH) {
-                    v.maximum = examineBalance;
-                } else {
-                    v.minimum = examineBalance;
-                }
-            }
-
-            previousBalance = examineBalance;
-        }
-
-        return v.minimizedBalance > v.startingBalance
-            ? (v.minimizedBalance - v.startingBalance, true)
-            : (v.startingBalance - v.minimizedBalance, false);
     }
 
     /// @notice Gets the amount of curve tokens and convex tokens that can be claimed.
@@ -575,7 +492,7 @@ contract EthAssetManager is Multicall, Mutex, IERC20TokenReceiver {
     /// @param amount The amount of ethereum to reclaim.
     function reclaimEth(uint256 amount) public lock onlyAdmin {
         uint256 balance;
-        if (amount > (balance = weth.balanceOf(address(this)))) weth.deposit{value: balance - amount}();
+        if (amount > (balance = weth.balanceOf(address(this)))) weth.deposit{value: amount - balance}();
 
         SafeERC20.safeTransfer(address(weth), transmuterBuffer, amount);
 
@@ -601,7 +518,7 @@ contract EthAssetManager is Multicall, Mutex, IERC20TokenReceiver {
     function sweepEth(
         uint256 amount
     ) external lock onlyAdmin returns (bytes memory result) {
-        (bool success, bytes memory result) = msg.sender.call{value: amount}(new bytes(0));
+        (bool success, bytes memory result) = admin.call{value: amount}(new bytes(0));
         if (!success) {
             revert IllegalState("Transfer failed");
         }
@@ -647,7 +564,7 @@ contract EthAssetManager is Multicall, Mutex, IERC20TokenReceiver {
 
         uint256 total = 0;
         for (uint256 i = 0; i < NUM_META_COINS; i++) {
-            if (amounts[i] == 0) continue;
+            if (i == uint256(MetaPoolAsset.ETH) || amounts[i] == 0) continue;
 
             total += amounts[i];
 
@@ -665,7 +582,7 @@ contract EthAssetManager is Multicall, Mutex, IERC20TokenReceiver {
         uint256 value = amounts[uint256(MetaPoolAsset.ETH)];
 
         // Ensure that the contract has the amount of ethereum required.
-        if (value > address(this).balance) weth.withdraw(address(this).balance - value);
+        if (value > address(this).balance) weth.withdraw(value - address(this).balance);
 
         // Add the liquidity to the pool.
         minted = metaPool.add_liquidity{value: value}(amounts, minimumMintAmount);
@@ -705,7 +622,7 @@ contract EthAssetManager is Multicall, Mutex, IERC20TokenReceiver {
             : 0;
 
         // Ensure that the contract has the amount of ethereum required.
-        if (value > address(this).balance) weth.withdraw(address(this).balance - value);
+        if (value > address(this).balance) weth.withdraw(value - address(this).balance);
 
         // Add the liquidity to the pool.
         minted = metaPool.add_liquidity{value: value}(amounts, minimumMintAmount);
