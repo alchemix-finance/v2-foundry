@@ -17,6 +17,7 @@ import {SafeERC20} from "../../libraries/SafeERC20.sol";
 import {ITokenAdapter} from "../../interfaces/ITokenAdapter.sol";
 import {IWETH9} from "../../interfaces/external/IWETH9.sol";
 import {IVesperPool} from "../../interfaces/external/vesper/IVesperPool.sol";
+import {IVesperRewards} from "../../interfaces/external/vesper/IVesperRewards.sol";
 
 struct InitializationParams {
     address alchemist;
@@ -48,7 +49,7 @@ contract VesperAdapterV1 is ITokenAdapter, Mutex {
 
     /// @inheritdoc ITokenAdapter
     function price() external view returns (uint256) {
-        return IVesperPool(token).getPricePerShare();
+        return IVesperPool(token).pricePerShare();
     }
 
     /// @inheritdoc ITokenAdapter
@@ -66,7 +67,7 @@ contract VesperAdapterV1 is ITokenAdapter, Mutex {
         IVesperPool(token).deposit(amount);
 
         uint256 balanceAfter = IERC20(token).balanceOf(address(this));
-        
+
         uint256 minted = balanceAfter - balanceBefore;
 
         // We must transfer to recipient after and use IERC20.balanceOf() for amount

@@ -14,11 +14,12 @@ import {
 
 import {IWETH9} from "../interfaces/external/IWETH9.sol";
 import {IVesperPool} from "../interfaces/external/vesper/IVesperPool.sol";
+import {IVesperRewards} from "../interfaces/external/vesper/IVesperRewards.sol";
 
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 
 contract VesperAdapterV1Test is DSTestPlus, stdCheats {
-    IVesperPool constant vesperPool = IVesperPool(0xcA0c34A3F35520B9490C1d58b35A19AB64014D80);
+    IVesperPool constant vesperPool = IVesperPool(0xd1C117319B3595fbc39b471AB1fd485629eb05F2);
     VesperAdapterV1 adapter;
 
     uint256 constant BPS = 10000;
@@ -26,19 +27,19 @@ contract VesperAdapterV1Test is DSTestPlus, stdCheats {
     function setUp() external {
         adapter = new VesperAdapterV1(AdapterInitializationParams({
             alchemist:       address(this),
-            token:           0xcA0c34A3F35520B9490C1d58b35A19AB64014D80,
-            underlyingToken: 0x6B175474E89094C44Da98b954EedeAC495271d0F
+            token:           address(vesperPool),
+            underlyingToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
         }));
 
         console.log(adapter.token());
     }
 
     function testPrice() external {
-        assertEq(adapter.price(), vesperPool.getPricePerShare());
+        assertEq(adapter.price(), vesperPool.pricePerShare());
     }
 
     function testUnwrap() external {
-        uint256 amount = 1e18;
+        uint256 amount = 100e18;
 
         tip(adapter.underlyingToken(), address(this), amount);
 
