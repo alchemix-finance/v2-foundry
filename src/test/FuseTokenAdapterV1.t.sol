@@ -39,9 +39,9 @@ contract FuseTokenAdapterV1Test is DSTestPlus, stdCheats {
         SafeERC20.safeApprove(address(underlyingToken), address(adapter), 1e18);
         uint256 wrapped = adapter.wrap(1e18, address(this));
 
-        uint256 underlyingValue = wrapped * adapter.price() / 10**TokenUtils.expectDecimals(address(fDAI));
+        uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(address(fDAI));
         assertGt(underlyingValue, 1e18 * 9900 / BPS /* 1% slippage */);
-        
+
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
 
@@ -60,7 +60,7 @@ contract FuseTokenAdapterV1Test is DSTestPlus, stdCheats {
         SafeERC20.safeApprove(address(underlyingToken), address(adapter), amount);
         uint256 wrapped = adapter.wrap(amount, address(this));
 
-        uint256 underlyingValue = wrapped * adapter.price() / 10**TokenUtils.expectDecimals(address(fDAI));
+        uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(address(fDAI));
         assertGt(underlyingValue, amount * 9900 / BPS /* 1% slippage */);
         
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
