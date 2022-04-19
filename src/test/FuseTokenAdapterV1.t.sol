@@ -20,9 +20,12 @@ contract FuseTokenAdapterV1Test is DSTestPlus, stdCheats {
     uint256 constant BPS = 10000;
     ICERC20 constant fDAI = ICERC20(0x7e9cE3CAa9910cc048590801e64174957Ed41d43);
 
+    IERC20 underlyingToken;
     FuseTokenAdapterV1 adapter;
 
     function setUp() external {
+        underlyingToken = IERC20(fDAI.underlying());
+
         adapter = new FuseTokenAdapterV1(AdapterInitializationParams({
             alchemist:       address(this),
             token:           address(fDAI),
@@ -31,20 +34,18 @@ contract FuseTokenAdapterV1Test is DSTestPlus, stdCheats {
     }
 
     function testUnwrap() external {
-        uint256 amount = 1e18;
+        tip(address(underlyingToken), address(this), 1e18);
 
-        tip(adapter.underlyingToken(), address(this), amount);
+        SafeERC20.safeApprove(address(underlyingToken), address(adapter), 1e18);
+        uint256 wrapped = adapter.wrap(1e18, address(this));
 
-        SafeERC20.safeApprove(adapter.underlyingToken(), address(adapter), amount);
-        uint256 wrapped = adapter.wrap(amount, address(this));
-
-        assertGt(wrapped * adapter.price(), (amount * 9900 / BPS));
+        assertGt(wrapped * adapter.price(), 1e18 * 9900 / BPS /* 1% slippage */);
         
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
 
-        assertGt(unwrapped, amount * 9900 / BPS);
-        assertGt(IERC20(adapter.underlyingToken()).balanceOf(address(0xbeef)), amount * 9900 / BPS);
+        assertGt(unwrapped, 1e18 * 9900 / BPS);
+        assertGt(underlyingToken.balanceOf(address(0xbeef)), 1e18 * 9900 / BPS);
     }
 
     function testUnwrap(uint256 amount) external {
@@ -53,17 +54,17 @@ contract FuseTokenAdapterV1Test is DSTestPlus, stdCheats {
             amount < type(uint96).max
         );
         
-        tip(adapter.underlyingToken(), address(this), amount);
+        tip(address(underlyingToken), address(this), amount);
 
-        SafeERC20.safeApprove(adapter.underlyingToken(), address(adapter), amount);
+        SafeERC20.safeApprove(address(underlyingToken), address(adapter), amount);
         uint256 wrapped = adapter.wrap(amount, address(this));
 
-        assertGt(wrapped * adapter.price(), (amount * 9900 / BPS));
+        assertGt(wrapped * adapter.price(), amount * 9900 / BPS /* 1% slippage */);
         
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
         
         assertGt(unwrapped, amount * 9900 / BPS);
-        assertGt(IERC20(adapter.underlyingToken()).balanceOf(address(0xbeef)), amount * 9900 / BPS);
+        assertGt(underlyingToken.balanceOf(address(0xbeef)), amount * 9900 / BPS);
     }
 }
