@@ -33,7 +33,7 @@ contract FuseTokenAdapterV1Test is DSTestPlus, stdCheats {
         }));
     }
 
-    function testUnwrap() external {
+    function testRoundTrip() external {
         tip(address(underlyingToken), address(this), 1e18);
 
         SafeERC20.safeApprove(address(underlyingToken), address(adapter), 1e18);
@@ -49,7 +49,7 @@ contract FuseTokenAdapterV1Test is DSTestPlus, stdCheats {
         assertGt(underlyingToken.balanceOf(address(0xbeef)), 1e18 * 9900 / BPS);
     }
 
-    function testUnwrap(uint256 amount) external {
+    function testRoundTrip(uint256 amount) external {
         hevm.assume(
             amount >= 10**SafeERC20.expectDecimals(adapter.underlyingToken()) && 
             amount < type(uint96).max
