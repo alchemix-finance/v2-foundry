@@ -30,10 +30,6 @@ contract FuseTokenAdapterV1Test is DSTestPlus, stdCheats {
         }));
     }
 
-    function testPrice() external {
-        assertApproxEq(adapter.price(), fDAI.exchangeRateStored(), 1e14);
-    }
-
     function testUnwrap() external {
         uint256 amount = 1e18;
 
