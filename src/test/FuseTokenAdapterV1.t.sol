@@ -5,7 +5,6 @@ import {IERC20} from "openzeppelin/token/ERC20/IERC20.sol";
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 import {stdCheats} from "forge-std/stdlib.sol";
-import "forge-std/console.sol";
 
 import {
     FuseTokenAdapterV1,
@@ -29,8 +28,6 @@ contract FuseTokenAdapterV1Test is DSTestPlus, stdCheats {
             token:           address(fDAI),
             underlyingToken: address(fDAI.underlying())
         }));
-
-        console.log(adapter.token());
     }
 
     function testPrice() external {
