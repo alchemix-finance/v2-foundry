@@ -47,6 +47,8 @@ contract FuseTokenAdapterV1Test is DSTestPlus, stdCheats {
 
         assertGt(unwrapped, 1e18 * 9900 / BPS);
         assertGt(underlyingToken.balanceOf(address(0xbeef)), 1e18 * 9900 / BPS);
+        assertEq(fDAI.balanceOf(address(this)), 0);
+        assertEq(fDAI.balanceOf(address(adapter)), 0);
     }
 
     function testRoundTrip(uint256 amount) external {
@@ -65,8 +67,10 @@ contract FuseTokenAdapterV1Test is DSTestPlus, stdCheats {
         
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
-        
+
         assertGt(unwrapped, amount * 9900 / BPS);
         assertGt(underlyingToken.balanceOf(address(0xbeef)), amount * 9900 / BPS);
+        assertEq(fDAI.balanceOf(address(this)), 0);
+        assertEq(fDAI.balanceOf(address(adapter)), 0);
     }
 }
