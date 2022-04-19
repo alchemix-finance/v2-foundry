@@ -17,10 +17,10 @@ import {SafeERC20} from "../libraries/SafeERC20.sol";
 import {LibFuse} from "../libraries/LibFuse.sol";
 
 contract FuseTokenAdapterV1Test is DSTestPlus, stdCheats {
-    ICERC20 fDAI = ICERC20(0x7e9cE3CAa9910cc048590801e64174957Ed41d43);
-    FuseTokenAdapterV1 adapter;
-
     uint256 constant BPS = 10000;
+    ICERC20 constant fDAI = ICERC20(0x7e9cE3CAa9910cc048590801e64174957Ed41d43);
+
+    FuseTokenAdapterV1 adapter;
 
     function setUp() external {
         adapter = new FuseTokenAdapterV1(AdapterInitializationParams({
