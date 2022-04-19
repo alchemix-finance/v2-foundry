@@ -10,7 +10,7 @@ import "forge-std/console.sol";
 import {
     FuseTokenAdapterV1,
     InitializationParams as AdapterInitializationParams
-} from "../adapters/Fuse/FuseTokenAdapterV1.sol";
+} from "../adapters/fuse/FuseTokenAdapterV1.sol";
 
 import {ICERC20} from "../interfaces/external/compound/ICERC20.sol";
 
@@ -51,7 +51,7 @@ contract FuseTokenAdapterV1Test is DSTestPlus, stdCheats {
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
 
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
-        
+
         assertGt(unwrapped, amount * 9900 / BPS);
         assertGt(IERC20(adapter.underlyingToken()).balanceOf(address(0xbeef)), amount * 9900 / BPS);
     }
