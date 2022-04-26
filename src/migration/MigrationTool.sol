@@ -66,7 +66,9 @@ contract MigrationTool is IMigrationTool, Multicall, Mutex {
 		// repay flash loan.
 
 		// create new position with remainder.
-		
+
+        //TODO remove placeholder return once everything is sorted
+		return 0;
 	}
 
     /// @inheritdoc IMigrationTool
@@ -80,7 +82,7 @@ contract MigrationTool is IMigrationTool, Multicall, Mutex {
     ///
     /// @dev 'msg.sender' must exist in the alchemist accounts or function will revert
     function _accountExists(address user) internal view {
-		if(!alchemist.accounts(user)) {
+		if(!IAlchemistV2(alchemist).accounts(user)) {
 			revert IllegalArgument("User does not exist within the alchemist");
 		}
 	}
