@@ -22,9 +22,4 @@ interface IMigrationTool {
         uint256 amount,
         uint256 maxSlippage
     ) external returns(uint256 underlyingValue);
-
-    /// @notice Checks that 'yieldToken' is supoprted by the alchemist.
-    ///
-    /// @param yieldToken   Address of the yield token to check against the alchemist.
-    function isVaultSupported(address yieldToken) external view;
 }

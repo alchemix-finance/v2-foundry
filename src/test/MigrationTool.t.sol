@@ -20,18 +20,12 @@ contract MingrationToolTest is DSTestPlus, stdCheats {
     address constant yvUSDC = 0xa354F35829Ae975e850e23e9615b11Da1B3dC4DE;
     uint256 constant BPS = 10000;
 
-    MingrationTool migration;
+    MigrationTool migration;
 
     function setUp() external {
-        migration = new MingrationTool(MigrtionInitializationParams({
-            alchemist:       alchemistUSD;
+        migration = new MigrationTool(MigrtionInitializationParams({
+            alchemist:       alchemistUSD
         }));
-    }
-
-    function testInvalidAccount() external {
-        // TODO use address of account that does not exist
-        // Expect revert
-        migration.migrateVaults();
     }
 
     function testUnsupportedVaults() external {
