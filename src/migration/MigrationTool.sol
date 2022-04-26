@@ -48,18 +48,16 @@ contract MigrationTool is IMigrationTool, Multicall, Mutex {
         // TODO Possibly create on alchemist variable instead of calling interface multiple times
 		(uint256 shares, uint256 lastAccruedWeight) = IAlchemistV2(alchemist).positions(msg.sender, startingVault);
 
-		//At this point not too sure how to find exact amount of underlying tokens needed
-		//Using positions now lasAccruedWeight
+		// At this point not too sure how to find exact amount of underlying tokens needed
+		// Using positions now lasAccruedWeight
 
-		// flashloan the amount of tokens needed to pay debt.
+		// Mint al tokens
 
-		// repay alchemist debt for specific underlying.
-
-		// withdraw original loan amount to this contract. 
-
-		// repay flash loan.
+		// use al tokens to withdraw
 
 		// create new position with remainder.
+
+        // burn tokens equal to the amount minted or revert
 
         //TODO remove placeholder return once everything is sorted
 		return 0;
