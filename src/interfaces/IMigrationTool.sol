@@ -8,18 +8,21 @@ interface IMigrationTool {
     /// @return The version.
     function version() external view returns (string memory);
 
-    /// @notice Migrates 'amount' from 'startingVault' to 'targetVault'.
+    /// @notice Migrates 'shares' from 'startingVault' to 'targetVault'.
     ///
     /// @param startingVault    The vault from which the user wants to withdraw from.
     /// @param targetVault      The vault that the user wishes to create a new position in.
-    /// @param amount           The amount of tokens to migrate.
-    /// @param maxSlippage      The maximum amount of slippage that the user will accept.
+    /// @param underlyingToken  The underlying token to withdraw and re-deposit.
+    /// @param shares           The shares of tokens to migrate.
+    /// @param maxSlippage      The maximum shares of slippage that the user will accept.
     ///
-    /// @return underlyingValue The underlying Value of the new position.
+    /// @return finalShares The underlying Value of the new position.
+    /// @return userPayment     The amount the user paid for the migration
     function migrateVaults(
         address startingVault,
         address targetVault,
-        uint256 amount,
+        address underlyingToken,
+        uint256 shares,
         uint256 maxSlippage
-    ) external returns(uint256 underlyingValue);
+    ) external payable returns(uint256 finalShares, uint256 userPayment);
 }
