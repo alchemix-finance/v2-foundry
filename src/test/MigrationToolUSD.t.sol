@@ -10,9 +10,9 @@ import {DSTestPlus} from "./utils/DSTestPlus.sol";
 import {stdCheats} from "forge-std/stdlib.sol";
 
 import {
-    MigrationTool,
+    MigrationToolUSD,
     InitializationParams as MigrtionInitializationParams
-} from "../migration/MigrationTool.sol";
+} from "../migration/MigrationToolUSD.sol";
 
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 
@@ -24,10 +24,12 @@ import {ICurveMetapool} from "../interfaces/ICurveMetapool.sol";
 
 
 contract MigrationToolTest is DSTestPlus, stdCheats {
+    // TODO sort
     address constant admin = 0x8392F6669292fA56123F71949B52d883aE57e225;
     address constant alToken = 0xBC6DA0FE9aD5f3b0d58160288917AA56653660E9;
     address constant alchemistUSD = 0x5C6374a2ac4EBC38DeA0Fc1F8716e5Ea1AdD94dd;
-    address constant curveMetaPool = 0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c;
+    address constant curveMetapool = 0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c;
+    address constant curveThreePool = 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7;
     address constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
     address constant invalidYieldToken = 0x23D3D0f1c697247d5e0a9efB37d8b0ED0C464f7f;
     address constant owner = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
@@ -42,12 +44,13 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
     IAlchemistV2 Alchemist;
     IWhitelist Whitelist;
 
-    MigrationTool migration;
+    MigrationToolUSD migration;
 
     function setUp() external {
-        migration = new MigrationTool(MigrtionInitializationParams({
+        migration = new MigrationToolUSD(MigrtionInitializationParams({
             alchemist:       alchemistUSD,
-            curvePool:       curveMetaPool
+            curveMetapool:  curveMetapool,
+            curveThreePool:  curveThreePool
         }));
 
         AlToken = IAlToken(alToken);
@@ -70,10 +73,10 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
 
     function testUnsupportedVaults() external {
         expectIllegalArgumentError("Vault is not supported");
-        migration.migrateVaults(invalidYieldToken, yvDAI, DAI, 100e18, 90e18);
+        migration.migrateVaults(invalidYieldToken, yvDAI, 100e18, 90e18);
         
         expectIllegalArgumentError("Vault is not supported");
-        migration.migrateVaults(yvDAI , invalidYieldToken, DAI, 100e18, 90e18);
+        migration.migrateVaults(yvDAI , invalidYieldToken, 100e18, 90e18);
     }
 
     function testMigrationSameVault() external {
@@ -86,24 +89,37 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
         (uint256 shares, ) = Alchemist.positions(address(this), yvDAI);
         Alchemist.mint(shares/2, address(this));
 
-        //TODO figure out why the other mint doesnt work
-        // This was done to bypass the commented mint call in the migration tool
-        tip(alToken, address(migration), shares/2);
+        // Approve the migration tool to withdraw and mint on behalf of the user
+        // TODO See if there is a way for the tool to approve itself
+        Alchemist.approveWithdraw(address(migration), yvDAI, shares);
+        Alchemist.approveMint(address(migration), shares);
+
+        (uint256 newShares, uint256 userPayment) = migration.migrateVaults(yvDAI, yvDAI, shares, 0);
+        assertGt(newShares, shares * 9900 / BPS );
+    }
+
+    function testMigrationDifferentVault() external {
+        // TODO test with different vaults once they are ready
+    }
+
+    function testMigrationDifferentUnderlying() external {
+        tip(DAI, address(this), 200e18);
+        
+        // Create new position
+        SafeERC20.safeApprove(DAI, alchemistUSD, 100e18);
+        Alchemist.depositUnderlying(yvDAI, 100e18, address(this), 0);
+
+        (uint256 shares, ) = Alchemist.positions(address(this), yvDAI);
+        Alchemist.mint(shares/2, address(this));
 
         // Approve the migration tool to withdraw and mint on behalf of the user
         // TODO See if there is a way for the tool to approve itself
         Alchemist.approveWithdraw(address(migration), yvDAI, shares);
         Alchemist.approveMint(address(migration), shares);
 
-        (uint256 newShares, uint256 userPayment) = migration.migrateVaults(yvDAI, yvDAI, DAI, shares, 0);
-        assertGt(newShares, shares * 9900 / BPS );
-    }
+        (uint256 newShares, uint256 userPayment) = migration.migrateVaults(yvDAI, yvUSDC, shares, 0);
+        assertGt(newShares * 1e12, shares * 9900 / BPS );
 
-    function testMigrationDifferentVault() external {
-        // TODO test with eth vaults
-    }
-
-    function testMigrationDifferentUnderlying() external {
-        // TODO add ability to swap between underlying
+        // TODO add assert to see if alchemist has position for new currency
     }
 }

@@ -17,7 +17,8 @@ import {SafeERC20} from "../libraries/SafeERC20.sol";
 
 import {IAlToken} from "../interfaces/IAlToken.sol";
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
-import {ICurveMetapool} from "../interfaces/ICurveMetapool.sol";
+import {IAlchemistV2State} from "../interfaces/alchemist/IAlchemistV2State.sol";
+import {ICurveFactoryethpool} from "../interfaces/ICurveFactoryethpool.sol";
 import {IMigrationTool} from "../interfaces/IMigrationTool.sol";
 import {IWETH9} from "../interfaces/external/IWETH9.sol";
 
@@ -26,28 +27,28 @@ struct InitializationParams {
     address curvePool;
 }
 
-contract MigrationTool is IMigrationTool, Multicall {
+contract MigrationToolETH is IMigrationTool, Multicall {
     string public override version = "1.0.0";
 
     IAlchemistV2 public immutable Alchemist;
     IAlToken public immutable AlchemicToken;
-    ICurveMetapool public immutable CurvePool;
+    ICurveFactoryethpool public immutable CurvePool;
 
-    constructor(InitializationParams memory params) {
+    constructor(InitializationParams memory params)  {
         Alchemist       = IAlchemistV2(params.alchemist);
         AlchemicToken   = IAlToken(Alchemist.debtToken());
-        CurvePool       = ICurveMetapool(params.curvePool);
+        CurvePool       = ICurveFactoryethpool(params.curvePool);
     }
 
     /// @inheritdoc IMigrationTool
     function migrateVaults(
         address startingVault,
         address targetVault,
-        //TODO add starting and target underlying
-        address underlyingToken,
         uint256 shares,
         uint256 minReturn
     ) external override payable returns(uint256, uint256) {
+        IAlchemistV2State.YieldTokenParams memory startingParams = Alchemist.getYieldTokenParameters(startingVault);
+
         // If either vault is invalid, revert
         if(!Alchemist.isSupportedYieldToken(startingVault)) {
             revert IllegalArgument("Vault is not supported");
@@ -64,32 +65,33 @@ contract MigrationTool is IMigrationTool, Multicall {
             revert IllegalState("Debt must be positive");
         }
 
-        // TODO fix this
-        //AlchemicToken.mint(address(this), shares / 2);
+        AlchemicToken.mint(address(this), shares / 2);
 
         SafeERC20.safeApprove(Alchemist.debtToken(), address(CurvePool), shares / 2);
-        // TODO change the second param to be a enum
-        uint256 exchanged = CurvePool.exchange_underlying(0, 1, shares / 2, 0);
+        // TODO change minimum to target value
+        uint256 exchanged = CurvePool.exchange(1, 0, shares / 2, 0);
+
+        // Wrap the ETH that we received from the swap.
+        IWETH9(startingParams.underlyingToken).deposit{value: exchanged}();
 
         // Repay with underlying received from exchange
-        SafeERC20.safeApprove(underlyingToken, address(Alchemist), exchanged);
-        Alchemist.repay(underlyingToken, exchanged, msg.sender);
+        uint256 wethBalance = IERC20(startingParams.underlyingToken).balanceOf(address(this));
+        SafeERC20.safeApprove(startingParams.underlyingToken, address(Alchemist), wethBalance);
+        Alchemist.repay(startingParams.underlyingToken, wethBalance, msg.sender);
 
         // Withdraw what you can from the old position
         // TODO figure out how to withdraw as much as possible
         uint256 underlyingReturned = Alchemist.withdrawUnderlyingFrom(msg.sender, startingVault, shares * 9950 / 10000, address(this), 0);
 
         // Deposit into new vault
-        SafeERC20.safeApprove(underlyingToken, address(Alchemist), underlyingReturned);
+        SafeERC20.safeApprove(startingParams.underlyingToken, address(Alchemist), underlyingReturned);
         uint256 sharesReturned = Alchemist.depositUnderlying(targetVault, underlyingReturned, address(this), 0);
 
         // mint al token which will be burned to fulfill flash loan requirements
         Alchemist.mint(sharesReturned/2, address(this));
+        AlchemicToken.burn(sharesReturned/2);
 
-        // Same problem as the AlchemicToken.mint()
-        // AlchemicToken.burn(sharesReturned/2);
-
-        uint256 userPayment = (shares/2) - sharesReturned/2;
+        uint256 userPayment = shares/2 - sharesReturned/2;
 
         // TODO get payment from user
         // Possibly accept underlying overpaid enough to swap for al token then refund extra
@@ -97,4 +99,8 @@ contract MigrationTool is IMigrationTool, Multicall {
 
 		return (sharesReturned, userPayment);
 	}
+
+    receive() external payable {
+        emit Received(msg.sender, msg.value);
+    }
 }
