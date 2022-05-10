@@ -23,7 +23,7 @@ interface IStableSwap3Pool {
 
     function get_dy_underlying(int128 i, int128 j, uint256 dx) external view returns (uint256 dy);
 
-    function exchange(int128 i, int128 j, uint256 dx, uint256 minimumDy) external returns (uint256);
+    function exchange(int128 i, int128 j, uint256 dx, uint256 minimumDy) external;
 
     function remove_liquidity(uint256 amount, uint256[N_COINS] calldata minimumAmounts) external;
 
