@@ -3,9 +3,12 @@ pragma solidity >=0.5.0;
 
 import "openzeppelin/token/ERC20/IERC20.sol";
 
+import "./IERC20Burnable.sol";
+import "./IERC20Mintable.sol";
+
 /// @title  IAlchemicToken
 /// @author Alchemix Finance
-interface IAlToken is IERC20 {
+interface IAlToken is IERC20, IERC20Burnable, IERC20Mintable {
   /// @notice Gets the total amount of minted tokens for an account.
   ///
   /// @param account The address of the account.
@@ -35,8 +38,4 @@ interface IAlToken is IERC20 {
   /// @param toWhitelist the address whos state is being updated
   /// @param state the boolean state of the whitelist
   function setWhitelist(address toWhitelist, bool state) external;
-
-  function mint(address recipient, uint256 amount) external;
-
-  function burn(uint256 amount) external;
 }
