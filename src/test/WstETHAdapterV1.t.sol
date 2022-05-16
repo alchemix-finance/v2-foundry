@@ -61,4 +61,15 @@ contract WstETHAdapterV1Test is DSTestPlus, stdCheats {
         assertEq(wstETH.allowance(address(this), address(adapter)), 0);
         assertEq(weth.balanceOf(address(0xbeef)), unwrapped);
     }
+
+    function testWrapGrief() external {
+        tip(address(weth), address(this), 1e18);
+        tip(address(wstETH), address(adapter), 1e18);
+
+        SafeERC20.safeApprove(address(weth), address(adapter), 1e18);
+        uint256 wrapped = adapter.wrap(1e18, address(0xbeef));
+
+        assertEq(weth.allowance(address(this), address(adapter)), 0);
+        assertEq(wstETH.balanceOf(address(0xbeef)), wrapped);
+    }
 }
