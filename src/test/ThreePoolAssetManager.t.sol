@@ -17,7 +17,7 @@ import {
     InitializationParams as ManagerInitializationParams
 } from "../ThreePoolAssetManager.sol";
 
-import {ITransmuterBuffer} from "../interfaces/ITransmuterBuffer.sol";
+import {ITransmuterBuffer} from "../interfaces/transmuter/ITransmuterBuffer.sol";
 import {IERC20TokenReceiver} from "../interfaces/IERC20TokenReceiver.sol";
 import {IConvexBooster} from "../interfaces/external/convex/IConvexBooster.sol";
 import {IConvexRewards} from "../interfaces/external/convex/IConvexRewards.sol";

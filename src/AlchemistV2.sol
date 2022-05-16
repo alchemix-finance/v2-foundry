@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.11;
 
 import {Initializable} from "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
@@ -1706,7 +1707,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
 
         // Only check the whitelist for calls from contracts.
         if (!IWhitelist(whitelist).isWhitelisted(msg.sender)) {
-          revert Unauthorized("Not in whitelist");
+          revert Unauthorized("Not whitelisted");
         }
     }
 

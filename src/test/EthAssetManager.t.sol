@@ -16,7 +16,7 @@ import {
     InitializationParams as ManagerInitializationParams
 } from "../EthAssetManager.sol";
 
-import {ITransmuterBuffer} from "../interfaces/ITransmuterBuffer.sol";
+import {ITransmuterBuffer} from "../interfaces/transmuter/ITransmuterBuffer.sol";
 import {IERC20TokenReceiver} from "../interfaces/IERC20TokenReceiver.sol";
 import {IWETH9} from "../interfaces/external/IWETH9.sol";
 import {IConvexBooster} from "../interfaces/external/convex/IConvexBooster.sol";
