@@ -26,7 +26,7 @@ struct InitializationParams {
 }
 
 contract WstETHAdapterV1 is ITokenAdapter, Mutex {
-    string public override version = "1.0.0";
+    string public override version = "1.1.0";
 
     address public immutable alchemist;
     address public immutable override token;
