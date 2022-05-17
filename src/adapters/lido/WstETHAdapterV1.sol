@@ -26,7 +26,7 @@ struct InitializationParams {
 }
 
 contract WstETHAdapterV1 is ITokenAdapter, Mutex {
-    string public override version = "1.0.0";
+    string public override version = "1.1.0";
 
     address public immutable alchemist;
     address public immutable override token;
@@ -95,7 +95,7 @@ contract WstETHAdapterV1 is ITokenAdapter, Mutex {
         IWETH9(underlyingToken).withdraw(amount);
 
         // Wrap the ETH into stETH.
-        uint256 startingStEthBalance = IERC20(token).balanceOf(address(this));
+        uint256 startingStEthBalance = IERC20(parentToken).balanceOf(address(this));
 
         IStETH(parentToken).submit{value: amount}(referral);
 
