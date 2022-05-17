@@ -9,5 +9,734 @@
     "object": "0x",
     "sourceMap": "",
     "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/base/Mutex.sol",
+    "exportedSymbols": {
+      "IllegalState": [
+        18763
+      ],
+      "Mutex": [
+        18915
+      ]
+    },
+    "id": 18916,
+    "license": "GPL-2.0-or-later",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 18848,
+        "literals": [
+          "solidity",
+          "0.8",
+          ".13"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "45:23:22"
+      },
+      {
+        "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/base/Errors.sol",
+        "file": "./Errors.sol",
+        "id": 18850,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 18916,
+        "sourceUnit": 18774,
+        "src": "70:42:22",
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 18849,
+              "name": "IllegalState",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 18763,
+              "src": "78:12:22",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "abstract": true,
+        "baseContracts": [],
+        "canonicalName": "Mutex",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 18851,
+          "nodeType": "StructuredDocumentation",
+          "src": "114:124:22",
+          "text": "@title  Mutex\n @author Alchemix Finance\n @notice Provides a mutual exclusion lock for implementing contracts."
+        },
+        "fullyImplemented": true,
+        "id": 18915,
+        "linearizedBaseContracts": [
+          18915
+        ],
+        "name": "Mutex",
+        "nameLocation": "256:5:22",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "Mutex.State",
+            "id": 18855,
+            "members": [
+              {
+                "id": 18852,
+                "name": "RESERVED",
+                "nameLocation": "289:8:22",
+                "nodeType": "EnumValue",
+                "src": "289:8:22"
+              },
+              {
+                "id": 18853,
+                "name": "UNLOCKED",
+                "nameLocation": "307:8:22",
+                "nodeType": "EnumValue",
+                "src": "307:8:22"
+              },
+              {
+                "id": 18854,
+                "name": "LOCKED",
+                "nameLocation": "325:6:22",
+                "nodeType": "EnumValue",
+                "src": "325:6:22"
+              }
+            ],
+            "name": "State",
+            "nameLocation": "273:5:22",
+            "nodeType": "EnumDefinition",
+            "src": "268:69:22"
+          },
+          {
+            "constant": false,
+            "documentation": {
+              "id": 18856,
+              "nodeType": "StructuredDocumentation",
+              "src": "343:27:22",
+              "text": "@notice The lock state."
+            },
+            "id": 18861,
+            "mutability": "mutable",
+            "name": "_lockState",
+            "nameLocation": "389:10:22",
+            "nodeType": "VariableDeclaration",
+            "scope": 18915,
+            "src": "375:41:22",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_enum$_State_$18855",
+              "typeString": "enum Mutex.State"
+            },
+            "typeName": {
+              "id": 18858,
+              "nodeType": "UserDefinedTypeName",
+              "pathNode": {
+                "id": 18857,
+                "name": "State",
+                "nodeType": "IdentifierPath",
+                "referencedDeclaration": 18855,
+                "src": "375:5:22"
+              },
+              "referencedDeclaration": 18855,
+              "src": "375:5:22",
+              "typeDescriptions": {
+                "typeIdentifier": "t_enum$_State_$18855",
+                "typeString": "enum Mutex.State"
+              }
+            },
+            "value": {
+              "expression": {
+                "id": 18859,
+                "name": "State",
+                "nodeType": "Identifier",
+                "overloadedDeclarations": [],
+                "referencedDeclaration": 18855,
+                "src": "402:5:22",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_type$_t_enum$_State_$18855_$",
+                  "typeString": "type(enum Mutex.State)"
+                }
+              },
+              "id": 18860,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "lValueRequested": false,
+              "memberName": "UNLOCKED",
+              "nodeType": "MemberAccess",
+              "referencedDeclaration": 18853,
+              "src": "402:14:22",
+              "typeDescriptions": {
+                "typeIdentifier": "t_enum$_State_$18855",
+                "typeString": "enum Mutex.State"
+              }
+            },
+            "visibility": "private"
+          },
+          {
+            "body": {
+              "id": 18871,
+              "nodeType": "Block",
+              "src": "489:63:22",
+              "statements": [
+                {
+                  "expression": {
+                    "arguments": [],
+                    "expression": {
+                      "argumentTypes": [],
+                      "id": 18864,
+                      "name": "_claimLock",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 18904,
+                      "src": "499:10:22",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_nonpayable$__$returns$__$",
+                        "typeString": "function ()"
+                      }
+                    },
+                    "id": 18865,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "499:12:22",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 18866,
+                  "nodeType": "ExpressionStatement",
+                  "src": "499:12:22"
+                },
+                {
+                  "id": 18867,
+                  "nodeType": "PlaceholderStatement",
+                  "src": "522:1:22"
+                },
+                {
+                  "expression": {
+                    "arguments": [],
+                    "expression": {
+                      "argumentTypes": [],
+                      "id": 18868,
+                      "name": "_freeLock",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 18914,
+                      "src": "534:9:22",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_nonpayable$__$returns$__$",
+                        "typeString": "function ()"
+                      }
+                    },
+                    "id": 18869,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "534:11:22",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 18870,
+                  "nodeType": "ExpressionStatement",
+                  "src": "534:11:22"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 18862,
+              "nodeType": "StructuredDocumentation",
+              "src": "423:45:22",
+              "text": "@dev A modifier which acquires the mutex."
+            },
+            "id": 18872,
+            "name": "lock",
+            "nameLocation": "482:4:22",
+            "nodeType": "ModifierDefinition",
+            "parameters": {
+              "id": 18863,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "486:2:22"
+            },
+            "src": "473:79:22",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 18883,
+              "nodeType": "Block",
+              "src": "698:50:22",
+              "statements": [
+                {
+                  "expression": {
+                    "commonType": {
+                      "typeIdentifier": "t_enum$_State_$18855",
+                      "typeString": "enum Mutex.State"
+                    },
+                    "id": 18881,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "id": 18878,
+                      "name": "_lockState",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 18861,
+                      "src": "715:10:22",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_enum$_State_$18855",
+                        "typeString": "enum Mutex.State"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "==",
+                    "rightExpression": {
+                      "expression": {
+                        "id": 18879,
+                        "name": "State",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 18855,
+                        "src": "729:5:22",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_enum$_State_$18855_$",
+                          "typeString": "type(enum Mutex.State)"
+                        }
+                      },
+                      "id": 18880,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "lValueRequested": false,
+                      "memberName": "LOCKED",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 18854,
+                      "src": "729:12:22",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_enum$_State_$18855",
+                        "typeString": "enum Mutex.State"
+                      }
+                    },
+                    "src": "715:26:22",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "functionReturnParameters": 18877,
+                  "id": 18882,
+                  "nodeType": "Return",
+                  "src": "708:33:22"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 18873,
+              "nodeType": "StructuredDocumentation",
+              "src": "558:85:22",
+              "text": "@dev Gets if the mutex is locked.\n @return if the mutex is locked."
+            },
+            "id": 18884,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "_isLocked",
+            "nameLocation": "657:9:22",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 18874,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "666:2:22"
+            },
+            "returnParameters": {
+              "id": 18877,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 18876,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 18884,
+                  "src": "692:4:22",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 18875,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "692:4:22",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "691:6:22"
+            },
+            "scope": 18915,
+            "src": "648:100:22",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 18903,
+              "nodeType": "Block",
+              "src": "870:238:22",
+              "statements": [
+                {
+                  "condition": {
+                    "commonType": {
+                      "typeIdentifier": "t_enum$_State_$18855",
+                      "typeString": "enum Mutex.State"
+                    },
+                    "id": 18891,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "id": 18888,
+                      "name": "_lockState",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 18861,
+                      "src": "941:10:22",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_enum$_State_$18855",
+                        "typeString": "enum Mutex.State"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "!=",
+                    "rightExpression": {
+                      "expression": {
+                        "id": 18889,
+                        "name": "State",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 18855,
+                        "src": "955:5:22",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_enum$_State_$18855_$",
+                          "typeString": "type(enum Mutex.State)"
+                        }
+                      },
+                      "id": 18890,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "lValueRequested": false,
+                      "memberName": "UNLOCKED",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 18853,
+                      "src": "955:14:22",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_enum$_State_$18855",
+                        "typeString": "enum Mutex.State"
+                      }
+                    },
+                    "src": "941:28:22",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 18897,
+                  "nodeType": "IfStatement",
+                  "src": "937:102:22",
+                  "trueBody": {
+                    "id": 18896,
+                    "nodeType": "Block",
+                    "src": "971:68:22",
+                    "statements": [
+                      {
+                        "errorCall": {
+                          "arguments": [
+                            {
+                              "hexValue": "4c6f636b20616c726561647920636c61696d6564",
+                              "id": 18893,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "string",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "1005:22:22",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_stringliteral_64cb5c0fb4a970da63801bca4b3bbd1a7c960a9142e0b8d464ee61bb91624e37",
+                                "typeString": "literal_string \"Lock already claimed\""
+                              },
+                              "value": "Lock already claimed"
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": [
+                              {
+                                "typeIdentifier": "t_stringliteral_64cb5c0fb4a970da63801bca4b3bbd1a7c960a9142e0b8d464ee61bb91624e37",
+                                "typeString": "literal_string \"Lock already claimed\""
+                              }
+                            ],
+                            "id": 18892,
+                            "name": "IllegalState",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 18763,
+                            "src": "992:12:22",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_error_pure$_t_string_memory_ptr_$returns$__$",
+                              "typeString": "function (string memory) pure"
+                            }
+                          },
+                          "id": 18894,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "992:36:22",
+                          "tryCall": false,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_tuple$__$",
+                            "typeString": "tuple()"
+                          }
+                        },
+                        "id": 18895,
+                        "nodeType": "RevertStatement",
+                        "src": "985:43:22"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "expression": {
+                    "id": 18901,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "id": 18898,
+                      "name": "_lockState",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 18861,
+                      "src": "1076:10:22",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_enum$_State_$18855",
+                        "typeString": "enum Mutex.State"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "expression": {
+                        "id": 18899,
+                        "name": "State",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 18855,
+                        "src": "1089:5:22",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_enum$_State_$18855_$",
+                          "typeString": "type(enum Mutex.State)"
+                        }
+                      },
+                      "id": 18900,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "lValueRequested": false,
+                      "memberName": "LOCKED",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 18854,
+                      "src": "1089:12:22",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_enum$_State_$18855",
+                        "typeString": "enum Mutex.State"
+                      }
+                    },
+                    "src": "1076:25:22",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_enum$_State_$18855",
+                      "typeString": "enum Mutex.State"
+                    }
+                  },
+                  "id": 18902,
+                  "nodeType": "ExpressionStatement",
+                  "src": "1076:25:22"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 18885,
+              "nodeType": "StructuredDocumentation",
+              "src": "754:80:22",
+              "text": "@dev Claims the lock. If the lock is already claimed, then this will revert."
+            },
+            "id": 18904,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "_claimLock",
+            "nameLocation": "848:10:22",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 18886,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "858:2:22"
+            },
+            "returnParameters": {
+              "id": 18887,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "870:0:22"
+            },
+            "scope": 18915,
+            "src": "839:269:22",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 18913,
+              "nodeType": "Block",
+              "src": "1173:44:22",
+              "statements": [
+                {
+                  "expression": {
+                    "id": 18911,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "id": 18908,
+                      "name": "_lockState",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 18861,
+                      "src": "1183:10:22",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_enum$_State_$18855",
+                        "typeString": "enum Mutex.State"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "expression": {
+                        "id": 18909,
+                        "name": "State",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 18855,
+                        "src": "1196:5:22",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_enum$_State_$18855_$",
+                          "typeString": "type(enum Mutex.State)"
+                        }
+                      },
+                      "id": 18910,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "lValueRequested": false,
+                      "memberName": "UNLOCKED",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 18853,
+                      "src": "1196:14:22",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_enum$_State_$18855",
+                        "typeString": "enum Mutex.State"
+                      }
+                    },
+                    "src": "1183:27:22",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_enum$_State_$18855",
+                      "typeString": "enum Mutex.State"
+                    }
+                  },
+                  "id": 18912,
+                  "nodeType": "ExpressionStatement",
+                  "src": "1183:27:22"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 18905,
+              "nodeType": "StructuredDocumentation",
+              "src": "1114:24:22",
+              "text": "@dev Frees the lock."
+            },
+            "id": 18914,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "_freeLock",
+            "nameLocation": "1152:9:22",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 18906,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1161:2:22"
+            },
+            "returnParameters": {
+              "id": 18907,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1173:0:22"
+            },
+            "scope": 18915,
+            "src": "1143:74:22",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "internal"
+          }
+        ],
+        "scope": 18916,
+        "src": "238:981:22",
+        "usedErrors": []
+      }
+    ],
+    "src": "45:1174:22"
   }
 }

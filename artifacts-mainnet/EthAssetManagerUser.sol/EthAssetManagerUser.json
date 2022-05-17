@@ -1,0 +1,369 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract EthAssetManager",
+          "name": "_manager",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "acceptAdmin",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
+  ],
+  "bytecode": {
+    "object": "0x608060405234801561001057600080fd5b5060405161016038038061016083398101604081905261002f91610054565b600080546001600160a01b0319166001600160a01b0392909216919091179055610084565b60006020828403121561006657600080fd5b81516001600160a01b038116811461007d57600080fd5b9392505050565b60ce806100926000396000f3fe60806040526004361060205760003560e01c80630e18b68114602b57600080fd5b36602657005b600080fd5b348015603657600080fd5b50603d603f565b005b6000805460408051630e18b68160e01b815290516001600160a01b0390921692630e18b6819260048084019382900301818387803b158015607f57600080fd5b505af11580156092573d6000803e3d6000fd5b5050505056fea2646970667358221220d4a7eec03afde8a9b838cc88cb619ee0a6762cadc5e95db0caba596a3fcd268764736f6c634300080d0033",
+    "sourceMap": "127:248:75:-:0;;;201:61;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;241:7;:18;;-1:-1:-1;;;;;;241:18:75;-1:-1:-1;;;;;241:18:75;;;;;;;;;;127:248;;14:315:78;109:6;162:2;150:9;141:7;137:23;133:32;130:52;;;178:1;175;168:12;130:52;204:16;;-1:-1:-1;;;;;249:31:78;;239:42;;229:70;;295:1;292;285:12;229:70;318:5;14:315;-1:-1:-1;;;14:315:78:o;:::-;127:248:75;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x60806040526004361060205760003560e01c80630e18b68114602b57600080fd5b36602657005b600080fd5b348015603657600080fd5b50603d603f565b005b6000805460408051630e18b68160e01b815290516001600160a01b0390921692630e18b6819260048084019382900301818387803b158015607f57600080fd5b505af11580156092573d6000803e3d6000fd5b5050505056fea2646970667358221220d4a7eec03afde8a9b838cc88cb619ee0a6762cadc5e95db0caba596a3fcd268764736f6c634300080d0033",
+    "sourceMap": "127:248:75:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;303:70;;;;;;;;;;;;;:::i;:::-;;;345:7;;;:21;;;-1:-1:-1;;;345:21:75;;;;-1:-1:-1;;;;;345:7:75;;;;:19;;:21;;;;;;;;;;:7;;:21;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;303:70::o",
+    "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/test/utils/users/EthAssetManagerUser.sol",
+    "exportedSymbols": {
+      "EthAssetManager": [
+        14878
+      ],
+      "EthAssetManagerUser": [
+        29876
+      ]
+    },
+    "id": 29877,
+    "license": "UNLICENSED",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 29846,
+        "literals": [
+          "solidity",
+          "0.8",
+          ".13"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "39:23:75"
+      },
+      {
+        "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/EthAssetManager.sol",
+        "file": "../../../EthAssetManager.sol",
+        "id": 29848,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 29877,
+        "sourceUnit": 14879,
+        "src": "64:61:75",
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 29847,
+              "name": "EthAssetManager",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 14878,
+              "src": "72:15:75",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "EthAssetManagerUser",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": true,
+        "id": 29876,
+        "linearizedBaseContracts": [
+          29876
+        ],
+        "name": "EthAssetManagerUser",
+        "nameLocation": "136:19:75",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 29851,
+            "mutability": "mutable",
+            "name": "manager",
+            "nameLocation": "187:7:75",
+            "nodeType": "VariableDeclaration",
+            "scope": 29876,
+            "src": "162:32:75",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_contract$_EthAssetManager_$14878",
+              "typeString": "contract EthAssetManager"
+            },
+            "typeName": {
+              "id": 29850,
+              "nodeType": "UserDefinedTypeName",
+              "pathNode": {
+                "id": 29849,
+                "name": "EthAssetManager",
+                "nodeType": "IdentifierPath",
+                "referencedDeclaration": 14878,
+                "src": "162:15:75"
+              },
+              "referencedDeclaration": 14878,
+              "src": "162:15:75",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_EthAssetManager_$14878",
+                "typeString": "contract EthAssetManager"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 29861,
+              "nodeType": "Block",
+              "src": "239:23:75",
+              "statements": [
+                {
+                  "expression": {
+                    "id": 29859,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "id": 29857,
+                      "name": "manager",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 29851,
+                      "src": "241:7:75",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_EthAssetManager_$14878",
+                        "typeString": "contract EthAssetManager"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "id": 29858,
+                      "name": "_manager",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 29854,
+                      "src": "251:8:75",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_EthAssetManager_$14878",
+                        "typeString": "contract EthAssetManager"
+                      }
+                    },
+                    "src": "241:18:75",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_EthAssetManager_$14878",
+                      "typeString": "contract EthAssetManager"
+                    }
+                  },
+                  "id": 29860,
+                  "nodeType": "ExpressionStatement",
+                  "src": "241:18:75"
+                }
+              ]
+            },
+            "id": 29862,
+            "implemented": true,
+            "kind": "constructor",
+            "modifiers": [],
+            "name": "",
+            "nameLocation": "-1:-1:-1",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 29855,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 29854,
+                  "mutability": "mutable",
+                  "name": "_manager",
+                  "nameLocation": "229:8:75",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 29862,
+                  "src": "213:24:75",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_EthAssetManager_$14878",
+                    "typeString": "contract EthAssetManager"
+                  },
+                  "typeName": {
+                    "id": 29853,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 29852,
+                      "name": "EthAssetManager",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 14878,
+                      "src": "213:15:75"
+                    },
+                    "referencedDeclaration": 14878,
+                    "src": "213:15:75",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_EthAssetManager_$14878",
+                      "typeString": "contract EthAssetManager"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "212:26:75"
+            },
+            "returnParameters": {
+              "id": 29856,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "239:0:75"
+            },
+            "scope": 29876,
+            "src": "201:61:75",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 29865,
+              "nodeType": "Block",
+              "src": "295:2:75",
+              "statements": []
+            },
+            "id": 29866,
+            "implemented": true,
+            "kind": "receive",
+            "modifiers": [],
+            "name": "",
+            "nameLocation": "-1:-1:-1",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 29863,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "275:2:75"
+            },
+            "returnParameters": {
+              "id": 29864,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "295:0:75"
+            },
+            "scope": 29876,
+            "src": "268:29:75",
+            "stateMutability": "payable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "body": {
+              "id": 29874,
+              "nodeType": "Block",
+              "src": "335:38:75",
+              "statements": [
+                {
+                  "expression": {
+                    "arguments": [],
+                    "expression": {
+                      "argumentTypes": [],
+                      "expression": {
+                        "id": 29869,
+                        "name": "manager",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 29851,
+                        "src": "345:7:75",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_EthAssetManager_$14878",
+                          "typeString": "contract EthAssetManager"
+                        }
+                      },
+                      "id": 29871,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "acceptAdmin",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 13822,
+                      "src": "345:19:75",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_external_nonpayable$__$returns$__$",
+                        "typeString": "function () external"
+                      }
+                    },
+                    "id": 29872,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "345:21:75",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 29873,
+                  "nodeType": "ExpressionStatement",
+                  "src": "345:21:75"
+                }
+              ]
+            },
+            "functionSelector": "0e18b681",
+            "id": 29875,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "acceptAdmin",
+            "nameLocation": "312:11:75",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 29867,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "323:2:75"
+            },
+            "returnParameters": {
+              "id": 29868,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "335:0:75"
+            },
+            "scope": 29876,
+            "src": "303:70:75",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 29877,
+        "src": "127:248:75",
+        "usedErrors": []
+      }
+    ],
+    "src": "39:336:75"
+  }
+}

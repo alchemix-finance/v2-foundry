@@ -153,5 +153,746 @@
     "object": "0x",
     "sourceMap": "",
     "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/alchemist/IAlchemistV2Errors.sol",
+    "exportedSymbols": {
+      "IAlchemistV2Errors": [
+        19935
+      ]
+    },
+    "id": 19936,
+    "license": "UNLICENSED",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 19870,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.5",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "39:24:38"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IAlchemistV2Errors",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 19871,
+          "nodeType": "StructuredDocumentation",
+          "src": "65:94:38",
+          "text": "@title  IAlchemistV2Errors\n @author Alchemix Finance\n @notice Specifies errors."
+        },
+        "fullyImplemented": true,
+        "id": 19935,
+        "linearizedBaseContracts": [
+          19935
+        ],
+        "name": "IAlchemistV2Errors",
+        "nameLocation": "169:18:38",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "documentation": {
+              "id": 19872,
+              "nodeType": "StructuredDocumentation",
+              "src": "194:200:38",
+              "text": "@notice An error which is used to indicate that an operation failed because it tried to operate on a token that the system did not recognize.\n @param token The address of the token."
+            },
+            "errorSelector": "bf16aab6",
+            "id": 19876,
+            "name": "UnsupportedToken",
+            "nameLocation": "405:16:38",
+            "nodeType": "ErrorDefinition",
+            "parameters": {
+              "id": 19875,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19874,
+                  "mutability": "mutable",
+                  "name": "token",
+                  "nameLocation": "430:5:38",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19876,
+                  "src": "422:13:38",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19873,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "422:7:38",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "421:15:38"
+            },
+            "src": "399:38:38"
+          },
+          {
+            "documentation": {
+              "id": 19877,
+              "nodeType": "StructuredDocumentation",
+              "src": "443:189:38",
+              "text": "@notice An error which is used to indicate that an operation failed because it tried to operate on a token that has been disabled.\n @param token The address of the token."
+            },
+            "errorSelector": "1fac2d78",
+            "id": 19881,
+            "name": "TokenDisabled",
+            "nameLocation": "643:13:38",
+            "nodeType": "ErrorDefinition",
+            "parameters": {
+              "id": 19880,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19879,
+                  "mutability": "mutable",
+                  "name": "token",
+                  "nameLocation": "665:5:38",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19881,
+                  "src": "657:13:38",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19878,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "657:7:38",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "656:15:38"
+            },
+            "src": "637:35:38"
+          },
+          {
+            "documentation": {
+              "id": 19882,
+              "nodeType": "StructuredDocumentation",
+              "src": "678:118:38",
+              "text": "@notice An error which is used to indicate that an operation failed because an account became undercollateralized."
+            },
+            "errorSelector": "fddafdf5",
+            "id": 19884,
+            "name": "Undercollateralized",
+            "nameLocation": "807:19:38",
+            "nodeType": "ErrorDefinition",
+            "parameters": {
+              "id": 19883,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "826:2:38"
+            },
+            "src": "801:28:38"
+          },
+          {
+            "documentation": {
+              "id": 19885,
+              "nodeType": "StructuredDocumentation",
+              "src": "835:456:38",
+              "text": "@notice An error which is used to indicate that an operation failed because the expected value of a yield token in the system exceeds the maximum value permitted.\n @param yieldToken           The address of the yield token.\n @param expectedValue        The expected value measured in units of the underlying token.\n @param maximumExpectedValue The maximum expected value permitted measured in units of the underlying token."
+            },
+            "errorSelector": "a3528cf5",
+            "id": 19893,
+            "name": "ExpectedValueExceeded",
+            "nameLocation": "1302:21:38",
+            "nodeType": "ErrorDefinition",
+            "parameters": {
+              "id": 19892,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19887,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "1332:10:38",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19893,
+                  "src": "1324:18:38",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19886,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1324:7:38",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19889,
+                  "mutability": "mutable",
+                  "name": "expectedValue",
+                  "nameLocation": "1352:13:38",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19893,
+                  "src": "1344:21:38",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19888,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1344:7:38",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19891,
+                  "mutability": "mutable",
+                  "name": "maximumExpectedValue",
+                  "nameLocation": "1375:20:38",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19893,
+                  "src": "1367:28:38",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19890,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1367:7:38",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1323:73:38"
+            },
+            "src": "1296:101:38"
+          },
+          {
+            "documentation": {
+              "id": 19894,
+              "nodeType": "StructuredDocumentation",
+              "src": "1403:387:38",
+              "text": "@notice An error which is used to indicate that an operation failed because the loss that a yield token in the system exceeds the maximum value permitted.\n @param yieldToken  The address of the yield token.\n @param loss        The amount of loss measured in basis points.\n @param maximumLoss The maximum amount of loss permitted measured in basis points."
+            },
+            "errorSelector": "5c1bc281",
+            "id": 19902,
+            "name": "LossExceeded",
+            "nameLocation": "1801:12:38",
+            "nodeType": "ErrorDefinition",
+            "parameters": {
+              "id": 19901,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19896,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "1822:10:38",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19902,
+                  "src": "1814:18:38",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19895,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1814:7:38",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19898,
+                  "mutability": "mutable",
+                  "name": "loss",
+                  "nameLocation": "1842:4:38",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19902,
+                  "src": "1834:12:38",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19897,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1834:7:38",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19900,
+                  "mutability": "mutable",
+                  "name": "maximumLoss",
+                  "nameLocation": "1856:11:38",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19902,
+                  "src": "1848:19:38",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19899,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1848:7:38",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1813:55:38"
+            },
+            "src": "1795:74:38"
+          },
+          {
+            "documentation": {
+              "id": 19903,
+              "nodeType": "StructuredDocumentation",
+              "src": "1875:296:38",
+              "text": "@notice An error which is used to indicate that a minting operation failed because the minting limit has been exceeded.\n @param amount    The amount of debt tokens that were requested to be minted.\n @param available The amount of debt tokens which are available to mint."
+            },
+            "errorSelector": "13d73d6b",
+            "id": 19909,
+            "name": "MintingLimitExceeded",
+            "nameLocation": "2182:20:38",
+            "nodeType": "ErrorDefinition",
+            "parameters": {
+              "id": 19908,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19905,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "2211:6:38",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19909,
+                  "src": "2203:14:38",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19904,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2203:7:38",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19907,
+                  "mutability": "mutable",
+                  "name": "available",
+                  "nameLocation": "2227:9:38",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19909,
+                  "src": "2219:17:38",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19906,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2219:7:38",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2202:35:38"
+            },
+            "src": "2176:62:38"
+          },
+          {
+            "documentation": {
+              "id": 19910,
+              "nodeType": "StructuredDocumentation",
+              "src": "2244:413:38",
+              "text": "@notice An error which is used to indicate that an repay operation failed because the repay limit for an underlying token has been exceeded.\n @param underlyingToken The address of the underlying token.\n @param amount          The amount of underlying tokens that were requested to be repaid.\n @param available       The amount of underlying tokens that are available to be repaid."
+            },
+            "errorSelector": "95e6194b",
+            "id": 19918,
+            "name": "RepayLimitExceeded",
+            "nameLocation": "2668:18:38",
+            "nodeType": "ErrorDefinition",
+            "parameters": {
+              "id": 19917,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19912,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "2695:15:38",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19918,
+                  "src": "2687:23:38",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19911,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2687:7:38",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19914,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "2720:6:38",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19918,
+                  "src": "2712:14:38",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19913,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2712:7:38",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19916,
+                  "mutability": "mutable",
+                  "name": "available",
+                  "nameLocation": "2736:9:38",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19918,
+                  "src": "2728:17:38",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19915,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2728:7:38",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2686:60:38"
+            },
+            "src": "2662:85:38"
+          },
+          {
+            "documentation": {
+              "id": 19919,
+              "nodeType": "StructuredDocumentation",
+              "src": "2753:427:38",
+              "text": "@notice An error which is used to indicate that an repay operation failed because the liquidation limit for an underlying token has been exceeded.\n @param underlyingToken The address of the underlying token.\n @param amount          The amount of underlying tokens that were requested to be liquidated.\n @param available       The amount of underlying tokens that are available to be liquidated."
+            },
+            "errorSelector": "637e01ad",
+            "id": 19927,
+            "name": "LiquidationLimitExceeded",
+            "nameLocation": "3191:24:38",
+            "nodeType": "ErrorDefinition",
+            "parameters": {
+              "id": 19926,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19921,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "3224:15:38",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19927,
+                  "src": "3216:23:38",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19920,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3216:7:38",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19923,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "3249:6:38",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19927,
+                  "src": "3241:14:38",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19922,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3241:7:38",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19925,
+                  "mutability": "mutable",
+                  "name": "available",
+                  "nameLocation": "3265:9:38",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19927,
+                  "src": "3257:17:38",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19924,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3257:7:38",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3215:60:38"
+            },
+            "src": "3185:91:38"
+          },
+          {
+            "documentation": {
+              "id": 19928,
+              "nodeType": "StructuredDocumentation",
+              "src": "3282:381:38",
+              "text": "@notice An error which is used to indicate that the slippage of a wrap or unwrap operation was exceeded.\n @param amount           The amount of underlying or yield tokens returned by the operation.\n @param minimumAmountOut The minimum amount of the underlying or yield token that was expected when performing\n                         the operation."
+            },
+            "errorSelector": "71c4efed",
+            "id": 19934,
+            "name": "SlippageExceeded",
+            "nameLocation": "3674:16:38",
+            "nodeType": "ErrorDefinition",
+            "parameters": {
+              "id": 19933,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19930,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "3699:6:38",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19934,
+                  "src": "3691:14:38",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19929,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3691:7:38",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19932,
+                  "mutability": "mutable",
+                  "name": "minimumAmountOut",
+                  "nameLocation": "3715:16:38",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19934,
+                  "src": "3707:24:38",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19931,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3707:7:38",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3690:42:38"
+            },
+            "src": "3668:65:38"
+          }
+        ],
+        "scope": 19936,
+        "src": "159:3576:38",
+        "usedErrors": [
+          19876,
+          19881,
+          19884,
+          19893,
+          19902,
+          19909,
+          19918,
+          19927,
+          19934
+        ]
+      }
+    ],
+    "src": "39:3696:38"
   }
 }

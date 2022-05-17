@@ -1,0 +1,2444 @@
+{
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [],
+      "name": "RefreshStrategies",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "underlyingToken",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "transmuter",
+          "type": "address"
+        }
+      ],
+      "name": "RegisterAsset",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "alchemist",
+          "type": "address"
+        }
+      ],
+      "name": "SetAlchemist",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "underlyingToken",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "flowRate",
+          "type": "uint256"
+        }
+      ],
+      "name": "SetFlowRate",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "source",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "flag",
+          "type": "bool"
+        }
+      ],
+      "name": "SetSource",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "underlyingToken",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "transmuter",
+          "type": "address"
+        }
+      ],
+      "name": "SetTransmuter",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "burnCredit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "underlyingToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "depositFunds",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "underlyingToken",
+          "type": "address"
+        }
+      ],
+      "name": "exchange",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "underlyingToken",
+          "type": "address"
+        }
+      ],
+      "name": "getAvailableFlow",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "availableFlow",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getTotalCredit",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "underlyingToken",
+          "type": "address"
+        }
+      ],
+      "name": "getTotalUnderlyingBuffered",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "totalBuffered",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "weightToken",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "getWeight",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "weight",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "onERC20Received",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "refreshStrategies",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "underlyingToken",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "transmuter",
+          "type": "address"
+        }
+      ],
+      "name": "registerAsset",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "alchemist",
+          "type": "address"
+        }
+      ],
+      "name": "setAlchemist",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "underlyingToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "flowRate",
+          "type": "uint256"
+        }
+      ],
+      "name": "setFlowRate",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "source",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "flag",
+          "type": "bool"
+        }
+      ],
+      "name": "setSource",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "underlyingToken",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "newTransmuter",
+          "type": "address"
+        }
+      ],
+      "name": "setTransmuter",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "weightToken",
+          "type": "address"
+        },
+        {
+          "internalType": "address[]",
+          "name": "tokens",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "weights",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "setWeights",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "version",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "underlyingToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        }
+      ],
+      "name": "withdraw",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "yieldToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "shares",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minimumAmountOut",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawFromAlchemist",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/ITransmuterBuffer.sol",
+    "exportedSymbols": {
+      "IERC20TokenReceiver": [
+        19190
+      ],
+      "ITransmuterBuffer": [
+        19422
+      ]
+    },
+    "id": 19423,
+    "license": "GPL-3.0-or-later",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 19240,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.5",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "45:24:33"
+      },
+      {
+        "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/IERC20TokenReceiver.sol",
+        "file": "./IERC20TokenReceiver.sol",
+        "id": 19242,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 19423,
+        "sourceUnit": 19191,
+        "src": "71:62:33",
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 19241,
+              "name": "IERC20TokenReceiver",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 19190,
+              "src": "79:19:33",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "abstract": false,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 19244,
+              "name": "IERC20TokenReceiver",
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 19190,
+              "src": "225:19:33"
+            },
+            "id": 19245,
+            "nodeType": "InheritanceSpecifier",
+            "src": "225:19:33"
+          }
+        ],
+        "canonicalName": "ITransmuterBuffer",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 19243,
+          "nodeType": "StructuredDocumentation",
+          "src": "135:59:33",
+          "text": "@title  ITransmuterBuffer\n @author Alchemix Finance"
+        },
+        "fullyImplemented": false,
+        "id": 19422,
+        "linearizedBaseContracts": [
+          19422,
+          19190
+        ],
+        "name": "ITransmuterBuffer",
+        "nameLocation": "204:17:33",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "ITransmuterBuffer.Weighting",
+            "id": 19255,
+            "members": [
+              {
+                "constant": false,
+                "id": 19249,
+                "mutability": "mutable",
+                "name": "weights",
+                "nameLocation": "1064:7:33",
+                "nodeType": "VariableDeclaration",
+                "scope": 19255,
+                "src": "1036:35:33",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
+                  "typeString": "mapping(address => uint256)"
+                },
+                "typeName": {
+                  "id": 19248,
+                  "keyType": {
+                    "id": 19246,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1044:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "nodeType": "Mapping",
+                  "src": "1036:27:33",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
+                    "typeString": "mapping(address => uint256)"
+                  },
+                  "valueType": {
+                    "id": 19247,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1055:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 19252,
+                "mutability": "mutable",
+                "name": "tokens",
+                "nameLocation": "1133:6:33",
+                "nodeType": "VariableDeclaration",
+                "scope": 19255,
+                "src": "1123:16:33",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                  "typeString": "address[]"
+                },
+                "typeName": {
+                  "baseType": {
+                    "id": 19250,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1123:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "id": 19251,
+                  "nodeType": "ArrayTypeName",
+                  "src": "1123:9:33",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                    "typeString": "address[]"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 19254,
+                "mutability": "mutable",
+                "name": "totalWeight",
+                "nameLocation": "1227:11:33",
+                "nodeType": "VariableDeclaration",
+                "scope": 19255,
+                "src": "1219:19:33",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 19253,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1219:7:33",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "Weighting",
+            "nameLocation": "959:9:33",
+            "nodeType": "StructDefinition",
+            "scope": 19422,
+            "src": "952:293:33",
+            "visibility": "public"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 19256,
+              "nodeType": "StructuredDocumentation",
+              "src": "1251:109:33",
+              "text": "@notice Emitted when the alchemist is set.\n @param alchemist The address of the alchemist."
+            },
+            "eventSelector": "b5f3602a1d2783f0976eae6d619f386b298bd951e94fa8e56bfedf853e7d8875",
+            "id": 19260,
+            "name": "SetAlchemist",
+            "nameLocation": "1371:12:33",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 19259,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19258,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "alchemist",
+                  "nameLocation": "1392:9:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19260,
+                  "src": "1384:17:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19257,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1384:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1383:19:33"
+            },
+            "src": "1365:38:33"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 19261,
+              "nodeType": "StructuredDocumentation",
+              "src": "1409:222:33",
+              "text": "@notice Emitted when an underlying token is registered.\n @param underlyingToken The address of the underlying token.\n @param transmuter      The address of the transmuter for the underlying token."
+            },
+            "eventSelector": "e3fc1075bf266cb7785ff5a63ee95d60aee4ccbfb42f6f5562e811edc26f6a20",
+            "id": 19267,
+            "name": "RegisterAsset",
+            "nameLocation": "1642:13:33",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 19266,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19263,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "1664:15:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19267,
+                  "src": "1656:23:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19262,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1656:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19265,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "transmuter",
+                  "nameLocation": "1689:10:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19267,
+                  "src": "1681:18:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19264,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1681:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1655:45:33"
+            },
+            "src": "1636:65:33"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 19268,
+              "nodeType": "StructuredDocumentation",
+              "src": "1707:200:33",
+              "text": "@notice Emitted when an underlying token's flow rate is updated.\n @param underlyingToken The underlying token.\n @param flowRate        The flow rate for the underlying token."
+            },
+            "eventSelector": "9b851d18ba551205a781cfd2d54e04373b966024d91f688b03448eee2ea1041c",
+            "id": 19274,
+            "name": "SetFlowRate",
+            "nameLocation": "1918:11:33",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 19273,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19270,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "1938:15:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19274,
+                  "src": "1930:23:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19269,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1930:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19272,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "flowRate",
+                  "nameLocation": "1963:8:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19274,
+                  "src": "1955:16:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19271,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1955:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1929:43:33"
+            },
+            "src": "1912:61:33"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 19275,
+              "nodeType": "StructuredDocumentation",
+              "src": "1979:54:33",
+              "text": "@notice Emitted when the strategies are refreshed."
+            },
+            "eventSelector": "dfe7090a5461eb5a45d9e05a1317dfcd47d74fd2f14e0989619808f3aac43aa5",
+            "id": 19277,
+            "name": "RefreshStrategies",
+            "nameLocation": "2044:17:33",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 19276,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "2061:2:33"
+            },
+            "src": "2038:26:33"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 19278,
+              "nodeType": "StructuredDocumentation",
+              "src": "2070:41:33",
+              "text": "@notice Emitted when a source is set."
+            },
+            "eventSelector": "c55dd2342fb6a4c8580b302e5a10b68c01cdee01d65763a40089df970fd687c5",
+            "id": 19284,
+            "name": "SetSource",
+            "nameLocation": "2122:9:33",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 19283,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19280,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "source",
+                  "nameLocation": "2140:6:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19284,
+                  "src": "2132:14:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19279,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2132:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19282,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "flag",
+                  "nameLocation": "2153:4:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19284,
+                  "src": "2148:9:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 19281,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2148:4:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2131:27:33"
+            },
+            "src": "2116:43:33"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 19285,
+              "nodeType": "StructuredDocumentation",
+              "src": "2165:49:33",
+              "text": "@notice Emitted when a transmuter is updated."
+            },
+            "eventSelector": "5f5f1867949f882317e4afdbddb02296f5681564a3765f0fbb21bc5b6f506e58",
+            "id": 19291,
+            "name": "SetTransmuter",
+            "nameLocation": "2225:13:33",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 19290,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19287,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "2247:15:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19291,
+                  "src": "2239:23:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19286,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2239:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19289,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "transmuter",
+                  "nameLocation": "2272:10:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19291,
+                  "src": "2264:18:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19288,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2264:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2238:45:33"
+            },
+            "src": "2219:65:33"
+          },
+          {
+            "documentation": {
+              "id": 19292,
+              "nodeType": "StructuredDocumentation",
+              "src": "2290:74:33",
+              "text": "@notice Gets the current version.\n @return The version."
+            },
+            "functionSelector": "54fd4d50",
+            "id": 19297,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "version",
+            "nameLocation": "2378:7:33",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19293,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "2385:2:33"
+            },
+            "returnParameters": {
+              "id": 19296,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19295,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19297,
+                  "src": "2411:13:33",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 19294,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2411:6:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2410:15:33"
+            },
+            "scope": 19422,
+            "src": "2369:57:33",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19298,
+              "nodeType": "StructuredDocumentation",
+              "src": "2432:105:33",
+              "text": "@notice Gets the total credit held by the TransmuterBuffer.\n @return The total credit."
+            },
+            "functionSelector": "f3057608",
+            "id": 19303,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getTotalCredit",
+            "nameLocation": "2551:14:33",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19299,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "2565:2:33"
+            },
+            "returnParameters": {
+              "id": 19302,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19301,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19303,
+                  "src": "2591:7:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19300,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2591:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2590:9:33"
+            },
+            "scope": 19422,
+            "src": "2542:58:33",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19304,
+              "nodeType": "StructuredDocumentation",
+              "src": "2606:234:33",
+              "text": "@notice Gets the total amount of underlying token that the TransmuterBuffer controls in the Alchemist.\n @param underlyingToken The underlying token to query.\n @return totalBuffered The total buffered."
+            },
+            "functionSelector": "4027fdf8",
+            "id": 19311,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getTotalUnderlyingBuffered",
+            "nameLocation": "2854:26:33",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19307,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19306,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "2889:15:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19311,
+                  "src": "2881:23:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19305,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2881:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2880:25:33"
+            },
+            "returnParameters": {
+              "id": 19310,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19309,
+                  "mutability": "mutable",
+                  "name": "totalBuffered",
+                  "nameLocation": "2937:13:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19311,
+                  "src": "2929:21:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19308,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2929:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2928:23:33"
+            },
+            "scope": 19422,
+            "src": "2845:107:33",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19312,
+              "nodeType": "StructuredDocumentation",
+              "src": "2958:314:33",
+              "text": "@notice Gets the total available flow for the underlying token\n The total available flow will be the lesser of `flowAvailable[token]` and `getTotalUnderlyingBuffered`.\n @param underlyingToken The underlying token to query.\n @return availableFlow The available flow."
+            },
+            "functionSelector": "26128ec9",
+            "id": 19319,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getAvailableFlow",
+            "nameLocation": "3286:16:33",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19315,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19314,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "3311:15:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19319,
+                  "src": "3303:23:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19313,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3303:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3302:25:33"
+            },
+            "returnParameters": {
+              "id": 19318,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19317,
+                  "mutability": "mutable",
+                  "name": "availableFlow",
+                  "nameLocation": "3359:13:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19319,
+                  "src": "3351:21:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19316,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3351:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3350:23:33"
+            },
+            "scope": 19422,
+            "src": "3277:97:33",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19320,
+              "nodeType": "StructuredDocumentation",
+              "src": "3380:255:33",
+              "text": "@notice Gets the weight of the given weight type and token\n @param weightToken The type of weight to query.\n @param token       The weighted token.\n @return weight The weight of the token for the given weight type."
+            },
+            "functionSelector": "a4817321",
+            "id": 19329,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getWeight",
+            "nameLocation": "3649:9:33",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19325,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19322,
+                  "mutability": "mutable",
+                  "name": "weightToken",
+                  "nameLocation": "3667:11:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19329,
+                  "src": "3659:19:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19321,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3659:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19324,
+                  "mutability": "mutable",
+                  "name": "token",
+                  "nameLocation": "3688:5:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19329,
+                  "src": "3680:13:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19323,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3680:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3658:36:33"
+            },
+            "returnParameters": {
+              "id": 19328,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19327,
+                  "mutability": "mutable",
+                  "name": "weight",
+                  "nameLocation": "3726:6:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19329,
+                  "src": "3718:14:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19326,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3718:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3717:16:33"
+            },
+            "scope": 19422,
+            "src": "3640:94:33",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19330,
+              "nodeType": "StructuredDocumentation",
+              "src": "3740:146:33",
+              "text": "@notice Set a source of funds.\n @param source The target source.\n @param flag   The status to set for the target source."
+            },
+            "functionSelector": "40b197f3",
+            "id": 19337,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setSource",
+            "nameLocation": "3900:9:33",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19335,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19332,
+                  "mutability": "mutable",
+                  "name": "source",
+                  "nameLocation": "3918:6:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19337,
+                  "src": "3910:14:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19331,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3910:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19334,
+                  "mutability": "mutable",
+                  "name": "flag",
+                  "nameLocation": "3931:4:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19337,
+                  "src": "3926:9:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 19333,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3926:4:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3909:27:33"
+            },
+            "returnParameters": {
+              "id": 19336,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "3945:0:33"
+            },
+            "scope": 19422,
+            "src": "3891:55:33",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19338,
+              "nodeType": "StructuredDocumentation",
+              "src": "3952:276:33",
+              "text": "@notice Set transmuter by admin.\n This function reverts if the caller is not the current admin.\n @param underlyingToken The target underlying token to update.\n @param newTransmuter   The new transmuter for the target `underlyingToken`."
+            },
+            "functionSelector": "0012ac34",
+            "id": 19345,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setTransmuter",
+            "nameLocation": "4242:13:33",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19343,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19340,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "4264:15:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19345,
+                  "src": "4256:23:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19339,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4256:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19342,
+                  "mutability": "mutable",
+                  "name": "newTransmuter",
+                  "nameLocation": "4289:13:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19345,
+                  "src": "4281:21:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19341,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4281:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "4255:48:33"
+            },
+            "returnParameters": {
+              "id": 19344,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "4312:0:33"
+            },
+            "scope": 19422,
+            "src": "4233:80:33",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19346,
+              "nodeType": "StructuredDocumentation",
+              "src": "4319:193:33",
+              "text": "@notice Set alchemist by admin.\n This function reverts if the caller is not the current admin.\n @param alchemist The new alchemist whose funds we are handling."
+            },
+            "functionSelector": "f1af775f",
+            "id": 19351,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setAlchemist",
+            "nameLocation": "4526:12:33",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19349,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19348,
+                  "mutability": "mutable",
+                  "name": "alchemist",
+                  "nameLocation": "4547:9:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19351,
+                  "src": "4539:17:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19347,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4539:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "4538:19:33"
+            },
+            "returnParameters": {
+              "id": 19350,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "4566:0:33"
+            },
+            "scope": 19422,
+            "src": "4517:50:33",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19352,
+              "nodeType": "StructuredDocumentation",
+              "src": "4573:158:33",
+              "text": "@notice Refresh the yield-tokens in the TransmuterBuffer.\n This requires a call anytime governance adds a new yield token to the alchemist."
+            },
+            "functionSelector": "f79d8458",
+            "id": 19355,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "refreshStrategies",
+            "nameLocation": "4745:17:33",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19353,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "4762:2:33"
+            },
+            "returnParameters": {
+              "id": 19354,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "4773:0:33"
+            },
+            "scope": 19422,
+            "src": "4736:38:33",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19356,
+              "nodeType": "StructuredDocumentation",
+              "src": "4780:270:33",
+              "text": "@notice Registers an underlying-token.\n This function reverts if the caller is not the current admin.\n @param underlyingToken The underlying-token being registered.\n @param transmuter      The transmuter for the underlying-token."
+            },
+            "functionSelector": "4fad6bff",
+            "id": 19363,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "registerAsset",
+            "nameLocation": "5064:13:33",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19361,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19358,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "5086:15:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19363,
+                  "src": "5078:23:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19357,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5078:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19360,
+                  "mutability": "mutable",
+                  "name": "transmuter",
+                  "nameLocation": "5111:10:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19363,
+                  "src": "5103:18:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19359,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5103:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5077:45:33"
+            },
+            "returnParameters": {
+              "id": 19362,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "5131:0:33"
+            },
+            "scope": 19422,
+            "src": "5055:77:33",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19364,
+              "nodeType": "StructuredDocumentation",
+              "src": "5138:264:33",
+              "text": "@notice Set flow rate of an underlying token.\n This function reverts if the caller is not the current admin.\n @param underlyingToken The underlying-token getting the flow rate set.\n @param flowRate        The new flow rate."
+            },
+            "functionSelector": "4dac3435",
+            "id": 19371,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setFlowRate",
+            "nameLocation": "5416:11:33",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19369,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19366,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "5436:15:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19371,
+                  "src": "5428:23:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19365,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5428:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19368,
+                  "mutability": "mutable",
+                  "name": "flowRate",
+                  "nameLocation": "5461:8:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19371,
+                  "src": "5453:16:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19367,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5453:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5427:43:33"
+            },
+            "returnParameters": {
+              "id": 19370,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "5479:0:33"
+            },
+            "scope": 19422,
+            "src": "5407:73:33",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19372,
+              "nodeType": "StructuredDocumentation",
+              "src": "5486:223:33",
+              "text": "@notice Sets up a weighting schema.\n @param weightToken The name of the weighting schema.\n @param tokens      The yield-tokens to weight.\n @param weights     The weights of the yield tokens."
+            },
+            "functionSelector": "cb147588",
+            "id": 19383,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setWeights",
+            "nameLocation": "5723:10:33",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19381,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19374,
+                  "mutability": "mutable",
+                  "name": "weightToken",
+                  "nameLocation": "5742:11:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19383,
+                  "src": "5734:19:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19373,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5734:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19377,
+                  "mutability": "mutable",
+                  "name": "tokens",
+                  "nameLocation": "5772:6:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19383,
+                  "src": "5755:23:33",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
+                    "typeString": "address[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 19375,
+                      "name": "address",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "5755:7:33",
+                      "stateMutability": "nonpayable",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "id": 19376,
+                    "nodeType": "ArrayTypeName",
+                    "src": "5755:9:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                      "typeString": "address[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19380,
+                  "mutability": "mutable",
+                  "name": "weights",
+                  "nameLocation": "5797:7:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19383,
+                  "src": "5780:24:33",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint256_$dyn_memory_ptr",
+                    "typeString": "uint256[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 19378,
+                      "name": "uint256",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "5780:7:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "id": 19379,
+                    "nodeType": "ArrayTypeName",
+                    "src": "5780:9:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+                      "typeString": "uint256[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5733:72:33"
+            },
+            "returnParameters": {
+              "id": 19382,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "5814:0:33"
+            },
+            "scope": 19422,
+            "src": "5714:101:33",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19384,
+              "nodeType": "StructuredDocumentation",
+              "src": "5821:533:33",
+              "text": "@notice Exchanges any available flow into the Transmuter.\n This function is a way for the keeper to force funds to be exchanged into the Transmuter.\n This function will revert if called by any account that is not a keeper. If there is not enough local balance of\n `underlyingToken` held by the TransmuterBuffer any additional funds will be withdrawn from the Alchemist by\n unwrapping `yieldToken`.\n @param underlyingToken The address of the underlying token to exchange."
+            },
+            "functionSelector": "2412bdb8",
+            "id": 19389,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "exchange",
+            "nameLocation": "6368:8:33",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19387,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19386,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "6385:15:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19389,
+                  "src": "6377:23:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19385,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6377:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "6376:25:33"
+            },
+            "returnParameters": {
+              "id": 19388,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "6410:0:33"
+            },
+            "scope": 19422,
+            "src": "6359:52:33",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19390,
+              "nodeType": "StructuredDocumentation",
+              "src": "6417:52:33",
+              "text": "@notice Burns available credit in the alchemist."
+            },
+            "functionSelector": "4fa98251",
+            "id": 19393,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "burnCredit",
+            "nameLocation": "6483:10:33",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19391,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "6493:2:33"
+            },
+            "returnParameters": {
+              "id": 19392,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "6504:0:33"
+            },
+            "scope": 19422,
+            "src": "6474:31:33",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19394,
+              "nodeType": "StructuredDocumentation",
+              "src": "6511:176:33",
+              "text": "@notice Deposits local collateral into the alchemist\n @param underlyingToken The collateral to deposit.\n @param amount          The amount to deposit."
+            },
+            "functionSelector": "921b004b",
+            "id": 19401,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "depositFunds",
+            "nameLocation": "6701:12:33",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19399,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19396,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "6722:15:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19401,
+                  "src": "6714:23:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19395,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6714:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19398,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "6747:6:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19401,
+                  "src": "6739:14:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19397,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6739:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "6713:41:33"
+            },
+            "returnParameters": {
+              "id": 19400,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "6763:0:33"
+            },
+            "scope": 19422,
+            "src": "6692:72:33",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19402,
+              "nodeType": "StructuredDocumentation",
+              "src": "6770:525:33",
+              "text": "@notice Withdraws collateral from the alchemist\n This function reverts if:\n - The caller is not the transmuter.\n - There is not enough flow available to fulfill the request.\n - There is not enough underlying collateral in the alchemist controlled by the buffer to fulfil the request.\n @param underlyingToken The underlying token to withdraw.\n @param amount          The amount to withdraw.\n @param recipient       The account receiving the withdrawn funds."
+            },
+            "functionSelector": "69328dec",
+            "id": 19411,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "withdraw",
+            "nameLocation": "7309:8:33",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19409,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19404,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "7335:15:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19411,
+                  "src": "7327:23:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19403,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "7327:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19406,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "7368:6:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19411,
+                  "src": "7360:14:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19405,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "7360:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19408,
+                  "mutability": "mutable",
+                  "name": "recipient",
+                  "nameLocation": "7392:9:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19411,
+                  "src": "7384:17:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19407,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "7384:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "7317:90:33"
+            },
+            "returnParameters": {
+              "id": 19410,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "7416:0:33"
+            },
+            "scope": 19422,
+            "src": "7300:117:33",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19412,
+              "nodeType": "StructuredDocumentation",
+              "src": "7423:334:33",
+              "text": "@notice Withdraws collateral from the alchemist\n @param yieldToken       The yield token to withdraw.\n @param shares           The amount of Alchemist shares to withdraw.\n @param minimumAmountOut The minimum amount of underlying tokens needed to be recieved as a result of unwrapping the yield tokens."
+            },
+            "functionSelector": "3a0ee64d",
+            "id": 19421,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "withdrawFromAlchemist",
+            "nameLocation": "7771:21:33",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19419,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19414,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "7810:10:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19421,
+                  "src": "7802:18:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19413,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "7802:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19416,
+                  "mutability": "mutable",
+                  "name": "shares",
+                  "nameLocation": "7838:6:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19421,
+                  "src": "7830:14:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19415,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "7830:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19418,
+                  "mutability": "mutable",
+                  "name": "minimumAmountOut",
+                  "nameLocation": "7862:16:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19421,
+                  "src": "7854:24:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19417,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "7854:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "7792:92:33"
+            },
+            "returnParameters": {
+              "id": 19420,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "7893:0:33"
+            },
+            "scope": 19422,
+            "src": "7762:132:33",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 19423,
+        "src": "194:7702:33",
+        "usedErrors": []
+      }
+    ],
+    "src": "45:7852:33"
+  }
+}

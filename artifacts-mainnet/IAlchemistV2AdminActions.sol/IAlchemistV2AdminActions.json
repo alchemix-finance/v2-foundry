@@ -458,5 +458,2334 @@
     "object": "0x",
     "sourceMap": "",
     "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/alchemist/IAlchemistV2AdminActions.sol",
+    "exportedSymbols": {
+      "IAlchemistV2AdminActions": [
+        19868
+      ]
+    },
+    "id": 19869,
+    "license": "UNLICENSED",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 19666,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.5",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "39:24:37"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IAlchemistV2AdminActions",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 19667,
+          "nodeType": "StructuredDocumentation",
+          "src": "65:123:37",
+          "text": "@title  IAlchemistV2AdminActions\n @author Alchemix Finance\n @notice Specifies admin and or sentinel actions."
+        },
+        "fullyImplemented": false,
+        "id": 19868,
+        "linearizedBaseContracts": [
+          19868
+        ],
+        "name": "IAlchemistV2AdminActions",
+        "nameLocation": "198:24:37",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "IAlchemistV2AdminActions.InitializationParams",
+            "id": 19688,
+            "members": [
+              {
+                "constant": false,
+                "id": 19669,
+                "mutability": "mutable",
+                "name": "admin",
+                "nameLocation": "365:5:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19688,
+                "src": "357:13:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 19668,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "357:7:37",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 19671,
+                "mutability": "mutable",
+                "name": "debtToken",
+                "nameLocation": "439:9:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19688,
+                "src": "431:17:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 19670,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "431:7:37",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 19673,
+                "mutability": "mutable",
+                "name": "transmuter",
+                "nameLocation": "522:10:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19688,
+                "src": "514:18:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 19672,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "514:7:37",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 19675,
+                "mutability": "mutable",
+                "name": "minimumCollateralization",
+                "nameLocation": "628:24:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19688,
+                "src": "620:32:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 19674,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "620:7:37",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 19677,
+                "mutability": "mutable",
+                "name": "protocolFee",
+                "nameLocation": "759:11:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19688,
+                "src": "751:19:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 19676,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "751:7:37",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 19679,
+                "mutability": "mutable",
+                "name": "protocolFeeReceiver",
+                "nameLocation": "840:19:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19688,
+                "src": "832:27:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 19678,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "832:7:37",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 19681,
+                "mutability": "mutable",
+                "name": "mintingLimitMinimum",
+                "nameLocation": "973:19:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19688,
+                "src": "965:27:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 19680,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "965:7:37",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 19683,
+                "mutability": "mutable",
+                "name": "mintingLimitMaximum",
+                "nameLocation": "1089:19:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19688,
+                "src": "1081:27:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 19682,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1081:7:37",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 19685,
+                "mutability": "mutable",
+                "name": "mintingLimitBlocks",
+                "nameLocation": "1211:18:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19688,
+                "src": "1203:26:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 19684,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1203:7:37",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 19687,
+                "mutability": "mutable",
+                "name": "whitelist",
+                "nameLocation": "1288:9:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19688,
+                "src": "1280:17:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 19686,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1280:7:37",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "InitializationParams",
+            "nameLocation": "288:20:37",
+            "nodeType": "StructDefinition",
+            "scope": 19868,
+            "src": "281:1023:37",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "IAlchemistV2AdminActions.UnderlyingTokenConfig",
+            "id": 19701,
+            "members": [
+              {
+                "constant": false,
+                "id": 19690,
+                "mutability": "mutable",
+                "name": "repayLimitMinimum",
+                "nameLocation": "1521:17:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19701,
+                "src": "1513:25:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 19689,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1513:7:37",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 19692,
+                "mutability": "mutable",
+                "name": "repayLimitMaximum",
+                "nameLocation": "1646:17:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19701,
+                "src": "1638:25:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 19691,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1638:7:37",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 19694,
+                "mutability": "mutable",
+                "name": "repayLimitBlocks",
+                "nameLocation": "1768:16:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19701,
+                "src": "1760:24:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 19693,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1760:7:37",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 19696,
+                "mutability": "mutable",
+                "name": "liquidationLimitMinimum",
+                "nameLocation": "1902:23:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19701,
+                "src": "1894:31:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 19695,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1894:7:37",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 19698,
+                "mutability": "mutable",
+                "name": "liquidationLimitMaximum",
+                "nameLocation": "2037:23:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19701,
+                "src": "2029:31:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 19697,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2029:7:37",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 19700,
+                "mutability": "mutable",
+                "name": "liquidationLimitBlocks",
+                "nameLocation": "2167:22:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19701,
+                "src": "2159:30:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 19699,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2159:7:37",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "UnderlyingTokenConfig",
+            "nameLocation": "1383:21:37",
+            "nodeType": "StructDefinition",
+            "scope": 19868,
+            "src": "1376:820:37",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "IAlchemistV2AdminActions.YieldTokenConfig",
+            "id": 19710,
+            "members": [
+              {
+                "constant": false,
+                "id": 19703,
+                "mutability": "mutable",
+                "name": "adapter",
+                "nameLocation": "2372:7:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19710,
+                "src": "2364:15:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 19702,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2364:7:37",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 19705,
+                "mutability": "mutable",
+                "name": "maximumLoss",
+                "nameLocation": "2548:11:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19710,
+                "src": "2540:19:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 19704,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2540:7:37",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 19707,
+                "mutability": "mutable",
+                "name": "maximumExpectedValue",
+                "nameLocation": "2718:20:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19710,
+                "src": "2710:28:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 19706,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2710:7:37",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 19709,
+                "mutability": "mutable",
+                "name": "creditUnlockBlocks",
+                "nameLocation": "2840:18:37",
+                "nodeType": "VariableDeclaration",
+                "scope": 19710,
+                "src": "2832:26:37",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 19708,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2832:7:37",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "YieldTokenConfig",
+            "nameLocation": "2268:16:37",
+            "nodeType": "StructDefinition",
+            "scope": 19868,
+            "src": "2261:604:37",
+            "visibility": "public"
+          },
+          {
+            "documentation": {
+              "id": 19711,
+              "nodeType": "StructuredDocumentation",
+              "src": "2871:726:37",
+              "text": "@notice Initialize the contract.\n @notice `params.protocolFee` must be in range or this call will with an {IllegalArgument} error.\n @notice The minting growth limiter parameters must be valid or this will revert with an {IllegalArgument} error. For more information, see the {Limiters} library.\n @notice Emits an {AdminUpdated} event.\n @notice Emits a {TransmuterUpdated} event.\n @notice Emits a {MinimumCollateralizationUpdated} event.\n @notice Emits a {ProtocolFeeUpdated} event.\n @notice Emits a {ProtocolFeeReceiverUpdated} event.\n @notice Emits a {MintingLimitUpdated} event.\n @param params The contract initialization parameters."
+            },
+            "functionSelector": "6987227a",
+            "id": 19717,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "initialize",
+            "nameLocation": "3611:10:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19715,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19714,
+                  "mutability": "mutable",
+                  "name": "params",
+                  "nameLocation": "3650:6:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19717,
+                  "src": "3622:34:37",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_InitializationParams_$19688_memory_ptr",
+                    "typeString": "struct IAlchemistV2AdminActions.InitializationParams"
+                  },
+                  "typeName": {
+                    "id": 19713,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 19712,
+                      "name": "InitializationParams",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 19688,
+                      "src": "3622:20:37"
+                    },
+                    "referencedDeclaration": 19688,
+                    "src": "3622:20:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_InitializationParams_$19688_storage_ptr",
+                      "typeString": "struct IAlchemistV2AdminActions.InitializationParams"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3621:36:37"
+            },
+            "returnParameters": {
+              "id": 19716,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "3666:0:37"
+            },
+            "scope": 19868,
+            "src": "3602:65:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19718,
+              "nodeType": "StructuredDocumentation",
+              "src": "3673:508:37",
+              "text": "@notice Sets the pending administrator.\n @notice `msg.sender` must be the admin or this call will will revert with an {Unauthorized} error.\n @notice Emits a {PendingAdminUpdated} event.\n @dev This is the first step in the two-step process of setting a new administrator. After this function is called, the pending administrator will then need to call {acceptAdmin} to complete the process.\n @param value the address to set the pending admin to."
+            },
+            "functionSelector": "4dd18bf5",
+            "id": 19723,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setPendingAdmin",
+            "nameLocation": "4195:15:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19721,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19720,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "4219:5:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19723,
+                  "src": "4211:13:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19719,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4211:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "4210:15:37"
+            },
+            "returnParameters": {
+              "id": 19722,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "4234:0:37"
+            },
+            "scope": 19868,
+            "src": "4186:49:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19724,
+              "nodeType": "StructuredDocumentation",
+              "src": "4241:637:37",
+              "text": "@notice Allows for `msg.sender` to accepts the role of administrator.\n @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.\n @notice The current pending administrator must be non-zero or this call will revert with an {IllegalState} error.\n @dev This is the second step in the two-step process of setting a new administrator. After this function is successfully called, this pending administrator will be reset and the new administrator will be set.\n @notice Emits a {AdminUpdated} event.\n @notice Emits a {PendingAdminUpdated} event."
+            },
+            "functionSelector": "0e18b681",
+            "id": 19727,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "acceptAdmin",
+            "nameLocation": "4892:11:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19725,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "4903:2:37"
+            },
+            "returnParameters": {
+              "id": 19726,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "4914:0:37"
+            },
+            "scope": 19868,
+            "src": "4883:32:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19728,
+              "nodeType": "StructuredDocumentation",
+              "src": "4921:322:37",
+              "text": "@notice Sets an address as a sentinel.\n @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.\n @param sentinel The address to set or unset as a sentinel.\n @param flag     A flag indicating of the address should be set or unset as a sentinel."
+            },
+            "functionSelector": "00796bf7",
+            "id": 19735,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setSentinel",
+            "nameLocation": "5257:11:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19733,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19730,
+                  "mutability": "mutable",
+                  "name": "sentinel",
+                  "nameLocation": "5277:8:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19735,
+                  "src": "5269:16:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19729,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5269:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19732,
+                  "mutability": "mutable",
+                  "name": "flag",
+                  "nameLocation": "5292:4:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19735,
+                  "src": "5287:9:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 19731,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5287:4:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5268:29:37"
+            },
+            "returnParameters": {
+              "id": 19734,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "5306:0:37"
+            },
+            "scope": 19868,
+            "src": "5248:59:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19736,
+              "nodeType": "StructuredDocumentation",
+              "src": "5313:312:37",
+              "text": "@notice Sets an address as a keeper.\n @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.\n @param keeper The address to set or unset as a keeper.\n @param flag   A flag indicating of the address should be set or unset as a keeper."
+            },
+            "functionSelector": "d1b9e853",
+            "id": 19743,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setKeeper",
+            "nameLocation": "5639:9:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19741,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19738,
+                  "mutability": "mutable",
+                  "name": "keeper",
+                  "nameLocation": "5657:6:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19743,
+                  "src": "5649:14:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19737,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5649:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19740,
+                  "mutability": "mutable",
+                  "name": "flag",
+                  "nameLocation": "5670:4:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19743,
+                  "src": "5665:9:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 19739,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5665:4:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5648:27:37"
+            },
+            "returnParameters": {
+              "id": 19742,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "5684:0:37"
+            },
+            "scope": 19868,
+            "src": "5630:55:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19744,
+              "nodeType": "StructuredDocumentation",
+              "src": "5691:319:37",
+              "text": "@notice Adds an underlying token to the system.\n @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.\n @param underlyingToken The address of the underlying token to add.\n @param config          The initial underlying token configuration."
+            },
+            "functionSelector": "b30ac7f6",
+            "id": 19752,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "addUnderlyingToken",
+            "nameLocation": "6024:18:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19750,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19746,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "6060:15:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19752,
+                  "src": "6052:23:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19745,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6052:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19749,
+                  "mutability": "mutable",
+                  "name": "config",
+                  "nameLocation": "6116:6:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19752,
+                  "src": "6085:37:37",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_UnderlyingTokenConfig_$19701_calldata_ptr",
+                    "typeString": "struct IAlchemistV2AdminActions.UnderlyingTokenConfig"
+                  },
+                  "typeName": {
+                    "id": 19748,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 19747,
+                      "name": "UnderlyingTokenConfig",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 19701,
+                      "src": "6085:21:37"
+                    },
+                    "referencedDeclaration": 19701,
+                    "src": "6085:21:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_UnderlyingTokenConfig_$19701_storage_ptr",
+                      "typeString": "struct IAlchemistV2AdminActions.UnderlyingTokenConfig"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "6042:86:37"
+            },
+            "returnParameters": {
+              "id": 19751,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "6137:0:37"
+            },
+            "scope": 19868,
+            "src": "6015:123:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19753,
+              "nodeType": "StructuredDocumentation",
+              "src": "6144:453:37",
+              "text": "@notice Adds a yield token to the system.\n @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.\n @notice Emits a {AddYieldToken} event.\n @notice Emits a {TokenAdapterUpdated} event.\n @notice Emits a {MaximumLossUpdated} event.\n @param yieldToken The address of the yield token to add.\n @param config     The initial yield token configuration."
+            },
+            "functionSelector": "3f6384fe",
+            "id": 19761,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "addYieldToken",
+            "nameLocation": "6611:13:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19759,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19755,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "6633:10:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19761,
+                  "src": "6625:18:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19754,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6625:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19758,
+                  "mutability": "mutable",
+                  "name": "config",
+                  "nameLocation": "6671:6:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19761,
+                  "src": "6645:32:37",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_YieldTokenConfig_$19710_calldata_ptr",
+                    "typeString": "struct IAlchemistV2AdminActions.YieldTokenConfig"
+                  },
+                  "typeName": {
+                    "id": 19757,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 19756,
+                      "name": "YieldTokenConfig",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 19710,
+                      "src": "6645:16:37"
+                    },
+                    "referencedDeclaration": 19710,
+                    "src": "6645:16:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_YieldTokenConfig_$19710_storage_ptr",
+                      "typeString": "struct IAlchemistV2AdminActions.YieldTokenConfig"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "6624:54:37"
+            },
+            "returnParameters": {
+              "id": 19760,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "6695:0:37"
+            },
+            "scope": 19868,
+            "src": "6602:94:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19762,
+              "nodeType": "StructuredDocumentation",
+              "src": "6702:557:37",
+              "text": "@notice Sets an underlying token as either enabled or disabled.\n @notice `msg.sender` must be either the admin or a sentinel or this call will revert with an {Unauthorized} error.\n @notice `underlyingToken` must be registered or this call will revert with a {UnsupportedToken} error.\n @notice Emits an {UnderlyingTokenEnabled} event.\n @param underlyingToken The address of the underlying token to enable or disable.\n @param enabled         If the underlying token should be enabled or disabled."
+            },
+            "functionSelector": "41220938",
+            "id": 19769,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setUnderlyingTokenEnabled",
+            "nameLocation": "7273:25:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19767,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19764,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "7307:15:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19769,
+                  "src": "7299:23:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19763,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "7299:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19766,
+                  "mutability": "mutable",
+                  "name": "enabled",
+                  "nameLocation": "7329:7:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19769,
+                  "src": "7324:12:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 19765,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "7324:4:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "7298:39:37"
+            },
+            "returnParameters": {
+              "id": 19768,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "7354:0:37"
+            },
+            "scope": 19868,
+            "src": "7264:91:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19770,
+              "nodeType": "StructuredDocumentation",
+              "src": "7361:525:37",
+              "text": "@notice Sets a yield token as either enabled or disabled.\n @notice `msg.sender` must be either the admin or a sentinel or this call will revert with an {Unauthorized} error.\n @notice `yieldToken` must be registered or this call will revert with a {UnsupportedToken} error.\n @notice Emits a {YieldTokenEnabled} event.\n @param yieldToken The address of the yield token to enable or disable.\n @param enabled    If the underlying token should be enabled or disabled."
+            },
+            "functionSelector": "26b00c00",
+            "id": 19777,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setYieldTokenEnabled",
+            "nameLocation": "7900:20:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19775,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19772,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "7929:10:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19777,
+                  "src": "7921:18:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19771,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "7921:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19774,
+                  "mutability": "mutable",
+                  "name": "enabled",
+                  "nameLocation": "7946:7:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19777,
+                  "src": "7941:12:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 19773,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "7941:4:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "7920:34:37"
+            },
+            "returnParameters": {
+              "id": 19776,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "7963:0:37"
+            },
+            "scope": 19868,
+            "src": "7891:73:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19778,
+              "nodeType": "StructuredDocumentation",
+              "src": "7970:657:37",
+              "text": "@notice Configures the the repay limit of `underlyingToken`.\n @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.\n @notice `underlyingToken` must be registered or this call will revert with a {UnsupportedToken} error.\n @notice Emits a {ReplayLimitUpdated} event.\n @param underlyingToken The address of the underlying token to configure the repay limit of.\n @param maximum         The maximum repay limit.\n @param blocks          The number of blocks it will take for the maximum repayment limit to be replenished when it is completely exhausted."
+            },
+            "functionSelector": "63c92490",
+            "id": 19787,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "configureRepayLimit",
+            "nameLocation": "8641:19:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19785,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19780,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "8678:15:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19787,
+                  "src": "8670:23:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19779,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "8670:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19782,
+                  "mutability": "mutable",
+                  "name": "maximum",
+                  "nameLocation": "8711:7:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19787,
+                  "src": "8703:15:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19781,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "8703:7:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19784,
+                  "mutability": "mutable",
+                  "name": "blocks",
+                  "nameLocation": "8736:6:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19787,
+                  "src": "8728:14:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19783,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "8728:7:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "8660:88:37"
+            },
+            "returnParameters": {
+              "id": 19786,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "8757:0:37"
+            },
+            "scope": 19868,
+            "src": "8632:126:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19788,
+              "nodeType": "StructuredDocumentation",
+              "src": "8764:679:37",
+              "text": "@notice Configure the liquidation limiter of `underlyingToken`.\n @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.\n @notice `underlyingToken` must be registered or this call will revert with a {UnsupportedToken} error.\n @notice Emits a {LiquidationLimitUpdated} event.\n @param underlyingToken The address of the underlying token to configure the liquidation limit of.\n @param maximum         The maximum liquidation limit.\n @param blocks          The number of blocks it will take for the maximum liquidation limit to be replenished when it is completely exhausted."
+            },
+            "functionSelector": "19a158d0",
+            "id": 19797,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "configureLiquidationLimit",
+            "nameLocation": "9457:25:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19795,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19790,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "9500:15:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19797,
+                  "src": "9492:23:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19789,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "9492:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19792,
+                  "mutability": "mutable",
+                  "name": "maximum",
+                  "nameLocation": "9533:7:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19797,
+                  "src": "9525:15:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19791,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "9525:7:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19794,
+                  "mutability": "mutable",
+                  "name": "blocks",
+                  "nameLocation": "9558:6:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19797,
+                  "src": "9550:14:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19793,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "9550:7:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "9482:88:37"
+            },
+            "returnParameters": {
+              "id": 19796,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "9579:0:37"
+            },
+            "scope": 19868,
+            "src": "9448:132:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19798,
+              "nodeType": "StructuredDocumentation",
+              "src": "9586:374:37",
+              "text": "@notice Set the address of the transmuter.\n @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.\n @notice `value` must be non-zero or this call will revert with an {IllegalArgument} error.\n @notice Emits a {TransmuterUpdated} event.\n @param value The address of the transmuter."
+            },
+            "functionSelector": "adb4a9ad",
+            "id": 19803,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setTransmuter",
+            "nameLocation": "9974:13:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19801,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19800,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "9996:5:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19803,
+                  "src": "9988:13:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19799,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "9988:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "9987:15:37"
+            },
+            "returnParameters": {
+              "id": 19802,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "10011:0:37"
+            },
+            "scope": 19868,
+            "src": "9965:47:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19804,
+              "nodeType": "StructuredDocumentation",
+              "src": "10018:305:37",
+              "text": "@notice Set the minimum collateralization ratio.\n @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.\n @notice Emits a {MinimumCollateralizationUpdated} event.\n @param value The new minimum collateralization ratio."
+            },
+            "functionSelector": "19815a32",
+            "id": 19809,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setMinimumCollateralization",
+            "nameLocation": "10337:27:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19807,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19806,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "10373:5:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19809,
+                  "src": "10365:13:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19805,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "10365:7:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "10364:15:37"
+            },
+            "returnParameters": {
+              "id": 19808,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "10388:0:37"
+            },
+            "scope": 19868,
+            "src": "10328:61:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19810,
+              "nodeType": "StructuredDocumentation",
+              "src": "10395:421:37",
+              "text": "@notice Sets the fee that the protocol will take from harvests.\n @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.\n @notice `value` must be in range or this call will with an {IllegalArgument} error.\n @notice Emits a {ProtocolFeeUpdated} event.\n @param value The value to set the protocol fee to measured in basis points."
+            },
+            "functionSelector": "787dce3d",
+            "id": 19815,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setProtocolFee",
+            "nameLocation": "10830:14:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19813,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19812,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "10853:5:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19815,
+                  "src": "10845:13:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19811,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "10845:7:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "10844:15:37"
+            },
+            "returnParameters": {
+              "id": 19814,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "10868:0:37"
+            },
+            "scope": 19868,
+            "src": "10821:48:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19816,
+              "nodeType": "StructuredDocumentation",
+              "src": "10875:417:37",
+              "text": "@notice Sets the address which will receive protocol fees.\n @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.\n @notice `value` must be non-zero or this call will revert with an {IllegalArgument} error.\n @notice Emits a {ProtocolFeeReceiverUpdated} event.\n @param value The address to set the protocol fee receiver to."
+            },
+            "functionSelector": "46877b1a",
+            "id": 19821,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setProtocolFeeReceiver",
+            "nameLocation": "11306:22:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19819,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19818,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "11337:5:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19821,
+                  "src": "11329:13:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19817,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "11329:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "11328:15:37"
+            },
+            "returnParameters": {
+              "id": 19820,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "11352:0:37"
+            },
+            "scope": 19868,
+            "src": "11297:56:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19822,
+              "nodeType": "StructuredDocumentation",
+              "src": "11359:410:37",
+              "text": "@notice Configures the minting limiter.\n @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.\n @notice Emits a {MintingLimitUpdated} event.\n @param maximum The maximum minting limit.\n @param blocks  The number of blocks it will take for the maximum minting limit to be replenished when it is completely exhausted."
+            },
+            "functionSelector": "ca9e8ad6",
+            "id": 19829,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "configureMintingLimit",
+            "nameLocation": "11783:21:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19827,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19824,
+                  "mutability": "mutable",
+                  "name": "maximum",
+                  "nameLocation": "11813:7:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19829,
+                  "src": "11805:15:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19823,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "11805:7:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19826,
+                  "mutability": "mutable",
+                  "name": "blocks",
+                  "nameLocation": "11830:6:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19829,
+                  "src": "11822:14:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19825,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "11822:7:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "11804:33:37"
+            },
+            "returnParameters": {
+              "id": 19828,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "11846:0:37"
+            },
+            "scope": 19868,
+            "src": "11774:73:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19830,
+              "nodeType": "StructuredDocumentation",
+              "src": "11853:373:37",
+              "text": "@notice Sets the rate at which credit will be completely available to depositors after it is harvested.\n @notice Emits a {CreditUnlockRateUpdated} event.\n @param yieldToken The address of the yield token to set the credit unlock rate for.\n @param blocks     The number of blocks that it will take before the credit will be unlocked."
+            },
+            "functionSelector": "306f6e67",
+            "id": 19837,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "configureCreditUnlockRate",
+            "nameLocation": "12240:25:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19835,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19832,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "12274:10:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19837,
+                  "src": "12266:18:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19831,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "12266:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19834,
+                  "mutability": "mutable",
+                  "name": "blocks",
+                  "nameLocation": "12294:6:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19837,
+                  "src": "12286:14:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19833,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "12286:7:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "12265:36:37"
+            },
+            "returnParameters": {
+              "id": 19836,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "12310:0:37"
+            },
+            "scope": 19868,
+            "src": "12231:80:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19838,
+              "nodeType": "StructuredDocumentation",
+              "src": "12317:610:37",
+              "text": "@notice Sets the token adapter of a yield token.\n @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.\n @notice `yieldToken` must be registered or this call will revert with a {UnsupportedToken} error.\n @notice The token that `adapter` supports must be `yieldToken` or this call will revert with a {IllegalState} error.\n @notice Emits a {TokenAdapterUpdated} event.\n @param yieldToken The address of the yield token to set the adapter for.\n @param adapter    The address to set the token adapter to."
+            },
+            "functionSelector": "1a49e55e",
+            "id": 19845,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setTokenAdapter",
+            "nameLocation": "12941:15:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19843,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19840,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "12965:10:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19845,
+                  "src": "12957:18:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19839,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "12957:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19842,
+                  "mutability": "mutable",
+                  "name": "adapter",
+                  "nameLocation": "12985:7:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19845,
+                  "src": "12977:15:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19841,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "12977:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "12956:37:37"
+            },
+            "returnParameters": {
+              "id": 19844,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "13002:0:37"
+            },
+            "scope": 19868,
+            "src": "12932:71:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19846,
+              "nodeType": "StructuredDocumentation",
+              "src": "13009:520:37",
+              "text": "@notice Sets the maximum expected value of a yield token that the system can hold.\n @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.\n @notice `yieldToken` must be registered or this call will revert with a {UnsupportedToken} error.\n @param yieldToken The address of the yield token to set the maximum expected value for.\n @param value      The maximum expected value of the yield token denoted measured in its underlying token."
+            },
+            "functionSelector": "eeb15a9c",
+            "id": 19853,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setMaximumExpectedValue",
+            "nameLocation": "13543:23:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19851,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19848,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "13575:10:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19853,
+                  "src": "13567:18:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19847,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "13567:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19850,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "13595:5:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19853,
+                  "src": "13587:13:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19849,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "13587:7:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "13566:35:37"
+            },
+            "returnParameters": {
+              "id": 19852,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "13618:0:37"
+            },
+            "scope": 19868,
+            "src": "13534:85:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19854,
+              "nodeType": "StructuredDocumentation",
+              "src": "13625:1180:37",
+              "text": "@notice Sets the maximum loss that a yield bearing token will permit before restricting certain actions.\n @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.\n @notice `yieldToken` must be registered or this call will revert with a {UnsupportedToken} error.\n @dev There are two types of loss of value for yield bearing assets: temporary or permanent. The system will automatically restrict actions which are sensitive to both forms of loss when detected. For example, deposits must be restricted when an excessive loss is encountered to prevent users from having their collateral harvested from them. While the user would receive credit, which then could be exchanged for value equal to the collateral that was harvested from them, it is seen as a negative user experience because the value of their collateral should have been higher than what was originally recorded when they made their deposit.\n @param yieldToken The address of the yield bearing token to set the maximum loss for.\n @param value      The value to set the maximum loss to. This is in units of basis points."
+            },
+            "functionSelector": "5c34586c",
+            "id": 19861,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setMaximumLoss",
+            "nameLocation": "14819:14:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19859,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19856,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "14842:10:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19861,
+                  "src": "14834:18:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19855,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "14834:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19858,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "14862:5:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19861,
+                  "src": "14854:13:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19857,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "14854:7:37",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "14833:35:37"
+            },
+            "returnParameters": {
+              "id": 19860,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "14877:0:37"
+            },
+            "scope": 19868,
+            "src": "14810:68:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19862,
+              "nodeType": "StructuredDocumentation",
+              "src": "14884:829:37",
+              "text": "@notice Snap the expected value `yieldToken` to the current value.\n @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.\n @notice `yieldToken` must be registered or this call will revert with a {UnsupportedToken} error.\n @dev This function should only be used in the event of a loss in the target yield-token. For example, say a third-party protocol experiences a fifty percent loss. The expected value (amount of underlying tokens) of the yield tokens being held by the system would be two times the real value that those yield tokens could be redeemed for. This function gives governance a way to realize those losses so that users can continue using the token as normal.\n @param yieldToken The address of the yield token to snap."
+            },
+            "functionSelector": "d6737ccf",
+            "id": 19867,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "snap",
+            "nameLocation": "15727:4:37",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19865,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19864,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "15740:10:37",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19867,
+                  "src": "15732:18:37",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19863,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "15732:7:37",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "15731:20:37"
+            },
+            "returnParameters": {
+              "id": 19866,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "15760:0:37"
+            },
+            "scope": 19868,
+            "src": "15718:43:37",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 19869,
+        "src": "188:15575:37",
+        "usedErrors": []
+      }
+    ],
+    "src": "39:15725:37"
   }
 }

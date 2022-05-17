@@ -236,5 +236,290 @@
     "object": "0x",
     "sourceMap": "",
     "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/IERC20Burnable.sol",
+    "exportedSymbols": {
+      "IERC20": [
+        11922
+      ],
+      "IERC20Burnable": [
+        19139
+      ]
+    },
+    "id": 19140,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 19116,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.5",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:28"
+      },
+      {
+        "absolutePath": "/Users/sunflower/Desktop/v2-foundry/lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "file": "openzeppelin/token/ERC20/IERC20.sol",
+        "id": 19117,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 19140,
+        "sourceUnit": 11923,
+        "src": "26:45:28",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "abstract": false,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 19119,
+              "name": "IERC20",
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 11922,
+              "src": "157:6:28"
+            },
+            "id": 19120,
+            "nodeType": "InheritanceSpecifier",
+            "src": "157:6:28"
+          }
+        ],
+        "canonicalName": "IERC20Burnable",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 19118,
+          "nodeType": "StructuredDocumentation",
+          "src": "73:56:28",
+          "text": "@title  IERC20Burnable\n @author Alchemix Finance"
+        },
+        "fullyImplemented": false,
+        "id": 19139,
+        "linearizedBaseContracts": [
+          19139,
+          11922
+        ],
+        "name": "IERC20Burnable",
+        "nameLocation": "139:14:28",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "documentation": {
+              "id": 19121,
+              "nodeType": "StructuredDocumentation",
+              "src": "170:189:28",
+              "text": "@notice Burns `amount` tokens from the balance of `msg.sender`.\n @param amount The amount of tokens to burn.\n @return If burning the tokens was successful."
+            },
+            "functionSelector": "42966c68",
+            "id": 19128,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "burn",
+            "nameLocation": "373:4:28",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19124,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19123,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "386:6:28",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19128,
+                  "src": "378:14:28",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19122,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "378:7:28",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "377:16:28"
+            },
+            "returnParameters": {
+              "id": 19127,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19126,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19128,
+                  "src": "412:4:28",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 19125,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "412:4:28",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "411:6:28"
+            },
+            "scope": 19139,
+            "src": "364:54:28",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19129,
+              "nodeType": "StructuredDocumentation",
+              "src": "424:234:28",
+              "text": "@notice Burns `amount` tokens from `owner`'s balance.\n @param owner  The address to burn tokens from.\n @param amount The amount of tokens to burn.\n @return If burning the tokens was successful."
+            },
+            "functionSelector": "79cc6790",
+            "id": 19138,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "burnFrom",
+            "nameLocation": "672:8:28",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19134,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19131,
+                  "mutability": "mutable",
+                  "name": "owner",
+                  "nameLocation": "689:5:28",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19138,
+                  "src": "681:13:28",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19130,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "681:7:28",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19133,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "704:6:28",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19138,
+                  "src": "696:14:28",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19132,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "696:7:28",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "680:31:28"
+            },
+            "returnParameters": {
+              "id": 19137,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19136,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19138,
+                  "src": "730:4:28",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 19135,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "730:4:28",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "729:6:28"
+            },
+            "scope": 19139,
+            "src": "663:73:28",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 19140,
+        "src": "129:609:28",
+        "usedErrors": []
+      }
+    ],
+    "src": "0:738:28"
   }
 }

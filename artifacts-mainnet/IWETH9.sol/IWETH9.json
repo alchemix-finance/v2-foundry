@@ -252,5 +252,206 @@
     "object": "0x",
     "sourceMap": "",
     "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/external/IWETH9.sol",
+    "exportedSymbols": {
+      "IERC20": [
+        11922
+      ],
+      "IERC20Metadata": [
+        19161
+      ],
+      "IWETH9": [
+        20446
+      ]
+    },
+    "id": 20447,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 20428,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.5",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:42"
+      },
+      {
+        "absolutePath": "/Users/sunflower/Desktop/v2-foundry/lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "file": "openzeppelin/token/ERC20/IERC20.sol",
+        "id": 20429,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 20447,
+        "sourceUnit": 11923,
+        "src": "26:45:42",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/IERC20Metadata.sol",
+        "file": "../IERC20Metadata.sol",
+        "id": 20430,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 20447,
+        "sourceUnit": 19162,
+        "src": "73:31:42",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "abstract": false,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 20432,
+              "name": "IERC20",
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 11922,
+              "src": "144:6:42"
+            },
+            "id": 20433,
+            "nodeType": "InheritanceSpecifier",
+            "src": "144:6:42"
+          },
+          {
+            "baseName": {
+              "id": 20434,
+              "name": "IERC20Metadata",
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 19161,
+              "src": "152:14:42"
+            },
+            "id": 20435,
+            "nodeType": "InheritanceSpecifier",
+            "src": "152:14:42"
+          }
+        ],
+        "canonicalName": "IWETH9",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 20431,
+          "nodeType": "StructuredDocumentation",
+          "src": "106:18:42",
+          "text": "@title IWETH9"
+        },
+        "fullyImplemented": false,
+        "id": 20446,
+        "linearizedBaseContracts": [
+          20446,
+          19161,
+          11922
+        ],
+        "name": "IWETH9",
+        "nameLocation": "134:6:42",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "documentation": {
+              "id": 20436,
+              "nodeType": "StructuredDocumentation",
+              "src": "171:89:42",
+              "text": "@notice Deposits `msg.value` ethereum into the contract and mints `msg.value` tokens."
+            },
+            "functionSelector": "d0e30db0",
+            "id": 20439,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "deposit",
+            "nameLocation": "272:7:42",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 20437,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "279:2:42"
+            },
+            "returnParameters": {
+              "id": 20438,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "298:0:42"
+            },
+            "scope": 20446,
+            "src": "263:36:42",
+            "stateMutability": "payable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 20440,
+              "nodeType": "StructuredDocumentation",
+              "src": "303:330:42",
+              "text": "@notice Burns `amount` tokens to retrieve `amount` ethereum from the contract.\n @dev This version of WETH utilizes the `transfer` function which hard codes the amount of gas\n      that is allowed to be utilized to be exactly 2300 when receiving ethereum.\n @param amount The amount of tokens to burn."
+            },
+            "functionSelector": "2e1a7d4d",
+            "id": 20445,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "withdraw",
+            "nameLocation": "645:8:42",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 20443,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20442,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "662:6:42",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20445,
+                  "src": "654:14:42",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20441,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "654:7:42",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "653:16:42"
+            },
+            "returnParameters": {
+              "id": 20444,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "678:0:42"
+            },
+            "scope": 20446,
+            "src": "636:43:42",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 20447,
+        "src": "124:557:42",
+        "usedErrors": []
+      }
+    ],
+    "src": "0:681:42"
   }
 }

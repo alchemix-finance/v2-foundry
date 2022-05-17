@@ -36,5 +36,179 @@
     "object": "0x",
     "sourceMap": "",
     "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/alchemist/IAlchemistV2Immutables.sol",
+    "exportedSymbols": {
+      "IAlchemistV2Immutables": [
+        20183
+      ]
+    },
+    "id": 20184,
+    "license": "UNLICENSED",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 20169,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.5",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "39:24:40"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IAlchemistV2Immutables",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 20170,
+          "nodeType": "StructuredDocumentation",
+          "src": "65:64:40",
+          "text": "@title  IAlchemistV2Immutables\n @author Alchemix Finance"
+        },
+        "fullyImplemented": false,
+        "id": 20183,
+        "linearizedBaseContracts": [
+          20183
+        ],
+        "name": "IAlchemistV2Immutables",
+        "nameLocation": "139:22:40",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "documentation": {
+              "id": 20171,
+              "nodeType": "StructuredDocumentation",
+              "src": "168:86:40",
+              "text": "@notice Returns the version of the alchemist.\n @return The version."
+            },
+            "functionSelector": "54fd4d50",
+            "id": 20176,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "version",
+            "nameLocation": "268:7:40",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 20172,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "275:2:40"
+            },
+            "returnParameters": {
+              "id": 20175,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20174,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20176,
+                  "src": "301:13:40",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 20173,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "301:6:40",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "300:15:40"
+            },
+            "scope": 20183,
+            "src": "259:57:40",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 20177,
+              "nodeType": "StructuredDocumentation",
+              "src": "322:124:40",
+              "text": "@notice Returns the address of the debt token used by the system.\n @return The address of the debt token."
+            },
+            "functionSelector": "f8d89898",
+            "id": 20182,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "debtToken",
+            "nameLocation": "460:9:40",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 20178,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "469:2:40"
+            },
+            "returnParameters": {
+              "id": 20181,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20180,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20182,
+                  "src": "495:7:40",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20179,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "495:7:40",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "494:9:40"
+            },
+            "scope": 20183,
+            "src": "451:53:40",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 20184,
+        "src": "129:377:40",
+        "usedErrors": []
+      }
+    ],
+    "src": "39:467:40"
   }
 }

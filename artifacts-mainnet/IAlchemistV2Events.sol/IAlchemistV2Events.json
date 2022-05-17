@@ -634,5 +634,2690 @@
     "object": "0x",
     "sourceMap": "",
     "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/alchemist/IAlchemistV2Events.sol",
+    "exportedSymbols": {
+      "IAlchemistV2Events": [
+        20167
+      ]
+    },
+    "id": 20168,
+    "license": "UNLICENSED",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 19937,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.5",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "39:24:39"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IAlchemistV2Events",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 19938,
+          "nodeType": "StructuredDocumentation",
+          "src": "65:60:39",
+          "text": "@title  IAlchemistV2Events\n @author Alchemix Finance"
+        },
+        "fullyImplemented": true,
+        "id": 20167,
+        "linearizedBaseContracts": [
+          20167
+        ],
+        "name": "IAlchemistV2Events",
+        "nameLocation": "135:18:39",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 19939,
+              "nodeType": "StructuredDocumentation",
+              "src": "160:124:39",
+              "text": "@notice Emitted when the pending admin is updated.\n @param pendingAdmin The address of the pending admin."
+            },
+            "eventSelector": "a728e84b447788a55ff664fbfb5c3983925f88b80b672a1b0b8271c94b22df35",
+            "id": 19943,
+            "name": "PendingAdminUpdated",
+            "nameLocation": "295:19:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 19942,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19941,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "pendingAdmin",
+                  "nameLocation": "323:12:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19943,
+                  "src": "315:20:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19940,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "315:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "314:22:39"
+            },
+            "src": "289:48:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 19944,
+              "nodeType": "StructuredDocumentation",
+              "src": "343:117:39",
+              "text": "@notice Emitted when the administrator is updated.\n @param admin The address of the administrator."
+            },
+            "eventSelector": "54e4612788f90384e6843298d7854436f3a585b2c3831ab66abf1de63bfa6c2d",
+            "id": 19948,
+            "name": "AdminUpdated",
+            "nameLocation": "471:12:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 19947,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19946,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "admin",
+                  "nameLocation": "492:5:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19948,
+                  "src": "484:13:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19945,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "484:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "483:15:39"
+            },
+            "src": "465:34:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 19949,
+              "nodeType": "StructuredDocumentation",
+              "src": "505:215:39",
+              "text": "@notice Emitted when an address is set or unset as a sentinel.\n @param sentinel The address of the sentinel.\n @param flag     A flag indicating if `sentinel` was set or unset as a sentinel."
+            },
+            "eventSelector": "007a59171ef284e295f019cc84b743f8ef2d67121ae078a0e4668a7f992f6cd8",
+            "id": 19955,
+            "name": "SentinelSet",
+            "nameLocation": "731:11:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 19954,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19951,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "sentinel",
+                  "nameLocation": "751:8:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19955,
+                  "src": "743:16:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19950,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "743:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19953,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "flag",
+                  "nameLocation": "766:4:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19955,
+                  "src": "761:9:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 19952,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "761:4:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "742:29:39"
+            },
+            "src": "725:47:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 19956,
+              "nodeType": "StructuredDocumentation",
+              "src": "778:209:39",
+              "text": "@notice Emitted when an address is set or unset as a keeper.\n @param sentinel The address of the keeper.\n @param flag     A flag indicating if `keeper` was set or unset as a sentinel."
+            },
+            "eventSelector": "8dd62d4e1f60b96148552898e743aa2b571686baa26f4f1b647565dc3996c1a7",
+            "id": 19962,
+            "name": "KeeperSet",
+            "nameLocation": "998:9:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 19961,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19958,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "sentinel",
+                  "nameLocation": "1016:8:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19962,
+                  "src": "1008:16:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19957,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1008:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19960,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "flag",
+                  "nameLocation": "1031:4:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19962,
+                  "src": "1026:9:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 19959,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1026:4:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1007:29:39"
+            },
+            "src": "992:45:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 19963,
+              "nodeType": "StructuredDocumentation",
+              "src": "1043:145:39",
+              "text": "@notice Emitted when an underlying token is added.\n @param underlyingToken The address of the underlying token that was added."
+            },
+            "eventSelector": "3a0e2b79f1e0c4867b78173318e64bad2dbf7be510d51198d37900e52de2bb8c",
+            "id": 19967,
+            "name": "AddUnderlyingToken",
+            "nameLocation": "1199:18:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 19966,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19965,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "1234:15:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19967,
+                  "src": "1218:31:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19964,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1218:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1217:33:39"
+            },
+            "src": "1193:58:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 19968,
+              "nodeType": "StructuredDocumentation",
+              "src": "1257:129:39",
+              "text": "@notice Emitted when a yield token is added.\n @param yieldToken The address of the yield token that was added."
+            },
+            "eventSelector": "7d45e47bed6d03b67d9ccb28bed226dd01d1425049e21b289d6fd54732131c83",
+            "id": 19972,
+            "name": "AddYieldToken",
+            "nameLocation": "1397:13:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 19971,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19970,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "1427:10:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19972,
+                  "src": "1411:26:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19969,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1411:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1410:28:39"
+            },
+            "src": "1391:48:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 19973,
+              "nodeType": "StructuredDocumentation",
+              "src": "1445:271:39",
+              "text": "@notice Emitted when an underlying token is enabled or disabled.\n @param underlyingToken The address of the underlying token that was enabled or disabled.\n @param enabled         A flag indicating if the underlying token was enabled or disabled."
+            },
+            "eventSelector": "ac216db82ec84df77384646fb0bd5f9bfd21ac8c46cfcf3a27a0d2feede572e2",
+            "id": 19979,
+            "name": "UnderlyingTokenEnabled",
+            "nameLocation": "1727:22:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 19978,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19975,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "1766:15:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19979,
+                  "src": "1750:31:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19974,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1750:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19977,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "enabled",
+                  "nameLocation": "1788:7:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19979,
+                  "src": "1783:12:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 19976,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1783:4:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1749:47:39"
+            },
+            "src": "1721:76:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 19980,
+              "nodeType": "StructuredDocumentation",
+              "src": "1803:246:39",
+              "text": "@notice Emitted when an yield token is enabled or disabled.\n @param yieldToken The address of the yield token that was enabled or disabled.\n @param enabled    A flag indicating if the yield token was enabled or disabled."
+            },
+            "eventSelector": "b15476211644e7e7a92dd4fe21d831367f5ea58130817ad39712dff671399896",
+            "id": 19986,
+            "name": "YieldTokenEnabled",
+            "nameLocation": "2060:17:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 19985,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19982,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "2094:10:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19986,
+                  "src": "2078:26:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19981,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2078:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19984,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "enabled",
+                  "nameLocation": "2111:7:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19986,
+                  "src": "2106:12:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 19983,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2106:4:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2077:42:39"
+            },
+            "src": "2054:66:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 19987,
+              "nodeType": "StructuredDocumentation",
+              "src": "2126:371:39",
+              "text": "@notice Emitted when the repay limit of an underlying token is updated.\n @param underlyingToken The address of the underlying token.\n @param maximum         The updated maximum repay limit.\n @param blocks          The updated number of blocks it will take for the maximum repayment limit to be replenished when it is completely exhausted."
+            },
+            "eventSelector": "86d00f048da605f1d0b35d86d59306a26293721713d9d41eef94518316eb1834",
+            "id": 19995,
+            "name": "RepayLimitUpdated",
+            "nameLocation": "2508:17:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 19994,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19989,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "2542:15:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19995,
+                  "src": "2526:31:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19988,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2526:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19991,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "maximum",
+                  "nameLocation": "2567:7:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19995,
+                  "src": "2559:15:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19990,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2559:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19993,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "blocks",
+                  "nameLocation": "2584:6:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19995,
+                  "src": "2576:14:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19992,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2576:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2525:66:39"
+            },
+            "src": "2502:90:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 19996,
+              "nodeType": "StructuredDocumentation",
+              "src": "2598:385:39",
+              "text": "@notice Emitted when the liquidation limit of an underlying token is updated.\n @param underlyingToken The address of the underlying token.\n @param maximum         The updated maximum liquidation limit.\n @param blocks          The updated number of blocks it will take for the maximum liquidation limit to be replenished when it is completely exhausted."
+            },
+            "eventSelector": "0f3828e75ac2c1d15158acbdaab952f19d3a532547df5baf02f3fbbde1336d71",
+            "id": 20004,
+            "name": "LiquidationLimitUpdated",
+            "nameLocation": "2994:23:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20003,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19998,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "3034:15:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20004,
+                  "src": "3018:31:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19997,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3018:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20000,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "maximum",
+                  "nameLocation": "3059:7:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20004,
+                  "src": "3051:15:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19999,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3051:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20002,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "blocks",
+                  "nameLocation": "3076:6:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20004,
+                  "src": "3068:14:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20001,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3068:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3017:66:39"
+            },
+            "src": "2988:96:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20005,
+              "nodeType": "StructuredDocumentation",
+              "src": "3090:124:39",
+              "text": "@notice Emitted when the transmuter is updated.\n @param transmuter The updated address of the transmuter."
+            },
+            "eventSelector": "e42bb1780117f5788c6e0042e955291223819875891ddf465b8e4fbb85a933e9",
+            "id": 20009,
+            "name": "TransmuterUpdated",
+            "nameLocation": "3225:17:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20008,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20007,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "transmuter",
+                  "nameLocation": "3251:10:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20009,
+                  "src": "3243:18:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20006,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3243:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3242:20:39"
+            },
+            "src": "3219:44:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20010,
+              "nodeType": "StructuredDocumentation",
+              "src": "3269:153:39",
+              "text": "@notice Emitted when the minimum collateralization is updated.\n @param minimumCollateralization The updated minimum collateralization."
+            },
+            "eventSelector": "6f428e543b1146a0996303f0250c6fe0682874c690989e63ae53bf75bed8ef6f",
+            "id": 20014,
+            "name": "MinimumCollateralizationUpdated",
+            "nameLocation": "3433:31:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20013,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20012,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "minimumCollateralization",
+                  "nameLocation": "3473:24:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20014,
+                  "src": "3465:32:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20011,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3465:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3464:34:39"
+            },
+            "src": "3427:72:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20015,
+              "nodeType": "StructuredDocumentation",
+              "src": "3505:114:39",
+              "text": "@notice Emitted when the protocol fee is updated.\n @param protocolFee The updated protocol fee."
+            },
+            "eventSelector": "d10d75876659a287a59a6ccfa2e3fff42f84d94b542837acd30bc184d562de40",
+            "id": 20019,
+            "name": "ProtocolFeeUpdated",
+            "nameLocation": "3630:18:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20018,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20017,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "protocolFee",
+                  "nameLocation": "3657:11:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20019,
+                  "src": "3649:19:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20016,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3649:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3648:21:39"
+            },
+            "src": "3624:46:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20020,
+              "nodeType": "StructuredDocumentation",
+              "src": "3680:155:39",
+              "text": "@notice Emitted when the protocol fee receiver is updated.\n @param protocolFeeReceiver The updated address of the protocol fee receiver."
+            },
+            "eventSelector": "76203fab169061f503a4139455a7dfc20cc2d5a59c97d5bb810e431f4059aad7",
+            "id": 20024,
+            "name": "ProtocolFeeReceiverUpdated",
+            "nameLocation": "3846:26:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20023,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20022,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "protocolFeeReceiver",
+                  "nameLocation": "3881:19:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20024,
+                  "src": "3873:27:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20021,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3873:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3872:29:39"
+            },
+            "src": "3840:62:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20025,
+              "nodeType": "StructuredDocumentation",
+              "src": "3908:266:39",
+              "text": "@notice Emitted when the minting limit is updated.\n @param maximum The updated maximum minting limit.\n @param blocks  The updated number of blocks it will take for the maximum minting limit to be replenished when it is completely exhausted."
+            },
+            "eventSelector": "8353d6f6057b53994c31faf6112674bd84b37caab3af81c269080ae9904ebbeb",
+            "id": 20031,
+            "name": "MintingLimitUpdated",
+            "nameLocation": "4185:19:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20030,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20027,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "maximum",
+                  "nameLocation": "4213:7:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20031,
+                  "src": "4205:15:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20026,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4205:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20029,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "blocks",
+                  "nameLocation": "4230:6:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20031,
+                  "src": "4222:14:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20028,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4222:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "4204:33:39"
+            },
+            "src": "4179:59:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20032,
+              "nodeType": "StructuredDocumentation",
+              "src": "4244:214:39",
+              "text": "@notice Emitted when the credit unlock rate is updated.\n @param yieldToken The address of the yield token.\n @param blocks     The number of blocks that distributed credit will unlock over."
+            },
+            "eventSelector": "d5710c9f352f135b893ded82d4669bd05e5b1a7ad8d615e2ae88bc732673ad7d",
+            "id": 20038,
+            "name": "CreditUnlockRateUpdated",
+            "nameLocation": "4469:23:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20037,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20034,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "4501:10:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20038,
+                  "src": "4493:18:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20033,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4493:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20036,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "blocks",
+                  "nameLocation": "4521:6:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20038,
+                  "src": "4513:14:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20035,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4513:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "4492:36:39"
+            },
+            "src": "4463:66:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20039,
+              "nodeType": "StructuredDocumentation",
+              "src": "4535:203:39",
+              "text": "@notice Emitted when the adapter of a yield token is updated.\n @param yieldToken   The address of the yield token.\n @param tokenAdapter The updated address of the token adapter."
+            },
+            "eventSelector": "0da5485c3be09248db5d9e03e12a4d5ef2df8074685a3dbb6e4e2a6c36f3e472",
+            "id": 20045,
+            "name": "TokenAdapterUpdated",
+            "nameLocation": "4749:19:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20044,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20041,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "4777:10:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20045,
+                  "src": "4769:18:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20040,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4769:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20043,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "tokenAdapter",
+                  "nameLocation": "4797:12:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20045,
+                  "src": "4789:20:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20042,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4789:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "4768:42:39"
+            },
+            "src": "4743:68:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20046,
+              "nodeType": "StructuredDocumentation",
+              "src": "4817:228:39",
+              "text": "@notice Emitted when the maximum expected value of a yield token is updated.\n @param yieldToken           The address of the yield token.\n @param maximumExpectedValue The updated maximum expected value."
+            },
+            "eventSelector": "4bd29da0a205336da3aaf81eada8ef63426a1c923b4a434e54ac7f898fa53c9a",
+            "id": 20052,
+            "name": "MaximumExpectedValueUpdated",
+            "nameLocation": "5056:27:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20051,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20048,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "5100:10:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20052,
+                  "src": "5084:26:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20047,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5084:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20050,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "maximumExpectedValue",
+                  "nameLocation": "5120:20:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20052,
+                  "src": "5112:28:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20049,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5112:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5083:58:39"
+            },
+            "src": "5050:92:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20053,
+              "nodeType": "StructuredDocumentation",
+              "src": "5148:190:39",
+              "text": "@notice Emitted when the maximum loss of a yield token is updated.\n @param yieldToken  The address of the yield token.\n @param maximumLoss The updated maximum loss."
+            },
+            "eventSelector": "75bfe099d672835dbb3c09443e8493c7f306b46d695f749eb0bcf7352bef0147",
+            "id": 20059,
+            "name": "MaximumLossUpdated",
+            "nameLocation": "5349:18:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20058,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20055,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "5384:10:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20059,
+                  "src": "5368:26:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20054,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5368:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20057,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "maximumLoss",
+                  "nameLocation": "5404:11:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20059,
+                  "src": "5396:19:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20056,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5396:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5367:49:39"
+            },
+            "src": "5343:74:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20060,
+              "nodeType": "StructuredDocumentation",
+              "src": "5423:266:39",
+              "text": "@notice Emitted when the expected value of a yield token is snapped to its current value.\n @param yieldToken    The address of the yield token.\n @param expectedValue The updated expected value measured in the yield token's underlying token."
+            },
+            "eventSelector": "ccda4b864ea094cd2323d3a440088f1171a7c3e5c46d87f6baafabe470d614da",
+            "id": 20066,
+            "name": "Snap",
+            "nameLocation": "5700:4:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20065,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20062,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "5721:10:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20066,
+                  "src": "5705:26:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20061,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5705:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20064,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "expectedValue",
+                  "nameLocation": "5741:13:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20066,
+                  "src": "5733:21:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20063,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5733:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5704:51:39"
+            },
+            "src": "5694:62:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20067,
+              "nodeType": "StructuredDocumentation",
+              "src": "5762:346:39",
+              "text": "@notice Emitted when `owner` grants `spender` the ability to mint debt tokens on its behalf.\n @param owner   The address of the account owner.\n @param spender The address which is being permitted to mint tokens on the behalf of `owner`.\n @param amount  The amount of debt tokens that `spender` is allowed to mint."
+            },
+            "eventSelector": "09cd9a2cf8d0dd3936aef63dae78b3085d8abaaec9311145115b15e5e3eaea41",
+            "id": 20075,
+            "name": "ApproveMint",
+            "nameLocation": "6119:11:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20074,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20069,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "owner",
+                  "nameLocation": "6147:5:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20075,
+                  "src": "6131:21:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20068,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6131:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20071,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "spender",
+                  "nameLocation": "6170:7:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20075,
+                  "src": "6154:23:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20070,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6154:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20073,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "6187:6:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20075,
+                  "src": "6179:14:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20072,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6179:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "6130:64:39"
+            },
+            "src": "6113:82:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20076,
+              "nodeType": "StructuredDocumentation",
+              "src": "6201:474:39",
+              "text": "@notice Emitted when `owner` grants `spender` the ability to withdraw `yieldToken` from its account.\n @param owner      The address of the account owner.\n @param spender    The address which is being permitted to mint tokens on the behalf of `owner`.\n @param yieldToken The address of the yield token that `spender` is allowed to withdraw.\n @param amount     The amount of shares of `yieldToken` that `spender` is allowed to withdraw."
+            },
+            "eventSelector": "14d43ec44802545adffd2e9b5d923acf7ae9106d7774f3fd01a3af424e0f262e",
+            "id": 20086,
+            "name": "ApproveWithdraw",
+            "nameLocation": "6686:15:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20085,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20078,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "owner",
+                  "nameLocation": "6718:5:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20086,
+                  "src": "6702:21:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20077,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6702:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20080,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "spender",
+                  "nameLocation": "6741:7:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20086,
+                  "src": "6725:23:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20079,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6725:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20082,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "6766:10:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20086,
+                  "src": "6750:26:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20081,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6750:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20084,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "6786:6:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20086,
+                  "src": "6778:14:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20083,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6778:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "6701:92:39"
+            },
+            "src": "6680:114:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20087,
+              "nodeType": "StructuredDocumentation",
+              "src": "6800:562:39",
+              "text": "@notice Emitted when a user deposits `amount of `yieldToken` to `recipient`.\n @notice This event does not imply that `sender` directly deposited yield tokens. It is possible that the\n         underlying tokens were wrapped.\n @param sender       The address of the user which deposited funds.\n @param yieldToken   The address of the yield token that was deposited.\n @param amount       The amount of yield tokens that were deposited.\n @param recipient    The address that received the deposited funds."
+            },
+            "eventSelector": "364bb76a44233df8584c690de6da7810626a5e77192f3ebc942c35bcb1add24f",
+            "id": 20097,
+            "name": "Deposit",
+            "nameLocation": "7373:7:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20096,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20089,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "sender",
+                  "nameLocation": "7397:6:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20097,
+                  "src": "7381:22:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20088,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "7381:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20091,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "7421:10:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20097,
+                  "src": "7405:26:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20090,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "7405:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20093,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "7441:6:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20097,
+                  "src": "7433:14:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20092,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "7433:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20095,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "recipient",
+                  "nameLocation": "7457:9:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20097,
+                  "src": "7449:17:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20094,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "7449:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "7380:87:39"
+            },
+            "src": "7367:101:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20098,
+              "nodeType": "StructuredDocumentation",
+              "src": "7474:600:39",
+              "text": "@notice Emitted when `shares` shares of `yieldToken` are burned to withdraw `yieldToken` from the account owned\n         by `owner` to `recipient`.\n @notice This event does not imply that `recipient` received yield tokens. It is possible that the yield tokens\n         were unwrapped.\n @param owner      The address of the account owner.\n @param yieldToken The address of the yield token that was withdrawn.\n @param shares     The amount of shares that were burned.\n @param recipient  The address that received the withdrawn funds."
+            },
+            "eventSelector": "3ed4ee04a905a278b050a856bbe7ddaaf327a30514373e65aa6103beeae488c3",
+            "id": 20108,
+            "name": "Withdraw",
+            "nameLocation": "8085:8:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20107,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20100,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "owner",
+                  "nameLocation": "8110:5:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20108,
+                  "src": "8094:21:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20099,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "8094:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20102,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "8133:10:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20108,
+                  "src": "8117:26:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20101,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "8117:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20104,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "shares",
+                  "nameLocation": "8153:6:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20108,
+                  "src": "8145:14:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20103,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "8145:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20106,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "recipient",
+                  "nameLocation": "8169:9:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20108,
+                  "src": "8161:17:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20105,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "8161:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "8093:86:39"
+            },
+            "src": "8079:101:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20109,
+              "nodeType": "StructuredDocumentation",
+              "src": "8186:299:39",
+              "text": "@notice Emitted when `amount` debt tokens are minted to `recipient` using the account owned by `owner`.\n @param owner     The address of the account owner.\n @param amount    The amount of tokens that were minted.\n @param recipient The recipient of the minted tokens."
+            },
+            "eventSelector": "bcad3d7d3dfccb90d49c6063bf70f828901fefc88937d90af74e58e6e55bc39d",
+            "id": 20117,
+            "name": "Mint",
+            "nameLocation": "8496:4:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20116,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20111,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "owner",
+                  "nameLocation": "8517:5:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20117,
+                  "src": "8501:21:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20110,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "8501:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20113,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "8532:6:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20117,
+                  "src": "8524:14:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20112,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "8524:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20115,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "recipient",
+                  "nameLocation": "8548:9:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20117,
+                  "src": "8540:17:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20114,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "8540:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "8500:58:39"
+            },
+            "src": "8490:69:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20118,
+              "nodeType": "StructuredDocumentation",
+              "src": "8565:307:39",
+              "text": "@notice Emitted when `sender` burns `amount` debt tokens to grant credit to `recipient`.\n @param sender    The address which is burning tokens.\n @param amount    The amount of tokens that were burned.\n @param recipient The address that received credit for the burned tokens."
+            },
+            "eventSelector": "dbdf9b8e4b75e75b162d151ec8fc7f0561cabab5fcccfa2600be62223e4300c4",
+            "id": 20126,
+            "name": "Burn",
+            "nameLocation": "8883:4:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20125,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20120,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "sender",
+                  "nameLocation": "8904:6:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20126,
+                  "src": "8888:22:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20119,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "8888:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20122,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "8920:6:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20126,
+                  "src": "8912:14:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20121,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "8912:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20124,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "recipient",
+                  "nameLocation": "8936:9:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20126,
+                  "src": "8928:17:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20123,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "8928:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "8887:59:39"
+            },
+            "src": "8877:70:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20127,
+              "nodeType": "StructuredDocumentation",
+              "src": "8953:452:39",
+              "text": "@notice Emitted when `amount` of `underlyingToken` are repaid to grant credit to `recipient`.\n @param sender          The address which is repaying tokens.\n @param underlyingToken The address of the underlying token that was used to repay debt.\n @param amount          The amount of the underlying token that was used to repay debt.\n @param recipient       The address that received credit for the repaid tokens."
+            },
+            "eventSelector": "ce19c3e21a8e06ec6b2c542fd707ed6c742d5dd9b947310759a8e369b36f614c",
+            "id": 20137,
+            "name": "Repay",
+            "nameLocation": "9416:5:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20136,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20129,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "sender",
+                  "nameLocation": "9438:6:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20137,
+                  "src": "9422:22:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20128,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "9422:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20131,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "9462:15:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20137,
+                  "src": "9446:31:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20130,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "9446:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20133,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "9487:6:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20137,
+                  "src": "9479:14:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20132,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "9479:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20135,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "recipient",
+                  "nameLocation": "9503:9:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20137,
+                  "src": "9495:17:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20134,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "9495:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "9421:92:39"
+            },
+            "src": "9410:104:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20138,
+              "nodeType": "StructuredDocumentation",
+              "src": "9520:393:39",
+              "text": "@notice Emitted when `sender` liquidates `share` shares of `yieldToken`.\n @param owner           The address of the account owner liquidating shares.\n @param yieldToken      The address of the yield token.\n @param underlyingToken The address of the underlying token.\n @param shares          The amount of the shares of `yieldToken` that were liquidated."
+            },
+            "eventSelector": "033fe6dadd06de536cd7b34266e12610e9d77a23d48d3d6218962a87cb740514",
+            "id": 20148,
+            "name": "Liquidate",
+            "nameLocation": "9924:9:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20147,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20140,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "owner",
+                  "nameLocation": "9950:5:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20148,
+                  "src": "9934:21:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20139,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "9934:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20142,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "9973:10:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20148,
+                  "src": "9957:26:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20141,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "9957:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20144,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "underlyingToken",
+                  "nameLocation": "10001:15:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20148,
+                  "src": "9985:31:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20143,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "9985:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20146,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "shares",
+                  "nameLocation": "10026:6:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20148,
+                  "src": "10018:14:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20145,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "10018:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "9933:100:39"
+            },
+            "src": "9918:116:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20149,
+              "nodeType": "StructuredDocumentation",
+              "src": "10040:319:39",
+              "text": "@notice Emitted when `sender` burns `amount` debt tokens to grant credit to users who have deposited `yieldToken`.\n @param sender     The address which burned debt tokens.\n @param yieldToken The address of the yield token.\n @param amount     The amount of debt tokens which were burned."
+            },
+            "eventSelector": "88dcaca629d63d86330e97adc358b13dd0ebd703239aea96b7ea2fb331b16f4e",
+            "id": 20157,
+            "name": "Donate",
+            "nameLocation": "10370:6:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20156,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20151,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "sender",
+                  "nameLocation": "10393:6:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20157,
+                  "src": "10377:22:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20150,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "10377:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20153,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "10417:10:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20157,
+                  "src": "10401:26:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20152,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "10401:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20155,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "10437:6:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20157,
+                  "src": "10429:14:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20154,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "10429:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "10376:68:39"
+            },
+            "src": "10364:81:39"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 20158,
+              "nodeType": "StructuredDocumentation",
+              "src": "10451:383:39",
+              "text": "@notice Emitted when `yieldToken` is harvested.\n @param yieldToken     The address of the yield token that was harvested.\n @param minimumAmountOut    The maximum amount of loss that is acceptable when unwrapping the underlying tokens into yield tokens, measured in basis points.\n @param totalHarvested The total amount of underlying tokens harvested."
+            },
+            "eventSelector": "71bab65ced2e5750775a0613be067df48ef06cf92a496ebf7663ae0660924954",
+            "id": 20166,
+            "name": "Harvest",
+            "nameLocation": "10845:7:39",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 20165,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 20160,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "yieldToken",
+                  "nameLocation": "10869:10:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20166,
+                  "src": "10853:26:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 20159,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "10853:7:39",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20162,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "minimumAmountOut",
+                  "nameLocation": "10889:16:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20166,
+                  "src": "10881:24:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20161,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "10881:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 20164,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "totalHarvested",
+                  "nameLocation": "10915:14:39",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 20166,
+                  "src": "10907:22:39",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 20163,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "10907:7:39",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "10852:78:39"
+            },
+            "src": "10839:92:39"
+          }
+        ],
+        "scope": 20168,
+        "src": "125:10808:39",
+        "usedErrors": []
+      }
+    ],
+    "src": "39:10894:39"
   }
 }

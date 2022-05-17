@@ -120,5 +120,557 @@
     "object": "0x",
     "sourceMap": "",
     "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/IWhitelist.sol",
+    "exportedSymbols": {
+      "IWhitelist": [
+        19486
+      ]
+    },
+    "id": 19487,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 19434,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".11"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:35"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IWhitelist",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 19435,
+          "nodeType": "StructuredDocumentation",
+          "src": "26:51:35",
+          "text": "@title  Whitelist\n @author Alchemix Finance"
+        },
+        "fullyImplemented": false,
+        "id": 19486,
+        "linearizedBaseContracts": [
+          19486
+        ],
+        "name": "IWhitelist",
+        "nameLocation": "87:10:35",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 19436,
+              "nodeType": "StructuredDocumentation",
+              "src": "102:131:35",
+              "text": "@dev Emitted when a contract is added to the whitelist.\n @param account The account that was added to the whitelist."
+            },
+            "eventSelector": "8f42195a0bbfa58954be4349deb9efc38bdb9c298e529f705f8bc1e38bce0399",
+            "id": 19440,
+            "name": "AccountAdded",
+            "nameLocation": "242:12:35",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 19439,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19438,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "account",
+                  "nameLocation": "263:7:35",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19440,
+                  "src": "255:15:35",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19437,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "255:7:35",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "254:17:35"
+            },
+            "src": "236:36:35"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 19441,
+              "nodeType": "StructuredDocumentation",
+              "src": "276:139:35",
+              "text": "@dev Emitted when a contract is removed from the whitelist.\n @param account The account that was removed from the whitelist."
+            },
+            "eventSelector": "bf2e373b8263f701e10efcac80ea442afcb29c6852b3a42b0b46cc8edaaf54a7",
+            "id": 19445,
+            "name": "AccountRemoved",
+            "nameLocation": "424:14:35",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 19444,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19443,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "account",
+                  "nameLocation": "447:7:35",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19445,
+                  "src": "439:15:35",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19442,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "439:7:35",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "438:17:35"
+            },
+            "src": "418:38:35"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 19446,
+              "nodeType": "StructuredDocumentation",
+              "src": "460:51:35",
+              "text": "@dev Emitted when the whitelist is deactivated."
+            },
+            "eventSelector": "212c6e1d3045c9581ef0adf2504dbb1d137f52f38162ccf77a16c69d14eba5c3",
+            "id": 19448,
+            "name": "WhitelistDisabled",
+            "nameLocation": "520:17:35",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 19447,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "537:2:35"
+            },
+            "src": "514:26:35"
+          },
+          {
+            "documentation": {
+              "id": 19449,
+              "nodeType": "StructuredDocumentation",
+              "src": "544:193:35",
+              "text": "@dev Returns the list of addresses that are whitelisted for the given contract address.\n @return addresses The addresses that are whitelisted to interact with the given contract."
+            },
+            "functionSelector": "a39fac12",
+            "id": 19455,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getAddresses",
+            "nameLocation": "749:12:35",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19450,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "761:2:35"
+            },
+            "returnParameters": {
+              "id": 19454,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19453,
+                  "mutability": "mutable",
+                  "name": "addresses",
+                  "nameLocation": "804:9:35",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19455,
+                  "src": "787:26:35",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
+                    "typeString": "address[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 19451,
+                      "name": "address",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "787:7:35",
+                      "stateMutability": "nonpayable",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "id": 19452,
+                    "nodeType": "ArrayTypeName",
+                    "src": "787:9:35",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                      "typeString": "address[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "786:28:35"
+            },
+            "scope": 19486,
+            "src": "740:75:35",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19456,
+              "nodeType": "StructuredDocumentation",
+              "src": "819:139:35",
+              "text": "@dev Returns the disabled status of a given whitelist.\n @return disabled A flag denoting if the given whitelist is disabled."
+            },
+            "functionSelector": "ee070805",
+            "id": 19461,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "disabled",
+            "nameLocation": "970:8:35",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19457,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "978:2:35"
+            },
+            "returnParameters": {
+              "id": 19460,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19459,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19461,
+                  "src": "1004:4:35",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 19458,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1004:4:35",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1003:6:35"
+            },
+            "scope": 19486,
+            "src": "961:49:35",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19462,
+              "nodeType": "StructuredDocumentation",
+              "src": "1014:106:35",
+              "text": "@dev Adds an contract to the whitelist.\n @param caller The address to add to the whitelist."
+            },
+            "functionSelector": "0a3b0a4f",
+            "id": 19467,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "add",
+            "nameLocation": "1132:3:35",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19465,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19464,
+                  "mutability": "mutable",
+                  "name": "caller",
+                  "nameLocation": "1144:6:35",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19467,
+                  "src": "1136:14:35",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19463,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1136:7:35",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1135:16:35"
+            },
+            "returnParameters": {
+              "id": 19466,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1160:0:35"
+            },
+            "scope": 19486,
+            "src": "1123:38:35",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19468,
+              "nodeType": "StructuredDocumentation",
+              "src": "1165:110:35",
+              "text": "@dev Adds a contract to the whitelist.\n @param caller The address to remove from the whitelist."
+            },
+            "functionSelector": "29092d0e",
+            "id": 19473,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "remove",
+            "nameLocation": "1287:6:35",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19471,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19470,
+                  "mutability": "mutable",
+                  "name": "caller",
+                  "nameLocation": "1302:6:35",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19473,
+                  "src": "1294:14:35",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19469,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1294:7:35",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1293:16:35"
+            },
+            "returnParameters": {
+              "id": 19472,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1318:0:35"
+            },
+            "scope": 19486,
+            "src": "1278:41:35",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19474,
+              "nodeType": "StructuredDocumentation",
+              "src": "1323:166:35",
+              "text": "@dev Disables the whitelist of the target whitelisted contract.\n This can only occur once. Once the whitelist is disabled, then it cannot be reenabled."
+            },
+            "functionSelector": "2f2770db",
+            "id": 19477,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "disable",
+            "nameLocation": "1501:7:35",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19475,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1508:2:35"
+            },
+            "returnParameters": {
+              "id": 19476,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1519:0:35"
+            },
+            "scope": 19486,
+            "src": "1492:28:35",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19478,
+              "nodeType": "StructuredDocumentation",
+              "src": "1524:209:35",
+              "text": "@dev Checks that the `msg.sender` is whitelisted when it is not an EOA.\n @param account The account to check.\n @return whitelisted A flag denoting if the given account is whitelisted."
+            },
+            "functionSelector": "3af32abf",
+            "id": 19485,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "isWhitelisted",
+            "nameLocation": "1745:13:35",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19481,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19480,
+                  "mutability": "mutable",
+                  "name": "account",
+                  "nameLocation": "1767:7:35",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19485,
+                  "src": "1759:15:35",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19479,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1759:7:35",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1758:17:35"
+            },
+            "returnParameters": {
+              "id": 19484,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19483,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19485,
+                  "src": "1799:4:35",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 19482,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1799:4:35",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1798:6:35"
+            },
+            "scope": 19486,
+            "src": "1736:69:35",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 19487,
+        "src": "77:1730:35",
+        "usedErrors": []
+      }
+    ],
+    "src": "0:1808:35"
   }
 }

@@ -49,5 +49,238 @@
     "object": "0x",
     "sourceMap": "",
     "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/IERC20Metadata.sol",
+    "exportedSymbols": {
+      "IERC20Metadata": [
+        19161
+      ]
+    },
+    "id": 19162,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 19141,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.5",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:29"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IERC20Metadata",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 19142,
+          "nodeType": "StructuredDocumentation",
+          "src": "26:56:29",
+          "text": "@title  IERC20Metadata\n @author Alchemix Finance"
+        },
+        "fullyImplemented": false,
+        "id": 19161,
+        "linearizedBaseContracts": [
+          19161
+        ],
+        "name": "IERC20Metadata",
+        "nameLocation": "92:14:29",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "documentation": {
+              "id": 19143,
+              "nodeType": "StructuredDocumentation",
+              "src": "113:73:29",
+              "text": "@notice Gets the name of the token.\n @return The name."
+            },
+            "functionSelector": "06fdde03",
+            "id": 19148,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "name",
+            "nameLocation": "200:4:29",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19144,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "204:2:29"
+            },
+            "returnParameters": {
+              "id": 19147,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19146,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19148,
+                  "src": "230:13:29",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 19145,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "230:6:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "229:15:29"
+            },
+            "scope": 19161,
+            "src": "191:54:29",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19149,
+              "nodeType": "StructuredDocumentation",
+              "src": "251:77:29",
+              "text": "@notice Gets the symbol of the token.\n @return The symbol."
+            },
+            "functionSelector": "95d89b41",
+            "id": 19154,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "symbol",
+            "nameLocation": "342:6:29",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19150,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "348:2:29"
+            },
+            "returnParameters": {
+              "id": 19153,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19152,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19154,
+                  "src": "374:13:29",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 19151,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "374:6:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "373:15:29"
+            },
+            "scope": 19161,
+            "src": "333:56:29",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 19155,
+              "nodeType": "StructuredDocumentation",
+              "src": "395:107:29",
+              "text": "@notice Gets the number of decimals that the token has.\n @return The number of decimals."
+            },
+            "functionSelector": "313ce567",
+            "id": 19160,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "decimals",
+            "nameLocation": "516:8:29",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19156,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "524:2:29"
+            },
+            "returnParameters": {
+              "id": 19159,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19158,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19160,
+                  "src": "550:5:29",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint8",
+                    "typeString": "uint8"
+                  },
+                  "typeName": {
+                    "id": 19157,
+                    "name": "uint8",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "550:5:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint8",
+                      "typeString": "uint8"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "549:7:29"
+            },
+            "scope": 19161,
+            "src": "507:50:29",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 19162,
+        "src": "82:477:29",
+        "usedErrors": []
+      }
+    ],
+    "src": "0:559:29"
   }
 }

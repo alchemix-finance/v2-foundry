@@ -1,0 +1,171 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "onERC20Received",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/IERC20TokenReceiver.sol",
+    "exportedSymbols": {
+      "IERC20TokenReceiver": [
+        19190
+      ]
+    },
+    "id": 19191,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 19180,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.5",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:31"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IERC20TokenReceiver",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 19181,
+          "nodeType": "StructuredDocumentation",
+          "src": "26:61:31",
+          "text": "@title  IERC20TokenReceiver\n @author Alchemix Finance"
+        },
+        "fullyImplemented": false,
+        "id": 19190,
+        "linearizedBaseContracts": [
+          19190
+        ],
+        "name": "IERC20TokenReceiver",
+        "nameLocation": "97:19:31",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "documentation": {
+              "id": 19182,
+              "nodeType": "StructuredDocumentation",
+              "src": "123:220:31",
+              "text": "@notice Informs implementors of this interface that an ERC20 token has been transferred.\n @param token The token that was transferred.\n @param value The amount of the token that was transferred."
+            },
+            "functionSelector": "bc04f0af",
+            "id": 19189,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "onERC20Received",
+            "nameLocation": "357:15:31",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19187,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19184,
+                  "mutability": "mutable",
+                  "name": "token",
+                  "nameLocation": "381:5:31",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19189,
+                  "src": "373:13:31",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19183,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "373:7:31",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19186,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "396:5:31",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19189,
+                  "src": "388:13:31",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19185,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "388:7:31",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "372:30:31"
+            },
+            "returnParameters": {
+              "id": 19188,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "411:0:31"
+            },
+            "scope": 19190,
+            "src": "348:64:31",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 19191,
+        "src": "87:327:31",
+        "usedErrors": []
+      }
+    ],
+    "src": "0:414:31"
+  }
+}

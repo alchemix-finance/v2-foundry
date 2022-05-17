@@ -1,0 +1,160 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "origin",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "distribute",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/ITransmuterV1.sol",
+    "exportedSymbols": {
+      "ITransmuterV1": [
+        19432
+      ]
+    },
+    "id": 19433,
+    "license": "GPL-3.0",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 19424,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.5",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "36:24:34"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "ITransmuterV1",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "id": 19432,
+        "linearizedBaseContracts": [
+          19432
+        ],
+        "name": "ITransmuterV1",
+        "nameLocation": "72:13:34",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "functionSelector": "fb932108",
+            "id": 19431,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "distribute",
+            "nameLocation": "100:10:34",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 19429,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 19426,
+                  "mutability": "mutable",
+                  "name": "origin",
+                  "nameLocation": "119:6:34",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19431,
+                  "src": "111:14:34",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 19425,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "111:7:34",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 19428,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "135:6:34",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 19431,
+                  "src": "127:14:34",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 19427,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "127:7:34",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "110:32:34"
+            },
+            "returnParameters": {
+              "id": 19430,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "151:0:34"
+            },
+            "scope": 19432,
+            "src": "91:61:34",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 19433,
+        "src": "62:92:34",
+        "usedErrors": []
+      }
+    ],
+    "src": "36:118:34"
+  }
+}

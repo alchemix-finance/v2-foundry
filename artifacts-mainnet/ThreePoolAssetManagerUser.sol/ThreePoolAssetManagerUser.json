@@ -1,0 +1,333 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract ThreePoolAssetManager",
+          "name": "_manager",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "acceptAdmin",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x608060405234801561001057600080fd5b5060405161015638038061015683398101604081905261002f91610054565b600080546001600160a01b0319166001600160a01b0392909216919091179055610084565b60006020828403121561006657600080fd5b81516001600160a01b038116811461007d57600080fd5b9392505050565b60c4806100926000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c80630e18b68114602d575b600080fd5b60336035565b005b6000805460408051630e18b68160e01b815290516001600160a01b0390921692630e18b6819260048084019382900301818387803b158015607557600080fd5b505af11580156088573d6000803e3d6000fd5b5050505056fea26469706673582212200f9d95f9e994d5ed6b91df46ef9da2b064eadef056f1f97d870051057c9740f164736f6c634300080d0033",
+    "sourceMap": "139:231:77:-:0;;;225:67;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;271:7;:18;;-1:-1:-1;;;;;;271:18:77;-1:-1:-1;;;;;271:18:77;;;;;;;;;;139:231;;14:321:78;115:6;168:2;156:9;147:7;143:23;139:32;136:52;;;184:1;181;174:12;136:52;210:16;;-1:-1:-1;;;;;255:31:78;;245:42;;235:70;;301:1;298;291:12;235:70;324:5;14:321;-1:-1:-1;;;14:321:78:o;:::-;139:231:77;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x6080604052348015600f57600080fd5b506004361060285760003560e01c80630e18b68114602d575b600080fd5b60336035565b005b6000805460408051630e18b68160e01b815290516001600160a01b0390921692630e18b6819260048084019382900301818387803b158015607557600080fd5b505af11580156088573d6000803e3d6000fd5b5050505056fea26469706673582212200f9d95f9e994d5ed6b91df46ef9da2b064eadef056f1f97d870051057c9740f164736f6c634300080d0033",
+    "sourceMap": "139:231:77:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;298:70;;;:::i;:::-;;;340:7;;;:21;;;-1:-1:-1;;;340:21:77;;;;-1:-1:-1;;;;;340:7:77;;;;:19;;:21;;;;;;;;;;:7;;:21;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;298:70::o",
+    "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/test/utils/users/ThreePoolAssetManagerUser.sol",
+    "exportedSymbols": {
+      "ThreePoolAssetManager": [
+        17462
+      ],
+      "ThreePoolAssetManagerUser": [
+        29998
+      ]
+    },
+    "id": 29999,
+    "license": "UNLICENSED",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 29972,
+        "literals": [
+          "solidity",
+          "0.8",
+          ".13"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "39:23:77"
+      },
+      {
+        "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/ThreePoolAssetManager.sol",
+        "file": "../../../ThreePoolAssetManager.sol",
+        "id": 29974,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 29999,
+        "sourceUnit": 17463,
+        "src": "64:73:77",
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 29973,
+              "name": "ThreePoolAssetManager",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 17462,
+              "src": "72:21:77",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "ThreePoolAssetManagerUser",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": true,
+        "id": 29998,
+        "linearizedBaseContracts": [
+          29998
+        ],
+        "name": "ThreePoolAssetManagerUser",
+        "nameLocation": "148:25:77",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 29977,
+            "mutability": "mutable",
+            "name": "manager",
+            "nameLocation": "211:7:77",
+            "nodeType": "VariableDeclaration",
+            "scope": 29998,
+            "src": "180:38:77",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_contract$_ThreePoolAssetManager_$17462",
+              "typeString": "contract ThreePoolAssetManager"
+            },
+            "typeName": {
+              "id": 29976,
+              "nodeType": "UserDefinedTypeName",
+              "pathNode": {
+                "id": 29975,
+                "name": "ThreePoolAssetManager",
+                "nodeType": "IdentifierPath",
+                "referencedDeclaration": 17462,
+                "src": "180:21:77"
+              },
+              "referencedDeclaration": 17462,
+              "src": "180:21:77",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_ThreePoolAssetManager_$17462",
+                "typeString": "contract ThreePoolAssetManager"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 29987,
+              "nodeType": "Block",
+              "src": "269:23:77",
+              "statements": [
+                {
+                  "expression": {
+                    "id": 29985,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "id": 29983,
+                      "name": "manager",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 29977,
+                      "src": "271:7:77",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_ThreePoolAssetManager_$17462",
+                        "typeString": "contract ThreePoolAssetManager"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "id": 29984,
+                      "name": "_manager",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 29980,
+                      "src": "281:8:77",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_ThreePoolAssetManager_$17462",
+                        "typeString": "contract ThreePoolAssetManager"
+                      }
+                    },
+                    "src": "271:18:77",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_ThreePoolAssetManager_$17462",
+                      "typeString": "contract ThreePoolAssetManager"
+                    }
+                  },
+                  "id": 29986,
+                  "nodeType": "ExpressionStatement",
+                  "src": "271:18:77"
+                }
+              ]
+            },
+            "id": 29988,
+            "implemented": true,
+            "kind": "constructor",
+            "modifiers": [],
+            "name": "",
+            "nameLocation": "-1:-1:-1",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 29981,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 29980,
+                  "mutability": "mutable",
+                  "name": "_manager",
+                  "nameLocation": "259:8:77",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 29988,
+                  "src": "237:30:77",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_ThreePoolAssetManager_$17462",
+                    "typeString": "contract ThreePoolAssetManager"
+                  },
+                  "typeName": {
+                    "id": 29979,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 29978,
+                      "name": "ThreePoolAssetManager",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 17462,
+                      "src": "237:21:77"
+                    },
+                    "referencedDeclaration": 17462,
+                    "src": "237:21:77",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_ThreePoolAssetManager_$17462",
+                      "typeString": "contract ThreePoolAssetManager"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "236:32:77"
+            },
+            "returnParameters": {
+              "id": 29982,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "269:0:77"
+            },
+            "scope": 29998,
+            "src": "225:67:77",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 29996,
+              "nodeType": "Block",
+              "src": "330:38:77",
+              "statements": [
+                {
+                  "expression": {
+                    "arguments": [],
+                    "expression": {
+                      "argumentTypes": [],
+                      "expression": {
+                        "id": 29991,
+                        "name": "manager",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 29977,
+                        "src": "340:7:77",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_ThreePoolAssetManager_$17462",
+                          "typeString": "contract ThreePoolAssetManager"
+                        }
+                      },
+                      "id": 29993,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "acceptAdmin",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 15958,
+                      "src": "340:19:77",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_external_nonpayable$__$returns$__$",
+                        "typeString": "function () external"
+                      }
+                    },
+                    "id": 29994,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "340:21:77",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 29995,
+                  "nodeType": "ExpressionStatement",
+                  "src": "340:21:77"
+                }
+              ]
+            },
+            "functionSelector": "0e18b681",
+            "id": 29997,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "acceptAdmin",
+            "nameLocation": "307:11:77",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 29989,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "318:2:77"
+            },
+            "returnParameters": {
+              "id": 29990,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "330:0:77"
+            },
+            "scope": 29998,
+            "src": "298:70:77",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 29999,
+        "src": "139:231:77",
+        "usedErrors": []
+      }
+    ],
+    "src": "39:331:77"
+  }
+}

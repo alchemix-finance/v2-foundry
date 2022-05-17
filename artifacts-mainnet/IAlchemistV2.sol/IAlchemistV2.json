@@ -2213,5 +2213,233 @@
     "object": "0x",
     "sourceMap": "",
     "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/IAlchemistV2.sol",
+    "exportedSymbols": {
+      "IAlchemistV2": [
+        19080
+      ],
+      "IAlchemistV2Actions": [
+        19664
+      ],
+      "IAlchemistV2AdminActions": [
+        19868
+      ],
+      "IAlchemistV2Errors": [
+        19935
+      ],
+      "IAlchemistV2Events": [
+        20167
+      ],
+      "IAlchemistV2Immutables": [
+        20183
+      ],
+      "IAlchemistV2State": [
+        20426
+      ]
+    },
+    "id": 19081,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 19060,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.5",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:25"
+      },
+      {
+        "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/alchemist/IAlchemistV2Actions.sol",
+        "file": "./alchemist/IAlchemistV2Actions.sol",
+        "id": 19061,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 19081,
+        "sourceUnit": 19665,
+        "src": "26:45:25",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/alchemist/IAlchemistV2AdminActions.sol",
+        "file": "./alchemist/IAlchemistV2AdminActions.sol",
+        "id": 19062,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 19081,
+        "sourceUnit": 19869,
+        "src": "72:50:25",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/alchemist/IAlchemistV2Errors.sol",
+        "file": "./alchemist/IAlchemistV2Errors.sol",
+        "id": 19063,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 19081,
+        "sourceUnit": 19936,
+        "src": "123:44:25",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/alchemist/IAlchemistV2Immutables.sol",
+        "file": "./alchemist/IAlchemistV2Immutables.sol",
+        "id": 19064,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 19081,
+        "sourceUnit": 20184,
+        "src": "168:48:25",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/alchemist/IAlchemistV2Events.sol",
+        "file": "./alchemist/IAlchemistV2Events.sol",
+        "id": 19065,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 19081,
+        "sourceUnit": 20168,
+        "src": "217:44:25",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "/Users/sunflower/Desktop/v2-foundry/src/interfaces/alchemist/IAlchemistV2State.sol",
+        "file": "./alchemist/IAlchemistV2State.sol",
+        "id": 19066,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 19081,
+        "sourceUnit": 20427,
+        "src": "262:43:25",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "abstract": false,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 19068,
+              "name": "IAlchemistV2Actions",
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 19664,
+              "src": "391:19:25"
+            },
+            "id": 19069,
+            "nodeType": "InheritanceSpecifier",
+            "src": "391:19:25"
+          },
+          {
+            "baseName": {
+              "id": 19070,
+              "name": "IAlchemistV2AdminActions",
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 19868,
+              "src": "416:24:25"
+            },
+            "id": 19071,
+            "nodeType": "InheritanceSpecifier",
+            "src": "416:24:25"
+          },
+          {
+            "baseName": {
+              "id": 19072,
+              "name": "IAlchemistV2Errors",
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 19935,
+              "src": "446:18:25"
+            },
+            "id": 19073,
+            "nodeType": "InheritanceSpecifier",
+            "src": "446:18:25"
+          },
+          {
+            "baseName": {
+              "id": 19074,
+              "name": "IAlchemistV2Immutables",
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 20183,
+              "src": "470:22:25"
+            },
+            "id": 19075,
+            "nodeType": "InheritanceSpecifier",
+            "src": "470:22:25"
+          },
+          {
+            "baseName": {
+              "id": 19076,
+              "name": "IAlchemistV2Events",
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 20167,
+              "src": "498:18:25"
+            },
+            "id": 19077,
+            "nodeType": "InheritanceSpecifier",
+            "src": "498:18:25"
+          },
+          {
+            "baseName": {
+              "id": 19078,
+              "name": "IAlchemistV2State",
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 20426,
+              "src": "522:17:25"
+            },
+            "id": 19079,
+            "nodeType": "InheritanceSpecifier",
+            "src": "522:17:25"
+          }
+        ],
+        "canonicalName": "IAlchemistV2",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 19067,
+          "nodeType": "StructuredDocumentation",
+          "src": "307:54:25",
+          "text": "@title  IAlchemistV2\n @author Alchemix Finance"
+        },
+        "fullyImplemented": false,
+        "id": 19080,
+        "linearizedBaseContracts": [
+          19080,
+          20426,
+          20167,
+          20183,
+          19935,
+          19868,
+          19664
+        ],
+        "name": "IAlchemistV2",
+        "nameLocation": "371:12:25",
+        "nodeType": "ContractDefinition",
+        "nodes": [],
+        "scope": 19081,
+        "src": "361:182:25",
+        "usedErrors": [
+          19876,
+          19881,
+          19884,
+          19893,
+          19902,
+          19909,
+          19918,
+          19927,
+          19934
+        ]
+      }
+    ],
+    "src": "0:544:25"
   }
 }

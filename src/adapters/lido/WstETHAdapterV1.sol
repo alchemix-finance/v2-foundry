@@ -46,10 +46,9 @@ contract WstETHAdapterV1 is ITokenAdapter, Mutex {
         ethPoolIndex    = params.ethPoolIndex;
         stEthPoolIndex  = params.stEthPoolIndex;
         referral        = params.referral;
-
         // Verify and make sure that the provided ETH matches the curve pool ETH.
         if (
-            IStableSwap2Pool(params.curvePool).coins(params.ethPoolIndex) !=
+            IStableSwap2Pool(curvePool).coins(ethPoolIndex) !=
             0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE
         ) {
             revert IllegalArgument("Curve pool ETH token mismatch");
@@ -57,8 +56,8 @@ contract WstETHAdapterV1 is ITokenAdapter, Mutex {
 
         // Verify and make sure that the provided stETH matches the curve pool stETH.
         if (
-            IStableSwap2Pool(params.curvePool).coins(params.stEthPoolIndex) !=
-            params.parentToken
+            IStableSwap2Pool(curvePool).coins(stEthPoolIndex) !=
+            parentToken
         ) {
             revert IllegalArgument("Curve pool stETH token mismatch");
         }
