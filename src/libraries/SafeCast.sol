@@ -11,7 +11,7 @@ library SafeCast {
   /// @return z The casted integer, now type int256
   function toInt256(uint256 y) internal pure returns (int256 z) {
     if (y >= 2**255) {
-      revert IllegalArgument("input would result in an overflow error");
+      revert IllegalArgument();
     }
     z = int256(y);
   }
@@ -21,7 +21,7 @@ library SafeCast {
   /// @return z The casted integer, now type uint256
   function toUint256(int256 y) internal pure returns (uint256 z) {
     if (y < 0) {
-      revert IllegalArgument("input would result in an underflow error");
+      revert IllegalArgument();
     }
     z = uint256(y);
   }

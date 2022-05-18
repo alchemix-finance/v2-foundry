@@ -31,11 +31,11 @@ library Limiters {
     /// @return The LGF struct.
     function createLinearGrowthLimiter(uint256 maximum, uint256 blocks, uint256 _minLimit) internal view returns (LinearGrowthLimiter memory) {
         if (blocks > MAX_COOLDOWN_BLOCKS) {
-            revert IllegalArgument("invalid number of blocks passed");
+            revert IllegalArgument();
         }
 
         if (maximum < _minLimit) {
-            revert IllegalArgument("value cannot be below minimum");
+            revert IllegalArgument();
         }
 
         return LinearGrowthLimiter({
@@ -54,11 +54,11 @@ library Limiters {
     /// @param blocks  The number of recovery blocks of the LGF.
     function configure(LinearGrowthLimiter storage self, uint256 maximum, uint256 blocks) internal {
         if (blocks > MAX_COOLDOWN_BLOCKS) {
-            revert IllegalArgument("invalid number of blocks passed");
+            revert IllegalArgument();
         }
 
         if (maximum < self.minLimit) {
-            revert IllegalArgument("value cannot be below minimum");
+            revert IllegalArgument();
         }
 
         if (self.lastValue > maximum) {

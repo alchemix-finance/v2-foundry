@@ -5,7 +5,7 @@ import {ERC20PermitUpgradeable} from "openzeppelin-contracts-upgradeable/contrac
 import {OwnableUpgradeable} from "openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
 import {ReentrancyGuardUpgradeable} from "openzeppelin-contracts-upgradeable/contracts/security/ReentrancyGuardUpgradeable.sol";
 
-import {IllegalArgument, IllegalState} from "./base/Errors.sol";
+import {IllegalArgument, IllegalState} from "./base/ErrorMessages.sol";
 
 import {TokenUtils} from "./libraries/TokenUtils.sol";
 

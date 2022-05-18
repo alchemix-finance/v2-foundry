@@ -95,7 +95,7 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
     /// @param underlyingToken the underlying token associated with the transmuter.
     modifier onlyTransmuter(address underlyingToken) {
         if (msg.sender != transmuter[underlyingToken]) {
-            revert Unauthorized("Not transmuter");
+            revert Unauthorized();
         }
         _;
     }
@@ -105,7 +105,7 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
     /// Reverts if the caller is not a permissioned source.
     modifier onlySource() {
         if (!sources[msg.sender]) {
-            revert Unauthorized("Not permissioned source");
+            revert Unauthorized();
         }
         _;
     }
@@ -113,7 +113,7 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
     /// @dev Only calls from the admin address are authorized to pass.
     modifier onlyAdmin() {
         if (!hasRole(ADMIN, msg.sender)) {
-            revert Unauthorized("Not admin");
+            revert Unauthorized();
         }
         _;
     }
@@ -121,7 +121,7 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
     /// @dev Only calls from a keeper address are authorized to pass.
     modifier onlyKeeper() {
         if (!hasRole(KEEPER, msg.sender)) {
-            revert Unauthorized("Not keeper");
+            revert Unauthorized();
         }
         _;
     }
@@ -198,7 +198,7 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
                     .underlyingToken();
 
                 if (weightToken != underlyingToken) {
-                    revert IllegalState("Illegal state");
+                    revert IllegalState();
                 }
             }
 
@@ -211,7 +211,7 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
     /// @inheritdoc ITransmuterBuffer
     function setSource(address source, bool flag) external override onlyAdmin {
         if (sources[source] == flag) {
-            revert IllegalArgument("Illegal argument");
+            revert IllegalArgument();
         }
         sources[source] = flag;
         emit SetSource(source, flag);
@@ -220,7 +220,7 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
     /// @inheritdoc ITransmuterBuffer
     function setTransmuter(address underlyingToken, address newTransmuter) external override onlyAdmin {
         if (ITransmuterV2(newTransmuter).underlyingToken() != underlyingToken) {
-            revert IllegalArgument("Illegal argument");
+            revert IllegalArgument();
         }
         transmuter[underlyingToken] = newTransmuter;
         emit SetTransmuter(underlyingToken, newTransmuter);
@@ -265,18 +265,18 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
         address _transmuter
     ) external override onlyAdmin {
         if (!IAlchemistV2(alchemist).isSupportedUnderlyingToken(underlyingToken)) {
-            revert IllegalState("Token not supported by alchemist");
+            revert IllegalState();
         }
 
         // only add to the array if not already contained in it
         for (uint256 i = 0; i < registeredUnderlyings.length; i++) {
             if (registeredUnderlyings[i] == underlyingToken) {
-                revert IllegalState("Token already registered");
+                revert IllegalState();
             }
         }
 
         if (ITransmuterV2(_transmuter).underlyingToken() != underlyingToken) {
-            revert IllegalArgument("Token not supported by transmuter");
+            revert IllegalArgument();
         }
 
         transmuter[underlyingToken] = _transmuter;
@@ -333,7 +333,7 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
         if (divertToAmo[underlyingToken]) {
             _flushToAmo(underlyingToken, amount);
         } else {
-            revert IllegalState("Illegal state");
+            revert IllegalState();
         }
     }
 
@@ -344,12 +344,12 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
         address recipient
     ) external override onlyTransmuter(underlyingToken) {
         if (amount > flowAvailable[underlyingToken]) {
-            revert IllegalArgument("Amount greater than available flow");
+            revert IllegalArgument();
         }
 
         uint256 localBalance = TokenUtils.safeBalanceOf(underlyingToken, address(this));
         if (amount > localBalance) {
-            revert IllegalArgument("Amount greater than local balance");
+            revert IllegalArgument();
         }
 
         flowAvailable[underlyingToken] -= amount;
@@ -375,7 +375,7 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
             .getSupportedUnderlyingTokens();
 
         if (registeredUnderlyings.length != supportedUnderlyingTokens.length) {
-            revert IllegalState("Invalid state");
+            revert IllegalState();
         }
 
         // clear current strats
@@ -401,7 +401,7 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
         IAlchemistV2(alchemist).poke(address(this));
         uint256 credit = getTotalCredit();
         if (credit == 0) {
-            revert IllegalState("Cannot burn when credit is 0");
+            revert IllegalState();
         }
         IAlchemistV2(alchemist).mint(credit, address(this));
 
@@ -415,11 +415,11 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
         onlyKeeper
     {
         if (amount == 0) {
-            revert IllegalArgument("Cannot deposit amount of 0");
+            revert IllegalArgument();
         }
         uint256 localBalance = TokenUtils.safeBalanceOf(underlyingToken, address(this));
         if (localBalance < amount) {
-            revert IllegalArgument("Deposit greater than address balance");
+            revert IllegalArgument();
         }
         _updateFlow(underlyingToken);
         
@@ -427,7 +427,7 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
         // Doing so puts those funds at risk, and could lead to users being unable to claim
         // their transmuted funds in the event of a vault loss.
         if (localBalance - amount < currentExchanged[underlyingToken]) {
-            revert IllegalState("Local balance less than exchanged amount");
+            revert IllegalState();
         }
         _alchemistAction(amount, underlyingToken, _alchemistDeposit);
     }

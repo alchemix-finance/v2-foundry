@@ -8,9 +8,9 @@ import {
     IllegalState,
     Unauthorized,
     UnsupportedOperation
-} from "../../base/Errors.sol";
+} from "../../base/ErrorMessages.sol";
 
-import {Mutex} from "../../base/Mutex.sol";
+import {MutexLock} from "../../base/MutexLock.sol";
 
 import {SafeERC20} from "../../libraries/SafeERC20.sol";
 import {RocketPool} from "../../libraries/RocketPool.sol";
@@ -26,7 +26,7 @@ struct InitializationParams {
     address underlyingToken;
 }
 
-contract RETHAdapterV1 is ITokenAdapter, Mutex {
+contract RETHAdapterV1 is ITokenAdapter, MutexLock {
     using RocketPool for IRocketStorage;
 
     string public override version = "1.0.0";

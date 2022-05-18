@@ -69,7 +69,7 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
   /// @dev A modifier which checks that the caller has the admin role.
   modifier onlyAdmin() {
     if (!hasRole(ADMIN_ROLE, msg.sender)) {
-      revert Unauthorized("Not admin");
+      revert Unauthorized();
     }
     _;
   }
@@ -77,7 +77,7 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
   /// @dev A modifier which checks that the caller has the sentinel role.
   modifier onlySentinel() {
     if(!hasRole(SENTINEL_ROLE, msg.sender)) {
-      revert Unauthorized("Not sentinel");
+      revert Unauthorized();
     }
     _;
   }
@@ -85,7 +85,7 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
   /// @dev A modifier which checks if whitelisted for minting.
   modifier onlyWhitelisted() {
     if(!whitelisted[msg.sender]) {
-      revert Unauthorized("Not whitelisted");
+      revert Unauthorized();
     }
     _;
   }
@@ -110,12 +110,12 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
   /// @param amount    The amount of tokens to mint.
   function mint(address recipient, uint256 amount) external onlyWhitelisted {
     if (paused[msg.sender]) {
-      revert IllegalState("msg.sender is paused");
+      revert IllegalState();
     }
 
     uint256 total = amount + totalMinted[msg.sender];
     if (total > mintCeiling[msg.sender]) {
-      revert IllegalState("mintable ceiling exceeded");
+      revert IllegalState();
     }
 
     totalMinted[msg.sender] = total;
@@ -217,7 +217,7 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
   /// @return The flash loan fee.
   function flashFee(address token, uint256 amount) public view override returns (uint256) {
     if (token != address(this)) {
-      revert IllegalArgument("Illegal token argument");
+      revert IllegalArgument();
     }
     return amount * flashMintFee / BPS;
   }
@@ -237,11 +237,11 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
     bytes calldata data
   ) external override nonReentrant returns (bool) {
     if (token != address(this)) {
-      revert IllegalArgument("Illegal token argument");
+      revert IllegalArgument();
     }
 
     if (amount > maxFlashLoan(token)) {
-      revert IllegalArgument("Amount greater than max flash loan");
+      revert IllegalArgument();
     }
 
     uint256 fee = flashFee(token, amount);
@@ -249,7 +249,7 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
     _mint(address(receiver), amount);
 
     if (receiver.onFlashLoan(msg.sender, token, amount, fee, data) != CALLBACK_SUCCESS) {
-      revert IllegalState("Unsuccessful flash loan");
+      revert IllegalState();
     }
 
     _burn(address(receiver), amount + fee); // Will throw error if not enough to burn

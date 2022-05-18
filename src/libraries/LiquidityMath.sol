@@ -18,11 +18,11 @@ library LiquidityMath {
   function addDelta(uint256 x, int256 y) internal pure returns (uint256 z) {
     if (y < 0) {
       if ((z = x - uint256(-y)) >= x) {
-        revert IllegalArgument("Illegal argument");
+        revert IllegalArgument();
       }
     } else {
       if ((z = x + uint256(y)) < x) {
-        revert IllegalArgument("Illegal argument");
+        revert IllegalArgument();
       }
     }
   }

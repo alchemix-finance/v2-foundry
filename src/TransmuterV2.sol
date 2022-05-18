@@ -167,7 +167,7 @@ contract TransmuterV2 is ITransmuterV2, Initializable, ReentrancyGuardUpgradeabl
   /// @dev A modifier which checks if caller is an alchemist.
   modifier onlyBuffer() {
     if (msg.sender != buffer) {
-      revert Unauthorized("Not alchemist");
+      revert Unauthorized();
     }
     _;
   }
@@ -175,7 +175,7 @@ contract TransmuterV2 is ITransmuterV2, Initializable, ReentrancyGuardUpgradeabl
   /// @dev A modifier which checks if caller is a sentinel or admin.
   modifier onlySentinelOrAdmin() {
     if (!hasRole(SENTINEL, msg.sender) && !hasRole(ADMIN, msg.sender)) {
-      revert Unauthorized("Not sentinel or admin");
+      revert Unauthorized();
     }
     _;
   }
@@ -183,14 +183,14 @@ contract TransmuterV2 is ITransmuterV2, Initializable, ReentrancyGuardUpgradeabl
   /// @dev A modifier which checks if caller is a sentinel.
   modifier notPaused() {
     if (isPaused) {
-      revert IllegalState("Paused");
+      revert IllegalState();
     }
     _;
   }
 
   function _onlyAdmin() internal view {
     if (!hasRole(ADMIN, msg.sender)) {
-      revert Unauthorized("Not admin");
+      revert Unauthorized();
     }
   }
 
@@ -525,7 +525,7 @@ contract TransmuterV2 is ITransmuterV2, Initializable, ReentrancyGuardUpgradeabl
     if (tx.origin != msg.sender) {
       // Only check the whitelist for calls from contracts.
       if (!IWhitelist(whitelist).isWhitelisted(msg.sender)) {
-        revert Unauthorized("Not whitelisted");
+        revert Unauthorized();
       }
     }
   }

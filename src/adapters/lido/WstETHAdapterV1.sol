@@ -3,8 +3,8 @@ pragma solidity 0.8.13;
 
 import {IERC20} from "openzeppelin/token/ERC20/IERC20.sol";
 
-import {IllegalArgument, IllegalState, Unauthorized} from "../../base/Errors.sol";
-import {Mutex} from "../../base/Mutex.sol";
+import {IllegalArgument, IllegalState, Unauthorized} from "../../base/ErrorMessages.sol";
+import {MutexLock} from "../../base/MutexLock.sol";
 
 import {SafeERC20} from "../../libraries/SafeERC20.sol";
 
@@ -25,7 +25,7 @@ struct InitializationParams {
     address referral;
 }
 
-contract WstETHAdapterV1 is ITokenAdapter, Mutex {
+contract WstETHAdapterV1 is ITokenAdapter, MutexLock {
     string public override version = "1.1.0";
 
     address public immutable alchemist;

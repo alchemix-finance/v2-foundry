@@ -289,7 +289,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         _checkState(pendingAdmin != address(0));
 
         if (msg.sender != pendingAdmin) {
-            revert Unauthorized("Not pending admin");
+            revert Unauthorized();
         }
 
         admin = pendingAdmin;
@@ -952,7 +952,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @dev `msg.sender` must be the administrator or this call will revert with an {Unauthorized} error.
     function _onlyAdmin() internal view {
         if (msg.sender != admin) {
-            revert Unauthorized("Not admin");
+            revert Unauthorized();
         }
     }
 
@@ -969,7 +969,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         // Check if the message sender is a sentinel. After this check we can revert since we know that it is neither
         // the administrator or a sentinel.
         if (!sentinels[msg.sender]) {
-            revert Unauthorized("Not sentinel");
+            revert Unauthorized();
         }
     }
 
@@ -978,7 +978,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @dev `msg.sender` must be a keeper or this call will revert with an {Unauthorized} error.
     function _onlyKeeper() internal view {
         if (!keepers[msg.sender]) {
-            revert Unauthorized("Not keeper");
+            revert Unauthorized();
         }
     }
 
@@ -1707,7 +1707,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
 
         // Only check the whitelist for calls from contracts.
         if (!IWhitelist(whitelist).isWhitelisted(msg.sender)) {
-          revert Unauthorized("Not whitelisted");
+          revert Unauthorized();
         }
     }
 
@@ -1716,7 +1716,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @param expression The expression to check.
     function _checkArgument(bool expression) internal pure {
         if (!expression) {
-            revert IllegalArgument("Expression is false");
+            revert IllegalArgument();
         }
     }
 
@@ -1725,7 +1725,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @param expression The expression to check.
     function _checkState(bool expression) internal pure {
         if (!expression) {
-            revert IllegalState("Expression false");
+            revert IllegalState();
         }
     }
 
