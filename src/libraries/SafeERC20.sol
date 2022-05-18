@@ -3,7 +3,7 @@ pragma solidity >=0.8.4;
 
 import {IERC20} from "openzeppelin/token/ERC20/IERC20.sol";
 
-import {IllegalState} from "../base/Errors.sol";
+import {IllegalState} from "../base/ErrorMessages.sol";
 
 import {IERC20Metadata} from "../interfaces/IERC20Metadata.sol";
 

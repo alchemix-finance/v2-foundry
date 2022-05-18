@@ -4,9 +4,9 @@ pragma solidity 0.8.13;
 import {IERC20} from "openzeppelin/token/ERC20/IERC20.sol";
 
 
-import {IllegalArgument, IllegalState, Unauthorized} from "./base/Errors.sol";
+import {IllegalArgument, IllegalState, Unauthorized} from "./base/ErrorMessages.sol";
 import {Multicall} from "./base/Multicall.sol";
-import {Mutex} from "./base/Mutex.sol";
+import {MutexLock} from "./base/MutexLock.sol";
 
 import {IERC20TokenReceiver} from "./interfaces/IERC20TokenReceiver.sol";
 import {IConvexBooster} from "./interfaces/external/convex/IConvexBooster.sol";
@@ -65,7 +65,7 @@ enum MetaPoolAsset {
 
 /// @title  ThreePoolAssetManager
 /// @author Alchemix Finance
-contract ThreePoolAssetManager is Multicall, Mutex, IERC20TokenReceiver {
+contract ThreePoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     /// @notice Emitted when the admin is updated.
     ///
     /// @param admin The admin.

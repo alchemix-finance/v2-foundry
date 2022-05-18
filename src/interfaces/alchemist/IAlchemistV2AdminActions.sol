@@ -291,4 +291,13 @@ interface IAlchemistV2AdminActions {
     ///
     /// @param yieldToken The address of the yield token to snap.
     function snap(address yieldToken) external;
+
+    /// @notice Sweep all of 'rewardtoken' from the alchemist into the admin.
+    ///
+    /// @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.
+    /// @notice `rewardToken` must not be a yield or underlying token or this call will revert with a {UnsupportedToken} error.
+    ///
+    /// @param rewardToken The address of the reward token to snap.
+    /// @param amount The amount of 'rewardToken' to sweep to the admin.
+    function sweepTokens(address rewardToken, uint256 amount) external ;
 }

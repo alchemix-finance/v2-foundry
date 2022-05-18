@@ -1,23 +1,13 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.4;
+pragma solidity ^0.8.11;
 
-/// @notice An error used to indicate that an argument passed to a function is illegal or
-///         inappropriate.
-///
-/// @param message The error message.
-error IllegalArgument(string message);
+/// @notice An error used to indicate that an action could not be completed because either the `msg.sender` or
+///         `msg.origin` is not authorized.
+error Unauthorized();
 
-/// @notice An error used to indicate that a function has encountered an unrecoverable state.
-///
-/// @param message The error message.
-error IllegalState(string message);
+/// @notice An error used to indicate that an action could not be completed because the contract either already existed
+///         or entered an illegal condition which is not recoverable from.
+error IllegalState();
 
-/// @notice An error used to indicate that an operation is unsupported.
-///
-/// @param message The error message.
-error UnsupportedOperation(string message);
-
-/// @notice An error used to indicate that a message sender tried to execute a privileged function.
-///
-/// @param message The error message.
-error Unauthorized(string message);
+/// @notice An error used to indicate that an action could not be completed because of an illegal argument was passed
+///         to the function.
+error IllegalArgument();

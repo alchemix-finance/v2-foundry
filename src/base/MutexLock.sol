@@ -1,16 +1,21 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-pragma solidity ^0.8.11;
+pragma solidity 0.8.13;
+
+import {IllegalState} from "./ErrorMessages.sol";
 
 /// @title  Mutex
 /// @author Alchemix Finance
 ///
 /// @notice Provides a mutual exclusion lock for implementing contracts.
-abstract contract Mutex {
-    /// @notice An error which is thrown when a lock is attempted to be claimed before it has been freed.
-    error LockAlreadyClaimed();
+abstract contract MutexLock {
+    enum State {
+        RESERVED,
+        UNLOCKED,
+        LOCKED
+    }
 
-    /// @notice The lock state. Non-zero values indicate the lock has been claimed.
-    uint256 private _lockState;
+    /// @notice The lock state.
+    State private _lockState = State.UNLOCKED;
 
     /// @dev A modifier which acquires the mutex.
     modifier lock() {
@@ -24,23 +29,23 @@ abstract contract Mutex {
     /// @dev Gets if the mutex is locked.
     ///
     /// @return if the mutex is locked.
-    function _isLocked() internal returns (bool) {
-        return _lockState == 1;
+    function _isLocked() internal view returns (bool) {
+        return _lockState == State.LOCKED;
     }
 
     /// @dev Claims the lock. If the lock is already claimed, then this will revert.
     function _claimLock() internal {
         // Check that the lock has not been claimed yet.
-        if (_lockState != 0) {
-            revert LockAlreadyClaimed();
+        if (_lockState != State.UNLOCKED) {
+            revert IllegalState("Lock already claimed");
         }
 
         // Claim the lock.
-        _lockState = 1;
+        _lockState = State.LOCKED;
     }
 
     /// @dev Frees the lock.
     function _freeLock() internal {
-        _lockState = 0;
+        _lockState = State.UNLOCKED;
     }
 }
