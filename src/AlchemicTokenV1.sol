@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.11;
 
-import {AccessControl} from "openzeppelin-contracts/contracts/access/AccessControl.sol";
-import {ERC20} from "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
-import {SafeERC20} from "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import { AccessControl } from "../lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
+import { ERC20 } from "../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import { SafeERC20 } from "../lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /// @title  AlchemicTokenV1
 /// @author Alchemix Finance
@@ -23,22 +23,22 @@ contract AlchemicTokenV1 is AccessControl, ERC20("Alchemix USD", "alUSD") {
 
   /// @notice The identifier of the role which allows accounts to mint tokens.
   bytes32 public constant SENTINEL_ROLE = keccak256("SENTINEL");
-  
+
   /// @notice A set of addresses which are whitelisted for minting new tokens.
-  mapping (address => bool) public whiteList;
-  
+  mapping(address => bool) public whiteList;
+
   /// @notice A set of addresses which are blacklisted from minting new tokens.
-  mapping (address => bool) public blacklist;
+  mapping(address => bool) public blacklist;
 
   /// @notice A set of addresses which are paused from minting new tokens.
-  mapping (address => bool) public paused;
+  mapping(address => bool) public paused;
 
   /// @notice The amount that each address is permitted to mint.
-  mapping (address => uint256) public ceiling;
+  mapping(address => uint256) public ceiling;
 
   /// @notice The amount of tokens that each address has already minted.
-  mapping (address => uint256) public hasMinted;
-  
+  mapping(address => uint256) public hasMinted;
+
   constructor() {
     _setupRole(ADMIN_ROLE, msg.sender);
     _setupRole(SENTINEL_ROLE, msg.sender);
@@ -136,7 +136,7 @@ contract AlchemicTokenV1 is AccessControl, ERC20("Alchemix USD", "alUSD") {
   ///
   /// @param amount The amount of tokens to burn.
   function burn(uint256 amount) public {
-      _burn(msg.sender, amount);
+    _burn(msg.sender, amount);
   }
 
   /// @notice Burns `amount` tokens from `owner`.
@@ -146,9 +146,9 @@ contract AlchemicTokenV1 is AccessControl, ERC20("Alchemix USD", "alUSD") {
   /// @param owner  The address which owns the tokens to burn.
   /// @param amount The amount of tokens to burn.
   function burnFrom(address owner, uint256 amount) public {
-      uint256 decreasedAllowance = allowance(owner, msg.sender) - amount;
-      _approve(owner, msg.sender, decreasedAllowance);
-      _burn(owner, amount);
+    uint256 decreasedAllowance = allowance(owner, msg.sender) - amount;
+    _approve(owner, msg.sender, decreasedAllowance);
+    _burn(owner, amount);
   }
 
   /// @notice Lowers the number of tokens which the `msg.sender` has minted.
@@ -157,6 +157,6 @@ contract AlchemicTokenV1 is AccessControl, ERC20("Alchemix USD", "alUSD") {
   ///
   /// @param amount The amount to lower the minted amount by.
   function lowerHasMinted(uint256 amount) public onlyWhitelisted {
-      hasMinted[msg.sender] = hasMinted[msg.sender] - amount;
+    hasMinted[msg.sender] = hasMinted[msg.sender] - amount;
   }
 }

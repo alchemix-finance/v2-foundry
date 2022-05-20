@@ -1,22 +1,21 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.11;
 
-import {AccessControl} from "openzeppelin-contracts/contracts/access/AccessControl.sol";
-import {ERC20} from "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
-import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
-import {ReentrancyGuard} from "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
+import { AccessControl } from "../lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
+import { ERC20 } from "../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import { Ownable } from "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
+import { ReentrancyGuard } from "../lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
 
-import {IllegalArgument, IllegalState, Unauthorized} from "./base/Errors.sol";
+import { IllegalArgument, IllegalState, Unauthorized } from "./base/Errors.sol";
 
-import {IERC3156FlashLender} from "openzeppelin-contracts/contracts/interfaces/IERC3156FlashLender.sol";
-import {IERC3156FlashBorrower} from "openzeppelin-contracts/contracts/interfaces/IERC3156FlashBorrower.sol";
+import { IERC3156FlashLender } from "../lib/openzeppelin-contracts/contracts/interfaces/IERC3156FlashLender.sol";
+import { IERC3156FlashBorrower } from "../lib/openzeppelin-contracts/contracts/interfaces/IERC3156FlashBorrower.sol";
 
 /// @title  AlchemicTokenV2
 /// @author Alchemix Finance
 ///
 /// @notice This is the contract for version two alchemic tokens.
 contract AlchemicTokenV2 is AccessControl, ReentrancyGuard, ERC20, IERC3156FlashLender {
-
   /// @notice The identifier of the role which maintains other roles.
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN");
 
@@ -52,7 +51,11 @@ contract AlchemicTokenV2 is AccessControl, ReentrancyGuard, ERC20, IERC3156Flash
   /// @param fee The new flash mint fee.
   event SetFlashMintFee(uint256 fee);
 
-  constructor(string memory _name, string memory _symbol, uint256 _flashFee) ERC20(_name, _symbol) {
+  constructor(
+    string memory _name,
+    string memory _symbol,
+    uint256 _flashFee
+  ) ERC20(_name, _symbol) {
     _setupRole(ADMIN_ROLE, msg.sender);
     _setupRole(SENTINEL_ROLE, msg.sender);
     _setRoleAdmin(SENTINEL_ROLE, ADMIN_ROLE);
@@ -70,7 +73,7 @@ contract AlchemicTokenV2 is AccessControl, ReentrancyGuard, ERC20, IERC3156Flash
 
   /// @dev A modifier which checks that the caller has the sentinel role.
   modifier onlySentinel() {
-    if(!hasRole(SENTINEL_ROLE, msg.sender)) {
+    if (!hasRole(SENTINEL_ROLE, msg.sender)) {
       revert Unauthorized();
     }
     _;
@@ -78,7 +81,7 @@ contract AlchemicTokenV2 is AccessControl, ReentrancyGuard, ERC20, IERC3156Flash
 
   /// @dev A modifier which checks if whitelisted for minting.
   modifier onlyWhitelisted() {
-    if(!whitelisted[msg.sender]) {
+    if (!whitelisted[msg.sender]) {
       revert Unauthorized();
     }
     _;
@@ -161,7 +164,7 @@ contract AlchemicTokenV2 is AccessControl, ReentrancyGuard, ERC20, IERC3156Flash
   /// @notice Adjusts the maximum flashloan amount.
   ///
   /// @param _maxFlashLoanAmount The maximum flashloan amount.
-  function setMaxFlashLoan(uint _maxFlashLoanAmount) external onlyAdmin {
+  function setMaxFlashLoan(uint256 _maxFlashLoanAmount) external onlyAdmin {
     maxFlashLoanAmount = _maxFlashLoanAmount;
   }
 
@@ -187,7 +190,7 @@ contract AlchemicTokenV2 is AccessControl, ReentrancyGuard, ERC20, IERC3156Flash
     if (token != address(this)) {
       revert IllegalArgument();
     }
-    return amount * flashMintFee / BPS;
+    return (amount * flashMintFee) / BPS;
   }
 
   /// @notice Performs a flash mint (called flash loan to confirm with ERC3156 standard).

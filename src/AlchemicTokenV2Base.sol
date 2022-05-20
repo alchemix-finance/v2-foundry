@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.11;
 
-import {AccessControlUpgradeable} from "openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol";
-import {ERC20Upgradeable} from "openzeppelin-contracts-upgradeable/contracts/token/ERC20/ERC20Upgradeable.sol";
-import {ReentrancyGuardUpgradeable} from "openzeppelin-contracts-upgradeable/contracts/security/ReentrancyGuardUpgradeable.sol";
+import { AccessControlUpgradeable } from "../lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol";
+import { ERC20Upgradeable } from "../lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/ERC20Upgradeable.sol";
+import { ReentrancyGuardUpgradeable } from "../lib/openzeppelin-contracts-upgradeable/contracts/security/ReentrancyGuardUpgradeable.sol";
 
-import {IllegalArgument, IllegalState, Unauthorized} from "./base/Errors.sol";
+import { IllegalArgument, IllegalState, Unauthorized } from "./base/Errors.sol";
 
-import {IERC3156FlashLender} from "openzeppelin-contracts/contracts/interfaces/IERC3156FlashLender.sol";
-import {IERC3156FlashBorrower} from "openzeppelin-contracts/contracts/interfaces/IERC3156FlashBorrower.sol";
+import { IERC3156FlashLender } from "../lib/openzeppelin-contracts/contracts/interfaces/IERC3156FlashLender.sol";
+import { IERC3156FlashBorrower } from "../lib/openzeppelin-contracts/contracts/interfaces/IERC3156FlashBorrower.sol";
 
 /// @title  AlchemicTokenV2
 /// @author Alchemix Finance
@@ -17,7 +17,12 @@ import {IERC3156FlashBorrower} from "openzeppelin-contracts/contracts/interfaces
 /// @notice Initially, the contract deployer is given both the admin and minter role. This allows them to pre-mine
 ///         tokens, transfer admin to a timelock contract, and lastly, grant the staking pools the minter role. After
 ///         this is done, the deployer must revoke their admin role and minter role.
-contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC3156FlashLender, ReentrancyGuardUpgradeable {
+contract AlchemicTokenV2Base is
+  ERC20Upgradeable,
+  AccessControlUpgradeable,
+  IERC3156FlashLender,
+  ReentrancyGuardUpgradeable
+{
   /// @notice The identifier of the role which maintains other roles.
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN");
 
@@ -76,7 +81,7 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
 
   /// @dev A modifier which checks that the caller has the sentinel role.
   modifier onlySentinel() {
-    if(!hasRole(SENTINEL_ROLE, msg.sender)) {
+    if (!hasRole(SENTINEL_ROLE, msg.sender)) {
       revert Unauthorized();
     }
     _;
@@ -84,7 +89,7 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
 
   /// @dev A modifier which checks if whitelisted for minting.
   modifier onlyWhitelisted() {
-    if(!whitelisted[msg.sender]) {
+    if (!whitelisted[msg.sender]) {
       revert Unauthorized();
     }
     _;
@@ -193,7 +198,7 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
   /// @notice Adjusts the maximum flashloan amount.
   ///
   /// @param _maxFlashLoanAmount The maximum flashloan amount.
-  function setMaxFlashLoan(uint _maxFlashLoanAmount) external onlyAdmin {
+  function setMaxFlashLoan(uint256 _maxFlashLoanAmount) external onlyAdmin {
     maxFlashLoanAmount = _maxFlashLoanAmount;
   }
 
@@ -219,7 +224,7 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
     if (token != address(this)) {
       revert IllegalArgument();
     }
-    return amount * flashMintFee / BPS;
+    return (amount * flashMintFee) / BPS;
   }
 
   /// @notice Performs a flash mint (called flash loan to confirm with ERC3156 standard).
