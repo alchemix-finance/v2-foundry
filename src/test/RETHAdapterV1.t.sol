@@ -54,8 +54,8 @@ contract RocketStakedEthereumAdapterV1Test is DSTestPlus, stdCheats {
         uint256 expectedEth = rETH.getEthValue(1e18);
 
         SafeERC20.safeApprove(address(rETH), address(adapter), 1e18);
-        uint256 unwrapped = adapter.unwrap(1e18, address(adapter));
-        console.log("here");
+        uint256 unwrapped = adapter.unwrap(1e18, address(0xbeef));
+        
         assertEq(rETH.allowance(address(this), address(adapter)), 0);
         assertEq(weth.balanceOf(address(0xbeef)), unwrapped);
         assertEq(weth.balanceOf(address(0xbeef)), expectedEth);

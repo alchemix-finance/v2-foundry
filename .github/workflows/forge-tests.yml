@@ -16,7 +16,10 @@ jobs:
       - name: Install dependencies
         run: forge install
 
+      - name: Install submodules
+        run: git submodule update --init --recursive
+      
       - name: Run forge tests
         env:
-          ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
-        run: forge test --fork-url "https://eth-mainnet.alchemyapi.io/v2/$ALCHEMY_API_KEY"
+            ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+        run: ./test.sh
