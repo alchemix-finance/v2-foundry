@@ -16,83 +16,78 @@ import { IRETH } from "../../interfaces/external/rocket/IRETH.sol";
 import { IRocketStorage } from "../../interfaces/external/rocket/IRocketStorage.sol";
 
 struct InitializationParams {
-  address alchemist;
-  address token;
-  address underlyingToken;
+	address alchemist;
+	address token;
+	address underlyingToken;
 }
 
 contract RETHAdapterV1 is ITokenAdapter, MutexLock {
-    using RocketPool for IRocketStorage;
+	using RocketPool for IRocketStorage;
 
-    string public override version = "1.0.0";
+	string public override version = "1.0.0";
 
-    address public immutable alchemist;
-    address public immutable override token;
-    address public immutable override underlyingToken;
+	address public immutable alchemist;
+	address public immutable override token;
+	address public immutable override underlyingToken;
 
-    constructor(InitializationParams memory params) {
-        alchemist       = params.alchemist;
-        token           = params.token;
-        underlyingToken = params.underlyingToken;
-    }
+	constructor(InitializationParams memory params) {
+		alchemist = params.alchemist;
+		token = params.token;
+		underlyingToken = params.underlyingToken;
+	}
 
-    /// @dev Checks that the message sender is the alchemist that the adapter is bound to.
-    modifier onlyAlchemist() {
-        if (msg.sender != alchemist) {
-            revert Unauthorized("Not alchemist");
-        }
-        _;
-    }
+	/// @dev Checks that the message sender is the alchemist that the adapter is bound to.
+	modifier onlyAlchemist() {
+		if (msg.sender != alchemist) {
+			revert Unauthorized("Not alchemist");
+		}
+		_;
+	}
 
-    receive() external payable {
-        if (msg.sender != underlyingToken && msg.sender != token) {
-            revert Unauthorized("Payments only permitted from WETH or rETH");
-        }
-    }
+	receive() external payable {
+		if (msg.sender != underlyingToken && msg.sender != token) {
+			revert Unauthorized("Payments only permitted from WETH or rETH");
+		}
+	}
 
-    /// @inheritdoc ITokenAdapter
-    function price() external view returns (uint256) {
-        return IRETH(token).getEthValue(10**SafeERC20.expectDecimals(token));
-    }
+	/// @inheritdoc ITokenAdapter
+	function price() external view returns (uint256) {
+		return IRETH(token).getEthValue(10**SafeERC20.expectDecimals(token));
+	}
 
-    /// @inheritdoc ITokenAdapter
-    function wrap(
-        uint256 amount,
-        address recipient
-    ) external onlyAlchemist returns (uint256) {
-        amount; recipient; // Silence, compiler!
+	/// @inheritdoc ITokenAdapter
+	function wrap(uint256 amount, address recipient) external onlyAlchemist returns (uint256) {
+		amount;
+		recipient; // Silence, compiler!
 
-        // NOTE: Wrapping is currently unsupported because the Rocket Pool requires that all
-        //       addresses that mint rETH to wait approximately 24 hours before transferring
-        //       tokens. In the future when the minting restriction is removed, an adapter
-        //       that supports this operation will be written.
-        //
-        //       We had considered exchanging ETH for rETH here, however, the liquidity on the
-        //       majority of the pools is too limited. Also, the landscape of those pools are very
-        //       likely to change in the coming months. We recommend that users exchange for
-        //       rETH on a pool of their liking or mint rETH and then deposit it at a later time.
-        revert UnsupportedOperation("Wrapping is not supported");
-    }
+		// NOTE: Wrapping is currently unsupported because the Rocket Pool requires that all
+		//       addresses that mint rETH to wait approximately 24 hours before transferring
+		//       tokens. In the future when the minting restriction is removed, an adapter
+		//       that supports this operation will be written.
+		//
+		//       We had considered exchanging ETH for rETH here, however, the liquidity on the
+		//       majority of the pools is too limited. Also, the landscape of those pools are very
+		//       likely to change in the coming months. We recommend that users exchange for
+		//       rETH on a pool of their liking or mint rETH and then deposit it at a later time.
+		revert UnsupportedOperation("Wrapping is not supported");
+	}
 
-    // @inheritdoc ITokenAdapter
-    function unwrap(
-        uint256 amount,
-        address recipient
-    ) external lock onlyAlchemist returns (uint256) {
-        // Transfer the rETH from the message sender.
-        SafeERC20.safeTransferFrom(token, msg.sender, address(this), amount);
+	// @inheritdoc ITokenAdapter
+	function unwrap(uint256 amount, address recipient) external lock onlyAlchemist returns (uint256) {
+		// Transfer the rETH from the message sender.
+		SafeERC20.safeTransferFrom(token, msg.sender, address(this), amount);
 
-        // Burn the rETH to receive ETH.
-        uint256 startingEthBalance = address(this).balance;
-        IRETH(token).burn(amount);
-        uint256 receivedEth = address(this).balance - startingEthBalance;
+		// Burn the rETH to receive ETH.
+		uint256 startingEthBalance = address(this).balance;
+		IRETH(token).burn(amount);
+		uint256 receivedEth = address(this).balance - startingEthBalance;
 
-        // Wrap the ETH that we received from the burn.
-        IWETH9(underlyingToken).deposit{value: receivedEth}();
+		// Wrap the ETH that we received from the burn.
+		IWETH9(underlyingToken).deposit{ value: receivedEth }();
 
-        // Transfer the tokens to the recipient.
-        SafeERC20.safeTransfer(underlyingToken, recipient, receivedEth);
+		// Transfer the tokens to the recipient.
+		SafeERC20.safeTransfer(underlyingToken, recipient, receivedEth);
 
-        return receivedEth;
-    }
+		return receivedEth;
+	}
 }
