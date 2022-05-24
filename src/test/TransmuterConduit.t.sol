@@ -1,6 +1,6 @@
 pragma solidity 0.8.13;
 
-import "ds-test/test.sol";
+import "../lib/ds-test/src/test.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import "./utils/DSTestPlus.sol";
 import "../TransmuterConduit.sol";
