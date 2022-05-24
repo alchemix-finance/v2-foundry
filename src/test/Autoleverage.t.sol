@@ -1,10 +1,10 @@
 pragma solidity ^0.8.11;
 
-import {console} from "forge-std/console.sol";
-import {stdCheats} from "forge-std/stdlib.sol";
+import {console} from "../../lib/forge-std/src/console.sol";
+import {stdCheats} from "../../lib/forge-std/src/stdlib.sol";
 
-import {DSTest} from "ds-test/test.sol";
-import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {DSTest} from "../../lib/ds-test/src/test.sol";
+import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";

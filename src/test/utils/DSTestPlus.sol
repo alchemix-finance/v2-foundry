@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
-import {DSTest} from "../lib/ds-test/src/test.sol";
+import {DSTest} from "../../../lib/ds-test/src/test.sol";
 
 import {Hevm} from "./Hevm.sol";
 

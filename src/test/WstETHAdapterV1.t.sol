@@ -2,7 +2,7 @@
 pragma solidity 0.8.13;
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
-import {stdCheats} from "forge-std/stdlib.sol";
+import {stdCheats} from "../../lib/forge-std/src/stdlib.sol";
 
 import {
     WstETHAdapterV1,
