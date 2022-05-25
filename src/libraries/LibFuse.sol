@@ -4,7 +4,7 @@ pragma solidity 0.8.13;
 import {FixedPointMathLib} from "./solmate/FixedPointMathLib.sol";
 
 import {ICERC20} from "../interfaces/external/compound/ICERC20.sol";
-import {IERC20} from "openzeppelin/token/ERC20/IERC20.sol";
+import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 /// @notice Get up to date cToken data without mutating state.
 /// @author Transmissions11 (https://github.com/transmissions11/libcompound)

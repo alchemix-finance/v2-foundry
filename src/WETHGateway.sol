@@ -1,6 +1,6 @@
 pragma solidity ^0.8.11;
 
-import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
+import {Ownable} from "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 import "./base/ErrorMessages.sol";
 import "./interfaces/IAlchemistV2.sol";
 import "./interfaces/external/IWETH9.sol";
