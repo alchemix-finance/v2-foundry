@@ -6,6 +6,7 @@ make test_file_block FILE=MigrationToolUSD BLOCK=14668199;
 make test_file_block FILE=RETHAdapterV1 BLOCK=14695010;
 make test_file_block FILE=ThreePoolAssetManager;
 make test_file_block FILE=TransmuterConduit;
+make test_file_block FILE=V2Migration;
 make test_file_block FILE=VesperAdapterV1;
 make test_file_block FILE=WstETHAdapterV1;
 # run invariants locally and include test results on PR
