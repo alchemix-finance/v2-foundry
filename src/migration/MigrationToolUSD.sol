@@ -101,7 +101,7 @@ contract MigrationToolUSD is IMigrationTool, Multicall {
 
         // Deposit into new vault
         SafeERC20.safeApprove(targetParams.underlyingToken, address(Alchemist), underlyingReturned);
-        uint256 sharesReturned = Alchemist.depositUnderlying(targetVault, underlyingReturned, address(this), 0);
+        uint256 sharesReturned = Alchemist.depositUnderlying(targetVault, underlyingReturned, msg.sender, 0);
 
         // mint al token which will be burned to fulfill flash loan requirements
         Alchemist.mint(sharesReturned/2, address(this));
