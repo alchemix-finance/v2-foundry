@@ -300,4 +300,15 @@ interface IAlchemistV2AdminActions {
     /// @param rewardToken The address of the reward token to snap.
     /// @param amount The amount of 'rewardToken' to sweep to the admin.
     function sweepTokens(address rewardToken, uint256 amount) external ;
+
+    /// @notice Accept debt from the V1 transfer vault adapter.
+    ///
+    /// @notice `msg.sender` must be a sentinal or the admin or this call will revert with an {Unauthorized} error.
+    ///
+    /// @param owner    The owner of the account whos debt to increase.
+    /// @param debt     The amount of debt incoming from the V1 tranfer adapter.
+    function transferDebtV1(
+        address owner, 
+        int256 debt
+    ) external;
 }

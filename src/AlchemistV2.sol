@@ -530,6 +530,15 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         emit SweepTokens(rewardToken, amount);
     }
 
+    /// @inheritdoc IAlchemistV2AdminActions
+    function transferDebtV1(
+        address owner, 
+        int256 debt
+    ) external override lock {
+        _onlySentinelOrAdmin();
+        _updateDebt(owner, debt);
+    }
+
     /// @inheritdoc IAlchemistV2Actions
     function approveMint(address spender, uint256 amount) external override {
         _onlyWhitelisted();
