@@ -37,12 +37,15 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
         transferAdapter = new TransferAdapter(alchemistV1USDAddress, alUSD, DAI, yvDAI, alchemistV1USDAddress, alchemistV2USDAddress);
 
         // Allow adapter to deposit underlying tokens into V2
-        hevm.prank(whitelistV2Owner);
+        // & Set adapter addres in the alchemist
+        hevm.startPrank(whitelistV2Owner);
         whitelistV2.add(address(transferAdapter));
+        // alchemistV2USD.setTransferAdapterAddress(address(transferAdapter));
+        hevm.stopPrank();
 
         // Start a position in V1 as 0xbeef and go into debt
-        hevm.startPrank(address(0xbeef), address(0xbeef));
         tip(DAI, address(0xbeef), 100e18);
+        hevm.startPrank(address(0xbeef), address(0xbeef));
         SafeERC20.safeApprove(DAI, alchemistV1USDAddress, 100e18);
         alchemistV1USD.deposit(100e18);
         // Mint throws 'unhealthy collateralizatiob ratio'

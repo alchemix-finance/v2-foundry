@@ -73,7 +73,6 @@ interface IAlchemistV2State {
     /// @return transferAdapter The transfer adapter address.
     function transferAdapter() external view returns (address transferAdapter);
 
-
     /// @notice Gets if an address is a sentinel.
     ///
     /// @param sentinel The address to check.

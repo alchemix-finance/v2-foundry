@@ -10,8 +10,6 @@ interface IAlchemistV2AdminActions {
     struct InitializationParams {
         // The initial admin account.
         address admin;
-        // The V1 transfer adapter
-        address transferAdapter;
         // The ERC20 token used to represent debt.
         address debtToken;
         // The initial transmuter or transmuter buffer.
@@ -301,7 +299,14 @@ interface IAlchemistV2AdminActions {
     ///
     /// @param rewardToken The address of the reward token to snap.
     /// @param amount The amount of 'rewardToken' to sweep to the admin.
-    function sweepTokens(address rewardToken, uint256 amount) external ;
+    function sweepTokens(address rewardToken, uint256 amount) external;
+
+    /// @notice Set the address of the V1 transfer adapter.
+    ///
+    /// @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.
+    ///
+    /// @param transferAdapterAddress The address of the V1 transfer adapter to be set in the alchemist.
+    function setTransferAdapterAddress(address transferAdapterAddress) external;
 
     /// @notice Accept debt from the V1 transfer vault adapter.
     ///
@@ -309,8 +314,5 @@ interface IAlchemistV2AdminActions {
     ///
     /// @param owner    The owner of the account whos debt to increase.
     /// @param debt     The amount of debt incoming from the V1 tranfer adapter.
-    function transferDebtV1(
-        address owner, 
-        int256 debt
-    ) external;
+    function transferDebtV1(address owner, int256 debt) external;
 }

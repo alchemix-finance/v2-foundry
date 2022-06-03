@@ -36,7 +36,7 @@ contract TransferAdapter is IVaultAdapter {
   mapping(address => bool) private _hasMigrated;
 
 
-  constructor(address _admin, address _debtToken, address _underlyingToken, address _yieldToken, address _alchemistV1, address _alchemistV2) public {
+  constructor(address _admin, address _debtToken, address _underlyingToken, address _yieldToken, address _alchemistV1, address _alchemistV2) {
     admin = _admin;
     _debtToken = debtToken;
     underlyingToken = _underlyingToken;
@@ -89,7 +89,7 @@ contract TransferAdapter is IVaultAdapter {
     alchemistV2.depositUnderlying(yieldToken, deposited, _recipient, 0);
 
     _hasMigrated[tx.origin] = true;
-    
+
     //alchemistV2.transferDebtV1(_recipient, int256(debt));
   }
 }

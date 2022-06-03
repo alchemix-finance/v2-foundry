@@ -261,7 +261,6 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
 
         debtToken                = params.debtToken;
         admin                    = params.admin;
-        transferAdapter          = params.transferAdapter;
         transmuter               = params.transmuter;
         minimumCollateralization = params.minimumCollateralization;
         protocolFee              = params.protocolFee;
@@ -532,6 +531,12 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         TokenUtils.safeTransfer(rewardToken, admin, amount);
 
         emit SweepTokens(rewardToken, amount);
+    }
+
+    /// @inheritdoc IAlchemistV2AdminActions
+    function setTransferAdapterAddress(address transferAdapterAddress) external override lock {
+        _onlyAdmin();
+        transferAdapter = transferAdapterAddress;
     }
 
     /// @inheritdoc IAlchemistV2AdminActions
