@@ -63,6 +63,9 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     address public override pendingAdmin;
 
     /// @inheritdoc IAlchemistV2State
+    address public override transferAdapter;
+
+    /// @inheritdoc IAlchemistV2State
     mapping(address => bool) public override sentinels;
 
     /// @inheritdoc IAlchemistV2State
@@ -258,6 +261,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
 
         debtToken                = params.debtToken;
         admin                    = params.admin;
+        transferAdapter          = params.transferAdapter;
         transmuter               = params.transmuter;
         minimumCollateralization = params.minimumCollateralization;
         protocolFee              = params.protocolFee;
@@ -535,7 +539,8 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         address owner, 
         int256 debt
     ) external override lock {
-        _onlySentinelOrAdmin();
+        _onlyTransferAdapter();
+        _validate(owner);
         _updateDebt(owner, debt);
     }
 
@@ -990,6 +995,15 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @dev `msg.sender` must be a keeper or this call will revert with an {Unauthorized} error.
     function _onlyKeeper() internal view {
         if (!keepers[msg.sender]) {
+            revert Unauthorized();
+        }
+    }
+
+    /// @dev Checks that the `msg.sender` is the V1 transfer adapter.
+    ///
+    /// @dev `msg.sender` must be the administrator or this call will revert with an {Unauthorized} error.
+    function _onlyTransferAdapter() internal view {
+        if (msg.sender != transferAdapter) {
             revert Unauthorized();
         }
     }

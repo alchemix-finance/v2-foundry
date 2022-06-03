@@ -46,7 +46,7 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
         SafeERC20.safeApprove(DAI, alchemistV1USDAddress, 100e18);
         alchemistV1USD.deposit(100e18);
         // Mint throws 'unhealthy collateralizatiob ratio'
-        //alchemistV1USD.mint(40e18);
+        // alchemistV1USD.mint(40e18);
         // Approve adapter to mint on behalf of user
         alchemistV2USD.approveMint(address(transferAdapter), 40e18);
         hevm.stopPrank();
@@ -76,9 +76,15 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
 
         // User withdraws 
         hevm.startPrank(address(0xbeef), address(0xbeef));
+        // Withdraw too much and expect revert
+        hevm.expectRevert("TransferAdapter: Amount must be 1");
+        alchemistV1USD.withdraw(10);
+        // Withdraw correctly using 1
         alchemistV1USD.withdraw(1);
-
-        // TODO add test that expects revert from withdrawing more than 1
+        // Withdraw again should revert
+        hevm.expectRevert("User has already migrated");
+        alchemistV1USD.withdraw(1);
+        hevm.stopPrank();
 
         // Debts must be the same as debt in V1
         (int256 V2Debt, ) = alchemistV2USD.accounts(address(0xbeef));

@@ -68,6 +68,12 @@ interface IAlchemistV2State {
     /// @return pendingAdmin The pending administrator address.
     function pendingAdmin() external view returns (address pendingAdmin);
 
+    /// @notice Gets the address of the transfer adapter.
+    ///
+    /// @return transferAdapter The transfer adapter address.
+    function transferAdapter() external view returns (address transferAdapter);
+
+
     /// @notice Gets if an address is a sentinel.
     ///
     /// @param sentinel The address to check.

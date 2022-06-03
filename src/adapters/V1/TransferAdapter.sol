@@ -32,6 +32,9 @@ contract TransferAdapter is IVaultAdapter {
   /// @dev The alchemistV2.
   IAlchemistV2 public alchemistV2;
 
+  /// @dev The ap of users who have/haven't migrated.
+  mapping(address => bool) private _hasMigrated;
+
 
   constructor(address _admin, address _debtToken, address _underlyingToken, address _yieldToken, address _alchemistV1, address _alchemistV2) public {
     admin = _admin;
@@ -66,7 +69,7 @@ contract TransferAdapter is IVaultAdapter {
   ///
   /// @param _amount the amount of tokens to deposit into the vault.
   function deposit(uint256 _amount) external override {
-    // Used to receive funds.
+      // Accept tokens from alchemist
   }
 
   /// @dev Withdraws tokens from the vault to the recipient.
@@ -77,13 +80,16 @@ contract TransferAdapter is IVaultAdapter {
   /// @param _amount    the amount of tokens to withdraw.
   function withdraw(address _recipient, uint256 _amount) external override onlyAdmin {
     require(_amount == 1, "TransferAdapter: Amount must be 1");
+    require(_hasMigrated[tx.origin] == false, "User has already migrated");
 
-    uint256 deposited = alchemistV1.getCdpTotalDeposited(_recipient);
-    uint256 debt = alchemistV1.getCdpTotalDebt(_recipient);
+    uint256 deposited = alchemistV1.getCdpTotalDeposited(tx.origin);
+    uint256 debt = alchemistV1.getCdpTotalDebt(tx.origin);
 
     SafeERC20.safeApprove(underlyingToken, address(alchemistV2), deposited);
-    alchemistV2.depositUnderlying(yieldToken, deposited, msg.sender, 0);
+    alchemistV2.depositUnderlying(yieldToken, deposited, _recipient, 0);
 
-    // TODO: Update V2 to flash the debt/credit value into the users account
+    _hasMigrated[tx.origin] = true;
+    
+    //alchemistV2.transferDebtV1(_recipient, int256(debt));
   }
 }

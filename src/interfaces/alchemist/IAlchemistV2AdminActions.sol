@@ -10,6 +10,8 @@ interface IAlchemistV2AdminActions {
     struct InitializationParams {
         // The initial admin account.
         address admin;
+        // The V1 transfer adapter
+        address transferAdapter;
         // The ERC20 token used to represent debt.
         address debtToken;
         // The initial transmuter or transmuter buffer.
