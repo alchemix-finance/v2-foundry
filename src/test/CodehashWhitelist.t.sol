@@ -47,9 +47,10 @@ contract CodehashWhitelistTest is DSTestPlus, stdCheats {
         uint256 balAfter = ERC20(ydai).balanceOf(address(whitelistedCaller));
     }
 
-    function testFailCall() public {
+    function testUnauthorizedCall() public {
         uint256 amount = ERC20(ydai).balanceOf(address(this));
-        alchemist.depositUnderlying(ydai, amount, address(this), 0);
+        expectUnauthorizedError();
+        alchemist.deposit(ydai, amount, address(this));
     }
 
     function testRemoval() public {
