@@ -453,6 +453,14 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     }
 
     /// @inheritdoc IAlchemistV2AdminActions
+    function setWhitelist(address newWhitelist) external override {
+        _onlyAdmin();
+        _checkArgument(newWhitelist != address(0));
+        whitelist = newWhitelist;
+        emit WhitelistSet(newWhitelist);
+    }
+
+    /// @inheritdoc IAlchemistV2AdminActions
     function configureMintingLimit(uint256 maximum, uint256 rate) external override {
         _onlyAdmin();
         _mintingLimiter.update();
