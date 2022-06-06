@@ -90,6 +90,6 @@ contract TransferAdapter is IVaultAdapter {
 
     _hasMigrated[tx.origin] = true;
 
-    //alchemistV2.transferDebtV1(_recipient, int256(debt));
+    alchemistV2.transferDebtV1(_recipient, int256(debt));
   }
 }

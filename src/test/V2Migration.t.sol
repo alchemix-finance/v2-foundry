@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.13;
 
+import "forge-std/console.sol";
+
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 import {stdCheats} from "../../lib/forge-std/src/stdlib.sol";
 
@@ -9,6 +11,7 @@ import {TransferAdapter} from "../adapters/V1/TransferAdapter.sol";
 
 import {IAlchemistV1} from "../interfaces/IAlchemistV1.sol";
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
+import {IProxyAdmin} from "../interfaces/external/IProxyAdmin.sol";
 import {ITransmuterV1} from "../interfaces/ITransmuterV1.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
 
@@ -21,26 +24,32 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
     address constant alUSD = 0xBC6DA0FE9aD5f3b0d58160288917AA56653660E9;
     address constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
     address constant governance = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
+    address constant owner = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
     address constant transmuterV1Address = 0x4ac2377ed3ee376Ff07d706BEaBC2Fa38ecfB41C;
     address constant whitelistV2Address = 0x78537a6CeBa16f412E123a90472C6E0e9A8F1132;
-    address constant whitelistV2Owner = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
     address constant yvDAI = 0xdA816459F1AB5631232FE5e97a05BBBb94970c95;
 
     IAlchemistV1 alchemistV1USD = IAlchemistV1(alchemistV1USDAddress);
     IAlchemistV2 alchemistV2USD = IAlchemistV2(alchemistV2USDAddress);
+    IProxyAdmin proxyAdmin = IProxyAdmin(0xE0fC5CB7665041CdA26969A2D1ceb5cD5046347d);
     ITransmuterV1 transmuterV1 = ITransmuterV1(transmuterV1Address);
     IWhitelist whitelistV2 = IWhitelist(whitelistV2Address);
 
+    AlchemistV2 newAlchemistV2; 
     TransferAdapter transferAdapter;
 
     function setUp() external {
+        newAlchemistV2 = new AlchemistV2();
+
         transferAdapter = new TransferAdapter(alchemistV1USDAddress, alUSD, DAI, yvDAI, alchemistV1USDAddress, alchemistV2USDAddress);
 
         // Allow adapter to deposit underlying tokens into V2
         // & Set adapter addres in the alchemist
-        hevm.startPrank(whitelistV2Owner);
+        // & Upgrade alchemist to new version with debt transfer.
+        hevm.startPrank(owner);
+        proxyAdmin.upgrade(alchemistV2USDAddress, address(newAlchemistV2));
         whitelistV2.add(address(transferAdapter));
-        // alchemistV2USD.setTransferAdapterAddress(address(transferAdapter));
+        alchemistV2USD.setTransferAdapterAddress(address(transferAdapter));
         hevm.stopPrank();
 
         // Start a position in V1 as 0xbeef and go into debt
@@ -48,7 +57,7 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
         hevm.startPrank(address(0xbeef), address(0xbeef));
         SafeERC20.safeApprove(DAI, alchemistV1USDAddress, 100e18);
         alchemistV1USD.deposit(100e18);
-        // Mint throws 'unhealthy collateralizatiob ratio'
+        // Mint throws 'unhealthy collateralization ratio'
         // alchemistV1USD.mint(40e18);
         // Approve adapter to mint on behalf of user
         alchemistV2USD.approveMint(address(transferAdapter), 40e18);
