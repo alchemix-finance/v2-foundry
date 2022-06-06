@@ -15,4 +15,8 @@ interface IAlchemistV1 {
     function recall(uint256 _vaultId, uint256 _amount) external returns (uint256, uint256);
     function recallAll(uint256 _vaultId) external returns (uint256, uint256);
     function withdraw(uint256 _amount) external returns (uint256, uint256);
+    function setTransmuter(address _transmuter) external;
+    function liquidate(uint256 _amount) external returns (uint256, uint256);
+    function harvest(uint256 _vaultId) external returns (uint256, uint256);
+    function repay(uint256 _parentAmount, uint256 _childAmount) external;
 }

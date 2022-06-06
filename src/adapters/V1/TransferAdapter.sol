@@ -32,7 +32,7 @@ contract TransferAdapter is IVaultAdapter {
   /// @dev The alchemistV2.
   IAlchemistV2 public alchemistV2;
 
-  /// @dev The ap of users who have/haven't migrated.
+  /// @dev The map of users who have/haven't migrated.
   mapping(address => bool) private _hasMigrated;
 
 

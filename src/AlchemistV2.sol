@@ -63,9 +63,6 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     address public override pendingAdmin;
 
     /// @inheritdoc IAlchemistV2State
-    address public override transferAdapter;
-
-    /// @inheritdoc IAlchemistV2State
     mapping(address => bool) public override sentinels;
 
     /// @inheritdoc IAlchemistV2State
@@ -110,7 +107,9 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @dev An iterable set of the yield tokens that are supported by the system.
     Sets.AddressSet private _supportedYieldTokens;
 
-    /// @custom:oz-upgrades-unsafe-allow constructor
+    /// @inheritdoc IAlchemistV2State
+    address public override transferAdapter;
+
     constructor() initializer {}
 
     /// @inheritdoc IAlchemistV2State
@@ -545,8 +544,9 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         int256 debt
     ) external override lock {
         _onlyTransferAdapter();
-        _validate(owner);
+        _poke(owner);
         _updateDebt(owner, debt);
+        _validate(owner);
     }
 
     /// @inheritdoc IAlchemistV2Actions
