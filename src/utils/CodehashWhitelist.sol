@@ -22,13 +22,13 @@ contract CodehashWhitelist is ICodehashWhitelist, Ownable {
   }
 
   /// @inheritdoc ICodehashWhitelist
-  function add(bytes32 codehash) external override {
+  function add(address account) external override {
     _onlyAdmin();
     if (disabled) {
       revert IllegalState();
     }
-    codehashes.add(codehash);
-    emit CodehashAdded(codehash);
+    codehashes.add(account.codehash);
+    emit CodehashAdded(account.codehash);
   }
 
   /// @inheritdoc ICodehashWhitelist

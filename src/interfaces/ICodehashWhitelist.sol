@@ -28,8 +28,8 @@ interface ICodehashWhitelist {
 
   /// @dev Adds an contract to the whitelist.
   ///
-  /// @param codehash The bytes32 to add to the whitelist.
-  function add(bytes32 codehash) external;
+  /// @param account The bytes32 to add to the whitelist.
+  function add(address account) external;
 
   /// @dev Adds a contract to the whitelist.
   ///

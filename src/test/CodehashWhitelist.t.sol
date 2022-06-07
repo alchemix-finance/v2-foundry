@@ -29,7 +29,7 @@ contract CodehashWhitelistTest is DSTestPlus, stdCheats {
     function setUp() public {
         codehashWhitelist = new CodehashWhitelist();
         whitelistedCaller = new WhitelistedCaller();
-        codehashWhitelist.add(address(whitelistedCaller).codehash);
+        codehashWhitelist.add(address(whitelistedCaller));
 
         tip(ydai, address(whitelistedCaller), 1 ether);
         tip(ydai, address(this), 1 ether);
@@ -45,6 +45,7 @@ contract CodehashWhitelistTest is DSTestPlus, stdCheats {
         uint256 amount = ERC20(ydai).balanceOf(address(whitelistedCaller));
         whitelistedCaller.makeAlchemistCall(address(alchemist), ydai, amount);
         uint256 balAfter = ERC20(ydai).balanceOf(address(whitelistedCaller));
+        assertEq(balAfter, 0);
     }
 
     function testUnauthorizedCall() public {
