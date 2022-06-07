@@ -55,7 +55,7 @@ contract CodehashWhitelistTest is DSTestPlus, stdCheats {
     }
 
     function testRemoval() public {
-        codehashWhitelist.remove(address(whitelistedCaller).codehash);
+        codehashWhitelist.remove(address(whitelistedCaller));
         uint256 amount = ERC20(ydai).balanceOf(address(whitelistedCaller));
         expectUnauthorizedError();
         whitelistedCaller.makeAlchemistCall(address(alchemist), ydai, amount);

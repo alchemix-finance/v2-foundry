@@ -33,8 +33,8 @@ interface ICodehashWhitelist {
 
   /// @dev Adds a contract to the whitelist.
   ///
-  /// @param codehash The bytes32 to remove from the whitelist.
-  function remove(bytes32 codehash) external;
+  /// @param account The account with a bytes32 codehash to remove from the whitelist.
+  function remove(address account) external;
 
   /// @dev Disables the whitelist of the target whitelisted contract.
   ///
