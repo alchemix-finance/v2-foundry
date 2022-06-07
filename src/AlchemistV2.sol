@@ -51,7 +51,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     uint256 public constant FIXED_POINT_SCALAR = 1e18;
 
     /// @inheritdoc IAlchemistV2Immutables
-    string public constant override version = "2.2.7";
+    string public constant override version = "2.3.0";
 
     /// @inheritdoc IAlchemistV2Immutables
     address public override debtToken;
