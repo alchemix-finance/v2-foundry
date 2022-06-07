@@ -6,3 +6,4 @@ make test_file_block FILE=ThreePoolAssetManager;
 make test_file_block FILE=TransmuterConduit;
 make test_file_block FILE=VesperAdapterV1;
 make test_file_block FILE=WstETHAdapterV1;
+make test_file_block FILE=CodehashWhitelist

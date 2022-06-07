@@ -207,4 +207,9 @@ interface IAlchemistV2Events {
     /// @param totalHarvested   The total amount of underlying tokens harvested.
     /// @param credit           The total amount of debt repaid to depositors of `yieldToken`.
     event Harvest(address indexed yieldToken, uint256 minimumAmountOut, uint256 totalHarvested, uint256 credit);
+
+    /// @notice Emitted when an address is set as the whitelist.
+    ///
+    /// @param whitelist The new address of the whitelist.
+    event WhitelistSet(address whitelist);
 }
