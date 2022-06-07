@@ -17,6 +17,7 @@ import {IProxyAdmin} from "../interfaces/external/IProxyAdmin.sol";
 import {ITransmuterV1} from "../interfaces/ITransmuterV1.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
 
+import {FixedPointMath} from "../libraries/FixedPointMath.sol";
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 
 contract V2MigrationTest is DSTestPlus, stdCheats {
@@ -63,10 +64,8 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
         hevm.startPrank(address(0xbeef), address(0xbeef));
         SafeERC20.safeApprove(DAI, alchemistV1USDAddress, 100e18);
         alchemistV1USD.deposit(100e18);
-        // Mint throws 'unhealthy collateralization ratio'
-        // alchemistV1USD.mint(40e18);
-        // Approve adapter to mint on behalf of user
-        alchemistV2USD.approveMint(address(transferAdapter), 40e18);
+        // Mint throws 'unhealthy collateralization ratio' later when withdrawing.
+        alchemistV1USD.mint(10e18);
         hevm.stopPrank();
     }
 
@@ -82,9 +81,7 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
         hevm.stopPrank();
         // Contract may have previous balance so check if flushed is greater than or equal to withdrawn amount
         assertGt(flushed, withdrawnAmount - 1);
-        assertEq(transferAdapter.totalValue(), flushed);
 
-        // TODO figure out where is best to pause and such.
         // Pause the transmuter.
         hevm.prank(governance);
         pausableTransmuterConduit.pauseTransmuter(true);
@@ -108,7 +105,6 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
         hevm.expectRevert("emergency pause enabled");
         alchemistV1USD.deposit(5e18);
         hevm.stopPrank();
-
 
         // Roll chain ahead
         hevm.roll(block.number + 10);

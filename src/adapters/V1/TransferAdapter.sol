@@ -62,7 +62,7 @@ contract TransferAdapter is IVaultAdapter {
   ///
   /// @return the total assets.
   function totalValue() external view override returns (uint256) {
-    return IDetailedERC20(underlyingToken).balanceOf(address(this));
+    return 0;
   }
 
   /// @dev Deposits tokens into the vault.
