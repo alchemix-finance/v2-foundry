@@ -300,11 +300,4 @@ interface IAlchemistV2AdminActions {
     /// @param rewardToken The address of the reward token to snap.
     /// @param amount The amount of 'rewardToken' to sweep to the admin.
     function sweepTokens(address rewardToken, uint256 amount) external ;
-
-    /// @notice Sets an address as the whitelist.
-    ///
-    /// @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.
-    ///
-    /// @param newWhitelist The new address of the whitelist.
-    function setWhitelist(address newWhitelist) external;
 }

@@ -51,7 +51,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     uint256 public constant FIXED_POINT_SCALAR = 1e18;
 
     /// @inheritdoc IAlchemistV2Immutables
-    string public constant override version = "2.3.0";
+    string public constant override version = "2.2.7";
 
     /// @inheritdoc IAlchemistV2Immutables
     address public override debtToken;
@@ -450,14 +450,6 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         _checkArgument(value != address(0));
         protocolFeeReceiver = value;
         emit ProtocolFeeReceiverUpdated(value);
-    }
-
-    /// @inheritdoc IAlchemistV2AdminActions
-    function setWhitelist(address newWhitelist) external override {
-        _onlyAdmin();
-        _checkArgument(newWhitelist != address(0));
-        whitelist = newWhitelist;
-        emit WhitelistSet(newWhitelist);
     }
 
     /// @inheritdoc IAlchemistV2AdminActions
