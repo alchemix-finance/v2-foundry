@@ -123,10 +123,6 @@ contract DSTestPlus is DSTest {
         hevm.expectRevert(abi.encodeWithSignature("IllegalState(string)", message));
     }
 
-    function expectUnauthorizedError() internal {
-        hevm.expectRevert(abi.encodeWithSignature("Unauthorized()"));
-    }
-
     function expectUnauthorizedError(string memory message) internal {
         hevm.expectRevert(abi.encodeWithSignature("Unauthorized(string)", message));
     }
