@@ -132,14 +132,16 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
         (uint256 shares, uint256 weight) = alchemistV2USD.positions(address(0xbeef), yvDAI);
         assertApproxEq(shares, 100e18, 3e18);
 
+        // List of addresses from V1
         V1AddressList V1List = new V1AddressList();
         address[706] memory addresses = V1List.getAddresses();
 
+        // Loop until all addresses have migrated
         for (uint i = 0; i < addresses.length; i++) {
             uint256 originalUserDebt = alchemistV1USD.getCdpTotalDebt(addresses[i]);
             uint256 originalDeposited = alchemistV1USD.getCdpTotalDeposited(addresses[i]);
 
-            // Using 10 DAI for a threshold now. Will make smaller after other issues are sorted.
+            // Using 2 wei for a threshold now. Will make smaller after other issues are sorted.
             if(originalDeposited < 2) {
                 continue;
             }
