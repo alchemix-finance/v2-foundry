@@ -16,12 +16,6 @@ library FixedPointMath {
     uint256 n;
   }
 
-  function fromU256(uint256 value) internal pure returns (Number memory) {
-    uint256 x;
-    require(value == 0 || (x = value * ONE) / ONE == value);
-    return Number(x);
-  }
-
   /**
    * @notice Encodes a unsigned 256-bit integer into a fixed point decimal.
    *

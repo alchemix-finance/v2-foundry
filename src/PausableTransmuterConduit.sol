@@ -46,7 +46,10 @@ contract PausableTransmuterConduit {
     }
 
     function distribute(address origin, uint256 amount) external onlySource() {
-        require(_paused == false, "Transmuter is currently paused!");
+        if (_paused == true) {
+            revert IllegalState("Transmuter is currently paused!");
+        }
+        
         IERC20(token).safeTransferFrom(origin, sinkTransmuter, amount);
         IERC20TokenReceiver(sinkTransmuter).onERC20Received(token, amount);
     }

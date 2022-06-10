@@ -2,12 +2,15 @@
 pragma solidity >=0.6.12;
 pragma experimental ABIEncoderV2;
 
+import {Unauthorized, IllegalState, IllegalArgument} from "../../base/ErrorMessages.sol";
+
 import {IAlchemicToken} from "../../interfaces/IAlchemicToken.sol";
 import {IAlchemistV2} from "../../interfaces/IAlchemistV2.sol";
 import {IAlchemistV1} from "../../interfaces/IAlchemistV1.sol";
 import {IDetailedERC20} from "../../interfaces/IDetailedERC20.sol";
 import {IVaultAdapter} from "../../interfaces/IVaultAdapter.sol";
 
+import {SafeCast} from "../../libraries/SafeCast.sol";
 import {SafeERC20} from "../../libraries/SafeERC20.sol";
 
 /// @title TransferAdapter
@@ -69,18 +72,24 @@ contract TransferAdapter is IVaultAdapter {
   ///
   /// @param _amount the amount of tokens to deposit into the vault.
   function deposit(uint256 _amount) external override {
-      // Accept tokens from alchemist
+    // Accept tokens from alchemist
   }
 
   /// @dev Withdraws tokens from the vault to the recipient.
   ///
   /// This function reverts if the caller is not the admin.
+  /// This function reverts if the user has already migrated.
   ///
   /// @param _recipient the account to withdraw the tokes to.
   /// @param _amount    the amount of tokens to withdraw.
   function withdraw(address _recipient, uint256 _amount) external override onlyAdmin {
-    require(_amount == 1, "TransferAdapter: Amount must be 1");
-    require(_hasMigrated[tx.origin] == false, "User has already migrated");
+    if(_amount != 1) {
+      revert IllegalArgument("TransferAdapter: Amount must be 1");
+    }
+
+    if(_hasMigrated[tx.origin] == true) {
+      revert IllegalState("User has already migrated");
+    }
 
     uint256 deposited = alchemistV1.getCdpTotalDeposited(tx.origin);
     uint256 debt = alchemistV1.getCdpTotalDebt(tx.origin);
@@ -90,6 +99,6 @@ contract TransferAdapter is IVaultAdapter {
 
     _hasMigrated[tx.origin] = true;
 
-    alchemistV2.transferDebtV1(_recipient, int256(debt));
+    alchemistV2.transferDebtV1(_recipient, SafeCast.toInt256(debt));
   }
 }

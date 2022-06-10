@@ -3,6 +3,10 @@ pragma solidity 0.8.13;
 
 import "forge-std/console.sol";
 
+import {V1AddressList} from "../addresses.sol";
+
+import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 import {stdCheats} from "../../lib/forge-std/src/stdlib.sol";
 
@@ -52,11 +56,13 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
         // & Set adapter address in the alchemist V2.
         // & Upgrade alchemist V2 to new version with debt transfer.
         // & Swap to new transmuter conduit for V1.
+        // & Update maximum value for yvDAI deposit
         hevm.startPrank(governance);
         proxyAdmin.upgrade(alchemistV2USDAddress, address(newAlchemistV2));
         whitelistV2.add(address(transferAdapter));
         alchemistV2USD.setTransferAdapterAddress(address(transferAdapter));
         alchemistV1USD.setTransmuter(address(pausableTransmuterConduit));
+        alchemistV2USD.setMaximumExpectedValue(yvDAI, 40000000000000000000000000);
         hevm.stopPrank();
 
         // Start a position in V1 as 0xbeef and go into debt
@@ -64,7 +70,6 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
         hevm.startPrank(address(0xbeef), address(0xbeef));
         SafeERC20.safeApprove(DAI, alchemistV1USDAddress, 100e18);
         alchemistV1USD.deposit(100e18);
-        // Mint throws 'unhealthy collateralization ratio' later when withdrawing.
         alchemistV1USD.mint(10e18);
         hevm.stopPrank();
     }
@@ -93,13 +98,13 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
         alchemistV1USD.setEmergencyExit(true);
         // Test that only withdraw works after these steps.
         hevm.startPrank(address(0xbeef), address(0xbeef));
-        hevm.expectRevert("Transmuter is currently paused!");
+        hevm.expectRevert(abi.encodeWithSignature("IllegalState(string)", "Transmuter is currently paused!"));
         alchemistV1USD.liquidate(1);
-        hevm.expectRevert("Transmuter is currently paused!");
+        hevm.expectRevert(abi.encodeWithSignature("IllegalState(string)", "Transmuter is currently paused!"));
         alchemistV1USD.harvest(1);
         // hevm.expectRevert("Transmuter is currently paused!");
-        // SafeERC20.safeApprove(DAI, alchemistV1USDAddress, 100);
-        // alchemistV1USD.repay(10,1);
+        // SafeERC20.safeApprove(DAI, alchemistV1USDAddress, 10e18);
+        // alchemistV1USD.repay(10e18,10e18);
         hevm.expectRevert("AlUSD: Alchemist is not whitelisted");
         alchemistV1USD.mint(5e18);
         hevm.expectRevert("emergency pause enabled");
@@ -112,17 +117,47 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
         // User withdraws 
         hevm.startPrank(address(0xbeef), address(0xbeef));
         // Withdraw too much and expect revert
-        hevm.expectRevert("TransferAdapter: Amount must be 1");
+        hevm.expectRevert(abi.encodeWithSignature("IllegalArgument(string)", "TransferAdapter: Amount must be 1"));
         alchemistV1USD.withdraw(10);
         // Withdraw correctly using 1
         alchemistV1USD.withdraw(1);
         // Withdraw again should revert
-        hevm.expectRevert("User has already migrated");
+        hevm.expectRevert(abi.encodeWithSignature("IllegalState(string)", "User has already migrated"));
         alchemistV1USD.withdraw(1);
         hevm.stopPrank();
 
         // Debts must be the same as debt in V1
         (int256 V2Debt, ) = alchemistV2USD.accounts(address(0xbeef));
         assertEq(int256(originalDebt), V2Debt);
+        (uint256 shares, uint256 weight) = alchemistV2USD.positions(address(0xbeef), yvDAI);
+        assertApproxEq(shares, 100e18, 3e18);
+
+        V1AddressList V1List = new V1AddressList();
+        address[706] memory addresses = V1List.getAddresses();
+
+        for (uint i = 0; i < addresses.length; i++) {
+            uint256 originalUserDebt = alchemistV1USD.getCdpTotalDebt(addresses[i]);
+            uint256 originalDeposited = alchemistV1USD.getCdpTotalDeposited(addresses[i]);
+
+            // Using 10 DAI for a threshold now. Will make smaller after other issues are sorted.
+            if(originalDeposited < 2) {
+                continue;
+            }
+
+            (uint256 sharesBefore, uint256 weightBefore) = alchemistV2USD.positions(addresses[i], yvDAI);
+
+            // User withdraws 
+            hevm.prank(addresses[i], addresses[i]);
+            alchemistV1USD.withdraw(1);
+            (int256 V2UserDebt, ) = alchemistV2USD.accounts(addresses[i]);
+            assertEq(int256(originalUserDebt), V2UserDebt);
+
+            (uint256 sharesAfter, uint256 weightAfter) = alchemistV2USD.positions(addresses[i], yvDAI);
+            uint256 sharesDiff = sharesAfter - sharesBefore;
+            assertApproxEq(sharesDiff, originalDeposited, originalDeposited * 30 / 1000);
+        }
+        
+        // Hopefully the contract is completely drained or at least almost.
+        assertEq(IERC20(DAI).balanceOf(address(transferAdapter)), 0);
     }
 }
