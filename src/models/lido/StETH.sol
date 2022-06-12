@@ -21,7 +21,7 @@ contract StETH is IStETH {
 		public view returns (uint256)
 	{
 		if (totalPooledEther == 0) {
-			return _ethAmount;
+			return 0;
 		}
 		
 		return _ethAmount * totalShares / totalPooledEther;
@@ -31,36 +31,35 @@ contract StETH is IStETH {
 		public view returns (uint256)
 	{
 		if (totalShares == 0) {
-			return _sharesAmount;
+			return 0;
 		}
 		
 		return _sharesAmount * totalPooledEther / totalShares;
 	}
 
 	function setTotalShares(uint256 _totalShares) external {
-		require(_totalShares > 0);
 		totalShares = _totalShares;
 	}
 
 	function setTotalPooledEther(uint256 _totalPooledEther) external {
-		require(_totalPooledEther > 0);
 		totalPooledEther = _totalPooledEther;
 	}
 
-	function reset() external {
-		totalShares = 0;
-		totalPooledEther = 0;
-	}
-	
 	function submit(address _referral) external payable returns (uint256) {
-		uint256 amount = msg.value;
-		uint256 mintedShares = getSharesByPooledEth(amount);
+		address sender = msg.sender;
+		uint256 deposit = msg.value;
+		require(deposit != 0);
+		
+		uint256 sharesAmount = getSharesByPooledEth(deposit);
+		if (sharesAmount == 0) {
+			sharesAmount = deposit;
+		}
+		
+		shares[msg.sender] += sharesAmount;
+		totalShares += sharesAmount;
+		totalPooledEther += deposit;
 
-		shares[msg.sender] += mintedShares;
-		totalShares += mintedShares;
-		totalPooledEther += amount;
-
-		return mintedShares;
+		return sharesAmount;
 	}
 
 	function allowance(address _owner, address _spender)
@@ -72,6 +71,8 @@ contract StETH is IStETH {
 	function approve(address _spender, uint256 _amount)
 		external returns (bool)
 	{
+		require(_spender != address(0));
+		
 		allowanceAmount[msg.sender][_spender] = _amount;
 
 		return true;
@@ -101,7 +102,7 @@ contract StETH is IStETH {
 		address _sender,
 		address _recipient,
 		uint256 _amount
-    ) public returns (bool) {
+	) public returns (bool) {
 		require(_sender != address(0));
 		require(_recipient != address(0));
 		require(allowanceAmount[_sender][msg.sender] >= _amount);
@@ -112,7 +113,7 @@ contract StETH is IStETH {
 
 		shares[_sender] -= shareAmount;
 		shares[_recipient] += shareAmount;
-		allowanceAmount[_sender][msg.sender] -= shareAmount;
+		allowanceAmount[_sender][msg.sender] -= _amount;
 
 		return true;
 	}
