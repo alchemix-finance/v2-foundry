@@ -106,13 +106,23 @@ assert(price * amount / 10 ** decimals == received);
 
 The above code fragment describes the essential invariant of the `unwrap` function: the amount of underlying tokens returned equals the price times the amount of yield tokens given as input.
 
+However, this invariant does not hold hold exactly for the present version of the `WstETHAdapterV1` contract. This is because, since withdrawing ETH from the Beacon Chain is not possible at the moment, unwrapping has to go through a Curve pool to exchange stETH for ETH. Therefore, the unwrapped amount is affected by both the exchange rate of the pool and the fees. Our analysis will therefore focus on calculating the multiplicative and additive errors of the result:
+
+```
+expected = price * amount / 10 ** decimals
+
+mulError = received / expected
+
+addError = received - expected
+```
+
+Note that since the Alchemist requires that users specify the minimum amount that they are willing to accept from unwrapping, users have some protection against unknowingly being hit with an error that is too large. Also note that after the merge happens and withdrawing ETH from the Beacon Chain becomes possible, it is expected that `unwrap` will be updated so that it no longer needs to rely on the Curve pool.
+
 ### Assumptions
 
-We use the same simplified model of the stETH token as before. In addition to the assumptions used for proving the `wrap` invariant, this analysis also depends on the assumption that the amount of ETH received from the `exchange` function of the StableSwap pool contract is always the same as the amount of stETH deposited. This assumption is captured in the `StableSwapStETH` contract, which serves as a simplified model of the pool that always exchanges ETH and stETH 1:1.
+We use the same simplified model of the stETH token and make the same assumptions as for the `wrap case. In addition, we also assume that the behavior of the StableSwap pool is captured by the simplified model provided in the `StableSwapStETH` contract. The contract models the exchange rate between stETH and ETH by a fixed rate, rather than using the StableSwap invariant. In practice, the exchange rate will vary depending on the current amount of ETH and stETH in the pool, as well as the amount being exchanged, but is expected to remain close to 1. We also assume that the pool always has enough funds to perform the exchange.
 
-(In practice, the exchange rate of the StableSwap pool might not be exactly 1:1, and additionally a fee is deducted for every exchange. This means that the effective price when unwrapping is likely to be lower than that reported by the `price()` function. However, going through a Curve pool when unwrapping is only a temporary measure until the merge happens and withdrawing ETH from the Beacon Chain becomes possible. In the meantime, users still have some control over the amount withdrawn, as the Alchemist requires them to specify how much slippage they are willing to accept.)
-
-### Proof
+### Analysis
 
 Consider the following code fragment of the `unwrap` function in `WstETHAdapterV1`:
 
@@ -144,11 +154,36 @@ unwrappedStEth = balance{2} - balance{1}
                = amount * totalPooledEther / totalShares
 ```
 
-Since we assume that the StableSwap pool exchanges stETH for ETH at a 1:1 rate, we then have that `received = unwrappedStEth`, and therefore
+Then, from the implementation of `exchange` in our model of the StableSwap pool,
+
+```
+received = (unwrappedStEth * exchangeRate / 10 ** 18) -
+           (unwrappedStEth * exchangeRate / 10 ** 18) * (fee / 10 ** 18)
+```
+
+For simplicity, denote `exchangeRate / 10 ** 18` by `e` and `fee / 10 ** 18` by `f`. Then,
+
+```
+received = unwrappedStEth * e * (1 - f)
+```
+
+The expected amount of ETH based on the price reported by the adapter is
 
 ```
 price * amount / 10 ** decimals
 	= amount * totalPooledEther / totalShares
 	= unwrappedStEth
-	= received
 ```
+
+Therefore, we can calculate the multiplicative and additive error as
+
+```
+mulError = received / unwrappedStEth
+         = e * (1 - f)
+
+addError = received - unwrappedStEth
+         = unwrappedStEth * e * (1 - f) - unwrappedStEth
+		 = unwrappedStEth * (e - e * f - 1)
+```
+
+Naturally, if `e = 1` and `f = 0`, then `mulError = 1` and `addError = 0`. In that case, `received = unwrappedStEth` and the invariant holds. More generally, this will be the case whenever `e * f = e - 1`.
