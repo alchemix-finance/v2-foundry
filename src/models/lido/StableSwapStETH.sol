@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.5.0;
 
-import {IERC20} from "openzeppelin/token/ERC20/IERC20.sol";
+import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 uint256 constant N_COINS = 2;
 
 contract StableSwapStETH {
 	uint256 private ethPoolIndex;
 	uint256 private stEthPoolIndex;
+
+	uint256 private exchangeRate;
+	uint256 private fee;
 
 	address[N_COINS] coinAddress;
 
@@ -34,10 +37,14 @@ contract StableSwapStETH {
         int128 i,
         int128 j,
         uint256 dx,
-        uint256 minimumDy
+        uint256 minimumDy // ignored since WstETHAdapterV1 always calls with 0
 	) external payable returns (uint256) {
 		uint256 ui = uint256(int256(i));
 		uint256 uj = uint256(int256(j));
+
+		uint256 dy = dx * exchangeRate / 10 ** 18;
+		uint256 dyFee = dy * fee / 10 ** 18;
+		uint256 dyFinal = dy - dyFee;
 		
 		if (ui == ethPoolIndex) {
 			require(msg.value == dx);
@@ -47,12 +54,12 @@ contract StableSwapStETH {
 
 		if (uj == ethPoolIndex) {
 			require(msg.value == 0);
-			(bool success, ) = msg.sender.call{value: dx}("");
+			(bool success, ) = msg.sender.call{value: dyFinal}("");
 			require(success);
 		} else {
-			IERC20(coinAddress[uj]).transfer(msg.sender, dx);
+			IERC20(coinAddress[uj]).transfer(msg.sender, dyFinal);
 		}
 		
-		return dx;
+		return dyFinal;
 	}
 }
