@@ -52,10 +52,10 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
         pausableTransmuterConduit = new PausableTransmuterConduit(governance, DAI, alchemistV1USDAddress, transmuterV1Address);
         transferAdapter = new TransferAdapter(alchemistV1USDAddress, alUSD, DAI, yvDAI, alchemistV1USDAddress, alchemistV2USDAddress);
 
-        // Allow adapter to deposit underlying tokens into V2.
-        // & Set adapter address in the alchemist V2.
-        // & Upgrade alchemist V2 to new version with debt transfer.
-        // & Swap to new transmuter conduit for V1.
+        // Allow adapter to deposit underlying tokens into V2
+        // & Set adapter address in the alchemist V2
+        // & Upgrade alchemist V2 to new version with debt transfer
+        // & Swap to new transmuter conduit for V1
         // & Update maximum value for yvDAI deposit
         hevm.startPrank(governance);
         proxyAdmin.upgrade(alchemistV2USDAddress, address(newAlchemistV2));
@@ -134,7 +134,7 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
 
         // List of addresses from V1
         V1AddressList V1List = new V1AddressList();
-        address[706] memory addresses = V1List.getAddresses();
+        address[5754] memory addresses = V1List.getAddresses();
 
         // Loop until all addresses have migrated
         for (uint i = 0; i < addresses.length; i++) {
