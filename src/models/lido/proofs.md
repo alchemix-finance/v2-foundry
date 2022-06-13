@@ -16,7 +16,7 @@ The above code fragment describes the essential invariant of the `wrap` function
 We use the `StETH` contract as a simplified model of the stETH token. Assuming the correctness of the model, we prove that the invariant holds for the `WstETHAdapterV1` contract. Our analysis also depends on the following assumptions:
 
 * No rounding errors occur due to imprecision of fixed-point arithmetic.
-* In the `StETH` contract, `totalShares = 0` if and only if `totalPooledEther = 0`.
+* In the `StETH` contract, `totalShares > 0` and `totalPooledEther > 0`.
 * The wstETH token follows the implementation from https://github.com/lidofinance/lido-dao/blob/master/contracts/0.6.12/WstETH.sol
 * The wETH token follows the implementation from https://github.com/gnosis/canonical-weth/blob/master/contracts/WETH9.sol
 
@@ -35,7 +35,7 @@ uint256 mintedStEth =
 
 We use the notation `x{1}` to denote the value of a variable or function before the call to `submit` and `x{2}` to denote the value after. `getSharesByPooledEth`, `getPooledEthByShares`, `totalShares` and `totalPooledEther` refer to the functions and variables of the same name in the `StETH` contract.
 
-Let `shares` denote the number of shares of the adapter in the `StETH` contract. By the definition of `submit` in our model of the `StETH` contract,
+Let `shares` denote the number of shares of the adapter in the `StETH` contract. By the definition of `submit` in our model of the `StETH` contract, and since we assume that `totalPooledEther` and `totalShares` are greater than 0,
 
 ```
 shares{2} = shares{1} + getSharesByPooledEth{1}(amount)
@@ -53,8 +53,6 @@ totalShares{2} = totalShares{1} + getSharesByPooledEth{1}(amount)
 ```
 
 Note that the ratio between `totalPooledEther` and `totalShares` remains the same, therefore from here on out we will write `totalPooledEther / totalShares` or `totalShares / totalPooledEther` without a numerical index.
-
-(Obs.: For the purpose of calculating this ratio, we consider that `0 / 0 = 1`. Since we assume that `totalShares = 0` if and only if `totalPooledEther = 0`, this handles the only possible cases of division by zero. This is also consistent with the implementation in our model of the `StETH` contract.)
 
 Let `balance` denote the balance of the adapter in the `StETH` contract. By the definition of `balanceOf` in our model of the `StETH` contract,
 
