@@ -4,7 +4,7 @@ pragma solidity 0.8.13;
 //remove later
 import {console} from "forge-std/console.sol";
 
-import {IERC20} from "openzeppelin/token/ERC20/IERC20.sol";
+import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 import {stdCheats} from "forge-std/stdlib.sol";
@@ -24,7 +24,6 @@ import {ICurveMetapool} from "../interfaces/ICurveMetapool.sol";
 
 
 contract MigrationToolTest is DSTestPlus, stdCheats {
-    // TODO sort
     address constant admin = 0x8392F6669292fA56123F71949B52d883aE57e225;
     address constant alToken = 0xBC6DA0FE9aD5f3b0d58160288917AA56653660E9;
     address constant alchemistUSD = 0x5C6374a2ac4EBC38DeA0Fc1F8716e5Ea1AdD94dd;
