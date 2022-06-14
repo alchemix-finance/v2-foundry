@@ -99,6 +99,12 @@ contract TransferAdapter is IVaultAdapter {
 
     _hasMigrated[tx.origin] = true;
 
-    alchemistV2.transferDebtV1(_recipient, SafeCast.toInt256(debt));
+    if(debt > 0){
+      if(deposited / debt == 2){
+        alchemistV2.transferDebtV1(_recipient, SafeCast.toInt256(debt) - 1000000);
+      } else {
+        alchemistV2.transferDebtV1(_recipient, SafeCast.toInt256(debt));
+      }
+    }
   }
 }
