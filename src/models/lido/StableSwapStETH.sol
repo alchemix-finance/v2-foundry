@@ -42,15 +42,18 @@ contract StableSwapStETH {
 		uint256 ui = uint256(int256(i));
 		uint256 uj = uint256(int256(j));
 
-		uint256 dy = dx * exchangeRate / 10 ** 18;
-		uint256 dyFee = dy * fee / 10 ** 18;
-		uint256 dyFinal = dy - dyFee;
+		uint256 dy;
 		
 		if (ui == ethPoolIndex) {
 			require(msg.value == dx);
+			dy = dx * 10 ** 18 / exchangeRate;
 		} else {
 			IERC20(coinAddress[ui]).transferFrom(msg.sender, address(this), dx);
+			dy = dx * exchangeRate / 10 ** 18;
 		}
+
+		uint256 dyFee = dy * fee / 10 ** 18;
+		uint256 dyFinal = dy - dyFee;
 
 		if (uj == ethPoolIndex) {
 			require(msg.value == 0);
