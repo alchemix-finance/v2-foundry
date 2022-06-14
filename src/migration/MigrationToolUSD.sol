@@ -6,8 +6,7 @@ import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IER
 import {
     IllegalArgument,
     IllegalState,
-    Unauthorized,
-    UnsupportedOperation
+    Unauthorized
 } from "../base/Errors.sol";
 
 import {Multicall} from "../base/Multicall.sol";
