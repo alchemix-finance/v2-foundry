@@ -1,6 +1,6 @@
 pragma solidity ^0.8.13;
 
-import {IllegalState} from "../../base/Errors.sol";
+import {IllegalState, Unauthorized} from "../../base/ErrorMessages.sol";
 
 import {IERC20Metadata} from "../../interfaces/IERC20Metadata.sol";
 import {ITokenAdapter} from "../../interfaces/ITokenAdapter.sol";
@@ -8,14 +8,30 @@ import {IStaticAToken} from "../../interfaces/external/aave/IStaticAToken.sol";
 
 import {TokenUtils} from "../../libraries/TokenUtils.sol";
 
+struct InitializationParams {
+    address alchemist;
+    address token;
+    address underlyingToken;
+}
+
 contract AAVETokenAdapter is ITokenAdapter {
-    string public constant override version = "1.0.0"; 
+    string public constant override version = "1.0.0";
+    address public alchemist;
     address public override token;
     address public override underlyingToken;
 
-    constructor(address _token, address _underlyingToken) {
-        token = _token;
-        underlyingToken = _underlyingToken;
+    constructor(InitializationParams memory params) {
+        alchemist = params.alchemist;
+        token = params.token;
+        underlyingToken = params.underlyingToken;
+    }
+
+    /// @dev Checks that the message sender is the alchemist that the adapter is bound to.
+    modifier onlyAlchemist() {
+        if (msg.sender != alchemist) {
+            revert Unauthorized("Not alchemist");
+        }
+        _;
     }
 
     /// @inheritdoc ITokenAdapter
@@ -35,7 +51,7 @@ contract AAVETokenAdapter is ITokenAdapter {
         TokenUtils.safeTransferFrom(token, msg.sender, address(this), amount);
         (uint256 amountBurnt, uint256 amountWithdrawn) = IStaticAToken(token).withdraw(recipient, amount, true);
         if (amountBurnt != amount) {
-           revert IllegalState();
+           revert IllegalState("Amount burnt mismatch");
         }
         return amountWithdrawn;
     }
