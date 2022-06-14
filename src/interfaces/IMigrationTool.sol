@@ -18,11 +18,10 @@ interface IMigrationTool {
     /// @param maxSlippage      The maximum shares of slippage that the user will accept.
     ///
     /// @return finalShares The underlying Value of the new position.
-    /// @return userPayment     The amount the user paid for the migration
     function migrateVaults(
         address startingVault,
         address targetVault,
         uint256 shares,
         uint256 maxSlippage
-    ) external payable returns(uint256 finalShares, uint256 userPayment);
+    ) external payable returns(uint256 finalShares);
 }

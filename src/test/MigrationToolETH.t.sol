@@ -89,11 +89,10 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
         Alchemist.mint(shares/2, address(this));
 
         // Approve the migration tool to withdraw and mint on behalf of the user
-        // TODO See if there is a way for the tool to approve itself
         Alchemist.approveWithdraw(address(migration), yvETH, shares);
         Alchemist.approveMint(address(migration), shares);
 
-        (uint256 newShares, uint256 userPayment) = migration.migrateVaults(yvETH, yvETH, shares, 0);
+        uint256 newShares = migration.migrateVaults(yvETH, yvETH, shares, 0);
         assertGt(newShares, shares * 9900 / BPS );
     }
 
@@ -108,11 +107,10 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
         Alchemist.mint(shares/2, address(this));
 
         // Approve the migration tool to withdraw and mint on behalf of the user
-        // TODO See if there is a way for the tool to approve itself
         Alchemist.approveWithdraw(address(migration), yvETH, shares);
         Alchemist.approveMint(address(migration), shares);
 
-        (uint256 newShares, uint256 userPayment) = migration.migrateVaults(yvETH, wstETH, shares, 0);
+        uint256 newShares = migration.migrateVaults(yvETH, wstETH, shares, 0);
         // TODO this seems too large a tolerance but the returns are not as good as usd vaults
         assertGt(newShares, shares * 9000 / BPS );
     }

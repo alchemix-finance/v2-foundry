@@ -7,7 +7,7 @@ import {
     IllegalArgument,
     IllegalState,
     Unauthorized
-} from "../base/Errors.sol";
+} from "../base/ErrorMessages.sol";
 
 import {Multicall} from "../base/Multicall.sol";
 import {Mutex} from "../base/Mutex.sol";
@@ -45,7 +45,7 @@ contract MigrationToolETH is IMigrationTool, Multicall {
         address targetVault,
         uint256 shares,
         uint256 minReturn
-    ) external override payable returns(uint256, uint256) {
+    ) external override payable returns(uint256) {
         IAlchemistV2State.YieldTokenParams memory startingParams = Alchemist.getYieldTokenParameters(startingVault);
 
         // If either vault is invalid, revert
@@ -87,16 +87,10 @@ contract MigrationToolETH is IMigrationTool, Multicall {
         uint256 sharesReturned = Alchemist.depositUnderlying(targetVault, underlyingReturned, msg.sender, 0);
 
         // mint al token which will be burned to fulfill flash loan requirements
-        Alchemist.mint(sharesReturned/2, address(this));
+        Alchemist.mintFrom(msg.sender, sharesReturned/2, address(this));
         AlchemicToken.burn(sharesReturned/2);
 
-        uint256 userPayment = shares/2 - sharesReturned/2;
-
-        // TODO get payment from user
-        // Possibly accept underlying overpaid enough to swap for al token then refund extra
-        // Less likely make user get alusd themselves
-
-		return (sharesReturned, userPayment);
+		return sharesReturned;
 	}
 
     receive() external payable {
