@@ -47,7 +47,7 @@ contract AAVETokenAdapterTest is DSTestPlus, stdCheats {
         uint256 wrapped = adapter.wrap(1e18, address(this));
 
         uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(address(staticAToken));
-        assertGt(underlyingValue, 1e18 * 9900 / BPS);
+        assertEq(underlyingValue, 1e18);
         
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
@@ -69,7 +69,7 @@ contract AAVETokenAdapterTest is DSTestPlus, stdCheats {
         uint256 wrapped = adapter.wrap(amount, address(this));
 
         uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(address(staticAToken));
-        assertGt(underlyingValue, amount * 9900 / BPS);
+        assertGe(underlyingValue, amount);
         
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
