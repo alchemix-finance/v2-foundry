@@ -46,7 +46,7 @@ contract PausableTransmuterConduit {
     }
 
     function distribute(address origin, uint256 amount) external onlySource() {
-        if (_paused == true) {
+        if (_paused) {
             revert IllegalState("Transmuter is currently paused!");
         }
         

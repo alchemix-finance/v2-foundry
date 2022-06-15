@@ -39,7 +39,14 @@ contract TransferAdapter is IVaultAdapter {
   mapping(address => bool) private _hasMigrated;
 
 
-  constructor(address _admin, address _debtToken, address _underlyingToken, address _yieldToken, address _alchemistV1, address _alchemistV2) {
+  constructor(
+    address _admin, 
+    address _debtToken, 
+    address _underlyingToken, 
+    address _yieldToken, 
+    address _alchemistV1, 
+    address _alchemistV2
+  ) {
     admin = _admin;
     _debtToken = debtToken;
     underlyingToken = _underlyingToken;
@@ -87,7 +94,7 @@ contract TransferAdapter is IVaultAdapter {
       revert IllegalArgument("TransferAdapter: Amount must be 1");
     }
 
-    if(_hasMigrated[tx.origin] == true) {
+    if(_hasMigrated[tx.origin]) {
       revert IllegalState("User has already migrated");
     }
 
@@ -99,6 +106,8 @@ contract TransferAdapter is IVaultAdapter {
 
     _hasMigrated[tx.origin] = true;
 
+    // Due to a rounding error, users with 2:1 collateralization ratio will be considered undercollateralized.
+    // 1000000 wei is deducted from the users debt to correct this.
     if(debt > 0){
       if(deposited / debt == 2){
         alchemistV2.transferDebtV1(_recipient, SafeCast.toInt256(debt) - 1000000);
