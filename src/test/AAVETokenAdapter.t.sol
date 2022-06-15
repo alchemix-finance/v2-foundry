@@ -13,6 +13,9 @@ import {
 
 import {StaticAToken} from "../external/aave/StaticAToken.sol";
 import {ILendingPool} from "../interfaces/external/aave/ILendingPool.sol";
+import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
+import {IAlchemistV2AdminActions} from "../interfaces/alchemist/IAlchemistV2AdminActions.sol";
+import {IWhitelist} from "../interfaces/IWhitelist.sol";
 
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 import {console} from "../../lib/forge-std/src/console.sol";
@@ -26,6 +29,9 @@ contract AAVETokenAdapterTest is DSTestPlus, stdCheats {
     string wrappedTokenSymbol = "saDAI";
     StaticAToken staticAToken;
     AAVETokenAdapter adapter;
+    address alchemist = 0x5C6374a2ac4EBC38DeA0Fc1F8716e5Ea1AdD94dd;
+    address alchemistAdmin = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
+    address alchemistWhitelist = 0x78537a6CeBa16f412E123a90472C6E0e9A8F1132;
 
     function setUp() external {
         staticAToken = new StaticAToken(
@@ -39,6 +45,44 @@ contract AAVETokenAdapterTest is DSTestPlus, stdCheats {
             token:           address(staticAToken),
             underlyingToken: address(dai)
         }));
+    }
+
+    function testIntegration() external {
+        AAVETokenAdapter newAdapter = new AAVETokenAdapter(AdapterInitializationParams({
+            alchemist:       alchemist,
+            token:           address(staticAToken),
+            underlyingToken: address(dai)
+        }));
+        IAlchemistV2.YieldTokenConfig memory ytc = IAlchemistV2AdminActions.YieldTokenConfig({
+            adapter: address(newAdapter),
+            maximumLoss: 1,
+            maximumExpectedValue: 1000000 ether,
+            creditUnlockBlocks: 7200
+        });
+        hevm.startPrank(alchemistAdmin);
+        IAlchemistV2(alchemist).addYieldToken(address(staticAToken), ytc);
+        IAlchemistV2(alchemist).setYieldTokenEnabled(address(staticAToken), true);
+        IWhitelist(alchemistWhitelist).add(address(this));
+        hevm.stopPrank();
+
+        uint256 amount = 1000 ether;
+        tip(dai, address(this), amount);
+        uint256 startPrice = IAlchemistV2(alchemist).getUnderlyingTokensPerShare(address(staticAToken));
+        IERC20(dai).approve(alchemist, amount);
+        IAlchemistV2(alchemist).depositUnderlying(address(staticAToken), amount, address(this), 0);
+        (uint256 startShares, ) = IAlchemistV2(alchemist).positions(address(this), address(staticAToken));
+        uint256 expectedValue = startShares * startPrice / 1e18;
+        assertApproxEq(amount, expectedValue, 1000);
+
+        uint256 startBal = IERC20(dai).balanceOf(address(this));
+        assertEq(startBal, 0);
+
+        IAlchemistV2(alchemist).withdrawUnderlying(address(staticAToken), startShares, address(this), 0);
+        (uint256 endShares, ) = IAlchemistV2(alchemist).positions(address(this), address(staticAToken));
+        assertEq(endShares, 0);
+
+        uint256 endBal = IERC20(dai).balanceOf(address(this));
+        assertEq(endBal, amount);
     }
 
     function testRoundTrip() external {
