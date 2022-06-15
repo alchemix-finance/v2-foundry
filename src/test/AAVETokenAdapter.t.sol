@@ -47,7 +47,7 @@ contract AAVETokenAdapterTest is DSTestPlus, stdCheats {
         }));
     }
 
-    function testIntegration() external {
+    function testDepositWithdraw() external {
         AAVETokenAdapter newAdapter = new AAVETokenAdapter(AdapterInitializationParams({
             alchemist:       alchemist,
             token:           address(staticAToken),
