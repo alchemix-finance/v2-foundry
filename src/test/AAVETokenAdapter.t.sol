@@ -15,6 +15,7 @@ import {StaticAToken} from "../external/aave/StaticAToken.sol";
 import {ILendingPool} from "../interfaces/external/aave/ILendingPool.sol";
 
 import {SafeERC20} from "../libraries/SafeERC20.sol";
+import {console} from "../../lib/forge-std/src/console.sol";
 
 contract AAVETokenAdapterTest is DSTestPlus, stdCheats {
     uint256 constant BPS = 10000;
@@ -69,7 +70,9 @@ contract AAVETokenAdapterTest is DSTestPlus, stdCheats {
         uint256 wrapped = adapter.wrap(amount, address(this));
 
         uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(address(staticAToken));
-        assertGe(underlyingValue, amount);
+        console.logUint(underlyingValue);
+        console.logUint(amount);
+        assertGe(underlyingValue, amount - 10); // <10 wei rounding errors
         
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
@@ -77,5 +80,19 @@ contract AAVETokenAdapterTest is DSTestPlus, stdCheats {
         assertEq(IERC20(dai).balanceOf(address(0xbeef)), unwrapped);
         assertEq(staticAToken.balanceOf(address(this)), 0);
         assertEq(staticAToken.balanceOf(address(adapter)), 0);
+    }
+
+    function testAppreciation() external {
+        tip(dai, address(this), 1e18);
+
+        SafeERC20.safeApprove(dai, address(adapter), 1e18);
+        uint256 wrapped = adapter.wrap(1e18, address(this));
+        
+        hevm.roll(block.number + 1000);
+        hevm.warp(block.timestamp + 100000);
+
+        SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
+        uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
+        assertGt(unwrapped, 1e18);
     }
 }
