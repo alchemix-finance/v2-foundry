@@ -365,8 +365,8 @@ contract Functionalities is DSTest {
 			// msg.sender = tx.origin
 			cheats.startPrank(user, user);
 
-			alchemist.mint(debt, user);
 			alToken.approve(address(alchemist), debt);
+			alchemist.mint(debt, user);
 
 			cheats.stopPrank();
 		}

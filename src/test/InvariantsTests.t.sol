@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.11;
 
-import "ds-test/test.sol";
-
 import { Invariants } from "./utils/Invariants.sol";
-import { console } from "../../lib/forge-std/src/console.sol";
 
 contract TestInvariants is Invariants {
 	function setUp() public {}
@@ -32,8 +29,15 @@ contract TestInvariants is Invariants {
 		// Initialize contracts, tokens and user CDPs
 		setScenario(caller, proxyOwner, userList, debtList, overCollateralList);
 
+		uint256 minted;
+
+		for (uint256 i = 0; i < userList.length; ++i) {
+			minted += debtList[i];
+		}
+
 		// Check that invariant holds before interaction
 
+		invariantA1(userList, fakeYield, minted, 0, 0);
 		invariantA2(userList, fakeYield);
 		invariantA3(userList, fakeYield);
 		invariantA7(userList, fakeYield);
@@ -42,14 +46,13 @@ contract TestInvariants is Invariants {
 		// Perform an interaction as the first user in the list
 		cheats.startPrank(userList[0], userList[0]);
 
-		uint256 shares;
-
 		// Deposit tokens to an arbitrary recipient
 		assignToUser(userList[0], fakeUnderlying, amount);
 		alchemist.depositUnderlying(fakeYield, amount, userList[0], minimumAmountOut(amount, fakeYield));
 		cheats.stopPrank();
 
 		// Check that invariant holds after interaction
+		invariantA1(userList, fakeYield, minted, 0, 0);
 		invariantA2(userList, fakeYield);
 		invariantA3(userList, fakeYield);
 		invariantA7(userList, fakeYield);
@@ -73,6 +76,13 @@ contract TestInvariants is Invariants {
 
 		setScenario(caller, proxyOwner, userList, debtList, overCollateralList);
 
+		uint256 minted;
+
+		for (uint256 i = 0; i < userList.length; ++i) {
+			minted += debtList[i];
+		}
+
+		invariantA1(userList, fakeYield, minted, 0, 0);
 		invariantA2(userList, fakeYield);
 		invariantA3(userList, fakeYield);
 		invariantA7(userList, fakeYield);
@@ -89,6 +99,7 @@ contract TestInvariants is Invariants {
 
 		cheats.stopPrank();
 
+		invariantA1(userList, fakeYield, minted, 0, 0);
 		invariantA2(userList, fakeYield);
 		invariantA3(userList, fakeYield);
 		invariantA7(userList, fakeYield);

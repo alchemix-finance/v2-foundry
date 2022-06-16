@@ -31,12 +31,12 @@ contract Invariants is Functionalities {
 
 		for (uint256 i = 0; i < userList.length; i++) {
 			(debt, ) = alchemist.accounts(userList[i]);
-
 			debtsAccured += debt;
 		}
 
 		emit log("Eq with state variables");
 		emit log_named_int("Tokens minted", int256(tokensMinted));
+		emit log_named_int("Debts accured", debtsAccured);
 		emit log_named_int("The sum", int256(tokensBurned) + debtsAccured + int256(sentToTransmuer));
 		assertEq(int256(tokensMinted), int256(tokensBurned) + debtsAccured + int256(sentToTransmuer));
 	}
