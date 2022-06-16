@@ -99,13 +99,13 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
         alchemistV1USD.setEmergencyExit(true);
         // Test that only withdraw works after these steps.
         hevm.startPrank(address(0xbeef), address(0xbeef));
-        hevm.expectRevert(abi.encodeWithSignature("IllegalState(string)", "Transmuter is currently paused!"));
+        expectIllegalStateError("Transmuter is currently paused!");
         alchemistV1USD.liquidate(1);
-        hevm.expectRevert(abi.encodeWithSignature("IllegalState(string)", "Transmuter is currently paused!"));
+        expectIllegalStateError("Transmuter is currently paused!");
         alchemistV1USD.harvest(1);
-        // hevm.expectRevert(abi.encodeWithSignature("IllegalState(string)", "Transmuter is currently paused!"));
-        // SafeERC20.safeApprove(DAI, alchemistV1USDAddress, 10e18);
-        // alchemistV1USD.repay(10e18,10e18);
+        SafeERC20.safeApprove(DAI, alchemistV1USDAddress, 10e18);
+        expectIllegalStateError("Transmuter is currently paused!");
+        alchemistV1USD.repay(10e18,10e18);
         hevm.expectRevert("AlUSD: Alchemist is not whitelisted");
         alchemistV1USD.mint(5e18);
         hevm.expectRevert("emergency pause enabled");
@@ -164,8 +164,6 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
         V1AddressList V1List = new V1AddressList();
         address[2654] memory addresses = V1List.getAddresses();
 
-        uint256 sharesToUnderlying = alchemistV2USD.getUnderlyingTokensPerShare(yvDAI);
-
         // Loop until all addresses have migrated
         for (uint i = 0; i < addresses.length; i++) {
             // Original debt/position from V1
@@ -198,7 +196,7 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
             // Verify underlying value of position in V2 within 2% of original
             (uint256 V2SharesAfter, ) = alchemistV2USD.positions(addresses[i], yvDAI);
             uint256 sharesDiff = V2SharesAfter - V2SharesBefore;
-            uint256 underlyingValue = (sharesDiff * sharesToUnderlying) / scalar;
+            uint256 underlyingValue = (sharesDiff * alchemistV2USD.getUnderlyingTokensPerShare(yvDAI) / scalar);
             assertApproxEq(underlyingValue, V1Deposited, V1Deposited * 10 / BPS);
         }
         
