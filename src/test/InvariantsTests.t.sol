@@ -12,7 +12,7 @@ contract TestInvariants is Invariants {
 	 * Values defined as uint96 to restrict the range that the inputs can be
 	 * fuzzed over: inputs close to 2^128 can cause arithmetic overflows
 	 */
-	function testInvariantOnDeposit(
+	function testInvariantsOnDeposit(
 		address caller,
 		address proxyOwner,
 		address[] calldata userList,
@@ -46,9 +46,22 @@ contract TestInvariants is Invariants {
 		// Perform an interaction as the first user in the list
 		cheats.startPrank(userList[0], userList[0]);
 
-		// Deposit tokens to an arbitrary recipient
+		// Deposit underlying tokens to a recipient
 		assignToUser(userList[0], fakeUnderlying, amount);
+
 		alchemist.depositUnderlying(fakeYield, amount, userList[0], minimumAmountOut(amount, fakeYield));
+
+		cheats.stopPrank();
+
+		// Perform an interaction as the second user in the list
+		cheats.startPrank(userList[1], userList[1]);
+
+		// Deposit yield tokens to a recipient
+		assignToUser(userList[1], fakeUnderlying, amount);
+		assignYieldTokenToUser(userList[1], fakeYield, amount);
+
+		alchemist.deposit(fakeYield, amount, userList[1]);
+
 		cheats.stopPrank();
 
 		// Check that invariant holds after interaction
@@ -59,7 +72,7 @@ contract TestInvariants is Invariants {
 		invariantA8(userList, fakeYield, fakeUnderlying);
 	}
 
-	function testInvariantOnWithdraw(
+	function testInvariantsOnWithdraw(
 		address caller,
 		address proxyOwner,
 		address[] calldata userList,
@@ -96,6 +109,128 @@ contract TestInvariants is Invariants {
 		cheats.startPrank(userList[0], userList[0]);
 
 		alchemist.withdrawUnderlying(fakeYield, shares, recipient, minimumAmountOut(amount, fakeYield));
+
+		// Deposit additional underlying tokens to test withdraw
+		assignToUser(userList[0], fakeUnderlying, amount);
+		alchemist.depositUnderlying(fakeYield, amount, userList[0], minimumAmountOut(amount, fakeYield));
+
+		alchemist.withdraw(fakeYield, shares, recipient);
+
+		cheats.stopPrank();
+
+		invariantA1(userList, fakeYield, minted, 0, 0);
+		invariantA2(userList, fakeYield);
+		invariantA3(userList, fakeYield);
+		invariantA7(userList, fakeYield);
+		invariantA8(userList, fakeYield, fakeUnderlying);
+	}
+
+	function testInvariantsOnWithdrawUnderlyingFrom(
+		address caller,
+		address proxyOwner,
+		address[] calldata userList,
+		uint96[] calldata debtList,
+		uint96[] calldata overCollateralList,
+		uint96 amount,
+		address recipient
+	) public {
+		ensureConsistency(proxyOwner, userList, debtList, overCollateralList);
+		cheats.assume(0 < amount);
+		cheats.assume(recipient != address(0));
+		// Ensure first user has enough collateral to withdraw
+		cheats.assume(amount <= overCollateralList[0]);
+
+		setScenario(caller, proxyOwner, userList, debtList, overCollateralList);
+
+		uint256 minted;
+
+		for (uint256 i = 0; i < userList.length; ++i) {
+			minted += debtList[i];
+		}
+
+		invariantA1(userList, fakeYield, minted, 0, 0);
+		invariantA2(userList, fakeYield);
+		invariantA3(userList, fakeYield);
+		invariantA7(userList, fakeYield);
+		invariantA8(userList, fakeYield, fakeUnderlying);
+
+		// approving additional account to withdraw
+		cheats.startPrank(userList[0], userList[0]);
+
+		// Calculate how many shares the amount corresponds to
+		(uint256 totalShares, ) = alchemist.positions(userList[0], fakeYield);
+		uint256 totalBalance = calculateBalance(debtList[0], overCollateralList[0], fakeUnderlying);
+		uint256 shares = (totalShares * amount) / totalBalance;
+
+		alchemist.approveWithdraw(userList[1], fakeYield, shares);
+
+		cheats.stopPrank();
+
+		// withdraw underlying token from an owners account
+		cheats.startPrank(userList[1], userList[1]);
+
+		alchemist.withdrawUnderlyingFrom(
+			userList[0],
+			fakeYield,
+			shares,
+			recipient,
+			minimumAmountOut(amount, fakeYield)
+		);
+
+		cheats.stopPrank();
+
+		invariantA1(userList, fakeYield, minted, 0, 0);
+		invariantA2(userList, fakeYield);
+		invariantA3(userList, fakeYield);
+		invariantA7(userList, fakeYield);
+		invariantA8(userList, fakeYield, fakeUnderlying);
+	}
+
+	function testInvariantsOnWithdrawFrom(
+		address caller,
+		address proxyOwner,
+		address[] calldata userList,
+		uint96[] calldata debtList,
+		uint96[] calldata overCollateralList,
+		uint96 amount,
+		address recipient
+	) public {
+		ensureConsistency(proxyOwner, userList, debtList, overCollateralList);
+		cheats.assume(0 < amount);
+		cheats.assume(recipient != address(0));
+		// Ensure first user has enough collateral to withdraw
+		cheats.assume(amount <= overCollateralList[0]);
+
+		setScenario(caller, proxyOwner, userList, debtList, overCollateralList);
+
+		uint256 minted;
+
+		for (uint256 i = 0; i < userList.length; ++i) {
+			minted += debtList[i];
+		}
+
+		invariantA1(userList, fakeYield, minted, 0, 0);
+		invariantA2(userList, fakeYield);
+		invariantA3(userList, fakeYield);
+		invariantA7(userList, fakeYield);
+		invariantA8(userList, fakeYield, fakeUnderlying);
+
+		// approving additional account to withdraw
+		cheats.startPrank(userList[0], userList[0]);
+
+		// Calculate how many shares the amount corresponds to
+		(uint256 totalShares, ) = alchemist.positions(userList[0], fakeYield);
+		uint256 totalBalance = calculateBalance(debtList[0], overCollateralList[0], fakeUnderlying);
+		uint256 shares = (totalShares * amount) / totalBalance;
+
+		alchemist.approveWithdraw(userList[1], fakeYield, shares);
+
+		cheats.stopPrank();
+
+		// withdraw yield token from an owners account
+		cheats.startPrank(userList[1], userList[1]);
+
+		alchemist.withdrawFrom(userList[0], fakeYield, shares, recipient);
 
 		cheats.stopPrank();
 

@@ -331,6 +331,20 @@ contract Functionalities is DSTest {
 	}
 
 	/*
+	 * Mints amount yield tokens to user and approves the Alchemist for spending them
+	 * A user must have a balance of the underlying token to mint
+	 */
+	function assignYieldTokenToUser(
+		address user,
+		address token,
+		uint256 amount
+	) public {
+		IERC20Mintable(fakeUnderlying).approve(address(fakeYield), amount);
+		TestYieldToken(token).mint(amount, user);
+		TestYieldToken(token).approve(address(alchemist), amount);
+	}
+
+	/*
 	 * Returns the minimum amount of yield tokens accepted for a given amount
 	 * of underlying tokens
 	 */
