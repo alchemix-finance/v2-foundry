@@ -93,6 +93,7 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
         WhitelistUSD.add(address(this));
         WhitelistUSD.add(address(0xbeef));
         WhitelistUSD.add(address(migrationToolUSD));
+        AlchemistETH.setMaximumExpectedValue(wstETH, 2000000000000000000000);
         hevm.stopPrank();
     }
 
@@ -119,43 +120,59 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
     }
 
     function testMigrationDifferentUnderlying() external {
-        tip(DAI, address(this), 200e18);
+        tip(DAI, address(this), 100e18);
         
         // Create new position
         SafeERC20.safeApprove(DAI, alchemistUSD, 100e18);
         AlchemistUSD.depositUnderlying(yvDAI, 100e18, address(this), 0);
-
         (uint256 shares, ) = AlchemistUSD.positions(address(this), yvDAI);
+        uint256 underlyingValue = shares * AlchemistUSD.getUnderlyingTokensPerShare(yvDAI);
         AlchemistUSD.mint(shares/2, address(this));
 
         // Approve the migration tool to withdraw and mint on behalf of the user
         AlchemistUSD.approveWithdraw(address(migrationToolUSD), yvDAI, shares);
         AlchemistUSD.approveMint(address(migrationToolUSD), shares);
 
+        // Verify new position underlying value is within 0.1% of original
         uint256 newShares = migrationToolUSD.migrateVaults(yvDAI, yvUSDC, shares, 0);
-        assertGt(newShares * 1e12, shares * 9900 / BPS);
+        uint256 newUnderlyingValue = newShares * AlchemistUSD.getUnderlyingTokensPerShare(yvUSDC);
+        assertGt(newUnderlyingValue * 1e12, underlyingValue * 9990 / BPS / 1e12);
 
-        // TODO add assert to see if alchemist has position for new currency
+        // Verify new position
+        (uint256 sharesConfirmed, ) = AlchemistUSD.positions(address(this), yvUSDC);
+        assertEq(newShares, sharesConfirmed);
+
+        // Verify old position is gone
+        (sharesConfirmed, ) = AlchemistUSD.positions(address(this), yvDAI);
+        assertEq(0, sharesConfirmed);
     }
 
     function testMigrationDifferentVault() external {
-        tip(wETH, address(this), 200e18);
+        tip(wETH, address(this), 10e18);
         
         // Create new position
-        SafeERC20.safeApprove(wETH, alchemistETH, 100e18);
-        AlchemistETH.depositUnderlying(yvETH, 100e18, address(this), 0);
+        SafeERC20.safeApprove(wETH, alchemistETH, 10e18);
+        AlchemistETH.depositUnderlying(yvETH, 10e18, address(this), 0);
 
         (uint256 shares, ) = AlchemistETH.positions(address(this), yvETH);
+        uint256 underlyingValue = shares * AlchemistETH.getUnderlyingTokensPerShare(yvETH);
         AlchemistETH.mint(shares/2, address(this));
 
         // Approve the migration tool to withdraw and mint on behalf of the user
         AlchemistETH.approveWithdraw(address(migrationToolETH), yvETH, shares);
         AlchemistETH.approveMint(address(migrationToolETH), shares);
 
+        // Verify new position underlying value is within 0.1% of original
         uint256 newShares = migrationToolETH.migrateVaults(yvETH, wstETH, shares, 0);
-        // TODO this seems too large a tolerance but the returns are not as good as usd vaults
-        assertGt(newShares, shares * 9000 / BPS);
+        uint256 newUnderlyingValue = newShares * AlchemistETH.getUnderlyingTokensPerShare(wstETH);
+        assertGt(newUnderlyingValue, underlyingValue * 9990 / BPS);
 
-        // TODO add assert to see if alchemist has position for new currency
+        // Verify new position
+        (uint256 sharesConfirmed, ) = AlchemistETH.positions(address(this), wstETH);
+        assertEq(newShares, sharesConfirmed);
+
+        // Verify old position is gone
+        (sharesConfirmed, ) = AlchemistETH.positions(address(this), yvETH);
+        assertEq(0, sharesConfirmed);
     }
 }

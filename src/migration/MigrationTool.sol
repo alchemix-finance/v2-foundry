@@ -46,12 +46,11 @@ contract MigrationTool is IMigrationTool, Multicall {
         AlchemicToken   = IAlToken(Alchemist.debtToken());
         CurveThreePool  = IStableSwap3Pool(params.curveThreePool);
 
-        // Addresses for underlying tokens if user swaps between collateral
-        // Only for stable coins
-        underlyingTokens[0x6B175474E89094C44Da98b954EedeAC495271d0F] = UnderlyingToken(0, 18);
-        underlyingTokens[0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48] = UnderlyingToken(1, 6);
-        underlyingTokens[0xdAC17F958D2ee523a2206206994597C13D831ec7] = UnderlyingToken(2, 6);
-        underlyingTokens[0xa258C4606Ca8206D8aA700cE2143D7db854D168c] = UnderlyingToken(3, 18);
+        // Addresses for underlying tokens if user swaps between collateral   
+        underlyingTokens[0x6B175474E89094C44Da98b954EedeAC495271d0F] = UnderlyingToken(0, 18); // DAI     
+        underlyingTokens[0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48] = UnderlyingToken(1, 6); // USDC
+        underlyingTokens[0xdAC17F958D2ee523a2206206994597C13D831ec7] = UnderlyingToken(2, 6); // USDT
+        underlyingTokens[0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2] = UnderlyingToken(3, 18); // WETH
     }
 
     /// @inheritdoc IMigrationTool
@@ -93,27 +92,25 @@ contract MigrationTool is IMigrationTool, Multicall {
         Alchemist.burn(debtTokenValue / 2, msg.sender);
 
         // Withdraw what you can from the old position
-        // TODO figure out how to withdraw as much as possible
-        // TODO find better variable names
-        uint256 underlyingReturned = Alchemist.withdrawUnderlyingFrom(msg.sender, startingVault, debtTokenValue * 9700 / 10000, address(this), minReturn);
+        uint256 underlyingWithdrawn = Alchemist.withdrawUnderlyingFrom(msg.sender, startingVault, shares, address(this), minReturn);
 
         // If starting and target underlying tokens are not the same then make 3pool swap
         if(startingParams.underlyingToken != targetParams.underlyingToken) {
-            SafeERC20.safeApprove(startingParams.underlyingToken, address(CurveThreePool), underlyingReturned);
-            CurveThreePool.exchange(underlyingTokens[startingParams.underlyingToken].index, underlyingTokens[targetParams.underlyingToken].index, underlyingReturned, minReturn);
-            underlyingReturned = IERC20(targetParams.underlyingToken).balanceOf(address(this));
+            SafeERC20.safeApprove(startingParams.underlyingToken, address(CurveThreePool), underlyingWithdrawn);
+            CurveThreePool.exchange(underlyingTokens[startingParams.underlyingToken].index, underlyingTokens[targetParams.underlyingToken].index, underlyingWithdrawn, minReturn);
+            underlyingWithdrawn = IERC20(targetParams.underlyingToken).balanceOf(address(this));
         }
 
         // Deposit into new vault
-        SafeERC20.safeApprove(targetParams.underlyingToken, address(Alchemist), underlyingReturned);
-        uint256 sharesReturned = Alchemist.depositUnderlying(targetVault, underlyingReturned, msg.sender, minReturn);
-        uint256 underlyingValueReturned = (sharesReturned * Alchemist.getUnderlyingTokensPerShare(startingVault) / 10**underlyingTokens[targetParams.underlyingToken].decimals) * 10**(18 - underlyingTokens[targetParams.underlyingToken].decimals);
+        SafeERC20.safeApprove(targetParams.underlyingToken, address(Alchemist), underlyingWithdrawn);
+        uint256 newPositionShares = Alchemist.depositUnderlying(targetVault, underlyingWithdrawn, msg.sender, minReturn);
+        uint256 newPositionDebtTokenValue = (newPositionShares * Alchemist.getUnderlyingTokensPerShare(targetVault) / 10**underlyingTokens[targetParams.underlyingToken].decimals) * 10**(18 - underlyingTokens[targetParams.underlyingToken].decimals);
 
         // Mint al token which will be burned to fulfill flash loan requirements
-        Alchemist.mintFrom(msg.sender, (sharesReturned/2), address(this));
-        AlchemicToken.burn(sharesReturned/2);
+        Alchemist.mintFrom(msg.sender, (newPositionDebtTokenValue/2), address(this));
+        AlchemicToken.burn(newPositionDebtTokenValue/2);
 
-		return sharesReturned;
+		return newPositionShares;
 	}
 
     receive() external payable {
