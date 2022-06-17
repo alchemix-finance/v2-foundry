@@ -15,7 +15,7 @@ contract ATokenGateway is IATokenGateway, Ownable {
     string public constant version = "1.0.0";
 
     /// @notice The address of the whitelist contract.
-    address public whitelist;
+    address public override whitelist;
 
     constructor(address _whitelist) {
         whitelist = _whitelist;
@@ -28,7 +28,7 @@ contract ATokenGateway is IATokenGateway, Ownable {
         address staticAToken,
         uint256 amount,
         address recipient
-    ) external returns (uint256 sharesIssued) {
+    ) external override returns (uint256 sharesIssued) {
         _onlyWhitelisted();
         TokenUtils.safeTransferFrom(aToken, msg.sender, address(this), amount);
         uint256 depositedAmount = IStaticAToken(staticAToken).deposit(recipient, amount, 0, false);
@@ -42,7 +42,7 @@ contract ATokenGateway is IATokenGateway, Ownable {
         address staticAToken,
         uint256 shares,
         address recipient
-    ) external returns (uint256 amountWithdrawn) {
+    ) external override returns (uint256 amountWithdrawn) {
         _onlyWhitelisted();
         uint256 staticATokensWithdrawn = IAlchemistV2(alchemist).withdrawFrom(msg.sender, staticAToken, shares, address(this));
         (uint256 amountBurnt, uint256 amountWithdrawn) = IStaticAToken(staticAToken).withdraw(msg.sender, amountWithdrawn, false);
