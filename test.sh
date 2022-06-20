@@ -7,3 +7,4 @@ make test_file_block FILE=TransmuterConduit;
 make test_file_block FILE=VesperAdapterV1;
 make test_file_block FILE=WstETHAdapterV1;
 make test_file_block FILE=AAVETokenAdapter;
+make test_file_block FILE=ATokenGateway;
