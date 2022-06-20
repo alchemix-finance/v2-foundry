@@ -31,7 +31,9 @@ contract ATokenGateway is IATokenGateway, Ownable {
     ) external override returns (uint256 sharesIssued) {
         _onlyWhitelisted();
         TokenUtils.safeTransferFrom(aToken, msg.sender, address(this), amount);
-        uint256 depositedAmount = IStaticAToken(staticAToken).deposit(recipient, amount, 0, false);
+        TokenUtils.safeApprove(aToken, staticAToken, amount);
+        uint256 depositedAmount = IStaticAToken(staticAToken).deposit(address(this), amount, 0, false);
+        TokenUtils.safeApprove(staticAToken, alchemist, depositedAmount);
         return IAlchemistV2(alchemist).deposit(staticAToken, depositedAmount, recipient);
     }
 
@@ -45,8 +47,8 @@ contract ATokenGateway is IATokenGateway, Ownable {
     ) external override returns (uint256 amountWithdrawn) {
         _onlyWhitelisted();
         uint256 staticATokensWithdrawn = IAlchemistV2(alchemist).withdrawFrom(msg.sender, staticAToken, shares, address(this));
-        (uint256 amountBurnt, uint256 amountWithdrawn) = IStaticAToken(staticAToken).withdraw(msg.sender, amountWithdrawn, false);
-        if (amountBurnt != amountWithdrawn) {
+        (uint256 amountBurnt, uint256 amountWithdrawn) = IStaticAToken(staticAToken).withdraw(recipient, staticATokensWithdrawn, false);
+        if (amountBurnt != staticATokensWithdrawn) {
             revert IllegalState("not enough burnt");
         }
     }
