@@ -77,6 +77,11 @@ contract MigrationTool is IMigrationTool, Multicall {
         IAlchemistV2State.YieldTokenParams memory startingParams = Alchemist.getYieldTokenParameters(startingVault);
         IAlchemistV2State.YieldTokenParams memory targetParams = Alchemist.getYieldTokenParameters(targetVault);
 
+        // If starting and target underlying tokens are not the same then revert
+        if(startingParams.underlyingToken != targetParams.underlyingToken) {
+            revert IllegalArgument("Cannot swap between collateral");
+        }
+
         // Conversion from shares
         (int256 debt, ) = Alchemist.accounts(msg.sender);
 
@@ -100,13 +105,6 @@ contract MigrationTool is IMigrationTool, Multicall {
 
         // Withdraw what you can from the old position
         uint256 underlyingWithdrawn = Alchemist.withdrawUnderlyingFrom(msg.sender, startingVault, shares, address(this), minReturn);
-
-        // If starting and target underlying tokens are not the same then make 3pool swap
-        if(startingParams.underlyingToken != targetParams.underlyingToken) {
-            SafeERC20.safeApprove(startingParams.underlyingToken, address(CurveThreePool), underlyingWithdrawn);
-            CurveThreePool.exchange(underlyingTokens[startingParams.underlyingToken].index, underlyingTokens[targetParams.underlyingToken].index, underlyingWithdrawn, minReturn);
-            underlyingWithdrawn = IERC20(targetParams.underlyingToken).balanceOf(address(this));
-        }
 
         // Deposit into new vault
         SafeERC20.safeApprove(targetParams.underlyingToken, address(Alchemist), underlyingWithdrawn);

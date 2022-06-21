@@ -120,31 +120,8 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
     }
 
     function testMigrationDifferentUnderlying() external {
-        tip(DAI, address(this), 100e18);
-        
-        // Create new position
-        SafeERC20.safeApprove(DAI, alchemistUSD, 100e18);
-        AlchemistUSD.depositUnderlying(yvDAI, 100e18, address(this), 0);
-        (uint256 shares, ) = AlchemistUSD.positions(address(this), yvDAI);
-        uint256 underlyingValue = shares * AlchemistUSD.getUnderlyingTokensPerShare(yvDAI);
-        AlchemistUSD.mint(shares/2, address(this));
-
-        // Approve the migration tool to withdraw and mint on behalf of the user
-        AlchemistUSD.approveWithdraw(address(migrationToolUSD), yvDAI, shares);
-        AlchemistUSD.approveMint(address(migrationToolUSD), shares);
-
-        // Verify new position underlying value is within 0.1% of original
-        uint256 newShares = migrationToolUSD.migrateVaults(yvDAI, yvUSDC, shares, 0);
-        uint256 newUnderlyingValue = newShares * AlchemistUSD.getUnderlyingTokensPerShare(yvUSDC);
-        assertGt(newUnderlyingValue * 1e12, underlyingValue * 9990 / BPS / 1e12);
-
-        // Verify new position
-        (uint256 sharesConfirmed, ) = AlchemistUSD.positions(address(this), yvUSDC);
-        assertEq(newShares, sharesConfirmed);
-
-        // Verify old position is gone
-        (sharesConfirmed, ) = AlchemistUSD.positions(address(this), yvDAI);
-        assertEq(0, sharesConfirmed);
+        expectIllegalArgumentError("Cannot swap between collateral");
+        migrationToolUSD.migrateVaults(yvDAI, yvUSDC, 100e18, 90e18);
     }
 
     function testMigrationDifferentVault() external {
