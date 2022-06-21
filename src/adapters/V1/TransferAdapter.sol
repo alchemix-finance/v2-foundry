@@ -2,6 +2,8 @@
 pragma solidity >=0.6.12;
 pragma experimental ABIEncoderV2;
 
+import {IERC20} from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+
 import {Unauthorized, IllegalState, IllegalArgument} from "../../base/ErrorMessages.sol";
 
 import {IAlchemicToken} from "../../interfaces/IAlchemicToken.sol";
@@ -35,9 +37,14 @@ contract TransferAdapter is IVaultAdapter {
   /// @dev The alchemistV2.
   IAlchemistV2 public alchemistV2;
 
+  /// @dev The current number of user who have migrated
+  uint256 private _currentNumberOfUsers;
+
+  /// @dev This is the total number of users with positions in V1.
+  uint256 private _totalNumberOfUsers;
+
   /// @dev The map of users who have/haven't migrated.
   mapping(address => bool) private _hasMigrated;
-
 
   constructor(
     address _admin, 
@@ -45,7 +52,8 @@ contract TransferAdapter is IVaultAdapter {
     address _underlyingToken, 
     address _yieldToken, 
     address _alchemistV1, 
-    address _alchemistV2
+    address _alchemistV2,
+    uint256 _numberOfUsers
   ) {
     admin = _admin;
     _debtToken = debtToken;
@@ -53,6 +61,8 @@ contract TransferAdapter is IVaultAdapter {
     yieldToken = _yieldToken;
     alchemistV1 = IAlchemistV1(_alchemistV1);
     alchemistV2 = IAlchemistV2(_alchemistV2);
+    _totalNumberOfUsers = _numberOfUsers;
+    _currentNumberOfUsers = 0;
   }
 
   /// @dev A modifier which reverts if the caller is not the admin.
@@ -115,5 +125,15 @@ contract TransferAdapter is IVaultAdapter {
         alchemistV2.transferDebtV1(_recipient, SafeCast.toInt256(debt));
       }
     }
+
+    _currentNumberOfUsers += 1;
+
+    if(_totalNumberOfUsers == _currentNumberOfUsers) {
+      _sweepRemainder();
+    }
+  }
+
+  function _sweepRemainder() internal onlyAdmin {
+    SafeERC20.safeTransfer(underlyingToken, address(alchemistV2), IERC20(underlyingToken).balanceOf(address(this)));
   }
 }
