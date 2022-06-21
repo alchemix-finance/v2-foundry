@@ -2,7 +2,6 @@
 pragma solidity ^0.8.11;
 
 import { Invariants } from "./utils/Invariants.sol";
-import "forge-std/console.sol";
 
 contract TestInvariants is Invariants {
 	function setUp() public {}
@@ -19,13 +18,11 @@ contract TestInvariants is Invariants {
 		address[] calldata userList,
 		uint96[] calldata debtList,
 		uint96[] calldata overCollateralList,
-		uint96 amount,
-		address recipient
+		uint96 amount
 	) public {
 		// Discard an input if it violates assumptions
 		ensureConsistency(proxyOwner, userList, debtList, overCollateralList);
 		cheats.assume(0 < amount);
-		cheats.assume(recipient != address(0));
 
 		// Initialize contracts, tokens and user CDPs
 		setScenario(caller, proxyOwner, userList, debtList, overCollateralList);
@@ -46,7 +43,7 @@ contract TestInvariants is Invariants {
 		// Perform an interaction as the first user in the list
 		cheats.startPrank(userList[0], userList[0]);
 
-		// Deposit underlying tokens to a recipient
+		// Deposit underlying tokens to a user
 		assignToUser(userList[0], fakeUnderlying, amount);
 
 		alchemist.depositUnderlying(fakeYield, amount, userList[0], minimumAmountOut(amount, fakeYield));
@@ -56,7 +53,7 @@ contract TestInvariants is Invariants {
 		// Perform an interaction as the second user in the list
 		cheats.startPrank(userList[1], userList[1]);
 
-		// Deposit yield tokens to a recipient
+		// Assign yield tokens to a user
 		assignToUser(userList[1], fakeUnderlying, amount);
 		assignYieldTokenToUser(userList[1], fakeYield, amount);
 
@@ -154,7 +151,6 @@ contract TestInvariants is Invariants {
 		invariantA7(userList, fakeYield);
 		invariantA8(userList, fakeYield, fakeUnderlying);
 
-		// approving an account to withdraw
 		cheats.startPrank(userList[0], userList[0]);
 
 		// Calculate how many shares the amount corresponds to
@@ -162,11 +158,12 @@ contract TestInvariants is Invariants {
 		uint256 totalBalance = calculateBalance(debtList[0], overCollateralList[0], fakeUnderlying);
 		uint256 shares = (totalShares * amount) / totalBalance;
 
+		// Approve an account to withdraw
 		alchemist.approveWithdraw(userList[1], fakeYield, shares);
 
 		cheats.stopPrank();
 
-		// withdraw underlying token from an owners account
+		// Withdraw underlying token from an owners account
 		cheats.startPrank(userList[1], userList[1]);
 
 		alchemist.withdrawUnderlyingFrom(
@@ -215,7 +212,7 @@ contract TestInvariants is Invariants {
 		invariantA7(userList, fakeYield);
 		invariantA8(userList, fakeYield, fakeUnderlying);
 
-		// approving an account to withdraw
+		// Approve an account to withdraw
 		cheats.startPrank(userList[0], userList[0]);
 
 		// Calculate how many shares the amount corresponds to
@@ -227,7 +224,7 @@ contract TestInvariants is Invariants {
 
 		cheats.stopPrank();
 
-		// withdraw yield token from an owners account
+		// Withdraw yield token from an owners account
 		cheats.startPrank(userList[1], userList[1]);
 
 		alchemist.withdrawFrom(userList[0], fakeYield, shares, recipient);
@@ -241,89 +238,31 @@ contract TestInvariants is Invariants {
 		invariantA8(userList, fakeYield, fakeUnderlying);
 	}
 
-	function testInvariantsOnMints(
+	function testInvariantsOnMintBurnRepayLiquidate(
 		address caller,
 		address proxyOwner,
 		address[] calldata userList,
 		uint96[] calldata debtList,
 		uint96[] calldata overCollateralList,
-		uint96 amount
+		uint96 amount,
+		address recipient
 	) public {
 		// Discard an input if it violates assumptions
 		ensureConsistency(proxyOwner, userList, debtList, overCollateralList);
 		cheats.assume(10 < amount);
-
-		// Initialize contracts, tokens and user CDPs
-		setScenario(caller, proxyOwner, userList, debtList, overCollateralList);
-
-		uint256 minted;
-
-		for (uint256 i = 0; i < userList.length; ++i) {
-			minted += debtList[i];
-		}
-
-		// Check that invariant holds before interaction
-		invariantA1(userList, fakeYield, minted, 0, 0);
-		invariantA2(userList, fakeYield);
-		invariantA3(userList, fakeYield);
-		invariantA7(userList, fakeYield);
-		invariantA8(userList, fakeYield, fakeUnderlying);
-
-		// mint and burn from an account
-		cheats.startPrank(userList[0], userList[0]);
-
-		assignToUser(userList[0], fakeUnderlying, amount);
-		alchemist.depositUnderlying(fakeYield, amount, userList[0], minimumAmountOut(amount, fakeYield));
-
-		alchemist.mint(uint256(amount / 4), userList[0]);
-		minted += uint256(amount / 4);
-
-		alchemist.approveMint(userList[1], uint256(amount / 8));
-
-		cheats.stopPrank();
-
-		// mint from an owner's account
-		cheats.startPrank(userList[1], userList[1]);
-
-		alchemist.mintFrom(userList[0], uint256(amount / 8), userList[1]);
-		minted += uint256(amount / 8);
-
-		cheats.stopPrank();
-
-		invariantA1(userList, fakeYield, minted, 0, 0);
-		invariantA2(userList, fakeYield);
-		invariantA3(userList, fakeYield);
-		invariantA7(userList, fakeYield);
-		invariantA8(userList, fakeYield, fakeUnderlying);
-	}
-
-	function testInvariantsOnBurn(
-		address caller,
-		address proxyOwner,
-		address[] calldata userList,
-		uint96[] calldata debtList,
-		uint96[] calldata overCollateralList,
-		uint96 amount
-	) public {
-		// Discard an input if it violates assumptions
-		ensureConsistency(proxyOwner, userList, debtList, overCollateralList);
-		cheats.assume(8 < amount);
-		console.log("~ amount", amount);
+		cheats.assume(recipient != address(0));
 
 		// Initialize contracts, tokens and user CDPs
 		setScenario(caller, proxyOwner, userList, debtList, overCollateralList);
 
 		uint256 minted;
 		uint256 burned;
-		int256 debt;
+		uint256 sentToTransmuter;
+		uint256 maximum;
 
 		for (uint256 i = 0; i < userList.length; ++i) {
 			minted += debtList[i];
-			console.log("~ debtList[i]", debtList[i]);
 		}
-
-		alToken.increaseAllowance(userList[0], type(uint256).max);
-		console.log("debt token allowance before mint", alToken.allowance(userList[0], userList[0]));
 
 		// Check that invariant holds before interaction
 		invariantA1(userList, fakeYield, minted, 0, 0);
@@ -332,7 +271,7 @@ contract TestInvariants is Invariants {
 		invariantA7(userList, fakeYield);
 		invariantA8(userList, fakeYield, fakeUnderlying);
 
-		// mint and burn from an account
+		// Mint and burn from an account
 		cheats.startPrank(userList[0], userList[0]);
 
 		assignToUser(userList[0], fakeUnderlying, amount);
@@ -341,19 +280,46 @@ contract TestInvariants is Invariants {
 		alchemist.mint((amount / 4), userList[0]);
 		minted += (amount / 4);
 
-		(debt, ) = alchemist.accounts(userList[0]);
+		alchemist.approveMint(userList[1], (amount / 4));
+		alchemist.approveMint(address(transmuterBuffer), (amount / 4));
 
-		emit log_named_int("~ debt", debt);
-		console.log("debt token allowance after mint", alToken.allowance(userList[0], userList[0]));
+		alToken.approve(address(alchemist), amount);
+		alchemist.burn((amount / 8), userList[0]);
+		burned += (amount / 8);
 
-		console.log("~ (amount / 8)", (amount / 8));
-		alchemist.burn(uint256(amount / 8), userList[0]);
-		burned = uint256(amount / 8);
-		console.log("~ burned", burned);
+		(, , maximum) = alchemist.getRepayLimitInfo(fakeUnderlying);
+
+		assignToUser(userList[0], fakeUnderlying, amount);
+
+		// Repay either maximum or remaining amount of debt
+		maximum = (amount / 8) > maximum ? maximum : (amount / 8);
+		alchemist.repay(fakeUnderlying, maximum, userList[0]);
+		sentToTransmuter += maximum;
 
 		cheats.stopPrank();
 
-		invariantA1(userList, fakeYield, minted, burned, 0);
+		// Mint from an owner's account
+		cheats.startPrank(userList[1], userList[1]);
+
+		// Mint from owner to user
+		alchemist.mintFrom(userList[0], (amount / 4), userList[1]);
+		minted += (amount / 4);
+
+		cheats.stopPrank();
+
+		// Liquidate a users debt
+		cheats.startPrank(userList[0], userList[0]);
+
+		// Set the amount to liquidate
+		(, , maximum) = alchemist.getLiquidationLimitInfo(fakeUnderlying);
+		maximum = (amount / 4) > maximum ? maximum : (amount / 4);
+
+		alchemist.liquidate(fakeYield, maximum, minimumAmountOut(maximum, fakeYield));
+		sentToTransmuter += maximum;
+
+		cheats.stopPrank();
+
+		invariantA1(userList, fakeYield, minted, burned, sentToTransmuter);
 		invariantA2(userList, fakeYield);
 		invariantA3(userList, fakeYield);
 		invariantA7(userList, fakeYield);
