@@ -2,6 +2,7 @@
 pragma solidity ^0.8.11;
 
 import { Invariants } from "./utils/Invariants.sol";
+import "forge-std/console.sol";
 
 contract TestInvariants is Invariants {
 	function setUp() public {}
@@ -36,7 +37,6 @@ contract TestInvariants is Invariants {
 		}
 
 		// Check that invariant holds before interaction
-
 		invariantA1(userList, fakeYield, minted, 0, 0);
 		invariantA2(userList, fakeYield);
 		invariantA3(userList, fakeYield);
@@ -154,7 +154,7 @@ contract TestInvariants is Invariants {
 		invariantA7(userList, fakeYield);
 		invariantA8(userList, fakeYield, fakeUnderlying);
 
-		// approving additional account to withdraw
+		// approving an account to withdraw
 		cheats.startPrank(userList[0], userList[0]);
 
 		// Calculate how many shares the amount corresponds to
@@ -215,7 +215,7 @@ contract TestInvariants is Invariants {
 		invariantA7(userList, fakeYield);
 		invariantA8(userList, fakeYield, fakeUnderlying);
 
-		// approving additional account to withdraw
+		// approving an account to withdraw
 		cheats.startPrank(userList[0], userList[0]);
 
 		// Calculate how many shares the amount corresponds to
@@ -231,6 +231,62 @@ contract TestInvariants is Invariants {
 		cheats.startPrank(userList[1], userList[1]);
 
 		alchemist.withdrawFrom(userList[0], fakeYield, shares, recipient);
+
+		cheats.stopPrank();
+
+		invariantA1(userList, fakeYield, minted, 0, 0);
+		invariantA2(userList, fakeYield);
+		invariantA3(userList, fakeYield);
+		invariantA7(userList, fakeYield);
+		invariantA8(userList, fakeYield, fakeUnderlying);
+	}
+
+	function testInvariantsOnMints(
+		address caller,
+		address proxyOwner,
+		address[] calldata userList,
+		uint96[] calldata debtList,
+		uint96[] calldata overCollateralList,
+		uint96 amount
+	) public {
+		// Discard an input if it violates assumptions
+		ensureConsistency(proxyOwner, userList, debtList, overCollateralList);
+		cheats.assume(10 < amount);
+
+		// Initialize contracts, tokens and user CDPs
+		setScenario(caller, proxyOwner, userList, debtList, overCollateralList);
+
+		uint256 minted;
+
+		for (uint256 i = 0; i < userList.length; ++i) {
+			minted += debtList[i];
+		}
+
+		// Check that invariant holds before interaction
+		invariantA1(userList, fakeYield, minted, 0, 0);
+		invariantA2(userList, fakeYield);
+		invariantA3(userList, fakeYield);
+		invariantA7(userList, fakeYield);
+		invariantA8(userList, fakeYield, fakeUnderlying);
+
+		// mint and burn from an account
+		cheats.startPrank(userList[0], userList[0]);
+
+		assignToUser(userList[0], fakeUnderlying, amount);
+		alchemist.depositUnderlying(fakeYield, amount, userList[0], minimumAmountOut(amount, fakeYield));
+
+		alchemist.mint(uint256(amount / 4), userList[0]);
+		minted += uint256(amount / 4);
+
+		alchemist.approveMint(userList[1], uint256(amount / 8));
+
+		cheats.stopPrank();
+
+		// mint from an owner's account
+		cheats.startPrank(userList[1], userList[1]);
+
+		alchemist.mintFrom(userList[0], uint256(amount / 8), userList[1]);
+		minted += uint256(amount / 8);
 
 		cheats.stopPrank();
 

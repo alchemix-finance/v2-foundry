@@ -18,7 +18,7 @@ contract Invariants is Functionalities {
 		address yieldToken,
 		uint256 tokensMinted,
 		uint256 tokensBurned,
-		uint256 sentToTransmuer
+		uint256 sentToTransmuter
 	) public {
 		emit log("Checking Invariant A1");
 
@@ -37,8 +37,8 @@ contract Invariants is Functionalities {
 		emit log("Eq with state variables");
 		emit log_named_int("Tokens minted", int256(tokensMinted));
 		emit log_named_int("Debts accured", debtsAccured);
-		emit log_named_int("The sum", int256(tokensBurned) + debtsAccured + int256(sentToTransmuer));
-		assertEq(int256(tokensMinted), int256(tokensBurned) + debtsAccured + int256(sentToTransmuer));
+		emit log_named_int("The sum", int256(tokensBurned) + debtsAccured + int256(sentToTransmuter));
+		assertEq(int256(tokensMinted), int256(tokensBurned) + debtsAccured + int256(sentToTransmuter));
 	}
 
 	/* Invariant A2: The total number of shares of a yield token is equal to the sum */
