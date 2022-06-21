@@ -296,4 +296,67 @@ contract TestInvariants is Invariants {
 		invariantA7(userList, fakeYield);
 		invariantA8(userList, fakeYield, fakeUnderlying);
 	}
+
+	function testInvariantsOnBurn(
+		address caller,
+		address proxyOwner,
+		address[] calldata userList,
+		uint96[] calldata debtList,
+		uint96[] calldata overCollateralList,
+		uint96 amount
+	) public {
+		// Discard an input if it violates assumptions
+		ensureConsistency(proxyOwner, userList, debtList, overCollateralList);
+		cheats.assume(8 < amount);
+		console.log("~ amount", amount);
+
+		// Initialize contracts, tokens and user CDPs
+		setScenario(caller, proxyOwner, userList, debtList, overCollateralList);
+
+		uint256 minted;
+		uint256 burned;
+		int256 debt;
+
+		for (uint256 i = 0; i < userList.length; ++i) {
+			minted += debtList[i];
+			console.log("~ debtList[i]", debtList[i]);
+		}
+
+		alToken.increaseAllowance(userList[0], type(uint256).max);
+		console.log("debt token allowance before mint", alToken.allowance(userList[0], userList[0]));
+
+		// Check that invariant holds before interaction
+		invariantA1(userList, fakeYield, minted, 0, 0);
+		invariantA2(userList, fakeYield);
+		invariantA3(userList, fakeYield);
+		invariantA7(userList, fakeYield);
+		invariantA8(userList, fakeYield, fakeUnderlying);
+
+		// mint and burn from an account
+		cheats.startPrank(userList[0], userList[0]);
+
+		assignToUser(userList[0], fakeUnderlying, amount);
+		alchemist.depositUnderlying(fakeYield, amount, userList[0], minimumAmountOut(amount, fakeYield));
+
+		alchemist.mint((amount / 4), userList[0]);
+		minted += (amount / 4);
+
+		(debt, ) = alchemist.accounts(userList[0]);
+
+		emit log_named_int("~ debt", debt);
+		console.log("debt token allowance after mint", alToken.allowance(userList[0], userList[0]));
+
+		console.log("~ (amount / 8)", (amount / 8));
+		alchemist.burn(uint256(amount / 8), userList[0]);
+		burned = uint256(amount / 8);
+		console.log("~ burned", burned);
+
+		cheats.stopPrank();
+
+		invariantA1(userList, fakeYield, minted, burned, 0);
+		invariantA2(userList, fakeYield);
+		invariantA3(userList, fakeYield);
+		invariantA7(userList, fakeYield);
+		invariantA8(userList, fakeYield, fakeUnderlying);
+	}
 }
