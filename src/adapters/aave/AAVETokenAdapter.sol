@@ -24,6 +24,7 @@ contract AAVETokenAdapter is ITokenAdapter {
         alchemist = params.alchemist;
         token = params.token;
         underlyingToken = params.underlyingToken;
+        TokenUtils.safeApprove(underlyingToken, token, type(uint256).max);
     }
 
     /// @dev Checks that the message sender is the alchemist that the adapter is bound to.
@@ -42,7 +43,6 @@ contract AAVETokenAdapter is ITokenAdapter {
     /// @inheritdoc ITokenAdapter
     function wrap(uint256 amount, address recipient) external override returns (uint256) {
         TokenUtils.safeTransferFrom(underlyingToken, msg.sender, address(this), amount);
-        TokenUtils.safeApprove(underlyingToken, token, amount);
         return IStaticAToken(token).deposit(recipient, amount, 0, true);
     }
 

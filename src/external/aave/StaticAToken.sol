@@ -8,6 +8,7 @@ import {IAToken} from '../../interfaces/external/aave/IAToken.sol';
 import {ERC20} from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import {SafeERC20} from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {WadRayMath} from './WadRayMath.sol';
+import {TokenUtils} from "../../libraries/TokenUtils.sol";
 
 /**
  * @title StaticAToken
@@ -59,7 +60,7 @@ contract StaticAToken is ERC20 {
 
     IERC20 underlyingAsset = IERC20(IAToken(aToken).UNDERLYING_ASSET_ADDRESS());
     ASSET = underlyingAsset;
-    underlyingAsset.approve(address(lendingPool), type(uint256).max);
+    TokenUtils.safeApprove(address(underlyingAsset), address(lendingPool), type(uint256).max);
   }
 
   /**
