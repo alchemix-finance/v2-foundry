@@ -78,13 +78,20 @@ contract MigrationTool is IMigrationTool, Multicall {
         IAlchemistV2State.YieldTokenParams memory targetParams = Alchemist.getYieldTokenParameters(targetVault);
 
         // Conversion from shares
-        uint256 debtTokenValue = (shares * Alchemist.getUnderlyingTokensPerShare(startingVault) / 10**underlyingTokens[startingParams.underlyingToken].decimals) * 10**(18 - underlyingTokens[startingParams.underlyingToken].decimals);
-
         (int256 debt, ) = Alchemist.accounts(msg.sender);
 
         // Debt must be positive, otherwise this tool is not needed to withdraw and re-deposit
         if(debt <= 0){
             revert IllegalState("Debt must be positive");
+        }
+
+        uint256 freeShares = shares - 2 * _convertToShares(uint256(debt), startingVault, startingParams.underlyingToken);
+        uint256 neededShares = shares > freeShares ? shares - freeShares : 0;
+
+        uint debtTokenValue = _convertToDebt(shares, startingVault, startingParams.underlyingToken);
+
+        if (shares < neededShares) {
+            debtTokenValue += _convertToDebt(neededShares, startingVault, startingParams.underlyingToken);
         }
 
         AlchemicToken.mint(address(this), debtTokenValue / 2);
@@ -104,16 +111,23 @@ contract MigrationTool is IMigrationTool, Multicall {
         // Deposit into new vault
         SafeERC20.safeApprove(targetParams.underlyingToken, address(Alchemist), underlyingWithdrawn);
         uint256 newPositionShares = Alchemist.depositUnderlying(targetVault, underlyingWithdrawn, msg.sender, minReturn);
-        uint256 newPositionDebtTokenValue = (newPositionShares * Alchemist.getUnderlyingTokensPerShare(targetVault) / 10**underlyingTokens[targetParams.underlyingToken].decimals) * 10**(18 - underlyingTokens[targetParams.underlyingToken].decimals);
 
         // Mint al token which will be burned to fulfill flash loan requirements
-        Alchemist.mintFrom(msg.sender, (newPositionDebtTokenValue/2), address(this));
-        AlchemicToken.burn(newPositionDebtTokenValue/2);
+        Alchemist.mintFrom(msg.sender, (debtTokenValue / 2), address(this));
+        AlchemicToken.burn(debtTokenValue / 2);
 
 		return newPositionShares;
 	}
 
     receive() external payable {
         emit Received(msg.sender, msg.value);
+    }
+
+    function _convertToDebt(uint256 shares, address vault, address underlyingToken) internal returns(uint256) {
+        return (shares * Alchemist.getUnderlyingTokensPerShare(vault) / 10**underlyingTokens[underlyingToken].decimals) * 10**(18 - underlyingTokens[underlyingToken].decimals);
+    }
+
+    function _convertToShares(uint256 debtTokens, address vault, address underlyingToken) internal returns(uint256) {
+        return (debtTokens / Alchemist.getUnderlyingTokensPerShare(vault) / 10**underlyingTokens[underlyingToken].decimals) * 10**(18 - underlyingTokens[underlyingToken].decimals);
     }
 }

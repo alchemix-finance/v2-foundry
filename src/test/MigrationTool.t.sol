@@ -153,7 +153,6 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
         // Create new position
         SafeERC20.safeApprove(wETH, alchemistETH, 10e18);
         AlchemistETH.depositUnderlying(yvETH, 10e18, address(this), 0);
-
         (uint256 shares, ) = AlchemistETH.positions(address(this), yvETH);
         uint256 underlyingValue = shares * AlchemistETH.getUnderlyingTokensPerShare(yvETH);
         AlchemistETH.mint(shares/2, address(this));
