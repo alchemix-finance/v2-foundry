@@ -201,6 +201,6 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
         }
 
         // Hopefully the contract is completely drained or at least almost.
-        assertApproxEq(IERC20(DAI).balanceOf(address(transferAdapter)), 0, 1000e18);
+        assertEq(IERC20(DAI).balanceOf(address(transferAdapter)), 0);
     }
 }
