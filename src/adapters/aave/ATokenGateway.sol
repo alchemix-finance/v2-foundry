@@ -17,37 +17,38 @@ contract ATokenGateway is IATokenGateway, Ownable {
     /// @notice The address of the whitelist contract.
     address public override whitelist;
 
-    constructor(address _whitelist) {
+    /// @notice The address of the alchemist.
+    address public override alchemist;
+
+    constructor(address _whitelist, address _alchemist) {
         whitelist = _whitelist;
+        alchemist = _alchemist;
     }
 
     /// @inheritdoc IATokenGateway
     function deposit(
-        address alchemist,
-        address aToken,
-        address staticAToken,
+        address yieldToken,
         uint256 amount,
         address recipient
     ) external override returns (uint256 sharesIssued) {
         _onlyWhitelisted();
+        address aToken = address(IStaticAToken(yieldToken).ATOKEN());
         TokenUtils.safeTransferFrom(aToken, msg.sender, address(this), amount);
-        TokenUtils.safeApprove(aToken, staticAToken, amount);
-        uint256 depositedAmount = IStaticAToken(staticAToken).deposit(address(this), amount, 0, false);
-        TokenUtils.safeApprove(staticAToken, alchemist, depositedAmount);
-        return IAlchemistV2(alchemist).deposit(staticAToken, depositedAmount, recipient);
+        TokenUtils.safeApprove(aToken, yieldToken, amount);
+        uint256 depositedAmount = IStaticAToken(yieldToken).deposit(address(this), amount, 0, false);
+        TokenUtils.safeApprove(yieldToken, alchemist, depositedAmount);
+        return IAlchemistV2(alchemist).deposit(yieldToken, depositedAmount, recipient);
     }
 
     /// @inheritdoc IATokenGateway
     function withdraw(
-        address alchemist,
-        address aToken,
-        address staticAToken,
+        address yieldToken,
         uint256 shares,
         address recipient
     ) external override returns (uint256 amountWithdrawn) {
         _onlyWhitelisted();
-        uint256 staticATokensWithdrawn = IAlchemistV2(alchemist).withdrawFrom(msg.sender, staticAToken, shares, address(this));
-        (uint256 amountBurnt, uint256 amountWithdrawn) = IStaticAToken(staticAToken).withdraw(recipient, staticATokensWithdrawn, false);
+        uint256 staticATokensWithdrawn = IAlchemistV2(alchemist).withdrawFrom(msg.sender, yieldToken, shares, address(this));
+        (uint256 amountBurnt, uint256 amountWithdrawn) = IStaticAToken(yieldToken).withdraw(recipient, staticATokensWithdrawn, false);
         if (amountBurnt != staticATokensWithdrawn) {
             revert IllegalState("not enough burnt");
         }

@@ -57,7 +57,7 @@ contract ATokenGatewayTest is DSTestPlus, stdCheats {
         });
         
         whitelist = new Whitelist();
-        gateway = new ATokenGateway(address(whitelist));
+        gateway = new ATokenGateway(address(whitelist), alchemist);
         whitelist.add(address(this));
 
         hevm.startPrank(alchemistAdmin);
@@ -77,7 +77,7 @@ contract ATokenGatewayTest is DSTestPlus, stdCheats {
         uint256 startBal = IERC20(aToken).balanceOf(address(this));
         IERC20(aToken).approve(address(gateway), startBal);
         uint256 price = IAlchemistV2(alchemist).getUnderlyingTokensPerShare(address(staticAToken));
-        uint256 sharesIssued = gateway.deposit(alchemist, aToken, address(staticAToken), startBal, address(this));
+        uint256 sharesIssued = gateway.deposit(address(staticAToken), startBal, address(this));
         uint256 expectedValue = sharesIssued * price / 1e18;
         assertApproxEq(amount, expectedValue, 10000);
 
@@ -85,7 +85,7 @@ contract ATokenGatewayTest is DSTestPlus, stdCheats {
         assertEq(midBal, 0);
 
         IAlchemistV2(alchemist).approveWithdraw(address(gateway), address(staticAToken), sharesIssued);
-        gateway.withdraw(alchemist, aToken, address(staticAToken), sharesIssued, address(this));
+        gateway.withdraw(address(staticAToken), sharesIssued, address(this));
         (uint256 endShares, ) = IAlchemistV2(alchemist).positions(address(this), address(staticAToken));
         assertEq(endShares, 0);
 
