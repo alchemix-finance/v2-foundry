@@ -56,7 +56,8 @@ contract MigrationTool is IMigrationTool, Multicall {
         address startingVault,
         address targetVault,
         uint256 shares,
-        uint256 minReturn
+        uint256 minReturnShares,
+        uint256 minReturnUnderlying
     ) external override payable returns(uint256) {
         // If either vault is invalid, revert
         if(!Alchemist.isSupportedYieldToken(startingVault)) {
@@ -83,37 +84,41 @@ contract MigrationTool is IMigrationTool, Multicall {
         // Original debt
         (int256 debt, ) = Alchemist.accounts(msg.sender);
 
+        console.logInt(debt);
+
         // Debt must be positive, otherwise this tool is not needed to withdraw and re-deposit
         if(debt <= 0){
             revert IllegalState("Debt must be positive");
         }
-        
-        // Use up free shares and mint the remainder to pay off debt
-        (uint256 maxShares, ) = Alchemist.positions(msg.sender, startingVault);
-        uint256 freeShares = maxShares - 2 * _convertToShares(uint256(debt), startingVault, startingParams.underlyingToken);
-        uint256 neededShares = shares > freeShares ? shares - freeShares : 0;
-
-        console.logUint(freeShares);
-        console.logUint(neededShares);
 
         // Rounding error causes the neededShares to be off by a few wei so we add 2 to correct this
-        uint256 debtTokenValue = _convertToDebt(neededShares + 2, startingVault, startingParams.underlyingToken);
+        uint256 debtTokenValue = _convertToDebt(shares, startingVault, startingParams.underlyingToken);
+
+        console.logUint(debtTokenValue / 2);
 
         AlchemicToken.mint(address(this), debtTokenValue / 2);
 
         SafeERC20.safeApprove(address(AlchemicToken), address(Alchemist), debtTokenValue / 2);
         Alchemist.burn(debtTokenValue / 2, msg.sender);
 
+        (debt, ) = Alchemist.accounts(msg.sender);
+        console.logInt(debt);
+
         // Withdraw what you can from the old position
-        uint256 underlyingWithdrawn = Alchemist.withdrawUnderlyingFrom(msg.sender, startingVault, shares, address(this), minReturn);
+        uint256 underlyingWithdrawn = Alchemist.withdrawUnderlyingFrom(msg.sender, startingVault, shares, address(this), minReturnUnderlying);
 
         // Deposit into new vault
         SafeERC20.safeApprove(targetParams.underlyingToken, address(Alchemist), underlyingWithdrawn);
-        uint256 newPositionShares = Alchemist.depositUnderlying(targetVault, underlyingWithdrawn, msg.sender, minReturn);
+        uint256 newPositionShares = Alchemist.depositUnderlying(targetVault, underlyingWithdrawn, msg.sender, minReturnShares);
 
         // Mint al token which will be burned to fulfill flash loan requirements
         Alchemist.mintFrom(msg.sender, (debtTokenValue / 2), address(this));
         AlchemicToken.burn(debtTokenValue / 2);
+
+        console.logUint(debtTokenValue / 2);
+
+        (debt, ) = Alchemist.accounts(msg.sender);
+        console.logInt(debt);
 
 	    return newPositionShares;
 	}

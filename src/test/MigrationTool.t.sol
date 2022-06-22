@@ -99,29 +99,29 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
 
     function testUnsupportedVaults() external {
         expectIllegalArgumentError("Vault is not supported");
-        migrationToolUSD.migrateVaults(invalidYieldToken, yvDAI, 100e18, 99e18);
+        migrationToolUSD.migrateVaults(invalidYieldToken, yvDAI, 100e18, 99e18, 0);
         
         expectIllegalArgumentError("Vault is not supported");
-        migrationToolUSD.migrateVaults(yvDAI , invalidYieldToken, 100e18, 99e18);
+        migrationToolUSD.migrateVaults(yvDAI , invalidYieldToken, 100e18, 99e18, 0);
 
         expectIllegalArgumentError("Vault is not supported");
-        migrationToolETH.migrateVaults(invalidYieldToken, rETH, 100e18, 90e18);
+        migrationToolETH.migrateVaults(invalidYieldToken, rETH, 100e18, 90e18, 0);
         
         expectIllegalArgumentError("Vault is not supported");
-        migrationToolETH.migrateVaults(rETH , invalidYieldToken, 100e18, 90e18);
+        migrationToolETH.migrateVaults(rETH , invalidYieldToken, 100e18, 90e18, 0);
     }
 
     function testMigrationSameVault() external {
         expectIllegalArgumentError("Vaults cannot be the same");
-        migrationToolUSD.migrateVaults(yvDAI, yvDAI, 100e18, 99e18);
+        migrationToolUSD.migrateVaults(yvDAI, yvDAI, 100e18, 99e18, 0);
 
         expectIllegalArgumentError("Vaults cannot be the same");
-        migrationToolETH.migrateVaults(yvETH, yvETH, 100e18, 90e18);
+        migrationToolETH.migrateVaults(yvETH, yvETH, 100e18, 90e18, 0);
     }
 
     function testMigrationDifferentUnderlying() external {
         expectIllegalArgumentError("Cannot swap between collateral");
-        migrationToolUSD.migrateVaults(yvDAI, yvUSDC, 100e18, 90e18);
+        migrationToolUSD.migrateVaults(yvDAI, yvUSDC, 100e18, 90e18, 0);
     }
 
     function testMigrationDifferentVaultMaximumSharesETH() external {
@@ -135,14 +135,23 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
         // Debt conversion in this case only divides by 1 so I left it out.
         AlchemistETH.mint(underlyingValue/2, address(this));
 
+        console.logUint(underlyingValue / 2);
+
+        // Debt after original mint
+        (int256 oldDebt, ) = AlchemistETH.accounts(address(this));
+
         // Approve the migration tool to withdraw and mint on behalf of the user
         AlchemistETH.approveWithdraw(address(migrationToolETH), yvETH, shares);
         AlchemistETH.approveMint(address(migrationToolETH), underlyingValue);
 
         // Verify new position underlying value is within 0.01% of original
-        uint256 newShares = migrationToolETH.migrateVaults(yvETH, wstETH, shares, 0);
+        uint256 newShares = migrationToolETH.migrateVaults(yvETH, wstETH, shares, 0, 0);
         uint256 newUnderlyingValue = newShares * AlchemistETH.getUnderlyingTokensPerShare(wstETH) / 10**18;
         assertGt(newUnderlyingValue, underlyingValue * 9999 / BPS);
+
+        // Verify debts are the same
+        (int256 newDebt, ) = AlchemistETH.accounts(address(this));
+        assertEq(newDebt, oldDebt);
 
         // Verify new position
         (uint256 sharesConfirmed, ) = AlchemistETH.positions(address(this), wstETH);
@@ -162,29 +171,29 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
         (uint256 shares, ) = AlchemistETH.positions(address(this), yvETH);
         uint256 underlyingValue = shares * AlchemistETH.getUnderlyingTokensPerShare(yvETH)  / 10**18;
         // Debt conversion in this case only divides by 1 so I left it out.
-        AlchemistETH.mint(underlyingValue/2, address(this));
+        AlchemistETH.mint(underlyingValue / 2, address(this));
 
+        // Debt after original mint
         (int256 oldDebt, ) = AlchemistETH.accounts(address(this));
-
 
         // Approve the migration tool to withdraw and mint on behalf of the user
         AlchemistETH.approveWithdraw(address(migrationToolETH), yvETH, shares);
         AlchemistETH.approveMint(address(migrationToolETH), underlyingValue);
 
         // Verify new position underlying value is within 0.1% of original
-        uint256 newShares = migrationToolETH.migrateVaults(yvETH, wstETH, shares / 2, 0);
+        uint256 newShares = migrationToolETH.migrateVaults(yvETH, wstETH, shares / 2, 0, 0);
         uint256 newUnderlyingValue = newShares * AlchemistETH.getUnderlyingTokensPerShare(wstETH);
         assertGt(newUnderlyingValue, underlyingValue * 9999 / BPS);
 
+        // Verify debts are the same
         (int256 newDebt, ) = AlchemistETH.accounts(address(this));
-
         assertEq(newDebt, oldDebt);
 
         // Verify new position
         (uint256 sharesConfirmed, ) = AlchemistETH.positions(address(this), wstETH);
         assertEq(newShares, sharesConfirmed);
 
-        // Verify old position is gone
+        // Verify old position
         (sharesConfirmed, ) = AlchemistETH.positions(address(this), yvETH);
         assertEq(shares / 2, sharesConfirmed);
     }
