@@ -53,6 +53,8 @@ contract Functionalities is DSTest {
 
 	address public alOwner;
 
+	mapping(address => bool) users;
+
 	function turnOn(address caller, address proxyOwner) public {
 		cheats.assume(caller != address(0));
 		cheats.assume(proxyOwner != address(0));
@@ -236,6 +238,7 @@ contract Functionalities is DSTest {
 		// Ensure the user addresses are valid
 		for (uint256 i; i < userList.length; ++i) {
 			ensureValidUser(proxyOwner, userList[i]);
+			users[userList[i]] = true;
 		}
 	}
 
@@ -245,6 +248,7 @@ contract Functionalities is DSTest {
 	function ensureValidUser(address proxyOwner, address user) public {
 		cheats.assume(user != address(0));
 		cheats.assume(user != proxyOwner);
+		cheats.assume(users[user] != true);
 	}
 
 	/*
