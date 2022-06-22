@@ -35,9 +35,9 @@ contract ATokenGateway is IATokenGateway, Ownable {
         address aToken = address(IStaticAToken(yieldToken).ATOKEN());
         TokenUtils.safeTransferFrom(aToken, msg.sender, address(this), amount);
         TokenUtils.safeApprove(aToken, yieldToken, amount);
-        uint256 depositedAmount = IStaticAToken(yieldToken).deposit(address(this), amount, 0, false);
-        TokenUtils.safeApprove(yieldToken, alchemist, depositedAmount);
-        return IAlchemistV2(alchemist).deposit(yieldToken, depositedAmount, recipient);
+        uint256 staticATokensReceived = IStaticAToken(yieldToken).deposit(address(this), amount, 0, false);
+        TokenUtils.safeApprove(yieldToken, alchemist, staticATokensReceived);
+        return IAlchemistV2(alchemist).deposit(yieldToken, staticATokensReceived, recipient);
     }
 
     /// @inheritdoc IATokenGateway
