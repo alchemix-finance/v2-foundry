@@ -193,7 +193,7 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
                 assertEq(int256(V1Debt), debtIncrease);
             }
 
-            // Verify underlying value of position in V2 within 2% of original
+            // Verify underlying value of position in V2 within 0.1% of original
             (uint256 V2SharesAfter, ) = alchemistV2USD.positions(addresses[i], yvDAI);
             uint256 sharesDiff = V2SharesAfter - V2SharesBefore;
             uint256 underlyingValue = (sharesDiff * alchemistV2USD.getUnderlyingTokensPerShare(yvDAI) / scalar);

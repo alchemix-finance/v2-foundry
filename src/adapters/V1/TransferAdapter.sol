@@ -37,14 +37,14 @@ contract TransferAdapter is IVaultAdapter {
   /// @dev The alchemistV2.
   IAlchemistV2 public alchemistV2;
 
+  /// @dev The map of users who have/haven't migrated.
+  mapping(address => bool) public hasMigrated;
+
   /// @dev The current number of user who have migrated
   uint256 private _currentNumberOfUsers;
 
   /// @dev This is the total number of users with positions in V1.
   uint256 private _totalNumberOfUsers;
-
-  /// @dev The map of users who have/haven't migrated.
-  mapping(address => bool) private _hasMigrated;
 
   constructor(
     address _admin, 
@@ -104,7 +104,7 @@ contract TransferAdapter is IVaultAdapter {
       revert IllegalArgument("TransferAdapter: Amount must be 1");
     }
 
-    if(_hasMigrated[tx.origin]) {
+    if(hasMigrated[tx.origin]) {
       revert IllegalState("User has already migrated");
     }
 
@@ -114,7 +114,7 @@ contract TransferAdapter is IVaultAdapter {
     SafeERC20.safeApprove(underlyingToken, address(alchemistV2), deposited);
     alchemistV2.depositUnderlying(yieldToken, deposited, _recipient, 0);
 
-    _hasMigrated[tx.origin] = true;
+    hasMigrated[tx.origin] = true;
 
     // Due to a rounding error, users with 2:1 collateralization ratio will be considered undercollateralized.
     // 1000000 wei is deducted from the users debt to correct this.
