@@ -124,24 +124,25 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
         migrationToolUSD.migrateVaults(yvDAI, yvUSDC, 100e18, 90e18);
     }
 
-    function testMigrationDifferentVault() external {
+    function testMigrationDifferentVaultMaximumSharesETH() external {
         tip(wETH, address(this), 10e18);
         
         // Create new position
         SafeERC20.safeApprove(wETH, alchemistETH, 10e18);
         AlchemistETH.depositUnderlying(yvETH, 10e18, address(this), 0);
         (uint256 shares, ) = AlchemistETH.positions(address(this), yvETH);
-        uint256 underlyingValue = shares * AlchemistETH.getUnderlyingTokensPerShare(yvETH);
-        AlchemistETH.mint(shares/2, address(this));
+        uint256 underlyingValue = shares * AlchemistETH.getUnderlyingTokensPerShare(yvETH)  / 10**18;
+        // Debt conversion in this case only divides by 1 so I left it out.
+        AlchemistETH.mint(underlyingValue/2, address(this));
 
         // Approve the migration tool to withdraw and mint on behalf of the user
         AlchemistETH.approveWithdraw(address(migrationToolETH), yvETH, shares);
-        AlchemistETH.approveMint(address(migrationToolETH), shares);
+        AlchemistETH.approveMint(address(migrationToolETH), underlyingValue);
 
-        // Verify new position underlying value is within 0.1% of original
+        // Verify new position underlying value is within 0.01% of original
         uint256 newShares = migrationToolETH.migrateVaults(yvETH, wstETH, shares, 0);
-        uint256 newUnderlyingValue = newShares * AlchemistETH.getUnderlyingTokensPerShare(wstETH);
-        assertGt(newUnderlyingValue, underlyingValue * 9990 / BPS);
+        uint256 newUnderlyingValue = newShares * AlchemistETH.getUnderlyingTokensPerShare(wstETH) / 10**18;
+        assertGt(newUnderlyingValue, underlyingValue * 9999 / BPS);
 
         // Verify new position
         (uint256 sharesConfirmed, ) = AlchemistETH.positions(address(this), wstETH);
@@ -150,5 +151,41 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
         // Verify old position is gone
         (sharesConfirmed, ) = AlchemistETH.positions(address(this), yvETH);
         assertEq(0, sharesConfirmed);
+    }
+
+    function testMigrationDifferentVaultPartialSharesETH() external {
+        tip(wETH, address(this), 10e18);
+        
+        // Create new position
+        SafeERC20.safeApprove(wETH, alchemistETH, 10e18);
+        AlchemistETH.depositUnderlying(yvETH, 10e18, address(this), 0);
+        (uint256 shares, ) = AlchemistETH.positions(address(this), yvETH);
+        uint256 underlyingValue = shares * AlchemistETH.getUnderlyingTokensPerShare(yvETH)  / 10**18;
+        // Debt conversion in this case only divides by 1 so I left it out.
+        AlchemistETH.mint(underlyingValue/2, address(this));
+
+        (int256 oldDebt, ) = AlchemistETH.accounts(address(this));
+
+
+        // Approve the migration tool to withdraw and mint on behalf of the user
+        AlchemistETH.approveWithdraw(address(migrationToolETH), yvETH, shares);
+        AlchemistETH.approveMint(address(migrationToolETH), underlyingValue);
+
+        // Verify new position underlying value is within 0.1% of original
+        uint256 newShares = migrationToolETH.migrateVaults(yvETH, wstETH, shares / 2, 0);
+        uint256 newUnderlyingValue = newShares * AlchemistETH.getUnderlyingTokensPerShare(wstETH);
+        assertGt(newUnderlyingValue, underlyingValue * 9999 / BPS);
+
+        (int256 newDebt, ) = AlchemistETH.accounts(address(this));
+
+        assertEq(newDebt, oldDebt);
+
+        // Verify new position
+        (uint256 sharesConfirmed, ) = AlchemistETH.positions(address(this), wstETH);
+        assertEq(newShares, sharesConfirmed);
+
+        // Verify old position is gone
+        (sharesConfirmed, ) = AlchemistETH.positions(address(this), yvETH);
+        assertEq(shares / 2, sharesConfirmed);
     }
 }

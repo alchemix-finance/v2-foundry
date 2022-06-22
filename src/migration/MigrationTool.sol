@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.13;
 
+//TODO remove later
+import {console} from "forge-std/console.sol";
+
 import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 import {
@@ -27,15 +30,10 @@ struct InitializationParams {
     address curveThreePool;
 }
 
-struct UnderlyingToken {
-    int128 index;
-    uint256 decimals;
-}
-
 contract MigrationTool is IMigrationTool, Multicall {
     string public override version = "1.0.0";
 
-    mapping(address => UnderlyingToken) public underlyingTokens;
+    mapping(address => uint256) public underlyingTokens;
 
     IAlchemistV2 public immutable Alchemist;
     IAlToken public immutable AlchemicToken;
@@ -47,10 +45,10 @@ contract MigrationTool is IMigrationTool, Multicall {
         CurveThreePool  = IStableSwap3Pool(params.curveThreePool);
 
         // Addresses for underlying tokens if user swaps between collateral   
-        underlyingTokens[0x6B175474E89094C44Da98b954EedeAC495271d0F] = UnderlyingToken(0, 18); // DAI     
-        underlyingTokens[0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48] = UnderlyingToken(1, 6); // USDC
-        underlyingTokens[0xdAC17F958D2ee523a2206206994597C13D831ec7] = UnderlyingToken(2, 6); // USDT
-        underlyingTokens[0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2] = UnderlyingToken(3, 18); // WETH
+        underlyingTokens[0x6B175474E89094C44Da98b954EedeAC495271d0F] = 18; // DAI     
+        underlyingTokens[0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48] = 6; // USDC
+        underlyingTokens[0xdAC17F958D2ee523a2206206994597C13D831ec7] = 6; // USDT
+        underlyingTokens[0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2] = 18; // WETH
     }
 
     /// @inheritdoc IMigrationTool
@@ -82,24 +80,27 @@ contract MigrationTool is IMigrationTool, Multicall {
             revert IllegalArgument("Cannot swap between collateral");
         }
 
-        // Conversion from shares
+        // Original debt
         (int256 debt, ) = Alchemist.accounts(msg.sender);
 
         // Debt must be positive, otherwise this tool is not needed to withdraw and re-deposit
         if(debt <= 0){
             revert IllegalState("Debt must be positive");
         }
-
-        uint256 freeShares = shares - 2 * _convertToShares(uint256(debt), startingVault, startingParams.underlyingToken);
+        
+        // Use up free shares and mint the remainder to pay off debt
+        (uint256 maxShares, ) = Alchemist.positions(msg.sender, startingVault);
+        uint256 freeShares = maxShares - 2 * _convertToShares(uint256(debt), startingVault, startingParams.underlyingToken);
         uint256 neededShares = shares > freeShares ? shares - freeShares : 0;
 
-        uint debtTokenValue = _convertToDebt(shares, startingVault, startingParams.underlyingToken);
+        console.logUint(freeShares);
+        console.logUint(neededShares);
 
-        if (shares < neededShares) {
-            debtTokenValue += _convertToDebt(neededShares, startingVault, startingParams.underlyingToken);
-        }
+        // Rounding error causes the neededShares to be off by a few wei so we add 2 to correct this
+        uint256 debtTokenValue = _convertToDebt(neededShares + 2, startingVault, startingParams.underlyingToken);
 
         AlchemicToken.mint(address(this), debtTokenValue / 2);
+
         SafeERC20.safeApprove(address(AlchemicToken), address(Alchemist), debtTokenValue / 2);
         Alchemist.burn(debtTokenValue / 2, msg.sender);
 
@@ -114,7 +115,7 @@ contract MigrationTool is IMigrationTool, Multicall {
         Alchemist.mintFrom(msg.sender, (debtTokenValue / 2), address(this));
         AlchemicToken.burn(debtTokenValue / 2);
 
-		return newPositionShares;
+	    return newPositionShares;
 	}
 
     receive() external payable {
@@ -122,10 +123,11 @@ contract MigrationTool is IMigrationTool, Multicall {
     }
 
     function _convertToDebt(uint256 shares, address vault, address underlyingToken) internal returns(uint256) {
-        return (shares * Alchemist.getUnderlyingTokensPerShare(vault) / 10**underlyingTokens[underlyingToken].decimals) * 10**(18 - underlyingTokens[underlyingToken].decimals);
+        uint256 underlyingValue = shares * Alchemist.getUnderlyingTokensPerShare(vault) / 10**underlyingTokens[underlyingToken];
+        return underlyingValue / 10**(18 - underlyingTokens[underlyingToken]);
     }
-
-    function _convertToShares(uint256 debtTokens, address vault, address underlyingToken) internal returns(uint256) {
-        return (debtTokens / Alchemist.getUnderlyingTokensPerShare(vault) / 10**underlyingTokens[underlyingToken].decimals) * 10**(18 - underlyingTokens[underlyingToken].decimals);
+    function _convertToShares(uint256 debt, address vault, address underlyingToken) internal returns(uint256) {
+        uint256 underlyingValue = debt * 10**underlyingTokens[underlyingToken] / Alchemist.getUnderlyingTokensPerShare(vault);
+        return underlyingValue / 10**(18 - underlyingTokens[underlyingToken]);
     }
 }
