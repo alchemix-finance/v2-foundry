@@ -46,6 +46,18 @@ contract Functionalities is DSTest {
 	address fakeUnderlying;
 	address fakeYield;
 
+	// Total minted debt
+	uint256 public minted;
+
+	// Total debt burned
+	uint256 public burned;
+
+	// Total tokens sent to transmuter
+	uint256 public sentToTransmuter;
+
+	// Maximum amount that can be repaid or liquidated
+	uint256 public maximum;
+
 	// Parameters for AlchemicTokenV2
 	string public _name;
 	string public _symbol;
@@ -224,10 +236,14 @@ contract Functionalities is DSTest {
 		address proxyOwner,
 		address[] calldata userList,
 		uint96[] calldata debtList,
-		uint96[] calldata overCollateralList
+		uint96[] calldata overCollateralList,
+		uint96 amount,
+		address recipient
 	) public {
 		// Ensure there is at least one user
-		cheats.assume(1 < userList.length);
+		cheats.assume(userList.length > 1);
+
+		cheats.assume(amount > 0);
 
 		// Ensure there is a debt and a collateral for every user
 		// Not == because it would lead to too many inputs being discarded
@@ -240,10 +256,12 @@ contract Functionalities is DSTest {
 			ensureValidUser(proxyOwner, userList[i]);
 			users[userList[i]] = true;
 		}
+
+		ensureValidUser(proxyOwner, recipient);
 	}
 
 	/*
-	 * Ensure the user is not the 0 address nor the proxy owner
+	 * Ensure the user is not the 0 address nor the proxy owner and is unique
 	 */
 	function ensureValidUser(address proxyOwner, address user) public {
 		cheats.assume(user != address(0));
@@ -323,6 +341,17 @@ contract Functionalities is DSTest {
 	}
 
 	/*
+	 * Calculates the total debt minted
+	 */
+	function calculateTotalMinted(address[] calldata userList, uint96[] calldata debtList) public returns (uint256) {
+		for (uint256 i = 0; i < userList.length; ++i) {
+			minted += debtList[i];
+		}
+
+		return minted;
+	}
+
+	/*
 	 * Mints amount tokens to user and approves the Alchemist for spending them
 	 */
 	function assignToUser(
@@ -383,10 +412,31 @@ contract Functionalities is DSTest {
 			// msg.sender = tx.origin
 			cheats.startPrank(user, user);
 
-			alToken.approve(address(alchemist), debt);
 			alchemist.mint(debt, user);
 
 			cheats.stopPrank();
 		}
+	}
+
+	/*
+	 * Initialization for each test
+	 */
+	function setupTest(
+		address caller,
+		address proxyOwner,
+		address[] calldata userList,
+		uint96[] calldata debtList,
+		uint96[] calldata overCollateralList,
+		uint96 amount,
+		address recipient
+	) public {
+		// Discard an input if it violates assumptions
+		ensureConsistency(proxyOwner, userList, debtList, overCollateralList, amount, recipient);
+
+		// Initialize contracts, tokens, and user CDPs
+		setScenario(caller, proxyOwner, userList, debtList, overCollateralList);
+
+		// Get total minted debt
+		minted = calculateTotalMinted(userList, debtList);
 	}
 }

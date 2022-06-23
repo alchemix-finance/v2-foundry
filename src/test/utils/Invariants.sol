@@ -46,7 +46,7 @@ contract Invariants is Functionalities {
 	function invariantA2(address[] calldata userList, address yieldToken) public {
 		emit log("Checking Invariant A2");
 
-		uint256 totalSharesYearn = alchemist.getYieldTokenParameters(yieldToken).totalShares;
+		uint256 totalShares = alchemist.getYieldTokenParameters(yieldToken).totalShares;
 		uint256 sumSharesCDPs;
 		uint256 shares;
 
@@ -56,7 +56,7 @@ contract Invariants is Functionalities {
 			sumSharesCDPs += shares;
 		}
 
-		assertEq(totalSharesYearn, sumSharesCDPs);
+		assertEq(totalShares, sumSharesCDPs);
 	}
 
 	/* Invariant A3: Let b be the balance and t the total number of shares of a given yield token. */
