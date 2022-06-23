@@ -84,25 +84,18 @@ contract MigrationTool is IMigrationTool, Multicall {
         // Original debt
         (int256 debt, ) = Alchemist.accounts(msg.sender);
 
-        console.logInt(debt);
-
         // Debt must be positive, otherwise this tool is not needed to withdraw and re-deposit
         if(debt <= 0){
             revert IllegalState("Debt must be positive");
         }
 
-        // Rounding error causes the neededShares to be off by a few wei so we add 2 to correct this
+        // Convert shares to amount of debt tokens
         uint256 debtTokenValue = _convertToDebt(shares, startingVault, startingParams.underlyingToken);
-
-        console.logUint(debtTokenValue / 2);
-
+        
+        // Mint tokens to this contract and burn them in the name of the user
         AlchemicToken.mint(address(this), debtTokenValue / 2);
-
         SafeERC20.safeApprove(address(AlchemicToken), address(Alchemist), debtTokenValue / 2);
         Alchemist.burn(debtTokenValue / 2, msg.sender);
-
-        (debt, ) = Alchemist.accounts(msg.sender);
-        console.logInt(debt);
 
         // Withdraw what you can from the old position
         uint256 underlyingWithdrawn = Alchemist.withdrawUnderlyingFrom(msg.sender, startingVault, shares, address(this), minReturnUnderlying);
@@ -115,12 +108,7 @@ contract MigrationTool is IMigrationTool, Multicall {
         Alchemist.mintFrom(msg.sender, (debtTokenValue / 2), address(this));
         AlchemicToken.burn(debtTokenValue / 2);
 
-        console.logUint(debtTokenValue / 2);
-
-        (debt, ) = Alchemist.accounts(msg.sender);
-        console.logInt(debt);
-
-	    return newPositionShares;
+	    return (newPositionShares);
 	}
 
     receive() external payable {

@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.13;
 
-//remove later
-import {console} from "forge-std/console.sol";
+import {AlchemistV2} from "../AlchemistV2.sol";
 
 import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
@@ -46,6 +45,7 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
     uint256 constant BPS = 10000;
     uint256 constant MAX_INT = 2**256 - 1;
 
+    AlchemistV2 newAlchemistV2;
 
     IAlToken AlUSD;
     IAlToken AlETH;
@@ -79,6 +79,7 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
         WhitelistUSD = IWhitelist(whitelistUSD);
         WhitelistETH = IWhitelist(whitelistETH);
 
+        // Set contract permissions and ceiling for atokens
         hevm.startPrank(admin);
         AlETH.setWhitelist(address(migrationToolETH), true);
         AlETH.setCeiling(address(migrationToolETH), MAX_INT);
@@ -86,6 +87,8 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
         AlUSD.setCeiling(address(migrationToolUSD), MAX_INT);
         hevm.stopPrank();
 
+        // Set user and contract whitelist permissions
+        // Update deposit limits
         hevm.startPrank(owner);
         WhitelistETH.add(address(this));
         WhitelistETH.add(address(0xbeef));
@@ -95,6 +98,12 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
         WhitelistUSD.add(address(migrationToolUSD));
         AlchemistETH.setMaximumExpectedValue(wstETH, 2000000000000000000000);
         hevm.stopPrank();
+
+        // Create and upgrade alchemistV2
+        newAlchemistV2 = new AlchemistV2();
+
+        hevm.etch(alchemistUSD, address(newAlchemistV2).code);
+        hevm.etch(alchemistETH, address(newAlchemistV2).code);
     }
 
     function testUnsupportedVaults() external {
@@ -126,19 +135,22 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
 
     function testMigrationDifferentVaultMaximumSharesETH() external {
         tip(wETH, address(this), 10e18);
-        
+
         // Create new position
         SafeERC20.safeApprove(wETH, alchemistETH, 10e18);
         AlchemistETH.depositUnderlying(yvETH, 10e18, address(this), 0);
         (uint256 shares, ) = AlchemistETH.positions(address(this), yvETH);
-        uint256 underlyingValue = shares * AlchemistETH.getUnderlyingTokensPerShare(yvETH)  / 10**18;
+
+        // Debt before anything happens
+        // Accounts for rounding errors
+        (int256 startingDebt, ) = AlchemistETH.accounts(address(this));
+
         // Debt conversion in this case only divides by 1 so I left it out.
+        uint256 underlyingValue = shares * AlchemistETH.getUnderlyingTokensPerShare(yvETH)  / 10**18;
         AlchemistETH.mint(underlyingValue/2, address(this));
 
-        console.logUint(underlyingValue / 2);
-
         // Debt after original mint
-        (int256 oldDebt, ) = AlchemistETH.accounts(address(this));
+        (int256 firstPositionDebt, ) = AlchemistETH.accounts(address(this));
 
         // Approve the migration tool to withdraw and mint on behalf of the user
         AlchemistETH.approveWithdraw(address(migrationToolETH), yvETH, shares);
@@ -150,8 +162,8 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
         assertGt(newUnderlyingValue, underlyingValue * 9999 / BPS);
 
         // Verify debts are the same
-        (int256 newDebt, ) = AlchemistETH.accounts(address(this));
-        assertEq(newDebt, oldDebt);
+        (int256 secondPositionDebt, ) = AlchemistETH.accounts(address(this));
+        assertEq(secondPositionDebt, firstPositionDebt - startingDebt);
 
         // Verify new position
         (uint256 sharesConfirmed, ) = AlchemistETH.positions(address(this), wstETH);
@@ -169,12 +181,17 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
         SafeERC20.safeApprove(wETH, alchemistETH, 10e18);
         AlchemistETH.depositUnderlying(yvETH, 10e18, address(this), 0);
         (uint256 shares, ) = AlchemistETH.positions(address(this), yvETH);
-        uint256 underlyingValue = shares * AlchemistETH.getUnderlyingTokensPerShare(yvETH)  / 10**18;
+
+        // Debt before anything happens
+        // Accounts for rounding errors
+        (int256 startingDebt, ) = AlchemistETH.accounts(address(this));
+
         // Debt conversion in this case only divides by 1 so I left it out.
+        uint256 underlyingValue = shares * AlchemistETH.getUnderlyingTokensPerShare(yvETH)  / 10**18;
         AlchemistETH.mint(underlyingValue / 2, address(this));
 
         // Debt after original mint
-        (int256 oldDebt, ) = AlchemistETH.accounts(address(this));
+        (int256 firstPositionDebt, ) = AlchemistETH.accounts(address(this));
 
         // Approve the migration tool to withdraw and mint on behalf of the user
         AlchemistETH.approveWithdraw(address(migrationToolETH), yvETH, shares);
@@ -186,8 +203,8 @@ contract MigrationToolTest is DSTestPlus, stdCheats {
         assertGt(newUnderlyingValue, underlyingValue * 9999 / BPS);
 
         // Verify debts are the same
-        (int256 newDebt, ) = AlchemistETH.accounts(address(this));
-        assertEq(newDebt, oldDebt);
+        (int256 secondPositionDebt, ) = AlchemistETH.accounts(address(this));
+        assertEq(secondPositionDebt, firstPositionDebt - startingDebt);
 
         // Verify new position
         (uint256 sharesConfirmed, ) = AlchemistETH.positions(address(this), wstETH);
