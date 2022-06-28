@@ -1,6 +1,6 @@
 pragma solidity ^0.8.11;
 
-import { ERC20 } from "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import { ERC20 } from "../../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 
 import "../libraries/TokenUtils.sol";
 import "../interfaces/test/ITestYieldToken.sol";

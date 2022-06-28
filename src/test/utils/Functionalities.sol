@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.11;
 
-import {DSTest} from "ds-test/test.sol";
-import "openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import {DSTest} from "../../../lib/ds-test/src/test.sol";
+import "../../../lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 
 import {CheatCodes} from "src/test/utils/Cheatcodes.sol";
 

@@ -3,7 +3,7 @@ pragma solidity ^0.8.11;
 
 import {Functionalities} from "./Functionalities.sol";
 
-import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {IERC20} from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 import {AlchemistV2} from "src/AlchemistV2.sol";
 

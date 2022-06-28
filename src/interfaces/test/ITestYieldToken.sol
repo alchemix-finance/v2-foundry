@@ -1,6 +1,6 @@
 pragma solidity >=0.5.0;
 
-import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import "../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 /// @title  ITestYieldToken
 /// @author Alchemix Finance

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.11;
 
-import "ds-test/test.sol";
+import "../../../lib/ds-test/src/test.sol";
 
 // References for cheatcodes: https://onbjerg.github.io/foundry-book/reference/cheatcodes.html
 interface CheatCodes {
