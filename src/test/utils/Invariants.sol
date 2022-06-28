@@ -5,7 +5,7 @@ import {Functionalities} from "./Functionalities.sol";
 
 import {IERC20} from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
-import {AlchemistV2} from "src/AlchemistV2.sol";
+import {AlchemistV2} from "../../AlchemistV2.sol";
 
 contract Invariants is Functionalities {
 
