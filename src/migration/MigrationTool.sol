@@ -117,10 +117,6 @@ contract MigrationTool is IMigrationTool, Multicall {
 
     function _convertToDebt(uint256 shares, address vault, address underlyingToken) internal returns(uint256) {
         uint256 underlyingValue = shares * Alchemist.getUnderlyingTokensPerShare(vault) / 10**underlyingTokens[underlyingToken];
-        return underlyingValue / 10**(18 - underlyingTokens[underlyingToken]);
-    }
-    function _convertToShares(uint256 debt, address vault, address underlyingToken) internal returns(uint256) {
-        uint256 underlyingValue = debt * 10**underlyingTokens[underlyingToken] / Alchemist.getUnderlyingTokensPerShare(vault);
-        return underlyingValue / 10**(18 - underlyingTokens[underlyingToken]);
+        return underlyingValue * 10**(18 - underlyingTokens[underlyingToken]);
     }
 }
