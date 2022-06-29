@@ -33,7 +33,7 @@ struct InitializationParams {
 contract MigrationTool is IMigrationTool, Multicall {
     string public override version = "1.0.0";
 
-    mapping(address => uint256) public underlyingTokens;
+    mapping(address => uint256) public decimals;
 
     IAlchemistV2 public immutable Alchemist;
     IAlToken public immutable AlchemicToken;
@@ -45,10 +45,10 @@ contract MigrationTool is IMigrationTool, Multicall {
         CurveThreePool  = IStableSwap3Pool(params.curveThreePool);
 
         // Addresses for underlying tokens if user swaps between collateral   
-        underlyingTokens[0x6B175474E89094C44Da98b954EedeAC495271d0F] = 18; // DAI     
-        underlyingTokens[0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48] = 6; // USDC
-        underlyingTokens[0xdAC17F958D2ee523a2206206994597C13D831ec7] = 6; // USDT
-        underlyingTokens[0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2] = 18; // WETH
+        decimals[0x6B175474E89094C44Da98b954EedeAC495271d0F] = 18; // DAI     
+        decimals[0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48] = 6; // USDC
+        decimals[0xdAC17F958D2ee523a2206206994597C13D831ec7] = 6; // USDT
+        decimals[0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2] = 18; // WETH
     }
 
     /// @inheritdoc IMigrationTool
@@ -58,7 +58,7 @@ contract MigrationTool is IMigrationTool, Multicall {
         uint256 shares,
         uint256 minReturnShares,
         uint256 minReturnUnderlying
-    ) external override payable returns(uint256) {
+    ) external override returns(uint256) {
         // If either vault is invalid, revert
         if(!Alchemist.isSupportedYieldToken(startingVault)) {
             revert IllegalArgument("Vault is not supported");
@@ -111,12 +111,8 @@ contract MigrationTool is IMigrationTool, Multicall {
 	    return (newPositionShares);
 	}
 
-    receive() external payable {
-        emit Received(msg.sender, msg.value);
-    }
-
     function _convertToDebt(uint256 shares, address vault, address underlyingToken) internal returns(uint256) {
-        uint256 underlyingValue = shares * Alchemist.getUnderlyingTokensPerShare(vault) / 10**underlyingTokens[underlyingToken];
-        return underlyingValue * 10**(18 - underlyingTokens[underlyingToken]);
+        uint256 underlyingValue = shares * Alchemist.getUnderlyingTokensPerShare(vault) / 10**decimals[underlyingToken];
+        return underlyingValue * 10**(18 - decimals[underlyingToken]);
     }
 }

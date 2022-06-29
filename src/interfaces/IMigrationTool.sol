@@ -25,5 +25,5 @@ interface IMigrationTool {
         uint256 shares,
         uint256 minReturnShares,
         uint256 minReturnUnderlying
-    ) external payable returns(uint256 finalShares);
+    ) external returns(uint256 finalShares);
 }
