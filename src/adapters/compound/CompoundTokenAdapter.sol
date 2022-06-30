@@ -8,6 +8,7 @@ import {LibCompound} from "../../libraries/LibCompound.sol";
 import {ICERC20} from "../../interfaces/compound/ICERC20.sol";
 import {ITokenAdapter} from "../../interfaces/ITokenAdapter.sol";
 import {TokenUtils} from "../../libraries/TokenUtils.sol";
+import "../../base/ErrorMessages.sol";
 
 contract CompoundTokenAdapter is ITokenAdapter {
     /// @dev Compound error code for a noop.
@@ -17,6 +18,7 @@ contract CompoundTokenAdapter is ITokenAdapter {
     uint256 private constant FIXED_POINT_SCALAR = 1e18;
 
     string public version = "1.0.0";
+    address public alchemist;
 
     /// @notice An error used when a call to Compound fails.
     ///
@@ -29,18 +31,31 @@ contract CompoundTokenAdapter is ITokenAdapter {
     /// @inheritdoc ITokenAdapter
     address public override underlyingToken;
 
-    constructor(address _token) {
+    
+    uint256 public decimals;
+
+    constructor(address _alchemist, address _token) {
+        alchemist = _alchemist;
         token = _token;
         underlyingToken = ICERC20(token).underlying();
+        decimals = TokenUtils.expectDecimals(underlyingToken);
+    }
+
+    /// @dev Checks that the message sender is the alchemist that the adapter is bound to.
+    modifier onlyAlchemist() {
+        if (msg.sender != alchemist) {
+            revert Unauthorized("Not alchemist");
+        }
+        _;
     }
 
     /// @inheritdoc ITokenAdapter
     function price() external view override returns (uint256) {
-        return LibCompound.viewExchangeRate(ICERC20(token)) / FIXED_POINT_SCALAR;
+        return LibCompound.viewExchangeRate(ICERC20(token)) / 10**10;
     }
 
     /// @inheritdoc ITokenAdapter
-    function wrap(uint256 amount, address recipient) external override returns (uint256) {
+    function wrap(uint256 amount, address recipient) external override onlyAlchemist returns (uint256) {
         TokenUtils.safeTransferFrom(underlyingToken, msg.sender, address(this), amount);
         TokenUtils.safeApprove(underlyingToken, token, amount);
 
@@ -60,7 +75,7 @@ contract CompoundTokenAdapter is ITokenAdapter {
     }
 
     /// @inheritdoc ITokenAdapter
-    function unwrap(uint256 amount, address recipient) external override returns (uint256) {
+    function unwrap(uint256 amount, address recipient) external override onlyAlchemist returns (uint256) {
         TokenUtils.safeTransferFrom(token, msg.sender, address(this), amount);
 
         uint256 startingBalance = TokenUtils.safeBalanceOf(underlyingToken, address(this));
