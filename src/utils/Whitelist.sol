@@ -2,7 +2,7 @@ pragma solidity ^0.8.11;
 
 import "../base/Errors.sol";
 import "../interfaces/IWhitelist.sol";
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import "../../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 import "../libraries/Sets.sol";
 
 /// @title  Whitelist

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.11;
 
+import "../../lib/ds-test/src/test.sol";
+
 import { Invariants } from "./utils/Invariants.sol";
 
 contract TestInvariants is Invariants {

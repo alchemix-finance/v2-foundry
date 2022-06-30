@@ -1,26 +1,26 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.11;
 
-import { DSTest } from "ds-test/test.sol";
-import "openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import { DSTest } from "../../../lib/ds-test/src/test.sol";
+import "../../../lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 
-import { CheatCodes } from "src/test/utils/Cheatcodes.sol";
+import { CheatCodes } from "../../test/utils/Cheatcodes.sol";
 
-import { AlchemistV2 } from "src/AlchemistV2.sol";
-import { AlchemicTokenV2 } from "src/AlchemicTokenV2.sol";
-import { TransmuterV2 } from "src/TransmuterV2.sol";
-import { TransmuterBuffer } from "src/TransmuterBuffer.sol";
-import { Whitelist } from "src/utils/Whitelist.sol";
+import { AlchemistV2 } from "../../AlchemistV2.sol";
+import { AlchemicTokenV2 } from "../../AlchemicTokenV2.sol";
+import { TransmuterV2 } from "../../TransmuterV2.sol";
+import { TransmuterBuffer } from "../../TransmuterBuffer.sol";
+import { Whitelist } from "../../utils/Whitelist.sol";
 
-import { TestERC20 } from "src/test/TestERC20.sol";
-import { TestYieldToken } from "src/test/TestYieldToken.sol";
-import { TestYieldTokenAdapter } from "src/test/TestYieldTokenAdapter.sol";
+import { TestERC20 } from "../../test/TestERC20.sol";
+import { TestYieldToken } from "../../test/TestYieldToken.sol";
+import { TestYieldTokenAdapter } from "../../test/TestYieldTokenAdapter.sol";
 
-import { IERC20Mintable } from "src/interfaces/IERC20Mintable.sol";
-import { ITokenAdapter } from "src/interfaces/ITokenAdapter.sol";
+import { IERC20Mintable } from "../../interfaces/IERC20Mintable.sol";
+import { ITokenAdapter } from "../../interfaces/ITokenAdapter.sol";
 
-import { IAlchemistV2AdminActions } from "src/interfaces/alchemist/IAlchemistV2AdminActions.sol";
-import { IAlchemistV2 } from "src/interfaces/IAlchemistV2.sol";
+import { IAlchemistV2AdminActions } from "../../interfaces/alchemist/IAlchemistV2AdminActions.sol";
+import { IAlchemistV2 } from "../../interfaces/IAlchemistV2.sol";
 
 contract Functionalities is DSTest {
 	// Callable contract variables
