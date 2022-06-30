@@ -28,15 +28,11 @@ import {IAlchemistV2AdminActions} from "../interfaces/alchemist/IAlchemistV2Admi
 import {ILendingPool} from "../interfaces/external/aave/ILendingPool.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
 
-import {ICurveMetapool} from "../interfaces/ICurveMetapool.sol";
-
 contract MigrationToolTestETH is DSTestPlus, stdCheats {
     address constant admin = 0x8392F6669292fA56123F71949B52d883aE57e225;
     address constant alchemistETH = 0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c;
     address constant alETH = 0x0100546F2cD4C9D97f798fFC9755E47865FF7Ee6;
     address constant aWETH = 0x030bA81f1c18d280636F32af80b9AAd02Cf0854e;
-    address constant curveMetapool = 0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c;
-    address constant curveThreePool = 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7;
     address constant invalidYieldToken = 0x23D3D0f1c697247d5e0a9efB37d8b0ED0C464f7f;
     address constant owner = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
     address constant rETH = 0xae78736Cd615f374D3085123A210448E74Fc6393;
@@ -60,8 +56,6 @@ contract MigrationToolTestETH is DSTestPlus, stdCheats {
     function setUp() external {
         migrationToolETH = new MigrationTool(MigrtionInitializationParams({
             alchemist:       alchemistETH,
-            curveMetapool:  curveMetapool,
-            curveThreePool:  curveThreePool,
             collateralAddresses: [0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2]
         }));
 

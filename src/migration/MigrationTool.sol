@@ -22,13 +22,10 @@ import {IAlToken} from "../interfaces/IAlToken.sol";
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IAlchemistV2State} from "../interfaces/alchemist/IAlchemistV2State.sol";
 import {IMigrationTool} from "../interfaces/IMigrationTool.sol";
-import {IStableSwap3Pool} from "../interfaces/external/curve/IStableSwap3Pool.sol";
 import {IWETH9} from "../interfaces/external/IWETH9.sol";
 
 struct InitializationParams {
     address alchemist;
-    address curveMetapool;
-    address curveThreePool;
     address[3] collateralAddresses;
 }
 
@@ -39,7 +36,6 @@ contract MigrationTool is IMigrationTool, Multicall {
 
     IAlchemistV2 public immutable Alchemist;
     IAlToken public immutable AlchemicToken;
-    IStableSwap3Pool public immutable CurveThreePool;
     address[] public CollateralAddresses;
 
     constructor(InitializationParams memory params) {
@@ -47,7 +43,6 @@ contract MigrationTool is IMigrationTool, Multicall {
 
         Alchemist       = IAlchemistV2(params.alchemist);
         AlchemicToken   = IAlToken(Alchemist.debtToken());
-        CurveThreePool  = IStableSwap3Pool(params.curveThreePool);
         CollateralAddresses = params.collateralAddresses;
 
         for(uint i = 0; i < size; i++){

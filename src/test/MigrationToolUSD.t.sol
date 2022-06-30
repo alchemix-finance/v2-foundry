@@ -28,8 +28,6 @@ import {IAlchemistV2AdminActions} from "../interfaces/alchemist/IAlchemistV2Admi
 import {ILendingPool} from "../interfaces/external/aave/ILendingPool.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
 
-import {ICurveMetapool} from "../interfaces/ICurveMetapool.sol";
-
 contract MigrationToolTestUSD is DSTestPlus, stdCheats {
     address constant aDAI = 0x028171bCA77440897B824Ca71D1c56caC55b68A3;
     address constant admin = 0x8392F6669292fA56123F71949B52d883aE57e225;
@@ -37,8 +35,6 @@ contract MigrationToolTestUSD is DSTestPlus, stdCheats {
     address constant alUSD = 0xBC6DA0FE9aD5f3b0d58160288917AA56653660E9;
     address constant aUSDC = 0xBcca60bB61934080951369a648Fb03DF4F96263C;
     address constant aUSDT = 0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811;
-    address constant curveMetapool = 0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c;
-    address constant curveThreePool = 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7;
     address constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
     address constant invalidYieldToken = 0x23D3D0f1c697247d5e0a9efB37d8b0ED0C464f7f;
     address constant owner = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
@@ -66,8 +62,6 @@ contract MigrationToolTestUSD is DSTestPlus, stdCheats {
     function setUp() external {
         migrationToolUSD = new MigrationTool(MigrtionInitializationParams({
             alchemist:       alchemistUSD,
-            curveMetapool:  curveMetapool,
-            curveThreePool:  curveThreePool,
             collateralAddresses: [0x6B175474E89094C44Da98b954EedeAC495271d0F, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, 0xdAC17F958D2ee523a2206206994597C13D831ec7]
         }));
 
