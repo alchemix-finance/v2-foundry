@@ -16,6 +16,7 @@ import {Multicall} from "../base/Multicall.sol";
 import {Mutex} from "../base/Mutex.sol";
 
 import {SafeERC20} from "../libraries/SafeERC20.sol";
+import {TokenUtils} from "../libraries/TokenUtils.sol";
 
 import {IAlToken} from "../interfaces/IAlToken.sol";
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
@@ -28,6 +29,7 @@ struct InitializationParams {
     address alchemist;
     address curveMetapool;
     address curveThreePool;
+    address[3] collateralAddresses;
 }
 
 contract MigrationTool is IMigrationTool, Multicall {
@@ -38,17 +40,19 @@ contract MigrationTool is IMigrationTool, Multicall {
     IAlchemistV2 public immutable Alchemist;
     IAlToken public immutable AlchemicToken;
     IStableSwap3Pool public immutable CurveThreePool;
+    address[] public CollateralAddresses;
 
     constructor(InitializationParams memory params) {
+        uint size = params.collateralAddresses.length;
+
         Alchemist       = IAlchemistV2(params.alchemist);
         AlchemicToken   = IAlToken(Alchemist.debtToken());
         CurveThreePool  = IStableSwap3Pool(params.curveThreePool);
+        CollateralAddresses = params.collateralAddresses;
 
-        // Addresses for underlying tokens if user swaps between collateral   
-        decimals[0x6B175474E89094C44Da98b954EedeAC495271d0F] = 18; // DAI     
-        decimals[0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48] = 6; // USDC
-        decimals[0xdAC17F958D2ee523a2206206994597C13D831ec7] = 6; // USDT
-        decimals[0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2] = 18; // WETH
+        for(uint i = 0; i < size; i++){
+            decimals[CollateralAddresses[i]] = TokenUtils.expectDecimals(CollateralAddresses[i]);
+        }
     }
 
     /// @inheritdoc IMigrationTool

@@ -61,7 +61,8 @@ contract MigrationToolTestETH is DSTestPlus, stdCheats {
         migrationToolETH = new MigrationTool(MigrtionInitializationParams({
             alchemist:       alchemistETH,
             curveMetapool:  curveMetapool,
-            curveThreePool:  curveThreePool
+            curveThreePool:  curveThreePool,
+            collateralAddresses: [0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2]
         }));
 
         AlETH = IAlToken(alETH);
@@ -76,7 +77,7 @@ contract MigrationToolTestETH is DSTestPlus, stdCheats {
         AlETH.setCeiling(address(migrationToolETH), MAX_INT);
         hevm.stopPrank();
 
-        // Set user and contract whitelist permissions
+        // Set user and contract whitelist permission
         // Update deposit limits
         hevm.startPrank(owner);
         WhitelistETH.add(address(this));
