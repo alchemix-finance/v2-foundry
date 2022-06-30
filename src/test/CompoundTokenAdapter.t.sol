@@ -50,13 +50,13 @@ contract CompoundTokenAdapterTest is DSTestPlus, stdCheats {
         hevm.label(ceth, "cETH");
         hevm.label(weth, "WETH");
         runTokenTest(alchemistAlUSD, cdai, dai, 1000 ether);
-        // runTokenTest(alchemistAlUSD, cusdc, usdc, 1000000000);
-        // runTokenTest(alchemistAlUSD, cusdt, usdt, 1000000000);
+        runTokenTest(alchemistAlUSD, cusdc, usdc, 1000000000);
+        runTokenTest(alchemistAlUSD, cusdt, usdt, 1000000000);
         // runTokenTest(alchemistAlETH, ceth, weth, 1000 ether);
     }
 
     function runTokenTest(address alchemist, address cToken, address underlyingToken, uint256 amount) internal {
-        CompoundTokenAdapter cTokenAdapter = new CompoundTokenAdapter(alchemistAlUSD, cdai);
+        CompoundTokenAdapter cTokenAdapter = new CompoundTokenAdapter(alchemistAlUSD, cToken);
         IAlchemistV2.YieldTokenConfig memory ytc = IAlchemistV2AdminActions.YieldTokenConfig({
             adapter: address(cTokenAdapter),
             maximumLoss: 1,
@@ -74,20 +74,20 @@ contract CompoundTokenAdapterTest is DSTestPlus, stdCheats {
         TokenUtils.safeApprove(underlyingToken, alchemist, amount);
         IAlchemistV2(alchemist).depositUnderlying(cToken, amount, address(this), 0);
         (uint256 startShares, ) = IAlchemistV2(alchemist).positions(address(this), cToken);
-        uint256 expectedValue = startShares * startPrice / 1e18;
-        assertApproxEq(amount, expectedValue, 1000);
+        uint256 expectedValue = startShares * startPrice / 1e8;
+        assertApproxEq(amount, expectedValue, 10**10);
 
         uint256 startBal = IERC20(underlyingToken).balanceOf(address(this));
         assertEq(startBal, 0);
 
-        hevm.roll(block.number + 1);
+        // hevm.roll(block.number + 10);
 
         IAlchemistV2(alchemist).withdrawUnderlying(cToken, startShares, address(this), 0);
         (uint256 endShares, ) = IAlchemistV2(alchemist).positions(address(this), cToken);
         assertEq(endShares, 0);
 
         uint256 endBal = IERC20(underlyingToken).balanceOf(address(this));
-        assertApproxEq(endBal, amount, 1);
+        assertApproxEq(endBal, amount, 10**10);
     }
 
     function testRoundTrip() external {
@@ -107,11 +107,10 @@ contract CompoundTokenAdapterTest is DSTestPlus, stdCheats {
         console.logUint(price);
         console.logUint(depositAmount);
         console.logUint(underlyingValue);
-        assertGe(depositAmount, underlyingValue);
+        assertApproxEq(depositAmount, underlyingValue, 10**10);
         
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
-        console.logUint(unwrapped);
 
         assertEq(IERC20(dai).balanceOf(address(0xbeef)), unwrapped);
         assertEq(IERC20(cdai).balanceOf(address(this)), 0);
@@ -135,7 +134,7 @@ contract CompoundTokenAdapterTest is DSTestPlus, stdCheats {
         console.logUint(price);
         console.logUint(depositAmount);
         console.logUint(underlyingValue);
-        assertGe(depositAmount, underlyingValue);
+        assertApproxEq(depositAmount, underlyingValue, 10**10);
         
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
@@ -161,12 +160,12 @@ contract CompoundTokenAdapterTest is DSTestPlus, stdCheats {
         uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(cdai);
         console.logUint(underlyingValue);
         console.logUint(amount);
-        assertApproxEq(amount, underlyingValue, amount * 10000 / 1e18);
+        assertApproxEq(amount, underlyingValue, 10**10); // lose 9+ decimals of precision
         
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
         
-        assertApproxEq(IERC20(dai).balanceOf(address(0xbeef)), unwrapped, 10000);
+        assertApproxEq(IERC20(dai).balanceOf(address(0xbeef)), unwrapped, 10**10); // lose 9+ decimals of precision
         assertEq(IERC20(cdai).balanceOf(address(this)), 0);
         assertEq(IERC20(cdai).balanceOf(address(adapter)), 0);
     }
