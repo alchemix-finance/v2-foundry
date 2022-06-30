@@ -439,4 +439,36 @@ contract Functionalities is DSTest {
 		// Get total minted debt
 		minted = calculateTotalMinted(userList, debtList);
 	}
+
+	/*
+	 * Set the amount to repay based on repay limit,
+	 * and if a user has enough tokens to make repayment
+	 */
+	function setRepayAmount(
+		address user,
+		address fakeUnderlying,
+		uint96 amount
+	) public {
+		// Get maximum repay limit
+		(, , maximum) = alchemist.getRepayLimitInfo(fakeUnderlying);
+
+		// Repay either maximum limit or specific amount of debt
+		maximum = amount > maximum ? maximum : amount;
+
+		// Give the user underlying tokens to repay with if necessary
+		if (TestERC20(fakeUnderlying).balanceOf(user) < maximum) {
+			assignToUser(user, fakeUnderlying, maximum);
+		}
+	}
+
+	/*
+	 * Set the amount to liquidate
+	 */
+	function setLiquidationAmount(address fakeUnderlying, uint96 amount) public {
+		// Get maximum liquidation limit
+		(, , maximum) = alchemist.getLiquidationLimitInfo(fakeUnderlying);
+
+		// Liquidate either maximum limit or specific amount
+		maximum = amount > maximum ? maximum : amount;
+	}
 }
