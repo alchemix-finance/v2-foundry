@@ -66,7 +66,7 @@ contract CompoundTokenAdapter is ITokenAdapter {
         uint256 startingBalance = TokenUtils.safeBalanceOf(underlyingToken, address(this));
 
         uint256 error;
-        if ((error = ICERC20(token).redeemUnderlying(amount)) != NO_ERROR) {
+        if ((error = ICERC20(token).redeem(amount)) != NO_ERROR) {
             revert CompoundError(error);
         }
 
