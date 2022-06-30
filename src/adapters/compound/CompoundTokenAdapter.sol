@@ -31,14 +31,10 @@ contract CompoundTokenAdapter is ITokenAdapter {
     /// @inheritdoc ITokenAdapter
     address public override underlyingToken;
 
-    
-    uint256 public decimals;
-
     constructor(address _alchemist, address _token) {
         alchemist = _alchemist;
         token = _token;
         underlyingToken = ICERC20(token).underlying();
-        decimals = TokenUtils.expectDecimals(underlyingToken);
     }
 
     /// @dev Checks that the message sender is the alchemist that the adapter is bound to.
