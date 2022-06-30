@@ -102,11 +102,6 @@ contract CompoundTokenAdapterTest is DSTestPlus, stdCheats {
 
         uint256 price = adapter.price();
         uint256 underlyingValue = wrapped * price / 10**SafeERC20.expectDecimals(cdai);
-        console.log("startPrice");
-        console.logUint(wrapped);
-        console.logUint(price);
-        console.logUint(depositAmount);
-        console.logUint(underlyingValue);
         assertApproxEq(depositAmount, underlyingValue, 10**10);
         
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
@@ -129,11 +124,6 @@ contract CompoundTokenAdapterTest is DSTestPlus, stdCheats {
 
         uint256 price = adapter.price();
         uint256 underlyingValue = wrapped * price / 10**SafeERC20.expectDecimals(cusdc);
-        console.log("startPrice usdc");
-        console.logUint(wrapped);
-        console.logUint(price);
-        console.logUint(depositAmount);
-        console.logUint(underlyingValue);
         assertApproxEq(depositAmount, underlyingValue, 10**10);
         
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
@@ -160,12 +150,12 @@ contract CompoundTokenAdapterTest is DSTestPlus, stdCheats {
         uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(cdai);
         console.logUint(underlyingValue);
         console.logUint(amount);
-        assertApproxEq(amount, underlyingValue, 10**10); // lose 9+ decimals of precision
+        assertApproxEq(amount, underlyingValue, amount * 10**10 / 10**18); // lose 9+ decimals of precision
         
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
         
-        assertApproxEq(IERC20(dai).balanceOf(address(0xbeef)), unwrapped, 10**10); // lose 9+ decimals of precision
+        assertApproxEq(IERC20(dai).balanceOf(address(0xbeef)), unwrapped, 1); // lose 9+ decimals of precision
         assertEq(IERC20(cdai).balanceOf(address(this)), 0);
         assertEq(IERC20(cdai).balanceOf(address(adapter)), 0);
     }
