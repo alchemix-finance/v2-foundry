@@ -26,7 +26,7 @@ import {IWETH9} from "../interfaces/external/IWETH9.sol";
 
 struct InitializationParams {
     address alchemist;
-    address[3] collateralAddresses;
+    address[] collateralAddresses;
 }
 
 contract MigrationTool is IMigrationTool, Multicall {

@@ -19,7 +19,7 @@ import {
 
 import {
     MigrationTool,
-    InitializationParams as MigrtionInitializationParams
+    InitializationParams as MigrationInitializationParams
 } from "../migration/MigrationTool.sol";
 
 import {IAlToken} from "../interfaces/IAlToken.sol";
@@ -60,10 +60,11 @@ contract MigrationToolTestUSD is DSTestPlus, stdCheats {
     MigrationTool migrationToolUSD;
 
     function setUp() external {
-        migrationToolUSD = new MigrationTool(MigrtionInitializationParams({
-            alchemist:       alchemistUSD,
-            collateralAddresses: [0x6B175474E89094C44Da98b954EedeAC495271d0F, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, 0xdAC17F958D2ee523a2206206994597C13D831ec7]
-        }));
+        MigrationInitializationParams memory migrationParams = MigrationInitializationParams(alchemistUSD, new address[](3));
+        migrationParams.collateralAddresses[0] = (0x6B175474E89094C44Da98b954EedeAC495271d0F);
+        migrationParams.collateralAddresses[1] = (0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
+        migrationParams.collateralAddresses[2] = (0xdAC17F958D2ee523a2206206994597C13D831ec7);
+        migrationToolUSD = new MigrationTool(migrationParams);
 
         AlUSD = IAlToken(alUSD);
 
