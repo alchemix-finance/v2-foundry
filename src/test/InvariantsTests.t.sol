@@ -346,6 +346,8 @@ contract TestInvariants is Invariants {
 		setRepayAmount(userList[0], fakeUnderlying, amount);
 
 		alchemist.repay(fakeUnderlying, maximum, userList[0]);
+
+		// An account's total debt is the maximum amount repaid
 		sentToTransmuter += ((maximum > debtList[0]) ? debtList[0] : maximum);
 
 		cheats.stopPrank();
