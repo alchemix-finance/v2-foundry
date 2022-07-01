@@ -343,12 +343,12 @@ contract TestInvariants is Invariants {
 
 		cheats.startPrank(userList[0], userList[0]);
 
-		setRepayAmount(userList[0], fakeUnderlying, amount);
+		uint256 repayAmount = setRepayAmount(userList[0], fakeUnderlying, amount);
 
-		alchemist.repay(fakeUnderlying, maximum, userList[0]);
+		alchemist.repay(fakeUnderlying, repayAmount, userList[0]);
 
-		// An account's total debt is the maximum amount repaid
-		sentToTransmuter += ((maximum > debtList[0]) ? debtList[0] : maximum);
+		// Maximum amount that can be repaid is the account's total debt
+		sentToTransmuter += ((repayAmount > debtList[0]) ? debtList[0] : repayAmount);
 
 		cheats.stopPrank();
 
@@ -417,10 +417,10 @@ contract TestInvariants is Invariants {
 
 		cheats.startPrank(userList[0], userList[0]);
 
-		setLiquidationAmount(fakeUnderlying, amount);
+		uint256 liquidationAmount = setLiquidationAmount(fakeUnderlying, amount);
 
-		alchemist.liquidate(fakeYield, maximum, minimumAmountOut(maximum, fakeYield));
-		sentToTransmuter += maximum;
+		alchemist.liquidate(fakeYield, liquidationAmount, minimumAmountOut(liquidationAmount, fakeYield));
+		sentToTransmuter += liquidationAmount;
 
 		cheats.stopPrank();
 

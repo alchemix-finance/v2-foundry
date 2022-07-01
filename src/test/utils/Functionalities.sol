@@ -55,9 +55,6 @@ contract Functionalities is DSTest {
 	// Total tokens sent to transmuter
 	uint256 public sentToTransmuter;
 
-	// Maximum amount that can be repaid or liquidated
-	uint256 public maximum;
-
 	// Parameters for AlchemicTokenV2
 	string public _name;
 	string public _symbol;
@@ -448,27 +445,31 @@ contract Functionalities is DSTest {
 		address user,
 		address fakeUnderlying,
 		uint96 amount
-	) public {
-		// Get maximum repay limit
-		(, , maximum) = alchemist.getRepayLimitInfo(fakeUnderlying);
+	) public returns (uint256) {
+		// Get repay limit
+		(, , uint256 repayLimit) = alchemist.getRepayLimitInfo(fakeUnderlying);
 
-		// Repay either maximum limit or specific amount of debt
-		maximum = amount > maximum ? maximum : amount;
+		// Repay either limit or specific amount of debt
+		uint256 repayAmount = amount > repayLimit ? repayLimit : amount;
 
 		// Give the user underlying tokens to repay with if necessary
-		if (TestERC20(fakeUnderlying).balanceOf(user) < maximum) {
-			assignToUser(user, fakeUnderlying, maximum);
+		if (TestERC20(fakeUnderlying).balanceOf(user) < repayAmount) {
+			assignToUser(user, fakeUnderlying, repayAmount);
 		}
+
+		return repayAmount;
 	}
 
 	/*
 	 * Set the amount to liquidate
 	 */
-	function setLiquidationAmount(address fakeUnderlying, uint96 amount) public {
-		// Get maximum liquidation limit
-		(, , maximum) = alchemist.getLiquidationLimitInfo(fakeUnderlying);
+	function setLiquidationAmount(address fakeUnderlying, uint96 amount) public returns (uint256) {
+		// Get liquidation limit
+		(, , uint256 liquidationLimit) = alchemist.getLiquidationLimitInfo(fakeUnderlying);
 
 		// Liquidate either maximum limit or specific amount
-		maximum = amount > maximum ? maximum : amount;
+		uint256 liquidationAmount = amount > liquidationLimit ? liquidationLimit : amount;
+
+		return liquidationAmount;
 	}
 }
