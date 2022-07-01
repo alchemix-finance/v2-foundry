@@ -10,7 +10,6 @@ import {StaticAToken} from "../external/aave/StaticAToken.sol";
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 import {stdCheats} from "forge-std/stdlib.sol";
-import {console} from "../../lib/forge-std/src/console.sol";
 
 import {
     AAVETokenAdapter,
