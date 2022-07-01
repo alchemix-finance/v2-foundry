@@ -20,7 +20,7 @@ contract AAVETokenAdapter is ITokenAdapter, MutexLock {
     address public alchemist;
     address public override token;
     address public override underlyingToken;
-    address public tokenDecimals;
+    uint8 public tokenDecimals;
 
     constructor(InitializationParams memory params) {
         alchemist = params.alchemist;
