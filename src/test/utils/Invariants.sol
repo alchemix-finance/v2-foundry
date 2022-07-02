@@ -76,6 +76,26 @@ contract Invariants is Functionalities {
 		assertTrue(balanceIsZero == sharesIsZero);
 	}
 
+    /* Invariant A4: Unless the token has suffered a loss, every operation that changes */ 
+    /* the balance or expected value of a yield token leaves the expected value equal to */
+    /* the current value, caculated by multiplying the price of the token by its balance. */
+    function invariantA4(address user, address yieldToken) public {
+        emit log("Checking Invariant A4");
+        
+        uint256 priceYieldToken = tokenAdapter.price();
+        AlchemistV2.YieldTokenParams memory params = 
+            alchemist.getYieldTokenParameters(yieldToken);
+
+        uint256 expectedValue = params.expectedValue * 10**params.decimals;
+        uint256 currentValue = params.activeBalance * priceYieldToken;
+
+		emit log_named_uint("Expected Value", expectedValue);
+		emit log_named_uint("Active Balance", params.activeBalance);
+		emit log_named_uint("Price", priceYieldToken);
+		emit log_named_uint("Current Value", currentValue);
+        assertEq(expectedValue, currentValue);        
+    }
+
 	/* Invariant A7: Assuming the price of a yield token never drops to 0, the expected value */
 	/* of the yield token equals 0 only if its balance equals 0. */
 	function invariantA7(address[] calldata userList, address yieldToken) public {
@@ -115,6 +135,56 @@ contract Invariants is Functionalities {
 		assertEq(sumSharesCDPs, 0);
 	}
 
+	/* Invariant A9: Assume no loss occurs on yield tokens. Then, every CDP (after being */
+    /* updated by _poke) is always "healthy", meaning it maintains at least the minimum */
+    /* collateralization ratio (assuming this ratio is at least 1). */
+    function invariantA9(address[] calldata userList, 
+                         address yieldToken, 
+                         address underlyingToken) public {
+        emit log("Checking Invariant A9");
+
+        int256 debt;
+        address[] memory depositedTokens;
+        uint256 shares;
+        uint256 amountYieldToken;
+        uint256 currentValue;
+        uint256 normalizedValue;
+        uint256 totalValueCDP = 0;
+        uint256 priceYieldToken = tokenAdapter.price(); 
+        
+        for (uint256 i = 0; i < userList.length; i++) {
+            (debt, depositedTokens) = alchemist.accounts(userList[i]);
+
+            // Sum of a CDP's collateral.
+            for (uint256 j = 0; j < depositedTokens.length; j++){            
+                yieldToken = depositedTokens[j];                
+                (shares, ) = alchemist.positions(userList[i], yieldToken);
+
+                AlchemistV2.YieldTokenParams memory yieldTokenParams =
+                    alchemist.getYieldTokenParameters(yieldToken);
+                
+                underlyingToken = yieldTokenParams.underlyingToken;
+
+                AlchemistV2.UnderlyingTokenParams memory underlyingTokenParams =
+                    alchemist.getUnderlyingTokenParameters(underlyingToken);
+                                  
+                amountYieldToken = yieldTokenParams.activeBalance * shares / yieldTokenParams.totalShares;
+                currentValue = amountYieldToken * priceYieldToken / 10**yieldTokenParams.decimals;
+
+                // Conversion factor used to normalize the token to a value comparable to the debt token.
+                normalizedValue = currentValue * underlyingTokenParams.conversionFactor;
+                
+                totalValueCDP += normalizedValue;
+            }
+
+            if (debt > 0) {        
+                uint256 collateralization = totalValueCDP * 1e18 / uint256(debt);
+                bool healthyCDP = collateralization >= alchemist.minimumCollateralization();
+                assertTrue(healthyCDP);
+            }            
+        }
+    }    
+
 	function checkAllInvariants(
 		address[] calldata userList,
 		address fakeYield,
@@ -128,6 +198,7 @@ contract Invariants is Functionalities {
 		invariantA3(userList, fakeYield);
 		invariantA7(userList, fakeYield);
 		invariantA8(userList, fakeYield, fakeUnderlying);
+		invariantA9(userList, fakeYield, fakeUnderlying);
 	}
 
 	/* Invariant A1 with range assertions to account for rounding errors

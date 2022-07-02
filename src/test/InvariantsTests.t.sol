@@ -26,6 +26,9 @@ contract TestInvariants is Invariants {
 		// Initialize the test
 		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
 
+		// Ensure first user has enough underlying token
+		cheats.assume(amount >= tokenAdapter.price());
+
 		// Check that invariants hold before interaction
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
 
@@ -33,10 +36,10 @@ contract TestInvariants is Invariants {
 
 		// Assign yield tokens to a user
 		assignToUser(userList[0], fakeUnderlying, amount);
-		assignYieldTokenToUser(userList[0], fakeYield, amount);
+		uint256 yieldAmount = assignYieldTokenToUser(userList[0], fakeYield, amount);
 
 		// Deposit yield tokens
-		alchemist.deposit(fakeYield, amount, userList[0]);
+		alchemist.deposit(fakeYield, yieldAmount, userList[0]);
 
 		cheats.stopPrank();
 
@@ -58,6 +61,9 @@ contract TestInvariants is Invariants {
 	) public {
 		// Initialize the test
 		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
+
+		// Ensure first user has enough underlying token
+		cheats.assume(amount >= tokenAdapter.price());
 
 		// Check that invariants hold before interaction
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
@@ -414,6 +420,7 @@ contract TestInvariants is Invariants {
 		invariantA3(userList, fakeYield);
 		invariantA7(userList, fakeYield);
 		invariantA8(userList, fakeYield, fakeUnderlying);
+		invariantA9(userList, fakeYield, fakeUnderlying);
 
 		cheats.startPrank(userList[0], userList[0]);
 
@@ -430,5 +437,6 @@ contract TestInvariants is Invariants {
 		invariantA3(userList, fakeYield);
 		invariantA7(userList, fakeYield);
 		invariantA8(userList, fakeYield, fakeUnderlying);
+		invariantA9(userList, fakeYield, fakeUnderlying);		
 	}
 }
