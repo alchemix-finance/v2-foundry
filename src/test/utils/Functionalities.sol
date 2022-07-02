@@ -368,10 +368,22 @@ contract Functionalities is DSTest {
 		address user,
 		address token,
 		uint256 amount
-	) public {
+	) public returns (uint256) {
 		IERC20Mintable(fakeUnderlying).approve(address(fakeYield), amount);
 		TestYieldToken(token).mint(amount, user);
 		TestYieldToken(token).approve(address(alchemist), amount);
+
+		return TestERC20(fakeYield).balanceOf(user);
+	}
+
+	/* 
+	 * Mints amount to yield
+	 */
+    function assignToYield (
+		address token,
+		uint256 amount
+	) public {
+		IERC20Mintable(token).mint(address(fakeYield), amount);
 	}
 
 	/*
@@ -435,6 +447,9 @@ contract Functionalities is DSTest {
 
 		// Get total minted debt
 		minted = calculateTotalMinted(userList, debtList);
+
+		// Increse yield token price
+		assignToYield(fakeUnderlying, amount);
 	}
 
 	/*
