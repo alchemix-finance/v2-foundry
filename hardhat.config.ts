@@ -17,14 +17,6 @@ const generateRandomHex = (size: number) =>
     .map(() => Math.floor(Math.random() * 16).toString(16))
     .join("");
   
-const getRemappings = () => {
-  return fs
-    .readFileSync("remappings.txt", "utf8")
-    .split("\n")
-    .filter(Boolean) // remove empty lines
-    .map((line) => line.trim().split("="));
-}
-
 const config = {
   solidity: {
     version: "0.8.13",
@@ -162,21 +154,7 @@ const config = {
     target: 'ethers-v5',
     alwaysGenerateOverloads: false, // should overloads with full signatures like deposit(uint256) be generated always, even if there are no overloads?
     externalArtifacts: [], // optional array of glob patterns with external artifacts to process (for example external libs from node_modules)
-  },
-  // preprocess: {
-  //   eachLine: (hre) => ({
-  //     transform: (line: string) => {
-  //       if (line.match(/^\s*import /i)) {
-  //         getRemappings().forEach(([find, replace]) => {
-  //           if (line.match(find)) {
-  //             line = line.replace(find, replace);
-  //           }
-  //         });
-  //       }
-  //       return line;
-  //     },
-  //   }),
-  // },
+  }
 };
 
 if (process.env.FORK) {
