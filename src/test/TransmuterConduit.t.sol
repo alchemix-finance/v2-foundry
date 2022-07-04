@@ -4,20 +4,20 @@ import "../../lib/ds-test/src/test.sol";
 import "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import "./utils/DSTestPlus.sol";
 import "../TransmuterConduit.sol";
-import "./utils/mocks/ERC20Mock.sol";
+import "./utils/mocks/ERC20MockDecimals.sol";
 import "./mocks/TransmuterBufferMock.sol";
 import "./utils/Hevm.sol";
 import "../../lib/forge-std/src/console.sol";
 
 contract TransmuterConduitTest is DSTestPlus {
-    ERC20Mock token;
+    ERC20MockDecimals token;
     TransmuterConduit transmuterConduit;
     TransmuterBufferMock transmuterBuffer;
 
     address transmuterSource = 0x000000000000000000000000000000000000dEaD;
 
     function setUp() public {
-        token = new ERC20Mock("TestToken", "TEST", 18);
+        token = new ERC20MockDecimals("TestToken", "TEST", 18);
         transmuterBuffer = new TransmuterBufferMock(address(token));
         transmuterConduit = new TransmuterConduit(address(token), transmuterSource, address(transmuterBuffer));
         token.mint(transmuterSource, 100*10e18);

@@ -1,0 +1,46 @@
+{
+  "name": "v2-foundry",
+  "version": "1.0.0",
+  "description": "smart contracts for the Alchemix V2 protocol",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alchemix-finance/v2-foundry.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alchemix-finance/v2-foundry/issues"
+  },
+  "homepage": "https://github.com/alchemix-finance/v2-foundry#readme",
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.6",
+    "@nomiclabs/hardhat-waffle": "^2.0.3",
+    "@openzeppelin/hardhat-upgrades": "^1.19.0",
+    "@typechain/ethers-v5": "^10.1.0",
+    "@typechain/hardhat": "^6.1.2",
+    "@types/chai": "^4.3.1",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^18.0.1",
+    "chai": "^4.3.6",
+    "ethereum-waffle": "^3.4.4",
+    "hardhat": "^2.9.9",
+    "hardhat-deploy": "^0.11.11",
+    "hardhat-preprocessor": "^0.1.4",
+    "moment": "^2.29.3",
+    "ts-node": "^10.8.2"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "ethers": "^5.6.9",
+    "typechain": "^8.1.0",
+    "typescript": "^4.7.4"
+  }
+}

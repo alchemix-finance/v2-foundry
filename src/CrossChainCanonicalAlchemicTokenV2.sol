@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity ^0.8.11;
+pragma solidity ^0.8.13;
 
 import {CrossChainCanonicalBase} from "./CrossChainCanonicalBase.sol";
 import {AlchemicTokenV2Base} from "./AlchemicTokenV2Base.sol";
