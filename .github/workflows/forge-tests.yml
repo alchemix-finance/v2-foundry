@@ -1,14 +1,6 @@
 name: CI
 
-on:
-  push:
-    branches:
-      - master
-      - dev
-  pull_request:
-    branches:
-      - dev
-      - master
+on: [push, pull_request]
 
 jobs:
   hardhat-tests:
