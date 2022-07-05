@@ -38,7 +38,6 @@ contract TransmuterConduitTest is DSTestPlus {
         token.approve(address(transmuterConduit), amount);
         transmuterConduit.distribute(transmuterSource, amount);
         uint256 endingBal = token.balanceOf(address(transmuterBuffer));
-        console.log(endingBal);
         assertEq(endingBal, amount);
     }
 

@@ -15,6 +15,7 @@ contract TransmuterBufferMock is IERC20TokenReceiver{
 
   function initialize(address[] calldata _underlyingTokens, address[] calldata _transmuters) external {
     for (uint256 i = 0; i < _underlyingTokens.length; ++i) {
+      underlyingTokens[_underlyingTokens[i]] = true;
       transmuters[_underlyingTokens[i]] = _transmuters[i];
     }
   }
