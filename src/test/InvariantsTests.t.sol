@@ -20,11 +20,12 @@ contract TestInvariants is Invariants {
 		address[] calldata userList,
 		uint96[] calldata debtList,
 		uint96[] calldata overCollateralList,
+		uint96 priceIncrease,
 		uint96 amount,
 		address recipient
 	) public {
 		// Initialize the test
-		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
+		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, priceIncrease, amount, recipient);
 
 		// Ensure first user has enough underlying token
 		cheats.assume(amount >= tokenAdapter.price());
@@ -45,6 +46,7 @@ contract TestInvariants is Invariants {
 
 		// Check that invariants hold after interaction
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		invariantA4(userList[0], fakeYield);
 	}
 
 	/*
@@ -56,11 +58,12 @@ contract TestInvariants is Invariants {
 		address[] calldata userList,
 		uint96[] calldata debtList,
 		uint96[] calldata overCollateralList,
+		uint96 priceIncrease,
 		uint96 amount,
 		address recipient
 	) public {
 		// Initialize the test
-		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
+		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, priceIncrease, amount, recipient);
 
 		// Ensure first user has enough underlying token
 		cheats.assume(amount >= tokenAdapter.price());
@@ -80,6 +83,7 @@ contract TestInvariants is Invariants {
 
 		// Check that invariants hold after interaction
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		invariantA4(userList[0], fakeYield);
 	}
 
 	/*
@@ -91,14 +95,15 @@ contract TestInvariants is Invariants {
 		address[] calldata userList,
 		uint96[] calldata debtList,
 		uint96[] calldata overCollateralList,
+		uint96 priceIncrease,
 		uint96 amount,
 		address recipient
 	) public {
 		// Initialize the test
-		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
+		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, priceIncrease, amount, recipient);
 
 		// Ensure first user has enough collateral to withdraw
-		cheats.assume(amount <= overCollateralList[0]);
+		ensureCollateralToWithdraw(amount, overCollateralList[0]);
 
 		// Check that invariants hold before interaction
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
@@ -117,6 +122,7 @@ contract TestInvariants is Invariants {
 
 		// Check that invariants hold after interaction
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		invariantA4(userList[0], fakeYield);
 	}
 
 	/*
@@ -128,14 +134,15 @@ contract TestInvariants is Invariants {
 		address[] calldata userList,
 		uint96[] calldata debtList,
 		uint96[] calldata overCollateralList,
+		uint96 priceIncrease,
 		uint96 amount,
 		address recipient
 	) public {
 		// Initialize the test
-		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
+		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, priceIncrease, amount, recipient);
 
 		// Ensure first user has enough collateral to withdraw
-		cheats.assume(amount <= overCollateralList[0]);
+		ensureCollateralToWithdraw(amount, overCollateralList[0]);
 
 		// Check that invariants hold before interaction
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
@@ -154,6 +161,7 @@ contract TestInvariants is Invariants {
 
 		// Check that invariants hold after interaction
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		invariantA4(userList[0], fakeYield);
 	}
 
 	/*
@@ -165,14 +173,15 @@ contract TestInvariants is Invariants {
 		address[] calldata userList,
 		uint96[] calldata debtList,
 		uint96[] calldata overCollateralList,
+		uint96 priceIncrease,
 		uint96 amount,
 		address recipient
 	) public {
 		// Initialize the test
-		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
+		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, priceIncrease, amount, recipient);
 
 		// Ensure first user has enough collateral to withdraw
-		cheats.assume(amount <= overCollateralList[0]);
+		ensureCollateralToWithdraw(amount, overCollateralList[0]);
 
 		// Check that invariants hold before interaction
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
@@ -199,6 +208,7 @@ contract TestInvariants is Invariants {
 
 		// Check that invariants hold after interaction
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		invariantA4(userList[0], fakeYield);
 	}
 
 	/*
@@ -210,14 +220,15 @@ contract TestInvariants is Invariants {
 		address[] calldata userList,
 		uint96[] calldata debtList,
 		uint96[] calldata overCollateralList,
+		uint96 priceIncrease,
 		uint96 amount,
 		address recipient
 	) public {
 		// Initialize the test
-		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
+		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, priceIncrease, amount, recipient);
 
 		// Ensure first user has enough collateral to withdraw
-		cheats.assume(amount <= overCollateralList[0]);
+		ensureCollateralToWithdraw(amount, overCollateralList[0]);
 
 		// Check that invariants hold before interaction
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
@@ -250,6 +261,7 @@ contract TestInvariants is Invariants {
 
 		// Check that invariants hold after interaction
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		invariantA4(userList[0], fakeYield);
 	}
 
 	/*
@@ -261,14 +273,15 @@ contract TestInvariants is Invariants {
 		address[] calldata userList,
 		uint96[] calldata debtList,
 		uint96[] calldata overCollateralList,
+		uint96 priceIncrease,
 		uint96 amount,
 		address recipient
 	) public {
 		// Initialize the test
-		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
+		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, priceIncrease, amount, recipient);
 
 		// Ensure first user has enough collateral to mint
-		cheats.assume(amount <= (overCollateralList[0] / 2));
+		ensureCollateralToMint(amount, overCollateralList[0]);
 
 		// Check that invariants hold before interaction
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
@@ -283,6 +296,7 @@ contract TestInvariants is Invariants {
 
 		// Check that invariants hold after interaction
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		invariantA4(userList[0], fakeYield);
 	}
 
 	/*
@@ -294,14 +308,15 @@ contract TestInvariants is Invariants {
 		address[] calldata userList,
 		uint96[] calldata debtList,
 		uint96[] calldata overCollateralList,
+		uint96 priceIncrease,
 		uint96 amount,
 		address recipient
 	) public {
 		// Initialize the test
-		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
+		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, priceIncrease, amount, recipient);
 
 		// Ensure first user has enough collateral to mint
-		cheats.assume(amount <= (overCollateralList[0] / 2));
+		ensureCollateralToMint(amount, overCollateralList[0]);
 
 		// Check that invariants hold before interaction
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
@@ -324,6 +339,7 @@ contract TestInvariants is Invariants {
 
 		// Check that invariants hold after interaction
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		invariantA4(userList[0], fakeYield);
 	}
 
 	/*
@@ -335,11 +351,12 @@ contract TestInvariants is Invariants {
 		address[] calldata userList,
 		uint96[] calldata debtList,
 		uint96[] calldata overCollateralList,
+		uint96 priceIncrease,
 		uint96 amount,
 		address recipient
 	) public {
 		// Initialize the test
-		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
+		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, priceIncrease, amount, recipient);
 
 		// Ensure account has debt to repay
 		cheats.assume(debtList[0] > 0);
@@ -371,11 +388,12 @@ contract TestInvariants is Invariants {
 		address[] calldata userList,
 		uint96[] calldata debtList,
 		uint96[] calldata overCollateralList,
+		uint96 priceIncrease,
 		uint96 amount,
 		address recipient
 	) public {
 		// Initialize the test
-		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
+		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, priceIncrease, amount, recipient);
 
 		// Ensure account has debt to burn
 		cheats.assume(debtList[0] > amount);
@@ -405,14 +423,16 @@ contract TestInvariants is Invariants {
 		address[] calldata userList,
 		uint96[] calldata debtList,
 		uint96[] calldata overCollateralList,
+		uint96 priceIncrease,
 		uint96 amount,
 		address recipient
 	) public {
 		// Initialize the test
-		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
+		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, priceIncrease, amount, recipient);
 
 		// Ensure account has debt to liquidate
-		cheats.assume(debtList[0] > 0);
+		cheats.assume(debtList[0] >= tokenAdapter.price());
+		cheats.assume(amount >= tokenAdapter.price());
 
 		// Check that invariants hold before interaction
 		invariantA1Range(userList, fakeYield, minted, burned, sentToTransmuter);
@@ -435,8 +455,9 @@ contract TestInvariants is Invariants {
 		invariantA1Range(userList, fakeYield, minted, burned, sentToTransmuter);
 		invariantA2(userList, fakeYield);
 		invariantA3(userList, fakeYield);
+		invariantA4(userList[0], fakeYield);
 		invariantA7(userList, fakeYield);
 		invariantA8(userList, fakeYield, fakeUnderlying);
-		invariantA9(userList, fakeYield, fakeUnderlying);		
+		invariantA9(userList, fakeYield, fakeUnderlying);
 	}
 }

@@ -266,6 +266,19 @@ contract Functionalities is DSTest {
 		cheats.assume(users[user] != true);
 	}
 
+	function ensureCollateralToWithdraw(uint256 amountToWithdraw, uint256 overCollateral) public {
+		// Lower bound amount to ensure that yield tokens withdrawn are not 0 due to rounding error
+		cheats.assume(amountToWithdraw >= tokenAdapter.price());
+
+		// Ensure there is enough collateral to withdraw, with a buffer against rounding errors
+		cheats.assume(overCollateral >= amountToWithdraw + 100);
+	}
+
+	function ensureCollateralToMint(uint256 amountToMint, uint256 overCollateral) public {
+		// Ensure there is enough collateral to mint, with a buffer against rounding errors
+		cheats.assume(overCollateral >= 2 * amountToMint + 100);
+	}
+
 	/*
 	 * Create CDPs for multiple users
 	 */
@@ -437,6 +450,7 @@ contract Functionalities is DSTest {
 		address[] calldata userList,
 		uint96[] calldata debtList,
 		uint96[] calldata overCollateralList,
+		uint96 priceIncrease,
 		uint96 amount,
 		address recipient
 	) public {
@@ -450,7 +464,7 @@ contract Functionalities is DSTest {
 		minted = calculateTotalMinted(userList, debtList);
 
 		// Increse yield token price
-		assignToYield(fakeUnderlying, amount);
+		assignToYield(fakeUnderlying, priceIncrease);
 	}
 
 	/*
@@ -479,7 +493,7 @@ contract Functionalities is DSTest {
 	/*
 	 * Set the amount to liquidate
 	 */
-	function setLiquidationAmount(address fakeUnderlying, uint96 amount) public returns (uint256) {
+	function setLiquidationAmount(address fakeUnderlying, uint256 amount) public returns (uint256) {
 		// Get liquidation limit
 		(, , uint256 liquidationLimit) = alchemist.getLiquidationLimitInfo(fakeUnderlying);
 
