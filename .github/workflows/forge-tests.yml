@@ -1,9 +1,18 @@
-name: Forge Tests
+name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+      - dev
+  pull_request:
+    branches:
+      - dev
+      - master
 
 jobs:
   hardhat-tests:
+    name: Runs the hardhat tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -27,8 +36,9 @@ jobs:
       
       - name: Run hardhat tests
         run: yarn test
-        
+
   forge-tests:
+  name: Runs the foundry tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
