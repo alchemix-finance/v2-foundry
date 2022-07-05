@@ -436,6 +436,7 @@ contract Functionalities is DSTest {
 		address[] calldata userList,
 		uint96[] calldata debtList,
 		uint96[] calldata overCollateralList,
+		uint96 priceIncrease,
 		uint96 amount,
 		address recipient
 	) public {
@@ -449,7 +450,7 @@ contract Functionalities is DSTest {
 		minted = calculateTotalMinted(userList, debtList);
 
 		// Increse yield token price
-		assignToYield(fakeUnderlying, amount);
+		assignToYield(fakeUnderlying, priceIncrease);
 	}
 
 	/*
@@ -478,7 +479,7 @@ contract Functionalities is DSTest {
 	/*
 	 * Set the amount to liquidate
 	 */
-	function setLiquidationAmount(address fakeUnderlying, uint96 amount) public returns (uint256) {
+	function setLiquidationAmount(address fakeUnderlying, uint256 amount) public returns (uint256) {
 		// Get liquidation limit
 		(, , uint256 liquidationLimit) = alchemist.getLiquidationLimitInfo(fakeUnderlying);
 
