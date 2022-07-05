@@ -128,7 +128,7 @@ async function alchemistFixture([
         whitelist: whitelist.address,
       },
     ],
-    { unsafeAllow: ["delegatecall"] }
+    { unsafeAllow: ["delegatecall", "constructor"] }
   )) as AlchemistV2;
 
   await alchemist.connect(admin).setKeeper(admin.address, true);
@@ -264,7 +264,7 @@ describe("AlchemistV2", () => {
               whitelist: whitelist.address,
             },
           ],
-          { unsafeAllow: ["delegatecall"] }
+          { unsafeAllow: ["delegatecall", "constructor"] }
         )
       ).revertedWith("IllegalArgument()");
     });

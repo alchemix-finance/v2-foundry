@@ -125,14 +125,12 @@ const config = {
           privateKey: process.env.MAINNET_DEPLOYER_PK || generateRandomHex(64),
           balance: "1000000000000000000000000",
         },
-        {
-          privateKey: process.env.MAINNET_SENTINEL_PK || generateRandomHex(64),
-          balance: "2000000000000000000000000",
-        },
-        {
-          privateKey: process.env.MAINNET_SENTINEL_PK || generateRandomHex(64),
-          balance: "2000000000000000000000000",
-        }
+        {privateKey: generateRandomHex(64), balance: "2000000000000000000000000"},
+        {privateKey: generateRandomHex(64), balance: "2000000000000000000000000"},
+        {privateKey: generateRandomHex(64), balance: "2000000000000000000000000"},
+        {privateKey: generateRandomHex(64), balance: "2000000000000000000000000"},
+        {privateKey: generateRandomHex(64), balance: "2000000000000000000000000"},
+        {privateKey: generateRandomHex(64), balance: "2000000000000000000000000"},
       ],
     },
     ropsten: {

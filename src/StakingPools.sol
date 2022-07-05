@@ -13,7 +13,7 @@ import {FixedPointMath} from "./libraries/FixedPointMath.sol";
 import {Pool} from "./libraries/pools/Pool.sol";
 import {Stake} from "./libraries/pools/Stake.sol";
 import {StakingPools} from "./StakingPools.sol";
-
+import "hardhat/console.sol";
 /// @title StakingPools
 //    ___    __        __                _               ___                              __         _ 
 //   / _ |  / / ____  / /  ___   __ _   (_) __ __       / _ \  ____ ___   ___ ___   ___  / /_  ___  (_)

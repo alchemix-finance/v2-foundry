@@ -2,12 +2,13 @@ import chai from "chai";
 import { solidity } from "ethereum-waffle";
 import { ethers, deployments, waffle } from "hardhat";
 import { BigNumber, BigNumberish, ContractFactory, Signer, utils } from "ethers";
-import { AlchemixHarvester } from '../typechain/src/keepers/AlchemixHarvester';
-import { HarvestResolver } from '../typechain/src/keepers/HarvestResolver';
-import { AlchemistV2Mock } from '../typechain/src/mocks/AlchemistV2Mock';
-import { YieldTokenMock } from '../typechain/src/mocks/YieldTokenMock';
-import { ERC20Mock } from '../typechain/src/mocks/ERC20Mock';
-import { TokenAdapterMock } from '../typechain/src/mocks/TokenAdapterMock';
+import { 
+    AlchemixHarvester,
+    HarvestResolver, 
+    AlchemistV2Mock,
+    YieldTokenMock,
+    ERC20Mock,
+    TokenAdapterMock } from '../typechain';
 import { increaseTime } from "../utils/helpers";
 const {parseEther, formatEther} = utils;
 

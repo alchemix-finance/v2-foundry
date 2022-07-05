@@ -1,12 +1,12 @@
 import { expect } from "chai";
 import { Wallet } from "ethers";
 import { ethers, waffle, upgrades } from "hardhat";
-import { CrossChainCanonicalAlchemicTokenV2, ERC20Mock } from "../typechain";
+import { CrossChainCanonicalAlchemicTokenV2, ERC20MockDecimals } from "../typechain";
 
 describe("StableSwap", () => {
   let wallet: Wallet, admin: Wallet;
   let alchemicToken: CrossChainCanonicalAlchemicTokenV2;
-  let bridgeToken: ERC20Mock, bridgeToken2: ERC20Mock;
+  let bridgeToken: ERC20MockDecimals, bridgeToken2: ERC20MockDecimals;
 
   before(async () => {
     [wallet, admin] = waffle.provider.getWallets();
@@ -16,10 +16,10 @@ describe("StableSwap", () => {
     const bridgeTokenFactory = await ethers.getContractFactory("ERC20MockDecimals");
     bridgeToken = (await bridgeTokenFactory
       .connect(admin)
-      .deploy("", "", 18)) as ERC20Mock;
+      .deploy("bridge token 1", "BT1", 18)) as ERC20MockDecimals;
     bridgeToken2 = (await bridgeTokenFactory
       .connect(admin)
-      .deploy("", "", 18)) as ERC20Mock;
+      .deploy("bridge token 2", "BT2", 18)) as ERC20MockDecimals;
 
     const crossChainCanonicalAlchemicTokenV2Factory =
       await ethers.getContractFactory("CrossChainCanonicalAlchemicTokenV2");
@@ -28,8 +28,7 @@ describe("StableSwap", () => {
       [
         "alchemix TEST", 
         "alTEST", 
-        [ bridgeToken.address ], 
-        [ ethers.utils.parseEther("1000000") ]
+        [ bridgeToken.address ]
       ],
       { unsafeAllow: ["delegatecall"] }
     )) as CrossChainCanonicalAlchemicTokenV2;
@@ -111,7 +110,7 @@ describe("StableSwap", () => {
         alchemicToken
           .connect(wallet)
           .exchangeOldForCanonical(bridgeToken.address, tokenAmount)
-      ).revertedWith("IllegalState()");
+      ).revertedWith(`IllegalState("Exchanges paused")`);
       // Now unpause
       await alchemicToken.connect(admin).toggleExchanges();
       // Attempt again and don't revert
@@ -136,7 +135,7 @@ describe("StableSwap", () => {
         alchemicToken
           .connect(wallet)
           .exchangeOldForCanonical(bridgeToken.address, tokenAmount)
-      ).revertedWith("IllegalState()");
+      ).revertedWith(`IllegalState("Bridge token not enabled")`);
       // Now unpause
       await alchemicToken
         .connect(admin)
@@ -159,7 +158,7 @@ describe("StableSwap", () => {
         alchemicToken
           .connect(admin)
           .recoverERC20(bridgeToken.address, tokenAmount)
-      ).revertedWith("IllegalState()");
+      ).revertedWith(`IllegalState("Bridge token not enabled")`);
       // Disable token as bridge token
       await alchemicToken
         .connect(admin)

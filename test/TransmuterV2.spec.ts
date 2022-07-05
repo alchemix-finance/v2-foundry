@@ -97,7 +97,7 @@ async function transmuterFixture([
       transmuterBuffer.address,
       whitelist.address,
     ],
-    { unsafeAllow: ["delegatecall"] }
+    { unsafeAllow: ["delegatecall", "constructor"] }
   )) as TransmuterV2;
   await transmuter.deployed();
 
@@ -109,7 +109,7 @@ async function transmuterFixture([
       transmuterBuffer.address,
       whitelist.address,
     ],
-    { unsafeAllow: ["delegatecall"] }
+    { unsafeAllow: ["delegatecall", "constructor"] }
   )) as TransmuterV2;
   await transmuter6.deployed();
 

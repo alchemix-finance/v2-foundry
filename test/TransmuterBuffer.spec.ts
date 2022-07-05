@@ -135,7 +135,7 @@ async function alchemixFixture([
   const transmuterBuffer = (await upgrades.deployProxy(
     transmuterBufferFactory,
     [admin.address, debtToken.address],
-    { unsafeAllow: ["delegatecall"] }
+    { unsafeAllow: ["delegatecall", "constructor"] }
   )) as TransmuterBuffer;
   await transmuterBuffer.deployed();
 
@@ -166,7 +166,7 @@ async function alchemixFixture([
         whitelist: whitelist.address,
       },
     ],
-    { unsafeAllow: ["delegatecall"] }
+    { unsafeAllow: ["delegatecall", "constructor"] }
   )) as AlchemistV2;
 
   await debtToken.connect(deployer).setWhitelist(alchemist.address, true);
@@ -1303,7 +1303,7 @@ describe("Transmuter Buffer", () => {
             whitelist: whitelist.address,
           },
         ],
-        { unsafeAllow: ["delegatecall"] }
+        { unsafeAllow: ["delegatecall", "constructor"] }
       )) as AlchemistV2;
 
       await transmuterBuffer.connect(admin).setAlchemist(newAlchemist.address);

@@ -14,11 +14,11 @@ contract ERC20MockDecimals is ERC20 {
         return _decimals;
     }
 
-    function burn(address owner, uint256 amount) public {
+    function burn(address owner, uint256 amount) external {
         _burn(owner, amount);
     }
 
-    function mint(address receiver, uint256 amount) public {
+    function mint(address receiver, uint256 amount) external {
         _mint(receiver, amount);
     }
 }

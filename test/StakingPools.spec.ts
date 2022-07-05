@@ -3,7 +3,7 @@ import { Wallet } from "ethers";
 import { ethers, waffle } from "hardhat";
 import {BigNumber, BigNumberish, ContractFactory, Signer} from "ethers";
 
-import { StakingPools, ERC20Mock } from "../typechain";
+import { StakingPools, ERC20MockDecimals } from "../typechain";
 import {MAXIMUM_U256, mineBlocks, ZERO_ADDRESS} from "../utils/helpers";
 
 describe("StakingPools", () => {
@@ -16,12 +16,12 @@ describe("StakingPools", () => {
   let signers: Signer[];
 
   let pools: StakingPools;
-  let reward: ERC20Mock;
+  let reward: ERC20MockDecimals;
   let rewardRate = 5000;
 
   before(async () => {
     StakingPoolsFactory = await ethers.getContractFactory("StakingPools");
-    ERC20MockFactory = await ethers.getContractFactory("ERC20Mock");
+    ERC20MockFactory = await ethers.getContractFactory("ERC20MockDecimals");
   });
 
   beforeEach(async () => {
@@ -31,7 +31,7 @@ describe("StakingPools", () => {
       "Test Token",
       "TEST",
       18
-    )) as ERC20Mock;
+    )) as ERC20MockDecimals;
 
     pools = (await StakingPoolsFactory.connect(deployer).deploy(
       reward.address,
@@ -103,14 +103,14 @@ describe("StakingPools", () => {
   });
 
   describe("create pool", () => {
-    let token: ERC20Mock;
+    let token: ERC20MockDecimals;
 
     beforeEach(async () => {
       token = (await ERC20MockFactory.connect(deployer).deploy(
         "Staking Token",
         "STAKE",
         18
-      )) as ERC20Mock;
+      )) as ERC20MockDecimals;
     });
 
     it("only allows governance to call", async () => {
@@ -176,14 +176,14 @@ describe("StakingPools", () => {
       });
 
       context("with one pool", async () => {
-        let token: ERC20Mock;
+        let token: ERC20MockDecimals;
 
         beforeEach(async () => {
           token = (await ERC20MockFactory.connect(deployer).deploy(
             "Staking Token",
             "STAKE",
             18
-          )) as ERC20Mock;
+          )) as ERC20MockDecimals;
         });
 
         beforeEach(async () => {
@@ -195,17 +195,17 @@ describe("StakingPools", () => {
 
       context("with many pools", async () => {
         let numberPools = 5;
-        let tokens: ERC20Mock[];
+        let tokens: ERC20MockDecimals[];
 
         beforeEach(async () => {
-          tokens = new Array<ERC20Mock>();
+          tokens = new Array<ERC20MockDecimals>();
           for (let i = 0; i < numberPools; i++) {
             tokens.push(
               (await ERC20MockFactory.connect(deployer).deploy(
                 "Staking Token",
                 "STAKE",
                 18
-              )) as ERC20Mock
+              )) as ERC20MockDecimals
             );
           }
         });
@@ -231,7 +231,7 @@ describe("StakingPools", () => {
 
   describe("deposit tokens", () => {
     let depositor: Signer;
-    let token: ERC20Mock;
+    let token: ERC20MockDecimals;
 
     beforeEach(async () => {
       [depositor, ...signers] = signers;
@@ -239,7 +239,7 @@ describe("StakingPools", () => {
         "Staking Token",
         "STAKE",
         18
-      )) as ERC20Mock;
+      )) as ERC20MockDecimals;
       await pools.connect(governance).createPool(token.address);
       await pools.connect(governance).setRewardWeights([1]);
     });
@@ -317,7 +317,7 @@ describe("StakingPools", () => {
 
   describe("withdraw tokens", () => {
     let depositor: Signer;
-    let token: ERC20Mock;
+    let token: ERC20MockDecimals;
 
     beforeEach(async () => {
       [depositor, ...signers] = signers;
@@ -325,7 +325,7 @@ describe("StakingPools", () => {
         "Staking Token",
         "STAKE",
         18
-      )) as ERC20Mock;
+      )) as ERC20MockDecimals;
 
       await pools.connect(governance).createPool(token.address);
       await pools.connect(governance).setRewardWeights([1]);
@@ -387,7 +387,7 @@ describe("StakingPools", () => {
 
   describe("claim tokens", () => {
     let depositor: Signer;
-    let token: ERC20Mock;
+    let token: ERC20MockDecimals;
 
     let rewardWeight = 1;
     let depositAmount = 50000;
@@ -400,7 +400,7 @@ describe("StakingPools", () => {
         "Staking Token",
         "STAKE",
         18
-      )) as ERC20Mock;
+      )) as ERC20MockDecimals;
     });
 
     beforeEach(async () => (token = token.connect(depositor)));
@@ -474,7 +474,7 @@ describe("StakingPools", () => {
 
   describe("claim partial tokens", () => {
     let depositor: Signer;
-    let token: ERC20Mock;
+    let token: ERC20MockDecimals;
 
     let rewardWeight = 1;
     let depositAmount = 50000;
@@ -487,7 +487,7 @@ describe("StakingPools", () => {
         "Staking Token",
         "STAKE",
         18
-      )) as ERC20Mock;
+      )) as ERC20MockDecimals;
     });
 
     beforeEach(async () => (token = token.connect(depositor)));
@@ -561,7 +561,7 @@ describe("StakingPools", () => {
 
   describe("get stake unclaimed amount", () => {
     let depositor: Signer;
-    let token: ERC20Mock;
+    let token: ERC20MockDecimals;
 
     let rewardWeight = 1;
     let depositAmount = 50000;
@@ -574,7 +574,7 @@ describe("StakingPools", () => {
         "Staking Token",
         "STAKE",
         18
-      )) as ERC20Mock;
+      )) as ERC20MockDecimals;
     });
 
     beforeEach(async () => (token = token.connect(depositor)));

@@ -701,8 +701,8 @@
       ]
     },
     "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/interfaces/IERC20Mintable.sol": {
-      "lastModificationDate": 1653491366341,
-      "contentHash": "f955ae8a94124bd3362d3013f4b11430",
+      "lastModificationDate": 1657029619035,
+      "contentHash": "392b2ab272b7c433fcb2c67e4ca1c8d9",
       "sourceName": "src/interfaces/IERC20Mintable.sol",
       "solcConfig": {
         "version": "0.8.13",
@@ -8243,8 +8243,8 @@
       ]
     },
     "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/mocks/ERC20MockDecimals.sol": {
-      "lastModificationDate": 1656982554304,
-      "contentHash": "0dcb6bd55c2640a3d2365594dfe66691",
+      "lastModificationDate": 1656986986122,
+      "contentHash": "596c7598a5f8873ee8716b0ed13124ce",
       "sourceName": "src/test/mocks/ERC20MockDecimals.sol",
       "solcConfig": {
         "version": "0.8.13",
@@ -8381,8 +8381,8 @@
       ]
     },
     "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/mocks/TestERC20.sol": {
-      "lastModificationDate": 1656973258285,
-      "contentHash": "78bebec4e74278d00af2f331a2edd097",
+      "lastModificationDate": 1657038472989,
+      "contentHash": "2dda4903a5494895610949ed2fd7b215",
       "sourceName": "src/test/mocks/TestERC20.sol",
       "solcConfig": {
         "version": "0.8.13",
@@ -8822,8 +8822,8 @@
       ]
     },
     "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/StakingPools.sol": {
-      "lastModificationDate": 1656983066869,
-      "contentHash": "ce3b3532685b91e130738f16aea03f2e",
+      "lastModificationDate": 1657029636557,
+      "contentHash": "4a2764f6ac245ec96b1bad927c6c4f73",
       "sourceName": "src/StakingPools.sol",
       "solcConfig": {
         "version": "0.8.13",
@@ -8865,7 +8865,8 @@
         "./libraries/FixedPointMath.sol",
         "./libraries/pools/Pool.sol",
         "./libraries/pools/Stake.sol",
-        "./StakingPools.sol"
+        "./StakingPools.sol",
+        "hardhat/console.sol"
       ],
       "versionPragmas": [
         "^0.8.11"
