@@ -265,8 +265,8 @@
       ]
     },
     "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/libraries/TokenUtils.sol": {
-      "lastModificationDate": 1656960948426,
-      "contentHash": "1dd0a5305b411203d5d6c5b7506cdddd",
+      "lastModificationDate": 1656984258001,
+      "contentHash": "5f39630f76f502266e49668149b70557",
       "sourceName": "src/libraries/TokenUtils.sol",
       "solcConfig": {
         "version": "0.8.13",
@@ -300,8 +300,8 @@
       },
       "imports": [
         "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "../../lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol",
         "../interfaces/IERC20Burnable.sol",
-        "../interfaces/IERC20Metadata.sol",
         "../interfaces/IERC20Mintable.sol"
       ],
       "versionPragmas": [
@@ -745,7 +745,7 @@
       ]
     },
     "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/MigrationToolUSD.t.sol": {
-      "lastModificationDate": 1656960375343,
+      "lastModificationDate": 1656972842806,
       "contentHash": "7ddcd2a5ab104ca7abf370e42f330542",
       "sourceName": "src/test/MigrationToolUSD.t.sol",
       "solcConfig": {
@@ -3973,8 +3973,8 @@
       ]
     },
     "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/mocks/TransmuterBufferMock.sol": {
-      "lastModificationDate": 1653491366348,
-      "contentHash": "b08696f4514589a5d590410364a706bd",
+      "lastModificationDate": 1656973276277,
+      "contentHash": "80540139c1dcc443d837416faecd9a11",
       "sourceName": "src/test/mocks/TransmuterBufferMock.sol",
       "solcConfig": {
         "version": "0.8.13",
@@ -4008,18 +4008,20 @@
       },
       "imports": [
         "../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "../../../lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol",
+        "../../interfaces/transmuter/ITransmuterV2.sol",
         "../../interfaces/IERC20TokenReceiver.sol"
       ],
       "versionPragmas": [
-        "0.8.13"
+        "^0.8.11"
       ],
       "artifacts": [
         "TransmuterBufferMock"
       ]
     },
     "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/TransmuterConduit.t.sol": {
-      "lastModificationDate": 1656963124093,
-      "contentHash": "ba669a22abe3d955f27abe3a8bdda483",
+      "lastModificationDate": 1656982682394,
+      "contentHash": "ce131d2f4d1e8ba4a0db440682315a2e",
       "sourceName": "src/test/TransmuterConduit.t.sol",
       "solcConfig": {
         "version": "0.8.13",
@@ -4056,7 +4058,8 @@
         "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
         "./utils/DSTestPlus.sol",
         "../TransmuterConduit.sol",
-        "./utils/mocks/ERC20MockDecimals.sol",
+        "./mocks/TransmuterMock.sol",
+        "./mocks/ERC20MockDecimals.sol",
         "./mocks/TransmuterBufferMock.sol",
         "./utils/Hevm.sol",
         "../../lib/forge-std/src/console.sol"
@@ -4304,53 +4307,6 @@
         "RocketPool"
       ]
     },
-    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/TestYieldTokenAdapter.sol": {
-      "lastModificationDate": 1656960948426,
-      "contentHash": "3c76e61a0d1fbf7e9c36a8bee60cab0b",
-      "sourceName": "src/test/TestYieldTokenAdapter.sol",
-      "solcConfig": {
-        "version": "0.8.13",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout",
-                "devdoc",
-                "userdoc",
-                "evm.gasEstimates"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          },
-          "metadata": {
-            "useLiteralContent": true
-          }
-        }
-      },
-      "imports": [
-        "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
-        "../interfaces/ITokenAdapter.sol",
-        "../interfaces/test/ITestYieldToken.sol",
-        "../libraries/TokenUtils.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.13"
-      ],
-      "artifacts": [
-        "TestYieldTokenAdapter"
-      ]
-    },
     "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/interfaces/test/ITestYieldToken.sol": {
       "lastModificationDate": 1656452460466,
       "contentHash": "73445e1d4d022c89f903d2240f8624f0",
@@ -4395,102 +4351,9 @@
         "ITestYieldToken"
       ]
     },
-    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/TestYieldToken.sol": {
-      "lastModificationDate": 1656960948426,
-      "contentHash": "bff56d67709bc08fad34c466e686576f",
-      "sourceName": "src/test/TestYieldToken.sol",
-      "solcConfig": {
-        "version": "0.8.13",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout",
-                "devdoc",
-                "userdoc",
-                "evm.gasEstimates"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          },
-          "metadata": {
-            "useLiteralContent": true
-          }
-        }
-      },
-      "imports": [
-        "../../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
-        "../libraries/TokenUtils.sol",
-        "../interfaces/test/ITestYieldToken.sol",
-        "./TestERC20.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.13"
-      ],
-      "artifacts": [
-        "TestYieldToken"
-      ]
-    },
-    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/TestERC20.sol": {
-      "lastModificationDate": 1656960948426,
-      "contentHash": "a72207bafffe3a7f6169f22c522b8f3f",
-      "sourceName": "src/test/TestERC20.sol",
-      "solcConfig": {
-        "version": "0.8.13",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "storageLayout",
-                "devdoc",
-                "userdoc",
-                "evm.gasEstimates"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          },
-          "metadata": {
-            "useLiteralContent": true
-          }
-        }
-      },
-      "imports": [
-        "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
-        "../interfaces/IERC20Burnable.sol",
-        "../interfaces/IERC20Mintable.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.13"
-      ],
-      "artifacts": [
-        "TestERC20"
-      ]
-    },
     "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/utils/Functionalities.sol": {
-      "lastModificationDate": 1656960948426,
-      "contentHash": "04230114ed4e5c86287e2d8cb811e24c",
+      "lastModificationDate": 1656982214048,
+      "contentHash": "0aec847c086dcff459b18d00b587da00",
       "sourceName": "src/test/utils/Functionalities.sol",
       "solcConfig": {
         "version": "0.8.13",
@@ -4531,9 +4394,9 @@
         "../../TransmuterV2.sol",
         "../../TransmuterBuffer.sol",
         "../../utils/Whitelist.sol",
-        "../../test/TestERC20.sol",
-        "../../test/TestYieldToken.sol",
-        "../../test/TestYieldTokenAdapter.sol",
+        "../mocks/TestERC20.sol",
+        "../mocks/TestYieldToken.sol",
+        "../mocks/TestYieldTokenAdapter.sol",
         "../../interfaces/IERC20Mintable.sol",
         "../../interfaces/ITokenAdapter.sol",
         "../../interfaces/alchemist/IAlchemistV2AdminActions.sol",
@@ -7978,7 +7841,7 @@
       ]
     },
     "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/interfaces/IERC20Minimal.sol": {
-      "lastModificationDate": 1656431090325,
+      "lastModificationDate": 1656972885174,
       "contentHash": "5b3b71f5355d88f1f53450331af826b8",
       "sourceName": "src/interfaces/IERC20Minimal.sol",
       "solcConfig": {
@@ -8071,8 +7934,8 @@
       ]
     },
     "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/mocks/YieldTokenMock.sol": {
-      "lastModificationDate": 1656960948082,
-      "contentHash": "8386896a5e78223b035f85021c281045",
+      "lastModificationDate": 1656964043825,
+      "contentHash": "3e7e48fb469790f87801e80880a67053",
       "sourceName": "src/mocks/YieldTokenMock.sol",
       "solcConfig": {
         "version": "0.8.13",
@@ -8108,8 +7971,7 @@
         "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
         "../../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
         "../../lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol",
-        "../../lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol",
-        "hardhat/console.sol"
+        "../../lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol"
       ],
       "versionPragmas": [
         "^0.8.13"
@@ -8332,10 +8194,10 @@
         "HarvestResolverMock"
       ]
     },
-    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/utils/mocks/ERC20MockDecimals.sol": {
-      "lastModificationDate": 1656963081191,
-      "contentHash": "64e4b25bd1966fc99fe0425ced671dd1",
-      "sourceName": "src/test/utils/mocks/ERC20MockDecimals.sol",
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/mocks/TransmuterMock.sol": {
+      "lastModificationDate": 1656973207150,
+      "contentHash": "9e17d3a07abe8b662c1d925691983a7f",
+      "sourceName": "src/test/mocks/TransmuterMock.sol",
       "solcConfig": {
         "version": "0.8.13",
         "settings": {
@@ -8367,13 +8229,925 @@
         }
       },
       "imports": [
-        "../../../../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol"
+        "../../../lib/openzeppelin-contracts/contracts/utils/Context.sol",
+        "../../../lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol",
+        "../../../lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/IERC20Upgradeable.sol",
+        "../../../lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol",
+        "../../interfaces/transmuter/ITransmuterBuffer.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.11"
+      ],
+      "artifacts": [
+        "TransmuterMock"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/mocks/ERC20MockDecimals.sol": {
+      "lastModificationDate": 1656982554304,
+      "contentHash": "0dcb6bd55c2640a3d2365594dfe66691",
+      "sourceName": "src/test/mocks/ERC20MockDecimals.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../../../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol"
       ],
       "versionPragmas": [
         "0.8.13"
       ],
       "artifacts": [
         "ERC20MockDecimals"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/mocks/TestYieldTokenAdapter.sol": {
+      "lastModificationDate": 1656973284438,
+      "contentHash": "c609aed50d7620b176f424109268a19e",
+      "sourceName": "src/test/mocks/TestYieldTokenAdapter.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "../../interfaces/ITokenAdapter.sol",
+        "../../interfaces/test/ITestYieldToken.sol",
+        "../../libraries/TokenUtils.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.13"
+      ],
+      "artifacts": [
+        "TestYieldTokenAdapter"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/mocks/TestYieldToken.sol": {
+      "lastModificationDate": 1656973235701,
+      "contentHash": "54712c976fbdb7f7a7694eb39ce0b1b6",
+      "sourceName": "src/test/mocks/TestYieldToken.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../../../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
+        "../../libraries/TokenUtils.sol",
+        "../../interfaces/test/ITestYieldToken.sol",
+        "./TestERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.13"
+      ],
+      "artifacts": [
+        "TestYieldToken"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/mocks/TestERC20.sol": {
+      "lastModificationDate": 1656973258285,
+      "contentHash": "78bebec4e74278d00af2f331a2edd097",
+      "sourceName": "src/test/mocks/TestERC20.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "../../interfaces/IERC20Burnable.sol",
+        "../../interfaces/IERC20Mintable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.13"
+      ],
+      "artifacts": [
+        "TestERC20"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/mocks/TestAlchemicToken.sol": {
+      "lastModificationDate": 1656973146559,
+      "contentHash": "6f0011f0802ecbddd828bffa8f984238",
+      "sourceName": "src/test/mocks/TestAlchemicToken.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "./TestERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.11"
+      ],
+      "artifacts": [
+        "TestAlchemicToken"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/mocks/TestWhitelisted.sol": {
+      "lastModificationDate": 1656982248469,
+      "contentHash": "71df188c1db5f1564e6ebeb79015b524",
+      "sourceName": "src/test/mocks/TestWhitelisted.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../../../lib/openzeppelin-contracts/contracts/access/AccessControl.sol",
+        "../../base/Errors.sol",
+        "../../utils/Whitelist.sol",
+        "../../interfaces/IWhitelist.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.11"
+      ],
+      "artifacts": [
+        "TestWhitelisted"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/mocks/TestWhitelistedCaller.sol": {
+      "lastModificationDate": 1656973146991,
+      "contentHash": "72c36493122c7d77386e8242f5d4a66a",
+      "sourceName": "src/test/mocks/TestWhitelistedCaller.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "./TestWhitelisted.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.11"
+      ],
+      "artifacts": [
+        "TestWhitelistedCaller"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/mocks/TestSets.sol": {
+      "lastModificationDate": 1656973243655,
+      "contentHash": "b066c6f3080049743916b5fc589ccb9a",
+      "sourceName": "src/test/mocks/TestSets.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../../libraries/Sets.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.11"
+      ],
+      "artifacts": [
+        "TestSets"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/mocks/TestFlashBorrower.sol": {
+      "lastModificationDate": 1656973248023,
+      "contentHash": "97ea37fdf524e21bcc9b2664439c3134",
+      "sourceName": "src/test/mocks/TestFlashBorrower.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../../interfaces/IERC3156FlashLender.sol",
+        "../../interfaces/IERC3156FlashBorrower.sol",
+        "../../interfaces/IERC20Minimal.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.11"
+      ],
+      "artifacts": [
+        "TestFlashBorrower"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/interfaces/IERC3156FlashLender.sol": {
+      "lastModificationDate": 1656972884609,
+      "contentHash": "77aad8c18e895d014c891eeafee04246",
+      "sourceName": "src/interfaces/IERC3156FlashLender.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "./IERC3156FlashBorrower.sol"
+      ],
+      "versionPragmas": [
+        ">=0.5.0"
+      ],
+      "artifacts": [
+        "IERC3156FlashLender"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/interfaces/IERC3156FlashBorrower.sol": {
+      "lastModificationDate": 1656972884588,
+      "contentHash": "f20dbab61b898417ebf29faec6494db4",
+      "sourceName": "src/interfaces/IERC3156FlashBorrower.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.5.0"
+      ],
+      "artifacts": [
+        "IERC3156FlashBorrower"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/mocks/TestErc20Receiver.sol": {
+      "lastModificationDate": 1656973146734,
+      "contentHash": "3a01d38fcfc7faad8f3cba0ef111d99d",
+      "sourceName": "src/test/mocks/TestErc20Receiver.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.11"
+      ],
+      "artifacts": [
+        "TestErc20Receiver"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/test/mocks/TestTransmuter.sol": {
+      "lastModificationDate": 1656982847468,
+      "contentHash": "650f2a16633547eb005970ed5cd9f7f1",
+      "sourceName": "src/test/mocks/TestTransmuter.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.13"
+      ],
+      "artifacts": [
+        "TestTransmuter"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/StakingPools.sol": {
+      "lastModificationDate": 1656983066869,
+      "contentHash": "ce3b3532685b91e130738f16aea03f2e",
+      "sourceName": "src/StakingPools.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../lib/openzeppelin-contracts/contracts/access/Ownable.sol",
+        "../lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol",
+        "../lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol",
+        "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "./interfaces/IERC20Mintable.sol",
+        "./interfaces/IStakingPools.sol",
+        "./libraries/FixedPointMath.sol",
+        "./libraries/pools/Pool.sol",
+        "./libraries/pools/Stake.sol",
+        "./StakingPools.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.11"
+      ],
+      "artifacts": [
+        "StakingPools"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/interfaces/IStakingPools.sol": {
+      "lastModificationDate": 1656983091572,
+      "contentHash": "f9b042cf8db3a7c08952932c80ef4294",
+      "sourceName": "src/interfaces/IStakingPools.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "./IERC20Mintable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.11"
+      ],
+      "artifacts": [
+        "IStakingPools"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/libraries/pools/Pool.sol": {
+      "lastModificationDate": 1656983111564,
+      "contentHash": "8827bb6b1037b22eebeda1d2f503417e",
+      "sourceName": "src/libraries/pools/Pool.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../../../lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol",
+        "../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "../FixedPointMath.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.11"
+      ],
+      "artifacts": [
+        "Pool"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/libraries/pools/Stake.sol": {
+      "lastModificationDate": 1656983122089,
+      "contentHash": "dd9fc7d86d421c112fda1a1a23fc4447",
+      "sourceName": "src/libraries/pools/Stake.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../../../lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol",
+        "../FixedPointMath.sol",
+        "./Pool.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.11"
+      ],
+      "artifacts": [
+        "Stake"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/interfaces/external/yearn/IYearnVaultV2.sol": {
+      "lastModificationDate": 1656984403738,
+      "contentHash": "44ca9054e47866a9f89819f482e032a2",
+      "sourceName": "src/interfaces/external/yearn/IYearnVaultV2.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../../IERC20Minimal.sol",
+        "../../../../lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol"
+      ],
+      "versionPragmas": [
+        ">=0.5.0"
+      ],
+      "artifacts": [
+        "IYearnVaultV2"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/adapters/yearn/YearnTokenAdapter.sol": {
+      "lastModificationDate": 1656983679674,
+      "contentHash": "82bd37a0a174b07ee987e4311d574ac8",
+      "sourceName": "src/adapters/yearn/YearnTokenAdapter.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../../base/Errors.sol",
+        "../../interfaces/ITokenAdapter.sol",
+        "../../interfaces/external/yearn/IYearnVaultV2.sol",
+        "../../libraries/TokenUtils.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.11"
+      ],
+      "artifacts": [
+        "YearnTokenAdapter"
+      ]
+    },
+    "/Users/patrickmckelvy/code/defi/os/alchemix/v2-foundry/src/mocks/YearnVaultMock.sol": {
+      "lastModificationDate": 1656984284610,
+      "contentHash": "8efcebaaa19263840b6a7247b1d97514",
+      "sourceName": "src/mocks/YearnVaultMock.sol",
+      "solcConfig": {
+        "version": "0.8.13",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "storageLayout",
+                "devdoc",
+                "userdoc",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
+        "../../lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
+        "../libraries/TokenUtils.sol",
+        "../interfaces/IERC20Minimal.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.11"
+      ],
+      "artifacts": [
+        "YearnVaultMock"
       ]
     }
   }

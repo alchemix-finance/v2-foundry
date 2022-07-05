@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import "../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
-import "../interfaces/IERC20Burnable.sol";
-import "../interfaces/IERC20Mintable.sol";
+import "../../interfaces/IERC20Burnable.sol";
+import "../../interfaces/IERC20Mintable.sol";
 
 contract TestERC20 is IERC20, IERC20Mintable, IERC20Burnable {
 	uint256 public override totalSupply;

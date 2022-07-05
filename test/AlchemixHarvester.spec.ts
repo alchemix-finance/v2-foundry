@@ -22,7 +22,7 @@ let YieldTokenMockFactory: ContractFactory;
 let ERC20MockFactory: ContractFactory;
 let TokenAdapterFactory: ContractFactory;
 
-describe.only("AlchemixHarvester", () => {
+describe("AlchemixHarvester", () => {
     let signers: Signer[];
     let alHarvester: AlchemixHarvester;
     let alResolver: HarvestResolver;

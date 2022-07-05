@@ -12,9 +12,10 @@ import { TransmuterV2 } from "../../TransmuterV2.sol";
 import { TransmuterBuffer } from "../../TransmuterBuffer.sol";
 import { Whitelist } from "../../utils/Whitelist.sol";
 
-import { TestERC20 } from "../../test/TestERC20.sol";
-import { TestYieldToken } from "../../test/TestYieldToken.sol";
-import { TestYieldTokenAdapter } from "../../test/TestYieldTokenAdapter.sol";
+import {TestERC20} from "../mocks/TestERC20.sol";
+import {TestYieldToken} from "../mocks/TestYieldToken.sol";
+import {TestYieldTokenAdapter} from "../mocks/TestYieldTokenAdapter.sol";
+
 
 import { IERC20Mintable } from "../../interfaces/IERC20Mintable.sol";
 import { ITokenAdapter } from "../../interfaces/ITokenAdapter.sol";
