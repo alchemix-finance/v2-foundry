@@ -7,6 +7,8 @@ import { IERC20 } from "../../../lib/openzeppelin-contracts/contracts/token/ERC2
 
 import { AlchemistV2 } from "../../AlchemistV2.sol";
 
+import "forge-std/console.sol";
+
 contract Invariants is Functionalities {
 	/* Invariant A1: Assume all CDPs are fully updated (using _poke) and no rounding errors. */
 	/* Let m be the amount of debt tokens minted by the Alchemist, b the amount of debt tokens */
@@ -20,6 +22,9 @@ contract Invariants is Functionalities {
 		uint256 tokensBurned,
 		uint256 sentToTransmuter
 	) public {
+		console.log("~ sentToTransmuter", sentToTransmuter);
+		console.log("~ tokensMinted", tokensMinted);
+		console.log("~ tokensBurned", tokensBurned);
 		emit log("Checking Invariant A1");
 
 		int256 debt;

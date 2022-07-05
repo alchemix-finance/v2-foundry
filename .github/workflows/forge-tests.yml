@@ -1,25 +1,51 @@
 name: Forge Tests
 
-on: [push, pull_request]
+on: pull_request
 
 jobs:
-  forge-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
+    forge-tests:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
 
-      - name: Install Foundry
-        uses: onbjerg/foundry-toolchain@v1
-        with:
-          version: nightly
+            - name: Install Foundry
+              uses: onbjerg/foundry-toolchain@v1
+              with:
+                  version: nightly
 
-      - name: Install dependencies
-        run: forge install
+            - name: Install dependencies
+              run: forge install
 
-      - name: Install submodules
-        run: git submodule update --init --recursive
-      
-      - name: Run forge tests
-        env:
-            ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
-        run: ./test.sh
+            - name: Install submodules
+              run: git submodule update --init --recursive
+
+            - name: Run forge tests
+              env:
+                  ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+                  TEST_PROFILE: default
+              run: ./test.sh
+
+on: push
+
+jobs:
+    forge-tests:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Install Foundry
+              uses: onbjerg/foundry-toolchain@v1
+              with:
+                  version: nightly
+
+            - name: Install dependencies
+              run: forge install
+
+            - name: Install submodules
+              run: git submodule update --init --recursive
+
+            - name: Run forge tests
+              env:
+                  ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+                  TEST_PROFILE: lite
+              run: ./test.sh

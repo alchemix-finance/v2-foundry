@@ -5,6 +5,8 @@ import "../../lib/ds-test/src/test.sol";
 
 import { Invariants } from "./utils/Invariants.sol";
 
+import "forge-std/console.sol";
+
 contract TestInvariants is Invariants {
 	function setUp() public {}
 
@@ -430,5 +432,36 @@ contract TestInvariants is Invariants {
 		invariantA3(userList, fakeYield);
 		invariantA7(userList, fakeYield);
 		invariantA8(userList, fakeYield, fakeUnderlying);
+	}
+
+	function testInvariantsOnDonate(
+		address caller,
+		address proxyOwner,
+		address[] calldata userList,
+		uint96[] calldata debtList,
+		uint96[] calldata overCollateralList,
+		uint96 amount,
+		address recipient
+	) public {
+		// Initialize the test
+		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
+
+		// Ensure account has debt tokens to donate
+		cheats.assume(debtList[0] > 0);
+
+		// Check that invariants hold before interaction
+		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+
+		cheats.startPrank(userList[0], userList[0]);
+
+		console.log("~ debtList[0]", debtList[0]);
+		alToken.approve(address(alchemist), debtList[0]);
+		alchemist.donate(fakeYield, debtList[0]);
+		burned += uint256(debtList[0]);
+
+		cheats.stopPrank();
+
+		// Check that invariants hold after interaction
+		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
 	}
 }

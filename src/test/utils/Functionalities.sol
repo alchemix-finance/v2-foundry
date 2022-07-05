@@ -472,4 +472,15 @@ contract Functionalities is DSTest {
 
 		return liquidationAmount;
 	}
+
+	function setDonationAmount(
+		address user,
+		address fakeYield,
+		uint96 amount
+	) public {
+		if (TestYieldToken(fakeYield).balanceOf(user) < amount) {
+			assignToUser(user, fakeUnderlying, amount);
+			assignYieldTokenToUser(user, fakeYield, amount);
+		}
+	}
 }
