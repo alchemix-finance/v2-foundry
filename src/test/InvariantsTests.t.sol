@@ -374,7 +374,7 @@ contract TestInvariants is Invariants {
 		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
 
 		// Ensure account has debt to burn
-		cheats.assume(debtList[0] > 0);
+		cheats.assume(debtList[0] > amount);
 
 		// Check that invariants hold before interaction
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
@@ -382,9 +382,9 @@ contract TestInvariants is Invariants {
 		cheats.startPrank(userList[0], userList[0]);
 
 		// Burn debt tokens
-		alToken.approve(address(alchemist), debtList[0]);
-		alchemist.burn(debtList[0], userList[0]);
-		burned += debtList[0];
+		alToken.approve(address(alchemist), amount);
+		alchemist.burn(amount, userList[0]);
+		burned += amount;
 
 		cheats.stopPrank();
 
