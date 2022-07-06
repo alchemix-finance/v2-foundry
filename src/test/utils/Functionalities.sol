@@ -341,11 +341,12 @@ contract Functionalities is DSTest {
 	 * Calculates the total debt minted
 	 */
 	function calculateTotalMinted(address[] calldata userList, uint96[] calldata debtList) public returns (uint256) {
+		uint256 totalMinted;
 		for (uint256 i = 0; i < userList.length; ++i) {
-			minted += debtList[i];
+			totalMinted += debtList[i];
 		}
 
-		return minted;
+		return totalMinted;
 	}
 
 	/*
