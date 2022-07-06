@@ -27,7 +27,7 @@ contract TestInvariants is Invariants {
 		// Initialize the test
 		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, priceIncrease, amount, recipient);
 
-		// Ensure first user has enough underlying token
+		// Prevent trying to deposit 0 yield token due to rounding error
 		cheats.assume(amount >= tokenAdapter.price());
 
 		// Check that invariants hold before interaction
@@ -65,7 +65,7 @@ contract TestInvariants is Invariants {
 		// Initialize the test
 		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, priceIncrease, amount, recipient);
 
-		// Ensure first user has enough underlying token
+		// Prevent trying to deposit 0 yield token due to rounding error
 		cheats.assume(amount >= tokenAdapter.price());
 
 		// Check that invariants hold before interaction
@@ -102,7 +102,7 @@ contract TestInvariants is Invariants {
 		// Initialize the test
 		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, priceIncrease, amount, recipient);
 
-		// Ensure first user has enough collateral to withdraw
+		// Ensure enough collateral to withdraw, and prevent rounding errors
 		ensureCollateralToWithdraw(amount, overCollateralList[0]);
 
 		// Check that invariants hold before interaction
@@ -141,7 +141,7 @@ contract TestInvariants is Invariants {
 		// Initialize the test
 		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, priceIncrease, amount, recipient);
 
-		// Ensure first user has enough collateral to withdraw
+		// Ensure enough collateral to withdraw, and prevent rounding errors
 		ensureCollateralToWithdraw(amount, overCollateralList[0]);
 
 		// Check that invariants hold before interaction
@@ -180,7 +180,7 @@ contract TestInvariants is Invariants {
 		// Initialize the test
 		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, priceIncrease, amount, recipient);
 
-		// Ensure first user has enough collateral to withdraw
+		// Ensure enough collateral to withdraw, and prevent rounding errors
 		ensureCollateralToWithdraw(amount, overCollateralList[0]);
 
 		// Check that invariants hold before interaction
@@ -227,7 +227,7 @@ contract TestInvariants is Invariants {
 		// Initialize the test
 		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, priceIncrease, amount, recipient);
 
-		// Ensure first user has enough collateral to withdraw
+		// Ensure enough collateral to withdraw, and prevent rounding errors
 		ensureCollateralToWithdraw(amount, overCollateralList[0]);
 
 		// Check that invariants hold before interaction
@@ -430,7 +430,7 @@ contract TestInvariants is Invariants {
 		// Initialize the test
 		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, priceIncrease, amount, recipient);
 
-		// Ensure account has debt to liquidate
+		// Prevent trying to liquidate 0 yield token due to rounding error
 		cheats.assume(debtList[0] >= tokenAdapter.price());
 		cheats.assume(amount >= tokenAdapter.price());
 
