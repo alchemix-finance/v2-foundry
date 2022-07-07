@@ -124,12 +124,12 @@ contract MigrationTool is IMigrationTool, Multicall {
         // Use the difference between this ratio and the minimum ratio (2:1) to calculate the shares that can't be freed without burning debt tokens
         // Convert the remaining shares to debt token value
         uint256 collateralization =  totalAccountValue * 1e18 / uint256(debt);
-        uint256 sharesLocked = shares - uint256(debt) * (collateralization - minimumCollateralization);
-        uint256 underlyingValue = sharesLocked * alchemist.getUnderlyingTokensPerShare(vault) / 10**TokenUtils.expectDecimals(vault);
-        uint256 debtTokenValue = underlyingValue * 10**(18 - TokenUtils.expectDecimals(startingUnderlyingToken));
+        uint256 underlyingValueOfShares = shares *  alchemist.getUnderlyingTokensPerShare(vault) / 10**TokenUtils.expectDecimals(vault);
+        uint256 debtTokenValueOfShares = underlyingValueOfShares * 10**(18 - TokenUtils.expectDecimals(startingUnderlyingToken));
+        uint256 lockedSharesToDebtTokens = debtTokenValueOfShares - uint256(debt) * (collateralization - minimumCollateralization);
 
         // The debt token value of the specified share divided by the remaining collateralization ratio
         // We can assume that the collateralization ratio of locked shares is the minimum (2:1) given that we are not counting shares that can be freed without burning
-        return debtTokenValue * 1e18 / minimumCollateralization;
+        return lockedSharesToDebtTokens * 1e18 / minimumCollateralization;
     }
 }
