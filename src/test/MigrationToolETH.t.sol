@@ -53,7 +53,8 @@ contract MigrationToolTestETH is DSTestPlus, stdCheats {
     MigrationTool migrationToolETH;
 
     function setUp() external {
-        MigrationInitializationParams memory migrationParams = MigrationInitializationParams(alchemistETH);
+        MigrationInitializationParams memory migrationParams = MigrationInitializationParams(alchemistETH, new address[](1));
+        migrationParams.collateralAddresses[0] = (0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
         migrationToolETH = new MigrationTool(migrationParams);
 
         AlETH = IAlchemicToken(alETH);
@@ -81,19 +82,19 @@ contract MigrationToolTestETH is DSTestPlus, stdCheats {
         addAdapter(alchemistETH, aWETH, wETH, "aaWETH", "staticAaveWETH");
     }
 
-    function testUnsupportedYieldTokens() external {
-        expectIllegalArgumentError("Vault is not supported");
+    function testUnsupportedVaults() external {
+        expectIllegalArgumentError("Yield token is not supported");
         migrationToolETH.migrateVaults(invalidYieldToken, rETH, 100e18, 90e18, 0);
         
-        expectIllegalArgumentError("Vault is not supported");
+        expectIllegalArgumentError("Yield token is not supported");
         migrationToolETH.migrateVaults(rETH , invalidYieldToken, 100e18, 90e18, 0);
     }
 
-    function testMigrationSameYieldToken() external {
-        expectIllegalArgumentError("Vaults cannot be the same");
+    function testMigrationSameVault() external {
+        expectIllegalArgumentError("Yield tokens cannot be the same");
         migrationToolETH.migrateVaults(rETH, rETH, 100e18, 99e18, 0);
 
-        expectIllegalArgumentError("Vaults cannot be the same");
+        expectIllegalArgumentError("Yield tokens cannot be the same");
         migrationToolETH.migrateVaults(wstETH, wstETH, 100e18, 90e18, 0);
     }
 

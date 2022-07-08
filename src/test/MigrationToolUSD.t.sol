@@ -59,8 +59,10 @@ contract MigrationToolTestUSD is DSTestPlus, stdCheats {
     MigrationTool migrationToolUSD;
 
     function setUp() external {
-        MigrationInitializationParams memory migrationParams = MigrationInitializationParams(alchemistUSD);
-
+        MigrationInitializationParams memory migrationParams = MigrationInitializationParams(alchemistUSD, new address[](3));
+        migrationParams.collateralAddresses[0] = (0x6B175474E89094C44Da98b954EedeAC495271d0F);
+        migrationParams.collateralAddresses[1] = (0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
+        migrationParams.collateralAddresses[2] = (0xdAC17F958D2ee523a2206206994597C13D831ec7);
         migrationToolUSD = new MigrationTool(migrationParams);
 
         AlUSD = IAlchemicToken(alUSD);
@@ -69,7 +71,7 @@ contract MigrationToolTestUSD is DSTestPlus, stdCheats {
 
         WhitelistUSD = IWhitelist(whitelistUSD);
 
-        // Set contract permissions and ceiling for atokens
+        // Set contract permissions and ceiling for alchemic tokens
         hevm.startPrank(admin);
         AlUSD.setWhitelist(address(migrationToolUSD), true);
         AlUSD.setCeiling(address(migrationToolUSD), MAX_INT);
@@ -114,7 +116,7 @@ contract MigrationToolTestUSD is DSTestPlus, stdCheats {
         addAdapter(alchemistUSD, address(staticATokenUSDT), USDT);
     }
 
-    function testUnsupportedYieldTokens() external {
+    function testUnsupportedVaults() external {
         expectIllegalArgumentError("Yield token is not supported");
         migrationToolUSD.migrateVaults(invalidYieldToken, yvDAI, 100e18, 99e18, 0);
         
@@ -122,7 +124,7 @@ contract MigrationToolTestUSD is DSTestPlus, stdCheats {
         migrationToolUSD.migrateVaults(yvDAI , invalidYieldToken, 100e18, 99e18, 0);
     }
 
-    function testMigrationSameYieldToken() external {
+    function testMigrationSameVault() external {
         expectIllegalArgumentError("Yield tokens cannot be the same");
         migrationToolUSD.migrateVaults(yvDAI, yvDAI, 100e18, 99e18, 0);
     }
@@ -133,27 +135,64 @@ contract MigrationToolTestUSD is DSTestPlus, stdCheats {
     }
 
     function testMigrateMaxDAI() external {
-        migrationDifferentVaultMaximumShares(yvDAI, DAI, address(staticATokenDAI), 18);
+        migrationDifferentVaultMaximumShares(1000e18, yvDAI, DAI, address(staticATokenDAI), 18);
     }
 
     function testMigratePartialDAI() external {
-        migrationDifferentVaultPartialShares(yvDAI, DAI, address(staticATokenDAI), 18);
+        migrationDifferentVaultPartialShares(1000e18, yvDAI, DAI, address(staticATokenDAI), 18);
     }
 
     function testMigrateMaxUSDT() external {
-        migrationDifferentVaultMaximumShares(yvUSDT, USDT, address(staticATokenUSDT), 6);
+        migrationDifferentVaultMaximumShares(1000e6, yvUSDT, USDT, address(staticATokenUSDT), 6);
     }
 
     function testMigratePartialUSDT() external {
-        migrationDifferentVaultPartialShares(yvUSDT, USDT, address(staticATokenUSDT), 6);
+        migrationDifferentVaultPartialShares(1000e6, yvUSDT, USDT, address(staticATokenUSDT), 6);
     }
 
     function testMigrateMaxUSDC() external {
-        migrationDifferentVaultMaximumShares(yvUSDC, USDC, address(staticATokenUSDC), 6);
+        migrationDifferentVaultMaximumShares(1000e6, yvUSDC, USDC, address(staticATokenUSDC), 6);
     }
 
     function testMigratePartialUSDC() external {
-        migrationDifferentVaultPartialShares(yvUSDC, USDC, address(staticATokenUSDC), 6);
+        migrationDifferentVaultPartialShares(1000e6, yvUSDC, USDC, address(staticATokenUSDC), 6);
+    }
+
+    function testMigrationFuzz(uint256 p1, uint256 p2, uint256 p3) external {
+        hevm.assume(p1 >= 1e18);
+        hevm.assume(p2 >= 1e6);
+        hevm.assume(p3 >= 1e6);
+
+        // Pre deposit a random position
+        while (p1 > 2000000e18) {
+            p1 = p1 / 2;
+        }
+        // Create new position
+         tip(DAI, address(this), p1);
+        SafeERC20.safeApprove(DAI, alchemistUSD, p1);
+        AlchemistUSD.depositUnderlying(yvDAI, p1, address(this), 0);
+        (uint256 shares, ) = AlchemistUSD.positions(address(this), yvDAI);
+        uint256 underlyingValue = shares * AlchemistUSD.getUnderlyingTokensPerShare(yvDAI)  / 10**18;
+        AlchemistUSD.mint(underlyingValue/2, address(this));
+
+        // Pre deposit a random position
+        while (p2 > 2000000e6) {
+            p2 = p2 / 2;
+        }
+        // Create new position
+         tip(USDC, address(this), p2);
+        SafeERC20.safeApprove(USDC, alchemistUSD, p2);
+        AlchemistUSD.depositUnderlying(yvUSDC, p2, address(this), 0);
+        (shares, ) = AlchemistUSD.positions(address(this), yvUSDC);
+        underlyingValue = shares * AlchemistUSD.getUnderlyingTokensPerShare(yvUSDC)  / 10**6;
+        uint256 debtValue = underlyingValue * 10**(18 - 6);
+        AlchemistUSD.mint(debtValue/3, address(this));
+
+        // Migrate random amount
+        while (p3 > 2000000e6) {
+            p3 = p3 / 2;
+        }
+        migrationDifferentVaultMaximumShares(p3, yvUSDT, USDT, address(staticATokenUSDT), 6);
     }
 
     function testZap() external {
@@ -192,12 +231,12 @@ contract MigrationToolTestUSD is DSTestPlus, stdCheats {
         assertEq(0, sharesConfirmed);
     }
 
-    function migrationDifferentVaultMaximumShares(address yearnToken, address underlying, address staticToken, uint256 decimals) public {
-        tip(underlying, address(this), (underlying == DAI) ? 1000e18 : 1000e6);
+    function migrationDifferentVaultMaximumShares(uint256 amount, address yearnToken, address underlying, address staticToken, uint256 decimals) public {
+        tip(underlying, address(this), amount);
 
         // Create new position
-        SafeERC20.safeApprove(underlying, alchemistUSD, (underlying == DAI) ? 1000e18 : 1000e6);
-        AlchemistUSD.depositUnderlying(yearnToken, (underlying == DAI) ? 1000e18 : 1000e6, address(this), 0);
+        SafeERC20.safeApprove(underlying, alchemistUSD, amount);
+        AlchemistUSD.depositUnderlying(yearnToken, amount, address(this), 0);
         (uint256 shares, ) = AlchemistUSD.positions(address(this), yearnToken);
 
         // Debt conversion in this case only divides by 1 so I left it out.
@@ -230,12 +269,12 @@ contract MigrationToolTestUSD is DSTestPlus, stdCheats {
         assertEq(0, sharesConfirmed);
     }
 
-    function migrationDifferentVaultPartialShares(address yearnToken, address underlying, address staticToken, uint256 decimals) public {
-        tip(underlying, address(this), (underlying == DAI) ? 1000e18 : 1000e6);
+    function migrationDifferentVaultPartialShares(uint256 amount, address yearnToken, address underlying, address staticToken, uint256 decimals) public {
+        tip(underlying, address(this), amount);
         
         // Create new position
-        SafeERC20.safeApprove(underlying, alchemistUSD, (underlying == DAI) ? 1000e18 : 1000e6);
-        AlchemistUSD.depositUnderlying(yearnToken, (underlying == DAI) ? 1000e18 : 1000e6, address(this), 0);
+        SafeERC20.safeApprove(underlying, alchemistUSD, amount);
+        AlchemistUSD.depositUnderlying(yearnToken, amount, address(this), 0);
         (uint256 shares, ) = AlchemistUSD.positions(address(this), yearnToken);
 
         // Debt conversion in this case only divides by 1 so I left it out.

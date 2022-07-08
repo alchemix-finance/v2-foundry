@@ -12,8 +12,8 @@ interface IMigrationTool {
 
     /// @notice Migrates 'shares' from 'startingVault' to 'targetVault'.
     ///
-    /// @param startingYieldToken   The vault from which the user wants to withdraw from.
-    /// @param targetYieldToken     The vault that the user wishes to create a new position in.
+    /// @param startingYieldToken   The yield token from which the user wants to withdraw.
+    /// @param targetYieldToken     The yield token that the user wishes to create a new position in.
     /// @param shares               The shares of tokens to migrate.
     /// @param minReturnShares      The maximum shares of slippage that the user will accept on new position.
     /// @param minReturnUnderlying  The minimum underlying value when withdrawing from old position.
