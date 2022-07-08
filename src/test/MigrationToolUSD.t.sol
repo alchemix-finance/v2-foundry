@@ -186,12 +186,13 @@ contract MigrationToolTestUSD is DSTestPlus, stdCheats {
         (shares, ) = AlchemistUSD.positions(address(this), yvUSDC);
         underlyingValue = shares * AlchemistUSD.getUnderlyingTokensPerShare(yvUSDC)  / 10**6;
         uint256 debtValue = underlyingValue * 10**(18 - 6);
-        AlchemistUSD.mint(debtValue/3, address(this));
+        AlchemistUSD.mint(debtValue/2, address(this));
 
         // Migrate random amount
         while (p3 > 2000000e6) {
             p3 = p3 / 2;
         }
+
         migrationDifferentVaultMaximumShares(p3, yvUSDT, USDT, address(staticATokenUSDT), 6);
     }
 
