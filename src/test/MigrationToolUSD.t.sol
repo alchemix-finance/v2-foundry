@@ -114,21 +114,21 @@ contract MigrationToolTestUSD is DSTestPlus, stdCheats {
         addAdapter(alchemistUSD, address(staticATokenUSDT), USDT);
     }
 
-    function testUnsupportedVaults() external {
-        expectIllegalArgumentError("Vault is not supported");
+    function testUnsupportedYieldTokens() external {
+        expectIllegalArgumentError("Yield token is not supported");
         migrationToolUSD.migrateVaults(invalidYieldToken, yvDAI, 100e18, 99e18, 0);
         
-        expectIllegalArgumentError("Vault is not supported");
+        expectIllegalArgumentError("Yield token is not supported");
         migrationToolUSD.migrateVaults(yvDAI , invalidYieldToken, 100e18, 99e18, 0);
     }
 
-    function testMigrationSameVault() external {
-        expectIllegalArgumentError("Vaults cannot be the same");
+    function testMigrationSameYieldToken() external {
+        expectIllegalArgumentError("Yield tokens cannot be the same");
         migrationToolUSD.migrateVaults(yvDAI, yvDAI, 100e18, 99e18, 0);
     }
 
     function testMigrationDifferentUnderlying() external {
-        expectIllegalArgumentError("Cannot swap between collateral");
+        expectIllegalArgumentError("Cannot swap between different collaterals");
         migrationToolUSD.migrateVaults(yvDAI, yvUSDC, 100e18, 90e18, 0);
     }
 

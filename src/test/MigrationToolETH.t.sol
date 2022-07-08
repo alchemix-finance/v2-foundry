@@ -81,7 +81,7 @@ contract MigrationToolTestETH is DSTestPlus, stdCheats {
         addAdapter(alchemistETH, aWETH, wETH, "aaWETH", "staticAaveWETH");
     }
 
-    function testUnsupportedVaults() external {
+    function testUnsupportedYieldTokens() external {
         expectIllegalArgumentError("Vault is not supported");
         migrationToolETH.migrateVaults(invalidYieldToken, rETH, 100e18, 90e18, 0);
         
@@ -89,7 +89,7 @@ contract MigrationToolTestETH is DSTestPlus, stdCheats {
         migrationToolETH.migrateVaults(rETH , invalidYieldToken, 100e18, 90e18, 0);
     }
 
-    function testMigrationSameVault() external {
+    function testMigrationSameYieldToken() external {
         expectIllegalArgumentError("Vaults cannot be the same");
         migrationToolETH.migrateVaults(rETH, rETH, 100e18, 99e18, 0);
 

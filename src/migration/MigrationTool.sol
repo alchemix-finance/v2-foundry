@@ -26,6 +26,7 @@ struct InitializationParams {
 
 contract MigrationTool is IMigrationTool, Multicall {
     string public override version = "1.0.0";
+    uint256 public constant FIXED_POINT_SCALAR = 1e18; 
 
     IAlchemistV2 public immutable alchemist;
     IAlchemicToken public immutable alchemicToken;
@@ -43,18 +44,18 @@ contract MigrationTool is IMigrationTool, Multicall {
         uint256 minReturnShares,
         uint256 minReturnUnderlying
     ) external override returns(uint256) {
-        // Vaults cannot be the same due prevent slippage on current position
+        // Yield tokens cannot be the same due prevent slippage on current position
         if (startingYieldToken == targetYieldToken) {
-            revert IllegalArgument("Vaults cannot be the same");
+            revert IllegalArgument("Yield tokens cannot be the same");
         }
 
-        // If either vault is invalid, revert
+        // If either yield token is invalid, revert
         if (!alchemist.isSupportedYieldToken(startingYieldToken)) {
-            revert IllegalArgument("Vault is not supported");
+            revert IllegalArgument("Yield token is not supported");
         }
 
         if (!alchemist.isSupportedYieldToken(targetYieldToken)) {
-            revert IllegalArgument("Vault is not supported");
+            revert IllegalArgument("Yield token is not supported");
         }
 
         IAlchemistV2State.YieldTokenParams memory startingParams = alchemist.getYieldTokenParameters(startingYieldToken);
@@ -62,30 +63,30 @@ contract MigrationTool is IMigrationTool, Multicall {
 
         // If starting and target underlying tokens are not the same then revert
         if (startingParams.underlyingToken != targetParams.underlyingToken) {
-            revert IllegalArgument("Cannot swap between collateral");
+            revert IllegalArgument("Cannot swap between different collaterals");
         }
 
         // Determine the amount of alchemic tokens to burn in order to free the desired amount of shares
-        uint256 debtToFreeshares = _debtToFreeShares(shares, startingYieldToken, startingParams.underlyingToken);
+        uint256 debtNeededToFreeshares = _debtNeededToFreeShares(shares, startingYieldToken, startingParams.underlyingToken);
 
-        if (debtToFreeshares > 0) {
+        if (debtNeededToFreeshares > 0) {
             // Mint tokens to this contract and burn them in the name of the user
-            alchemicToken.mint(address(this), debtToFreeshares);
-            TokenUtils.safeApprove(address(alchemicToken), address(alchemist), debtToFreeshares);
-            alchemist.burn(debtToFreeshares, msg.sender);
+            alchemicToken.mint(address(this), debtNeededToFreeshares);
+            TokenUtils.safeApprove(address(alchemicToken), address(alchemist), debtNeededToFreeshares);
+            alchemist.burn(debtNeededToFreeshares, msg.sender);
         }
 
         // Withdraw what you can from the old position
         uint256 underlyingWithdrawn = alchemist.withdrawUnderlyingFrom(msg.sender, startingYieldToken, shares, address(this), minReturnUnderlying);
 
-        // Deposit into new vault
+        // Deposit into new position
         TokenUtils.safeApprove(targetParams.underlyingToken, address(alchemist), underlyingWithdrawn);
         uint256 newPositionShares = alchemist.depositUnderlying(targetYieldToken, underlyingWithdrawn, msg.sender, minReturnShares);
 
-        if (debtToFreeshares > 0) {
+        if (debtNeededToFreeshares > 0) {
             // Mint al token which will be burned to fulfill flash loan requirements
-            alchemist.mintFrom(msg.sender, (debtToFreeshares), address(this));
-            alchemicToken.burn(debtToFreeshares);
+            alchemist.mintFrom(msg.sender, debtNeededToFreeshares, address(this));
+            alchemicToken.burn(debtNeededToFreeshares);
         }
 
 	    return newPositionShares;
@@ -94,7 +95,7 @@ contract MigrationTool is IMigrationTool, Multicall {
     // The number of debt tokens needed to free up locked shares
     // Locked shares are the remainder of shares after all freed shares have been withdrawn
     // If a user is overcollateralized some or all shares can be freed up without minting and burning more debt tokens
-    function _debtToFreeShares(uint256 shares, address vault, address startingUnderlyingToken) internal returns(uint256) {
+    function _debtNeededToFreeShares(uint256 shares, address yieldToken, address startingUnderlyingToken) internal returns(uint256) {
         uint256 minimumCollateralization = alchemist.minimumCollateralization();
         (int256 debt, address[] memory depositedTokens) = alchemist.accounts(msg.sender);
 
@@ -123,13 +124,13 @@ contract MigrationTool is IMigrationTool, Multicall {
         // Calculate the collateralization ratio of the total account value
         // Use the difference between this ratio and the minimum ratio (2:1) to calculate the shares that can't be freed without burning debt tokens
         // Convert the remaining shares to debt token value
-        uint256 collateralization =  totalAccountValue * 1e18 / uint256(debt);
-        uint256 underlyingValueOfShares = shares *  alchemist.getUnderlyingTokensPerShare(vault) / 10**TokenUtils.expectDecimals(vault);
+        uint256 collateralization =  totalAccountValue * FIXED_POINT_SCALAR / uint256(debt);
+        uint256 underlyingValueOfShares = shares *  alchemist.getUnderlyingTokensPerShare(yieldToken) / 10**TokenUtils.expectDecimals(yieldToken);
         uint256 debtTokenValueOfShares = underlyingValueOfShares * 10**(18 - TokenUtils.expectDecimals(startingUnderlyingToken));
-        uint256 lockedSharesToDebtTokens = debtTokenValueOfShares - uint256(debt) * (collateralization - minimumCollateralization);
+        uint256 lockedDebtTokenValueOfShares = debtTokenValueOfShares - uint256(debt) * (collateralization - minimumCollateralization);
 
         // The debt token value of the specified share divided by the remaining collateralization ratio
         // We can assume that the collateralization ratio of locked shares is the minimum (2:1) given that we are not counting shares that can be freed without burning
-        return lockedSharesToDebtTokens * 1e18 / minimumCollateralization;
+        return lockedDebtTokenValueOfShares * FIXED_POINT_SCALAR / minimumCollateralization;
     }
 }
