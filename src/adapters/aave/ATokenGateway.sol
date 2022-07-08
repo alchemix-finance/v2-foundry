@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.13;
 
 import {Ownable} from "../../../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
@@ -35,6 +36,8 @@ contract ATokenGateway is IATokenGateway, Ownable {
         address aToken = address(IStaticAToken(yieldToken).ATOKEN());
         TokenUtils.safeTransferFrom(aToken, msg.sender, address(this), amount);
         TokenUtils.safeApprove(aToken, yieldToken, amount);
+        // 0 - referral code (deprecated).
+        // false - "from underlying", we are depositing the aToken, not the underlying token.
         uint256 staticATokensReceived = IStaticAToken(yieldToken).deposit(address(this), amount, 0, false);
         TokenUtils.safeApprove(yieldToken, alchemist, staticATokensReceived);
         return IAlchemistV2(alchemist).deposit(yieldToken, staticATokensReceived, recipient);
@@ -48,6 +51,7 @@ contract ATokenGateway is IATokenGateway, Ownable {
     ) external override returns (uint256 amountWithdrawn) {
         _onlyWhitelisted();
         uint256 staticATokensWithdrawn = IAlchemistV2(alchemist).withdrawFrom(msg.sender, yieldToken, shares, address(this));
+        // false - "from underlying", we are depositing the aToken, not the underlying token.
         (uint256 amountBurnt, uint256 amountWithdrawn) = IStaticAToken(yieldToken).withdraw(recipient, staticATokensWithdrawn, false);
         if (amountBurnt != staticATokensWithdrawn) {
             revert IllegalState("not enough burnt");

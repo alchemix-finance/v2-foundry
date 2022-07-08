@@ -52,9 +52,7 @@ contract AAVETokenAdapterTest is DSTestPlus, stdCheats {
         IWhitelist(alchemistAlUSDWhitelist).add(address(this));
         IWhitelist(alchemistAlETHWhitelist).add(address(this));
         hevm.stopPrank();
-    }
 
-    function testAllTokens() external {
         hevm.label(0x028171bCA77440897B824Ca71D1c56caC55b68A3, "aDAI");
         hevm.label(0x6B175474E89094C44Da98b954EedeAC495271d0F, "DAI");
         hevm.label(0xBcca60bB61934080951369a648Fb03DF4F96263C, "aUSDC");
@@ -63,9 +61,21 @@ contract AAVETokenAdapterTest is DSTestPlus, stdCheats {
         hevm.label(0xdAC17F958D2ee523a2206206994597C13D831ec7, "USDT");
         hevm.label(0x030bA81f1c18d280636F32af80b9AAd02Cf0854e, "aWETH");
         hevm.label(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, "WETH");
+    }
+
+    function testTokenDai() external {
         runTokenTest(alchemistAlUSD, 0x028171bCA77440897B824Ca71D1c56caC55b68A3, 0x6B175474E89094C44Da98b954EedeAC495271d0F, "Static Aave DAI", "saDAI", 1000 ether);
+    }
+
+    function testTokenUsdc() external {
         runTokenTest(alchemistAlUSD, 0xBcca60bB61934080951369a648Fb03DF4F96263C, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, "Static Aave USDC", "saUSDC", 1000000000);
+    }
+
+    function testTokenUsdt() external {
         runTokenTest(alchemistAlUSD, 0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811, 0xdAC17F958D2ee523a2206206994597C13D831ec7, "Static Aave USDT", "saUSDT", 1000000000);
+    }
+
+    function testTokenWeth() external {
         runTokenTest(alchemistAlETH, 0x030bA81f1c18d280636F32af80b9AAd02Cf0854e, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, "Static Aave WETH", "saWETH", 1000 ether);
     }
 

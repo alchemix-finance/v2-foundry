@@ -71,7 +71,7 @@ contract Invariants is Functionalities {
 
 		AlchemistV2.YieldTokenParams memory params = alchemist.getYieldTokenParameters(yieldToken);
 
-		uint256 balance = params.activeBalance + params.harvestableBalance;
+		uint256 balance = params.activeBalance;
 		uint256 totalShares = params.totalShares;
 
 		assertLe(balance, totalShares);
