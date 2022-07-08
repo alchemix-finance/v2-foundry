@@ -93,9 +93,11 @@ contract Invariants is Functionalities {
 		emit log_named_uint("Active Balance", params.activeBalance);
 		emit log_named_uint("Price", priceYieldToken);
 		emit log_named_uint("Current Value", currentValue);
-		//assertEq(expectedValue, currentValue);
-		assertLe(currentValue, expectedValue + 100);
-		assertGe(currentValue + 100, expectedValue);
+
+		// Use normalized price as a bound on the calculation error
+		uint256 normalizedPrice = priceYieldToken / 1e18 + 1;
+		assertLe(currentValue, expectedValue + normalizedPrice);
+		assertGe(currentValue + normalizedPrice, expectedValue);
     }
 
 	/* Invariant A7: Assuming the price of a yield token never drops to 0, the expected value */
