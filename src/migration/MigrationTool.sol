@@ -33,17 +33,17 @@ contract MigrationTool is IMigrationTool, Multicall {
 
     IAlchemistV2 public immutable alchemist;
     IAlchemicToken public immutable alchemicToken;
-    address[] public CollateralAddresses;
+    address[] public collateralAddresses;
 
     constructor(InitializationParams memory params) {
         uint size = params.collateralAddresses.length;
 
         alchemist       = IAlchemistV2(params.alchemist);
         alchemicToken   = IAlchemicToken(alchemist.debtToken());
-        CollateralAddresses = params.collateralAddresses;
+        collateralAddresses = params.collateralAddresses;
 
         for(uint i = 0; i < size; i++){
-            decimals[CollateralAddresses[i]] = TokenUtils.expectDecimals(CollateralAddresses[i]);
+            decimals[collateralAddresses[i]] = TokenUtils.expectDecimals(collateralAddresses[i]);
         }
     }
 
@@ -80,16 +80,17 @@ contract MigrationTool is IMigrationTool, Multicall {
         // Original debt
         (int256 debt, ) = alchemist.accounts(msg.sender);
 
-        uint256 debtTokenValue;
         // Avoid calculations and repayments if user doesn't need this to migrate
+        uint256 debtTokenValue;
+        uint256 mintable;
         if (debt > 0) {
             // Convert shares to amount of debt tokens
             debtTokenValue = _convertToDebt(shares, startingYieldToken, startingParams.underlyingToken);
-            
+            mintable = debtTokenValue * FIXED_POINT_SCALAR / alchemist.minimumCollateralization();
             // Mint tokens to this contract and burn them in the name of the user
-            alchemicToken.mint(address(this), debtTokenValue * FIXED_POINT_SCALAR / alchemist.minimumCollateralization());
-            TokenUtils.safeApprove(address(alchemicToken), address(alchemist), debtTokenValue * FIXED_POINT_SCALAR / alchemist.minimumCollateralization());
-            alchemist.burn(debtTokenValue * FIXED_POINT_SCALAR / alchemist.minimumCollateralization(), msg.sender);
+            alchemicToken.mint(address(this), mintable);
+            TokenUtils.safeApprove(address(alchemicToken), address(alchemist), mintable);
+            alchemist.burn(mintable, msg.sender);
         }
 
         // Withdraw what you can from the old position
@@ -101,8 +102,8 @@ contract MigrationTool is IMigrationTool, Multicall {
 
         if (debt > 0) {
             // Mint al token which will be burned to fulfill flash loan requirements
-            alchemist.mintFrom(msg.sender, (debtTokenValue * FIXED_POINT_SCALAR / alchemist.minimumCollateralization()), address(this));
-            alchemicToken.burn(debtTokenValue * FIXED_POINT_SCALAR / alchemist.minimumCollateralization());
+            alchemist.mintFrom(msg.sender, mintable, address(this));
+            alchemicToken.burn(mintable);
         }
 
 	    return newPositionShares;
