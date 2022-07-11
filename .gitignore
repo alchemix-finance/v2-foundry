@@ -3,3 +3,7 @@
 cache
 out
 artifacts-rinkeby
+typechain/
+node_modules/
+artifacts/
+cache_hardhat/

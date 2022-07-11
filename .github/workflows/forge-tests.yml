@@ -1,9 +1,36 @@
-name: Forge Tests
+name: CI
 
 on: [push, pull_request]
 
 jobs:
+  hardhat-tests:
+    name: Runs the hardhat tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Foundry
+        uses: onbjerg/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Install dependencies
+        run: forge install
+
+      - name: Install submodules
+        run: git submodule update --init --recursive
+
+      - name: Install node modules
+        run: yarn install
+
+      - name: Compile contracts
+        run: yarn compile
+      
+      - name: Run hardhat tests
+        run: yarn test
+
   forge-tests:
+  name: Runs the foundry tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

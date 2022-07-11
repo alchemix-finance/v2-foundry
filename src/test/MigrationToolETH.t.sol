@@ -9,7 +9,7 @@ import {SafeERC20} from "../libraries/SafeERC20.sol";
 import {StaticAToken} from "../external/aave/StaticAToken.sol";
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
-import {stdCheats} from "forge-std/stdlib.sol";
+import {stdCheats} from "../../lib/forge-std/src/stdlib.sol";
 
 import {
     AAVETokenAdapter,
