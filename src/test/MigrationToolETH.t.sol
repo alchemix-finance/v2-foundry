@@ -106,10 +106,6 @@ contract MigrationToolTestETH is DSTestPlus, stdCheats {
         AlchemistETH.depositUnderlying(yvETH, 10e18, address(this), 0);
         (uint256 shares, ) = AlchemistETH.positions(address(this), yvETH);
 
-        // Debt before anything happens
-        // Accounts for rounding errors
-        (int256 startingDebt, ) = AlchemistETH.accounts(address(this));
-
         // Debt conversion in this case only divides by 1 so I left it out.
         uint256 underlyingValue = shares * AlchemistETH.getUnderlyingTokensPerShare(yvETH)  / 10**18;
         AlchemistETH.mint(underlyingValue/2, address(this));
@@ -128,7 +124,7 @@ contract MigrationToolTestETH is DSTestPlus, stdCheats {
 
         // Verify debts are the same
         (int256 secondPositionDebt, ) = AlchemistETH.accounts(address(this));
-        assertEq(secondPositionDebt, firstPositionDebt - startingDebt);
+        assertEq(secondPositionDebt, firstPositionDebt);
 
         // Verify new position
         (uint256 sharesConfirmed, ) = AlchemistETH.positions(address(this), wstETH);
@@ -146,10 +142,6 @@ contract MigrationToolTestETH is DSTestPlus, stdCheats {
         SafeERC20.safeApprove(wETH, alchemistETH, 10e18);
         AlchemistETH.depositUnderlying(yvETH, 10e18, address(this), 0);
         (uint256 shares, ) = AlchemistETH.positions(address(this), yvETH);
-
-        // Debt before anything happens
-        // Accounts for rounding errors
-        (int256 startingDebt, ) = AlchemistETH.accounts(address(this));
 
         // Debt conversion in this case only divides by 1 so I left it out.
         uint256 underlyingValue = shares * AlchemistETH.getUnderlyingTokensPerShare(yvETH)  / 10**18;
@@ -170,7 +162,7 @@ contract MigrationToolTestETH is DSTestPlus, stdCheats {
 
         // Verify debts are the same
         (int256 secondPositionDebt, ) = AlchemistETH.accounts(address(this));
-        assertEq(secondPositionDebt, firstPositionDebt - startingDebt);
+        assertEq(secondPositionDebt, firstPositionDebt);
 
         // Verify new position
         (uint256 sharesConfirmed, ) = AlchemistETH.positions(address(this), wstETH);
@@ -188,10 +180,6 @@ contract MigrationToolTestETH is DSTestPlus, stdCheats {
         SafeERC20.safeApprove(wETH, alchemistETH, 10e18);
         AlchemistETH.depositUnderlying(yvETH, 10e18, address(this), 0);
         (uint256 shares, ) = AlchemistETH.positions(address(this), yvETH);
-
-        // Debt before anything happens
-        // Accounts for rounding errors
-        (int256 startingDebt, ) = AlchemistETH.accounts(address(this));
 
         // Debt conversion in this case only divides by 1 so I left it out.
         uint256 underlyingValue = shares * AlchemistETH.getUnderlyingTokensPerShare(yvETH)  / 10**18;
@@ -211,7 +199,7 @@ contract MigrationToolTestETH is DSTestPlus, stdCheats {
 
         // Verify debts are the same
         (int256 secondPositionDebt, ) = AlchemistETH.accounts(address(this));
-        assertEq(secondPositionDebt, firstPositionDebt - startingDebt);
+        assertEq(secondPositionDebt, firstPositionDebt);
 
         // Verify new position
         (uint256 sharesConfirmed, ) = AlchemistETH.positions(address(this), address(staticAToken));
