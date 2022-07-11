@@ -22,27 +22,24 @@ contract Invariants is Functionalities {
 		uint256 tokensBurned,
 		uint256 sentToTransmuter
 	) public {
-		console.log("~ sentToTransmuter", sentToTransmuter);
-		console.log("~ tokensMinted", tokensMinted);
-		console.log("~ tokensBurned", tokensBurned);
 		emit log("Checking Invariant A1");
 
 		int256 debt;
-		uint256 shares;
-		uint256 lastAccruedWeight;
-
 		int256 debtsAccured;
-		uint256 underlyingInTransmutter;
 
 		for (uint256 i = 0; i < userList.length; i++) {
 			(debt, ) = alchemist.accounts(userList[i]);
 			debtsAccured += debt;
 		}
 
+		// gets actual amount burned avoiding rounding errors
+		tokensBurned = uint256(int256(tokensMinted) - debtsAccured);
+
 		emit log("Eq with state variables");
 		emit log_named_int("Tokens minted", int256(tokensMinted));
 		emit log_named_int("Debts accured", debtsAccured);
 		emit log_named_int("The sum", int256(tokensBurned) + debtsAccured + int256(sentToTransmuter));
+
 		assertEq(int256(tokensMinted), int256(tokensBurned) + debtsAccured + int256(sentToTransmuter));
 	}
 

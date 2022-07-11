@@ -8,6 +8,7 @@ make test_file_block FILE=ThreePoolAssetManager;
 make test_file_block FILE=TransmuterConduit;
 make test_file_block FILE=VesperAdapterV1;
 make test_file_block FILE=WstETHAdapterV1;
-make test_file_block FILE=InvariantsTests;
+# run invariants locally and include test results on PR
+# make test_file_block FILE=InvariantsTests;
 make test_file_block FILE=AAVETokenAdapter;
 make test_file_block FILE=ATokenGateway;

@@ -4,6 +4,7 @@ pragma solidity ^0.8.11;
 import "../../lib/ds-test/src/test.sol";
 
 import { Invariants } from "./utils/Invariants.sol";
+import "../interfaces/alchemist/IAlchemistV2State.sol";
 
 import "forge-std/console.sol";
 
@@ -446,18 +447,68 @@ contract TestInvariants is Invariants {
 		// Initialize the test
 		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
 
-		// Ensure account has debt tokens to donate
-		cheats.assume(debtList[0] > 0);
+		// Ensure amount is a meaningful size to donate
+		cheats.assume(amount > 1e18);
+
+		// Ensure user has available debt to mint
+		cheats.assume(overCollateralList[0] / 2 > amount);
 
 		// Check that invariants hold before interaction
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
 
 		cheats.startPrank(userList[0], userList[0]);
 
-		console.log("~ debtList[0]", debtList[0]);
-		alToken.approve(address(alchemist), debtList[0]);
-		alchemist.donate(fakeYield, debtList[0]);
-		burned += uint256(debtList[0]);
+		alchemist.approveMint(recipient, amount);
+
+		cheats.stopPrank();
+
+		// Donate from an address outside of userList
+		cheats.startPrank(recipient, recipient);
+
+		// Seed address with debt tokens to donate
+		alchemist.mintFrom(userList[0], amount, recipient);
+		minted += amount;
+
+		alToken.approve(address(alchemist), amount);
+		alchemist.donate(fakeYield, amount);
+
+		cheats.stopPrank();
+
+		// Check that invariants hold after interaction
+		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+	}
+
+	// wip
+	function testInvariantsOnHarvest(
+		address caller,
+		address proxyOwner,
+		address[] calldata userList,
+		uint96[] calldata debtList,
+		uint96[] calldata overCollateralList,
+		uint96 amount,
+		address recipient
+	) public {
+		// Initialize the test
+		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
+
+		cheats.assume(amount >= tokenAdapter.price());
+		console.log("~ amount", amount);
+
+		assignHarvestableBalance(amount);
+		uint256 balance = tokenAdapter.getHarvestableBalance();
+		console.log("~ balance", balance);
+
+		// IAlchemistV2State.YieldTokenParams storage yieldTokenParams = alchemist.getYieldTokenParameters(fakeYield);
+		// emit log_named_int("harvestable balance", yieldTokenParams);
+
+		// Check that invariants hold before interaction
+		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+
+		cheats.startPrank(alOwner, alOwner);
+
+		console.log("~ minimumAmountOut(amount, fakeYield)", minimumAmountOut(amount, fakeYield));
+		alchemist.harvest(fakeYield, minimumAmountOut(amount, fakeYield));
+		sentToTransmuter += amount; // should be amount - fee taken by protocol
 
 		cheats.stopPrank();
 
