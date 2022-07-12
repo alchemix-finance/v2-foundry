@@ -1,4 +1,4 @@
-pragma solidity ^0.8.11;
+pragma solidity ^0.8.13;
 
 import {Ownable} from "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 import "./base/ErrorMessages.sol";

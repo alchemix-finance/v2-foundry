@@ -2,7 +2,7 @@
 src = 'src'
 out = 'out'
 libs = ['lib']
-remappings = []
+remappings = ['forge-std/=lib/forge-std/src/', 'ds-test/=lib/ds-test/src/', 'solmate/=lib/solmate/src/', 'openzeppelin-contracts/=lib/openzeppelin-contracts/contracts', 'openzeppelin-contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts']
 solc_version = "0.8.13"
 optimizer_runs = 200
 ignored_error_codes = [1878]

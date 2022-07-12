@@ -9,7 +9,5 @@ interface IERC20Mintable is IERC20 {
     ///
     /// @param recipient The address which will receive the minted tokens.
     /// @param amount    The amount of tokens to mint.
-    ///
-    /// @return If minting the tokens was successful.
-    function mint(address recipient, uint256 amount) external returns (bool);
+    function mint(address recipient, uint256 amount) external;
 }

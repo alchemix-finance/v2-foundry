@@ -1,9 +1,8 @@
-pragma solidity ^0.8.11;
+pragma solidity ^0.8.13;
 
-import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
-
+import "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import "../../lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "../interfaces/IERC20Burnable.sol";
-import "../interfaces/IERC20Metadata.sol";
 import "../interfaces/IERC20Mintable.sol";
 
 /// @title  TokenUtils

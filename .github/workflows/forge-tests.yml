@@ -1,9 +1,10 @@
-name: Forge Tests
+name: CI
 
 on: pull_request
 
 jobs:
     forge-tests:
+        name: Runs hardhat and foundry tests
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
@@ -18,6 +19,15 @@ jobs:
 
             - name: Install submodules
               run: git submodule update --init --recursive
+
+            - name: Install node modules
+              run: yarn install
+            
+            - name: Compile contracts
+              run: yarn compile
+            
+            - name: Run hardhat tests
+              run: yarn test  
 
             - name: Run forge tests
               env:

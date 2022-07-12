@@ -152,8 +152,6 @@ contract AAVETokenAdapterTest is DSTestPlus, stdCheats {
         uint256 wrapped = adapter.wrap(amount, address(this));
 
         uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(address(staticAToken));
-        console.logUint(underlyingValue);
-        console.logUint(amount);
         assertApproxEq(amount, underlyingValue, amount * 10000 / 1e18);
         
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);

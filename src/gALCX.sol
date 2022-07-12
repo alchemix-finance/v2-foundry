@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.11;
+pragma solidity ^0.8.13;
 
 import {IERC20} from "../lib/openzeppelin-contracts/contracts/interfaces/IERC20.sol";
 import {ERC20} from "../lib/solmate/src/tokens/ERC20.sol";
