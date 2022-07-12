@@ -101,7 +101,7 @@ contract CrossChainCanonicalBase is ERC20PermitUpgradeable, ReentrancyGuardUpgra
         // Check mint caps and adjust mint count
         uint256 total = tokenAmount + totalMinted[bridgeTokenAddress];
         if (total > mintCeiling[bridgeTokenAddress]) {
-            revert IllegalState();
+            revert IllegalState("Exceeds mint ceiling");
         }
         totalMinted[bridgeTokenAddress] = total;
 
@@ -178,7 +178,7 @@ contract CrossChainCanonicalBase is ERC20PermitUpgradeable, ReentrancyGuardUpgra
 
     function setSwapFees(address bridgeTokenAddress, uint256 _bridgeToCanonical, uint256 _canonicalToOld) external onlyOwner {
         if(_bridgeToCanonical >= FEE_PRECISION || _canonicalToOld >= FEE_PRECISION) {
-            revert IllegalArgument();
+            revert IllegalArgument("Invalid swap fees");
         }
         swapFees[bridgeTokenAddress] = [_bridgeToCanonical, _canonicalToOld];
 
