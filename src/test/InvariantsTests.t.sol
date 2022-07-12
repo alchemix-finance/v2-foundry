@@ -28,21 +28,21 @@ contract TestInvariants is Invariants {
 		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
 
 		// Check that invariants hold before interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 
 		cheats.startPrank(userList[0], userList[0]);
 
 		// Assign yield tokens to a user
-		assignToUser(userList[0], fakeUnderlying, amount);
-		assignYieldTokenToUser(userList[0], fakeYield, amount);
+		assignToUser(userList[0], fakeUnderlyingToken, amount);
+		assignYieldTokenToUser(userList[0], fakeYieldToken, amount);
 
 		// Deposit yield tokens
-		alchemist.deposit(fakeYield, amount, userList[0]);
+		alchemist.deposit(fakeYieldToken, amount, userList[0]);
 
 		cheats.stopPrank();
 
 		// Check that invariants hold after interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 	}
 
 	/*
@@ -61,20 +61,20 @@ contract TestInvariants is Invariants {
 		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
 
 		// Check that invariants hold before interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 
 		cheats.startPrank(userList[0], userList[0]);
 
 		// Assign yield tokens to a user
-		assignToUser(userList[0], fakeUnderlying, amount);
+		assignToUser(userList[0], fakeUnderlyingToken, amount);
 
 		// Deposit underlying tokens
-		alchemist.depositUnderlying(fakeYield, amount, userList[0], minimumAmountOut(amount, fakeYield));
+		alchemist.depositUnderlying(fakeYieldToken, amount, userList[0], minimumAmountOut(amount, fakeYieldToken));
 
 		cheats.stopPrank();
 
 		// Check that invariants hold after interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 	}
 
 	/*
@@ -96,22 +96,22 @@ contract TestInvariants is Invariants {
 		cheats.assume(amount <= overCollateralList[0]);
 
 		// Check that invariants hold before interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 
 		// Calculate how many shares to withdraw
-		(uint256 totalShares, ) = alchemist.positions(userList[0], fakeYield);
-		uint256 totalBalance = calculateBalance(debtList[0], overCollateralList[0], fakeUnderlying);
+		(uint256 totalShares, ) = alchemist.positions(userList[0], fakeYieldToken);
+		uint256 totalBalance = calculateBalance(debtList[0], overCollateralList[0], fakeUnderlyingToken);
 		uint256 sharesToWithdraw = (totalShares * amount) / totalBalance;
 
 		cheats.startPrank(userList[0], userList[0]);
 
 		// Withdraw yield token
-		alchemist.withdraw(fakeYield, sharesToWithdraw, recipient);
+		alchemist.withdraw(fakeYieldToken, sharesToWithdraw, recipient);
 
 		cheats.stopPrank();
 
 		// Check that invariants hold after interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 	}
 
 	/*
@@ -133,22 +133,27 @@ contract TestInvariants is Invariants {
 		cheats.assume(amount <= overCollateralList[0]);
 
 		// Check that invariants hold before interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 
 		// Calculate how many shares to withdraw
-		(uint256 totalShares, ) = alchemist.positions(userList[0], fakeYield);
-		uint256 totalBalance = calculateBalance(debtList[0], overCollateralList[0], fakeUnderlying);
+		(uint256 totalShares, ) = alchemist.positions(userList[0], fakeYieldToken);
+		uint256 totalBalance = calculateBalance(debtList[0], overCollateralList[0], fakeUnderlyingToken);
 		uint256 sharesToWithdraw = (totalShares * amount) / totalBalance;
 
 		cheats.startPrank(userList[0], userList[0]);
 
 		// Withdraw underlying token
-		alchemist.withdrawUnderlying(fakeYield, sharesToWithdraw, recipient, minimumAmountOut(amount, fakeYield));
+		alchemist.withdrawUnderlying(
+			fakeYieldToken,
+			sharesToWithdraw,
+			recipient,
+			minimumAmountOut(amount, fakeYieldToken)
+		);
 
 		cheats.stopPrank();
 
 		// Check that invariants hold after interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 	}
 
 	/*
@@ -170,17 +175,17 @@ contract TestInvariants is Invariants {
 		cheats.assume(amount <= overCollateralList[0]);
 
 		// Check that invariants hold before interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 
 		// Calculate how many shares to withdraw
-		(uint256 totalShares, ) = alchemist.positions(userList[0], fakeYield);
-		uint256 totalBalance = calculateBalance(debtList[0], overCollateralList[0], fakeUnderlying);
+		(uint256 totalShares, ) = alchemist.positions(userList[0], fakeYieldToken);
+		uint256 totalBalance = calculateBalance(debtList[0], overCollateralList[0], fakeUnderlyingToken);
 		uint256 sharesToWithdraw = (totalShares * amount) / totalBalance;
 
 		cheats.startPrank(userList[0], userList[0]);
 
 		// Approve a different account to withdraw
-		alchemist.approveWithdraw(userList[1], fakeYield, sharesToWithdraw);
+		alchemist.approveWithdraw(userList[1], fakeYieldToken, sharesToWithdraw);
 
 		cheats.stopPrank();
 
@@ -188,12 +193,12 @@ contract TestInvariants is Invariants {
 		cheats.startPrank(userList[1], userList[1]);
 
 		// Withdraw yield from an owner's account
-		alchemist.withdrawFrom(userList[0], fakeYield, sharesToWithdraw, recipient);
+		alchemist.withdrawFrom(userList[0], fakeYieldToken, sharesToWithdraw, recipient);
 
 		cheats.stopPrank();
 
 		// Check that invariants hold after interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 	}
 
 	/*
@@ -215,17 +220,17 @@ contract TestInvariants is Invariants {
 		cheats.assume(amount <= overCollateralList[0]);
 
 		// Check that invariants hold before interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 
 		// Calculate how many shares to withdraw
-		(uint256 totalShares, ) = alchemist.positions(userList[0], fakeYield);
-		uint256 totalBalance = calculateBalance(debtList[0], overCollateralList[0], fakeUnderlying);
+		(uint256 totalShares, ) = alchemist.positions(userList[0], fakeYieldToken);
+		uint256 totalBalance = calculateBalance(debtList[0], overCollateralList[0], fakeUnderlyingToken);
 		uint256 sharesToWithdraw = (totalShares * amount) / totalBalance;
 
 		cheats.startPrank(userList[0], userList[0]);
 
 		// Approve a different account to withdraw
-		alchemist.approveWithdraw(userList[1], fakeYield, sharesToWithdraw);
+		alchemist.approveWithdraw(userList[1], fakeYieldToken, sharesToWithdraw);
 
 		cheats.stopPrank();
 
@@ -235,16 +240,16 @@ contract TestInvariants is Invariants {
 		// Withdraw underlying token from an owner's account
 		alchemist.withdrawUnderlyingFrom(
 			userList[0],
-			fakeYield,
+			fakeYieldToken,
 			sharesToWithdraw,
 			recipient,
-			minimumAmountOut(amount, fakeYield)
+			minimumAmountOut(amount, fakeYieldToken)
 		);
 
 		cheats.stopPrank();
 
 		// Check that invariants hold after interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 	}
 
 	/*
@@ -266,7 +271,7 @@ contract TestInvariants is Invariants {
 		cheats.assume(amount <= (overCollateralList[0] / 2));
 
 		// Check that invariants hold before interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 
 		cheats.startPrank(userList[0], userList[0]);
 
@@ -277,7 +282,7 @@ contract TestInvariants is Invariants {
 		cheats.stopPrank();
 
 		// Check that invariants hold after interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 	}
 
 	/*
@@ -299,7 +304,7 @@ contract TestInvariants is Invariants {
 		cheats.assume(amount <= (overCollateralList[0] / 2));
 
 		// Check that invariants hold before interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 
 		cheats.startPrank(userList[0], userList[0]);
 
@@ -318,7 +323,7 @@ contract TestInvariants is Invariants {
 		cheats.stopPrank();
 
 		// Check that invariants hold after interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 	}
 
 	/*
@@ -340,13 +345,13 @@ contract TestInvariants is Invariants {
 		cheats.assume(debtList[0] > 0);
 
 		// Check that invariants hold before interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 
 		cheats.startPrank(userList[0], userList[0]);
 
-		uint256 repayAmount = setRepayAmount(userList[0], fakeUnderlying, amount);
+		uint256 repayAmount = setRepayAmount(userList[0], fakeUnderlyingToken, amount);
 
-		alchemist.repay(fakeUnderlying, repayAmount, userList[0]);
+		alchemist.repay(fakeUnderlyingToken, repayAmount, userList[0]);
 
 		// Maximum amount that can be repaid is the account's total debt
 		sentToTransmuter += ((repayAmount > debtList[0]) ? debtList[0] : repayAmount);
@@ -354,7 +359,7 @@ contract TestInvariants is Invariants {
 		cheats.stopPrank();
 
 		// Check that invariants hold after interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 	}
 
 	/*
@@ -376,7 +381,7 @@ contract TestInvariants is Invariants {
 		cheats.assume(debtList[0] > amount);
 
 		// Check that invariants hold before interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 
 		cheats.startPrank(userList[0], userList[0]);
 
@@ -388,7 +393,7 @@ contract TestInvariants is Invariants {
 		cheats.stopPrank();
 
 		// Check that invariants hold after interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 	}
 
 	/*
@@ -410,27 +415,27 @@ contract TestInvariants is Invariants {
 		cheats.assume(debtList[0] > 0);
 
 		// Check that invariants hold before interaction
-		invariantA1Range(userList, fakeYield, minted, burned, sentToTransmuter);
-		invariantA2(userList, fakeYield);
-		invariantA3(userList, fakeYield);
-		invariantA7(userList, fakeYield);
-		invariantA8(userList, fakeYield, fakeUnderlying);
+		invariantA1Range(userList, fakeYieldToken, minted, burned, sentToTransmuter);
+		invariantA2(userList, fakeYieldToken);
+		invariantA3(userList, fakeYieldToken);
+		invariantA7(userList, fakeYieldToken);
+		invariantA8(userList, fakeYieldToken, fakeUnderlyingToken);
 
 		cheats.startPrank(userList[0], userList[0]);
 
-		uint256 liquidationAmount = setLiquidationAmount(fakeUnderlying, amount);
+		uint256 liquidationAmount = setLiquidationAmount(fakeUnderlyingToken, amount);
 
-		alchemist.liquidate(fakeYield, liquidationAmount, minimumAmountOut(liquidationAmount, fakeYield));
+		alchemist.liquidate(fakeYieldToken, liquidationAmount, minimumAmountOut(liquidationAmount, fakeYieldToken));
 		sentToTransmuter += liquidationAmount;
 
 		cheats.stopPrank();
 
 		// Check that invariants hold after interaction
-		invariantA1Range(userList, fakeYield, minted, burned, sentToTransmuter);
-		invariantA2(userList, fakeYield);
-		invariantA3(userList, fakeYield);
-		invariantA7(userList, fakeYield);
-		invariantA8(userList, fakeYield, fakeUnderlying);
+		invariantA1Range(userList, fakeYieldToken, minted, burned, sentToTransmuter);
+		invariantA2(userList, fakeYieldToken);
+		invariantA3(userList, fakeYieldToken);
+		invariantA7(userList, fakeYieldToken);
+		invariantA8(userList, fakeYieldToken, fakeUnderlyingToken);
 	}
 
 	function testInvariantsOnDonate(
@@ -447,33 +452,29 @@ contract TestInvariants is Invariants {
 
 		// Ensure amount is a meaningful size to donate
 		cheats.assume(amount > 1e18);
-
-		// Ensure user has available debt to mint
-		cheats.assume(overCollateralList[0] / 2 > amount);
+		cheats.assume(debtList[0] > amount);
 
 		// Check that invariants hold before interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		invariantA1Range(userList, fakeYieldToken, minted, burned, sentToTransmuter);
+		invariantA2(userList, fakeYieldToken);
+		invariantA3(userList, fakeYieldToken);
+		invariantA7(userList, fakeYieldToken);
+		invariantA8(userList, fakeYieldToken, fakeUnderlyingToken);
 
 		cheats.startPrank(userList[0], userList[0]);
 
-		alchemist.approveMint(recipient, amount);
-
-		cheats.stopPrank();
-
-		// Donate from an address outside of userList
-		cheats.startPrank(recipient, recipient);
-
-		// Seed address with debt tokens to donate
-		alchemist.mintFrom(userList[0], amount, recipient);
-		minted += amount;
-
 		alToken.approve(address(alchemist), amount);
-		alchemist.donate(fakeYield, amount);
+		alchemist.donate(fakeYieldToken, amount);
+		burned += amount;
 
 		cheats.stopPrank();
 
 		// Check that invariants hold after interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		invariantA1Range(userList, fakeYieldToken, minted, burned, sentToTransmuter);
+		invariantA2(userList, fakeYieldToken);
+		invariantA3(userList, fakeYieldToken);
+		invariantA7(userList, fakeYieldToken);
+		invariantA8(userList, fakeYieldToken, fakeUnderlyingToken);
 	}
 
 	function testInvariantsOnHarvest(
@@ -492,17 +493,17 @@ contract TestInvariants is Invariants {
 		cheats.assume(amount > 1e18);
 
 		// Check that invariants hold before interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 
 		cheats.startPrank(alOwner, alOwner);
 
-		assignToUser(alOwner, fakeUnderlying, amount);
+		assignToUser(alOwner, fakeUnderlyingToken, amount);
 		setHarvestableBalance(amount);
-		alchemist.harvest(fakeYield, minimumAmountOut(amount, fakeYield));
+		alchemist.harvest(fakeYieldToken, minimumAmountOut(amount, fakeYieldToken));
 
 		cheats.stopPrank();
 
 		// Check that invariants hold after interaction
-		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
+		checkAllInvariants(userList, fakeYieldToken, fakeUnderlyingToken, minted, burned, sentToTransmuter);
 	}
 }

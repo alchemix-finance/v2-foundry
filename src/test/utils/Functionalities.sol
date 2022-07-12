@@ -12,10 +12,9 @@ import { TransmuterV2 } from "../../TransmuterV2.sol";
 import { TransmuterBuffer } from "../../TransmuterBuffer.sol";
 import { Whitelist } from "../../utils/Whitelist.sol";
 
-import {TestERC20} from "../mocks/TestERC20.sol";
-import {TestYieldToken} from "../mocks/TestYieldToken.sol";
-import {TestYieldTokenAdapter} from "../mocks/TestYieldTokenAdapter.sol";
-
+import { TestERC20 } from "../mocks/TestERC20.sol";
+import { TestYieldToken } from "../mocks/TestYieldToken.sol";
+import { TestYieldTokenAdapter } from "../mocks/TestYieldTokenAdapter.sol";
 
 import { IERC20Mintable } from "../../interfaces/IERC20Mintable.sol";
 import { ITokenAdapter } from "../../interfaces/ITokenAdapter.sol";
@@ -44,8 +43,8 @@ contract Functionalities is DSTest {
 	Whitelist whitelist;
 
 	// Token addresses
-	address fakeUnderlying;
-	address fakeYield;
+	address fakeUnderlyingToken;
+	address fakeYieldToken;
 
 	// Total minted debt
 	uint256 public minted;
@@ -73,14 +72,14 @@ contract Functionalities is DSTest {
 
 		// Fake tokens
 		TestERC20 testToken = new TestERC20(0, 18);
-		fakeUnderlying = address(testToken);
-		TestYieldToken testYieldToken = new TestYieldToken(fakeUnderlying);
-		fakeYield = address(testYieldToken);
+		fakeUnderlyingToken = address(testToken);
+		TestYieldToken testYieldToken = new TestYieldToken(fakeUnderlyingToken);
+		fakeYieldToken = address(testYieldToken);
 
 		// Contracts and logic contracts
 		alOwner = caller;
 		alToken = new AlchemicTokenV2(_name, _symbol, _flashFee);
-		tokenAdapter = new TestYieldTokenAdapter(fakeYield);
+		tokenAdapter = new TestYieldTokenAdapter(fakeYieldToken);
 		transmuterBufferLogic = new TransmuterBuffer();
 		transmuterLogic = new TransmuterV2();
 		alchemistLogic = new AlchemistV2();
@@ -106,7 +105,7 @@ contract Functionalities is DSTest {
 		bytes memory transParams = abi.encodeWithSelector(
 			TransmuterV2.initialize.selector,
 			address(alToken),
-			fakeUnderlying,
+			fakeUnderlyingToken,
 			address(transmuterBuffer),
 			whitelist
 		);
@@ -140,19 +139,19 @@ contract Functionalities is DSTest {
 		// Set the alchemist for the transmuterBuffer
 		transmuterBuffer.setAlchemist(address(proxyAlchemist));
 		// Set the transmuter buffer's transmuter
-		transmuterBuffer.setTransmuter(fakeUnderlying, address(transmuter));
+		transmuterBuffer.setTransmuter(fakeUnderlyingToken, address(transmuter));
 		// Set alOwner as a keeper
 		alchemist.setKeeper(alOwner, true);
 		// Set flow rate for transmuter buffer
-		transmuterBuffer.setFlowRate(fakeUnderlying, 325e18);
+		transmuterBuffer.setFlowRate(fakeUnderlyingToken, 325e18);
 
 		cheats.stopPrank();
 
 		// Address labels
 		cheats.label(alOwner, "Owner address");
 		cheats.label(address(tokenAdapter), "Token adapter");
-		cheats.label(fakeYield, "Yield token");
-		cheats.label(fakeUnderlying, "Underlying token");
+		cheats.label(fakeYieldToken, "Yield token");
+		cheats.label(fakeUnderlyingToken, "Underlying token");
 		cheats.label(address(whitelist), "Whitelist contract");
 		cheats.label(address(alchemist), "Alchemist proxy");
 		cheats.label(address(alchemistLogic), "Alchemist logic");
@@ -216,13 +215,13 @@ contract Functionalities is DSTest {
 		cheats.startPrank(alOwner);
 
 		// Register underlying and yield tokens in Alchemist
-		addUnderlyingToken(fakeUnderlying);
-		alchemist.setUnderlyingTokenEnabled(fakeUnderlying, true);
-		addYieldToken(fakeYield, address(tokenAdapter));
-		alchemist.setYieldTokenEnabled(fakeYield, true);
+		addUnderlyingToken(fakeUnderlyingToken);
+		alchemist.setUnderlyingTokenEnabled(fakeUnderlyingToken, true);
+		addYieldToken(fakeYieldToken, address(tokenAdapter));
+		alchemist.setYieldTokenEnabled(fakeYieldToken, true);
 
 		// Register underlying token in TransmuterBuffer
-		transmuterBuffer.registerAsset(fakeUnderlying, address(transmuter));
+		transmuterBuffer.registerAsset(fakeUnderlyingToken, address(transmuter));
 
 		cheats.stopPrank();
 	}
@@ -297,18 +296,18 @@ contract Functionalities is DSTest {
 
 		// User total balance in underlying tokens =
 		// minimum collateralization * debt + overCollateral
-		uint256 underlyingBalance = calculateBalance(debt, overCollateral, fakeUnderlying);
+		uint256 underlyingBalance = calculateBalance(debt, overCollateral, fakeUnderlyingToken);
 
 		// Mint underlying tokens to deposit
-		assignToUser(user, fakeUnderlying, underlyingBalance);
+		assignToUser(user, fakeUnderlyingToken, underlyingBalance);
 
 		// Deposit underlying tokens into the Alchemist
 		if (underlyingBalance > 0) {
 			alchemist.depositUnderlying(
-				fakeYield,
+				fakeYieldToken,
 				underlyingBalance,
 				user,
-				minimumAmountOut(underlyingBalance, fakeYield)
+				minimumAmountOut(underlyingBalance, fakeYieldToken)
 			);
 		}
 
@@ -371,7 +370,7 @@ contract Functionalities is DSTest {
 		address token,
 		uint256 amount
 	) public {
-		IERC20Mintable(fakeUnderlying).approve(address(fakeYield), amount);
+		IERC20Mintable(fakeUnderlyingToken).approve(address(fakeYieldToken), amount);
 		TestYieldToken(token).mint(amount, user);
 		TestYieldToken(token).approve(address(alchemist), amount);
 	}
@@ -445,18 +444,18 @@ contract Functionalities is DSTest {
 	 */
 	function setRepayAmount(
 		address user,
-		address fakeUnderlying,
+		address fakeUnderlyingToken,
 		uint96 amount
 	) public returns (uint256) {
 		// Get repay limit
-		(, , uint256 repayLimit) = alchemist.getRepayLimitInfo(fakeUnderlying);
+		(, , uint256 repayLimit) = alchemist.getRepayLimitInfo(fakeUnderlyingToken);
 
 		// Repay either limit or specific amount of debt
 		uint256 repayAmount = amount > repayLimit ? repayLimit : amount;
 
 		// Give the user underlying tokens to repay with if necessary
-		if (TestERC20(fakeUnderlying).balanceOf(user) < repayAmount) {
-			assignToUser(user, fakeUnderlying, repayAmount);
+		if (TestERC20(fakeUnderlyingToken).balanceOf(user) < repayAmount) {
+			assignToUser(user, fakeUnderlyingToken, repayAmount);
 		}
 
 		return repayAmount;
@@ -465,9 +464,9 @@ contract Functionalities is DSTest {
 	/*
 	 * Set the amount to liquidate
 	 */
-	function setLiquidationAmount(address fakeUnderlying, uint96 amount) public returns (uint256) {
+	function setLiquidationAmount(address fakeUnderlyingToken, uint96 amount) public returns (uint256) {
 		// Get liquidation limit
-		(, , uint256 liquidationLimit) = alchemist.getLiquidationLimitInfo(fakeUnderlying);
+		(, , uint256 liquidationLimit) = alchemist.getLiquidationLimitInfo(fakeUnderlyingToken);
 
 		// Liquidate either maximum limit or specific amount
 		uint256 liquidationAmount = amount > liquidationLimit ? liquidationLimit : amount;
@@ -479,7 +478,7 @@ contract Functionalities is DSTest {
 	 * Assigns an account a harvestable balance
 	 */
 	function setHarvestableBalance(uint256 amount) public {
-		IERC20Mintable(fakeUnderlying).approve(address(fakeYield), amount);
-		TestYieldToken(fakeYield).slurp(amount);
+		IERC20Mintable(fakeUnderlyingToken).approve(address(fakeYieldToken), amount);
+		TestYieldToken(fakeYieldToken).slurp(amount);
 	}
 }

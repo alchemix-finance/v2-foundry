@@ -7,8 +7,6 @@ import { IERC20 } from "../../../lib/openzeppelin-contracts/contracts/token/ERC2
 
 import { AlchemistV2 } from "../../AlchemistV2.sol";
 
-import "forge-std/console.sol";
-
 contract Invariants is Functionalities {
 	/* Invariant A1: Assume all CDPs are fully updated (using _poke) and no rounding errors. */
 	/* Let m be the amount of debt tokens minted by the Alchemist, b the amount of debt tokens */
@@ -31,9 +29,6 @@ contract Invariants is Functionalities {
 			(debt, ) = alchemist.accounts(userList[i]);
 			debtsAccured += debt;
 		}
-
-		// gets actual amount burned avoiding rounding errors
-		tokensBurned = uint256(int256(tokensMinted) - debtsAccured);
 
 		emit log("Eq with state variables");
 		emit log_named_int("Tokens minted", int256(tokensMinted));
@@ -119,21 +114,20 @@ contract Invariants is Functionalities {
 
 	function checkAllInvariants(
 		address[] calldata userList,
-		address fakeYield,
-		address fakeUnderlying,
+		address fakeYieldToken,
+		address fakeUnderlyingToken,
 		uint256 minted,
 		uint256 burned,
 		uint256 sentToTransmuter
 	) public {
-		invariantA1(userList, fakeYield, minted, burned, sentToTransmuter);
-		invariantA2(userList, fakeYield);
-		invariantA3(userList, fakeYield);
-		invariantA7(userList, fakeYield);
-		invariantA8(userList, fakeYield, fakeUnderlying);
+		invariantA1(userList, fakeYieldToken, minted, burned, sentToTransmuter);
+		invariantA2(userList, fakeYieldToken);
+		invariantA3(userList, fakeYieldToken);
+		invariantA7(userList, fakeYieldToken);
+		invariantA8(userList, fakeYieldToken, fakeUnderlyingToken);
 	}
 
 	/* Invariant A1 with range assertions to account for rounding errors
-	 * Assert a range of 1000 wei
 	 */
 	function invariantA1Range(
 		address[] calldata userList,
@@ -156,13 +150,23 @@ contract Invariants is Functionalities {
 			debtsAccured += debt;
 		}
 
-		int256 sum = int256(tokensBurned) + debtsAccured + int256(sentToTransmuter);
-
 		emit log("Eq with state variables");
 		emit log_named_int("Tokens minted", int256(tokensMinted));
 		emit log_named_int("Debts accured", debtsAccured);
-		emit log_named_int("The sum", sum);
-		assertLe(int256(tokensMinted), sum);
-		assertGt(int256(tokensMinted), sum - 1000);
+		emit log_named_int("The sum", int256(tokensBurned) + debtsAccured + int256(sentToTransmuter));
+
+		// tests when taking into account burned tokens
+		if (tokensBurned > 0) {
+			// gets actual amount burned to use as a
+			uint256 amountBurned = uint256(int256(tokensMinted) - debtsAccured);
+			// burned should always be larger than the actual amount burned
+			assertGe(int256(tokensBurned), int256(amountBurned));
+			assertGe(int256(tokensMinted), int256(amountBurned) + debtsAccured + int256(sentToTransmuter));
+		}
+		// tests for scenarios not including burned tokens
+		else {
+			assertLe(int256(tokensMinted), int256(tokensBurned) + debtsAccured + int256(sentToTransmuter));
+			assertGt(int256(tokensMinted), int256(tokensBurned) + debtsAccured + int256(sentToTransmuter) - 1000);
+		}
 	}
 }
