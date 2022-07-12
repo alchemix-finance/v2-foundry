@@ -473,4 +473,12 @@ contract Functionalities is DSTest {
 
 		return liquidationAmount;
 	}
+
+	/*
+	 * Assigns an account a harvestable balance
+	 */
+	function setHarvestableBalance(uint256 amount) public {
+		IERC20Mintable(fakeUnderlying).approve(address(fakeYield), amount);
+		TestYieldToken(fakeYield).slurp(amount);
+	}
 }

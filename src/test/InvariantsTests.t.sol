@@ -5,8 +5,7 @@ import "../../lib/ds-test/src/test.sol";
 
 import { Invariants } from "./utils/Invariants.sol";
 import "../interfaces/alchemist/IAlchemistV2State.sol";
-
-import "forge-std/console.sol";
+import { IAlchemistV2 } from "../interfaces/IAlchemistV2.sol";
 
 contract TestInvariants is Invariants {
 	function setUp() public {}
@@ -478,7 +477,6 @@ contract TestInvariants is Invariants {
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
 	}
 
-	// wip
 	function testInvariantsOnHarvest(
 		address caller,
 		address proxyOwner,
@@ -491,24 +489,17 @@ contract TestInvariants is Invariants {
 		// Initialize the test
 		setupTest(caller, proxyOwner, userList, debtList, overCollateralList, amount, recipient);
 
-		cheats.assume(amount >= tokenAdapter.price());
-		console.log("~ amount", amount);
-
-		assignHarvestableBalance(amount);
-		uint256 balance = tokenAdapter.getHarvestableBalance();
-		console.log("~ balance", balance);
-
-		// IAlchemistV2State.YieldTokenParams storage yieldTokenParams = alchemist.getYieldTokenParameters(fakeYield);
-		// emit log_named_int("harvestable balance", yieldTokenParams);
+		// Ensure amount is a meaningful size to harvest
+		cheats.assume(amount > 1e18);
 
 		// Check that invariants hold before interaction
 		checkAllInvariants(userList, fakeYield, fakeUnderlying, minted, burned, sentToTransmuter);
 
 		cheats.startPrank(alOwner, alOwner);
 
-		console.log("~ minimumAmountOut(amount, fakeYield)", minimumAmountOut(amount, fakeYield));
-		alchemist.harvest(fakeYield, minimumAmountOut(amount, fakeYield));
-		sentToTransmuter += amount; // should be amount - fee taken by protocol
+		assignToUser(alOwner, fakeUnderlying, amount);
+		setHarvestableBalance(amount);
+		alchemist.harvest(fakeYield, minimumAmountOut(amount, fakeYield));;
 
 		cheats.stopPrank();
 
