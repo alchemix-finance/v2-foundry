@@ -53,6 +53,12 @@ contract gALCX is ERC20 {
         pendingOwner = address(0);
     }
 
+    function renounceOwnership() external {
+        require(msg.sender == owner, "!owner");
+        emit NewOwner(address(0x0));
+        owner = address(0);
+    }
+
     /// @notice Set a new staking pool address and migrate funds there
     /// @param _pools The new pool address
     /// @param _poolId The new pool id
