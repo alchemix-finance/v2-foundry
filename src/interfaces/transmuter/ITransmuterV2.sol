@@ -61,6 +61,13 @@ interface ITransmuterV2 {
     uint256 amount
   );
 
+  /// @dev Emitted when a collateral source is set.
+  ///
+  /// @param newCollateralSource The new collateral source.
+  event SetNewCollateralSource(
+    address newCollateralSource
+  );
+
   /// @notice Gets the version.
   ///
   /// @return The version.
@@ -99,7 +106,7 @@ interface ITransmuterV2 {
 
   /// @dev The conversion factor used to convert between underlying token amounts and debt token amounts.
   ///
-  /// @return The coversion factor.
+  /// @return The conversion factor.
   function conversionFactor() external view returns (uint256);
 
   /// @dev Deposits tokens to be exchanged into an account.

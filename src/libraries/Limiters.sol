@@ -9,7 +9,7 @@ library Limiters {
 
     /// @dev A maximum cooldown to avoid malicious governance bricking the contract.
     /// @dev 1 day @ 12 sec / block
-    uint256 constant public MAX_COOLDOWN_BLOCKS = 7200;
+    uint256 constant public MAX_COOLDOWN_BLOCKS = 1 days / 12 seconds;
 
     /// @dev The scalar used to convert integral types to fixed point numbers.
     uint256 constant public FIXED_POINT_SCALAR = 1e18;
@@ -26,7 +26,8 @@ library Limiters {
     /// @dev Instantiates a new linear growth function.
     ///
     /// @param maximum The maximum value for the LGF.
-    /// @param blocks  The number of blocks that determins the rate of the LGF.
+    /// @param blocks  The number of blocks that determines the rate of the LGF.
+    /// @param _minLimit The new minimum limit of the LGF.
     ///
     /// @return The LGF struct.
     function createLinearGrowthLimiter(uint256 maximum, uint256 blocks, uint256 _minLimit) internal view returns (LinearGrowthLimiter memory) {

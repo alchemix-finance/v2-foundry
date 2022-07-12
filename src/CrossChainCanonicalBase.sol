@@ -22,11 +22,16 @@ contract CrossChainCanonicalBase is ERC20PermitUpgradeable, ReentrancyGuardUpgra
 
     // Acceptable old tokens
     address[] public bridgeTokensArray; // Used for external UIs
-    mapping(address => bool) public bridgeTokens; // Used for the logic checks
 
     // Administrative booleans
     bool public exchangesPaused; // Pause old token exchanges in case of an emergency
     mapping(address => bool) public bridgeTokenEnabled;
+
+    /// @notice The amount that each bridge is permitted to mint.
+    mapping(address => uint256) public mintCeiling;
+
+    /// @notice The amount of tokens that each bridge has already minted.
+    mapping(address => uint256) public totalMinted;
 
     /* ========== MODIFIERS ========== */
 
@@ -43,7 +48,8 @@ contract CrossChainCanonicalBase is ERC20PermitUpgradeable, ReentrancyGuardUpgra
         string memory _name,
         string memory _symbol,
         address _creatorAddress,
-        address[] memory _bridgeTokens
+        address[] memory _bridgeTokens,
+        uint256[] memory _mintCeilings
     ) internal {
         __Context_init_unchained();
         __Ownable_init_unchained();
@@ -54,10 +60,7 @@ contract CrossChainCanonicalBase is ERC20PermitUpgradeable, ReentrancyGuardUpgra
         _transferOwnership(_creatorAddress);
 
         // Initialize the starting old tokens
-        for (uint256 i = 0; i < _bridgeTokens.length; i++){ 
-            // Mark as accepted
-            bridgeTokens[_bridgeTokens[i]] = true;
-
+        for (uint256 i = 0; i < _bridgeTokens.length; ++i){
             // Add to the array
             bridgeTokensArray.push(_bridgeTokens[i]);
 
@@ -66,6 +69,9 @@ contract CrossChainCanonicalBase is ERC20PermitUpgradeable, ReentrancyGuardUpgra
 
             // Make sure swapping is on
             bridgeTokenEnabled[_bridgeTokens[i]] = true;
+
+            // Set mint ceiling for each bridge
+            mintCeiling[_bridgeTokens[i]] = _mintCeilings[i];
         }
     }
 
@@ -91,6 +97,13 @@ contract CrossChainCanonicalBase is ERC20PermitUpgradeable, ReentrancyGuardUpgra
         if (!bridgeTokenEnabled[bridgeTokenAddress]) {
             revert IllegalState("Bridge token not enabled");
         }
+
+        // Check mint caps and adjust mint count
+        uint256 total = tokenAmount + totalMinted[bridgeTokenAddress];
+        if (total > mintCeiling[bridgeTokenAddress]) {
+            revert IllegalState();
+        }
+        totalMinted[bridgeTokenAddress] = total;
 
         // Pull in the old tokens
         TokenUtils.safeTransferFrom(bridgeTokenAddress, msg.sender, address(this), tokenAmount);
@@ -124,6 +137,9 @@ contract CrossChainCanonicalBase is ERC20PermitUpgradeable, ReentrancyGuardUpgra
             bridgeTokensOut -= ((bridgeTokensOut * swapFees[bridgeTokenAddress][1]) / FEE_PRECISION);
         }
 
+        // Update mint count
+        totalMinted[bridgeTokenAddress] -= tokenAmount;
+
         // Give old tokens to the sender
         TokenUtils.safeTransfer(bridgeTokenAddress, msg.sender, bridgeTokensOut);
     }
@@ -138,7 +154,7 @@ contract CrossChainCanonicalBase is ERC20PermitUpgradeable, ReentrancyGuardUpgra
 
     function addBridgeToken(address bridgeTokenAddress) external onlyOwner {
         // Make sure the token is not already present
-        for (uint i = 0; i < bridgeTokensArray.length; i++){ 
+        for (uint256 i = 0; i < bridgeTokensArray.length; ++i){ 
             if (bridgeTokensArray[i] == bridgeTokenAddress) {
                 revert IllegalState("Token already added");
             }
@@ -153,17 +169,30 @@ contract CrossChainCanonicalBase is ERC20PermitUpgradeable, ReentrancyGuardUpgra
         emit BridgeTokenAdded(bridgeTokenAddress);
     }
 
-    function toggleBridgeToken(address bridgeTokenAddress, bool enabled) external onlyOwner {
+    function setBridgeToken(address bridgeTokenAddress, bool enabled) external onlyOwner {
         // Toggle swapping
         bridgeTokenEnabled[bridgeTokenAddress] = enabled;
 
-        emit BridgeTokenToggled(bridgeTokenAddress, enabled);
+        emit BridgeTokenSet(bridgeTokenAddress, enabled);
     }
 
     function setSwapFees(address bridgeTokenAddress, uint256 _bridgeToCanonical, uint256 _canonicalToOld) external onlyOwner {
+        if(_bridgeToCanonical >= FEE_PRECISION || _canonicalToOld >= FEE_PRECISION) {
+            revert IllegalArgument();
+        }
         swapFees[bridgeTokenAddress] = [_bridgeToCanonical, _canonicalToOld];
 
         emit SwapFeeSet(bridgeTokenAddress, _bridgeToCanonical, _canonicalToOld);
+    }
+
+    /// @notice Sets the maximum amount of tokens that `minter` is allowed to mint.
+    ///
+    /// @notice This function reverts if `msg.sender` is not an admin.
+    ///
+    /// @param minter  The address of the minter.
+    /// @param maximum The maximum amount of tokens that the minter is allowed to mint.
+    function setCeiling(address minter, uint256 maximum) external onlyOwner {
+        mintCeiling[minter] = maximum;
     }
 
     function toggleFeesForAddress(address targetAddress) external onlyOwner {
@@ -185,6 +214,6 @@ contract CrossChainCanonicalBase is ERC20PermitUpgradeable, ReentrancyGuardUpgra
     /* ========== EVENTS ========== */
 
     event BridgeTokenAdded(address indexed bridgeTokenAddress);
-    event BridgeTokenToggled(address indexed bridgeTokenAddress, bool state);
-    event SwapFeeSet(address indexed bridgeTokenAddress, uint bridgeToCanonical, uint canonicalToOld);
+    event BridgeTokenSet(address indexed bridgeTokenAddress, bool state);
+    event SwapFeeSet(address indexed bridgeTokenAddress, uint256 bridgeToCanonical, uint256 canonicalToOld);
 }

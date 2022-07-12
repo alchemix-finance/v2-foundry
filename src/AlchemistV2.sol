@@ -43,7 +43,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     }
 
     /// @notice The number of basis points there are to represent exactly 100%.
-    uint256 public constant BPS = 10000;
+    uint256 public constant BPS = 10_000;
 
     /// @notice The scalar used for conversion of integral numbers to fixed point numbers. Fixed point numbers in this
     ///         implementation have 18 decimals of resolution, meaning that 1 is represented as 1e18, 0.5 is
@@ -107,6 +107,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @dev An iterable set of the yield tokens that are supported by the system.
     Sets.AddressSet private _supportedYieldTokens;
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {}
 
     /// @inheritdoc IAlchemistV2State
@@ -432,6 +433,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @inheritdoc IAlchemistV2AdminActions
     function setMinimumCollateralization(uint256 value) external override {
         _onlyAdmin();
+        _checkArgument(value >= 1e18);
         minimumCollateralization = value;
         emit MinimumCollateralizationUpdated(value);
     }
@@ -637,11 +639,8 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         uint256 minimumAmountOut
     ) external override lock returns (uint256) {
         _onlyWhitelisted();
-
         _checkArgument(recipient != address(0));
-
         _checkSupportedYieldToken(yieldToken);
-
         _checkLoss(yieldToken);
 
         uint256 amountYieldTokens = _withdraw(yieldToken, msg.sender, shares, recipient);
@@ -658,13 +657,9 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         uint256 minimumAmountOut
     ) external override lock returns (uint256) {
         _onlyWhitelisted();
-
         _checkArgument(recipient != address(0));
-
         _checkSupportedYieldToken(yieldToken);
-
         _checkLoss(yieldToken);
-
         _decreaseWithdrawAllowance(owner, msg.sender, yieldToken, shares);
 
         uint256 amountYieldTokens = _withdraw(yieldToken, owner, shares, recipient);
@@ -886,7 +881,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @inheritdoc IAlchemistV2Actions
     function donate(address yieldToken, uint256 amount) external override lock {
         _onlyWhitelisted();
-        _checkArgument(amount != 0);
+        _checkArgument(amount > 0);
 
         // Distribute any unlocked credit so that the accrued weight is up to date.
         _distributeUnlockedCredit(yieldToken);
@@ -987,7 +982,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @param owner The address which owns the account.
     function _preemptivelyHarvestDeposited(address owner) internal {
         Sets.AddressSet storage depositedTokens = _accounts[owner].depositedTokens;
-        for (uint256 i = 0; i < depositedTokens.values.length; i++) {
+        for (uint256 i = 0; i < depositedTokens.values.length; ++i) {
             _preemptivelyHarvest(depositedTokens.values[i]);
         }
     }
@@ -1279,7 +1274,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @param owner The address of the account owner.
     function _distributeUnlockedCreditDeposited(address owner) internal {
         Sets.AddressSet storage depositedTokens = _accounts[owner].depositedTokens;
-        for (uint256 i = 0; i < depositedTokens.values.length; i++) {
+        for (uint256 i = 0; i < depositedTokens.values.length; ++i) {
             _distributeUnlockedCredit(depositedTokens.values[i]);
         }
     }
@@ -1329,6 +1324,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     ///
     /// @param yieldToken       The address of the yield token to unwrap.
     /// @param amount           The amount of the underlying token to wrap.
+    /// @param recipient        The recipient of the tokens after they are unwrapped.
     /// @param minimumAmountOut The minimum amount of underlying tokens that are expected to be received from the
     ///                         operation.
     ///
@@ -1352,7 +1348,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @param owner The address of the account owner.
     function _poke(address owner) internal {
         Sets.AddressSet storage depositedTokens = _accounts[owner].depositedTokens;
-        for (uint256 i = 0; i < depositedTokens.values.length; i++) {
+        for (uint256 i = 0; i < depositedTokens.values.length; ++i) {
             _poke(owner, depositedTokens.values[i]);
         }
     }
@@ -1458,7 +1454,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         uint256 totalValue = 0;
 
         Sets.AddressSet storage depositedTokens = _accounts[owner].depositedTokens;
-        for (uint256 i = 0; i < depositedTokens.values.length; i++) {
+        for (uint256 i = 0; i < depositedTokens.values.length; ++i) {
             address yieldToken             = depositedTokens.values[i];
             address underlyingToken        = _yieldTokens[yieldToken].underlyingToken;
             uint256 shares                 = _accounts[owner].balances[yieldToken];
@@ -1521,7 +1517,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         int256 debt = _accounts[owner].debt;
 
         Sets.AddressSet storage depositedTokens = _accounts[owner].depositedTokens;
-        for (uint256 i = 0; i < depositedTokens.values.length; i++) {
+        for (uint256 i = 0; i < depositedTokens.values.length; ++i) {
             address yieldToken = depositedTokens.values[i];
 
             uint256 currentAccruedWeight = _yieldTokens[yieldToken].accruedWeight;

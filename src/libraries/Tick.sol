@@ -35,7 +35,7 @@ library Tick {
   ///
   /// @return The next tick.
   function next(Tick.Cache storage self) internal returns (Tick.Info storage) {
-    self.position++;
+    ++self.position;
     return self.values[self.position];
   }
 
