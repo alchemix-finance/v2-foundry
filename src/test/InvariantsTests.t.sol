@@ -5,7 +5,6 @@ import "../../lib/ds-test/src/test.sol";
 
 import { Invariants } from "./utils/Invariants.sol";
 import "../interfaces/alchemist/IAlchemistV2State.sol";
-import { IAlchemistV2 } from "../interfaces/IAlchemistV2.sol";
 
 contract TestInvariants is Invariants {
 	function setUp() public {}
@@ -499,7 +498,7 @@ contract TestInvariants is Invariants {
 
 		assignToUser(alOwner, fakeUnderlying, amount);
 		setHarvestableBalance(amount);
-		alchemist.harvest(fakeYield, minimumAmountOut(amount, fakeYield));;
+		alchemist.harvest(fakeYield, minimumAmountOut(amount, fakeYield));
 
 		cheats.stopPrank();
 
