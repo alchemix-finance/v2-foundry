@@ -729,6 +729,10 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         // Burn the tokens from the message sender.
         TokenUtils.safeBurnFrom(debtToken, msg.sender, credit);
 
+        // Increase the global amount of mintable debt tokens.
+        // Do this after burning instead of before because mint limit increase is an action beneficial to the user.
+        _mintingLimiter.increase(credit);
+
         emit Burn(msg.sender, credit, recipient);
 
         return credit;
@@ -895,6 +899,10 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         _accounts[msg.sender].lastAccruedWeights[yieldToken] = _yieldTokens[yieldToken].accruedWeight;
 
         TokenUtils.safeBurnFrom(debtToken, msg.sender, amount);
+
+        // Increase the global amount of mintable debt tokens.
+        // Do this after burning instead of before because mint limit increase is an action beneficial to the user.
+        _mintingLimiter.increase(amount);
 
         emit Donate(msg.sender, yieldToken, amount);
     }

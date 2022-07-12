@@ -78,6 +78,16 @@ library Limiters {
         self.lastBlock = block.number;
     }
 
+    /// @dev Increase the value of the linear growth limiter.
+    ///
+    /// @param self   The linear growth limiter.
+    /// @param amount The amount to decrease `lastValue`.
+    function increase(LinearGrowthLimiter storage self, uint256 amount) internal {
+        uint256 value = self.get();
+        self.lastValue = value + amount;
+        self.lastBlock = block.number;
+    }
+
     /// @dev Decrease the value of the linear growth limiter.
     ///
     /// @param self   The linear growth limiter.
