@@ -147,16 +147,12 @@ contract Invariants is Functionalities {
 		}
 
 		int256 sum = int256(tokensBurned) + debtsAccrued + int256(sentToTransmuter);
-		uint256 burnedDelta = uint256(int256(tokensBurned) - (int256(tokensMinted) - debtsAccrued));
-		uint256 liquidateDelta = 1000;
-
-		uint256 maxDelta = tokensBurned > 0 ? burnedDelta : liquidateDelta;
 
 		emit log("Eq with state variables");
 		emit log_named_int("Tokens minted", int256(tokensMinted));
 		emit log_named_int("Debts accured", debtsAccrued);
 		emit log_named_int("The sum", sum);
 
-		assertApproxEq(tokensMinted, uint256(sum), maxDelta);
+		assertRelApproxEq(tokensMinted, uint256(sum), 300);
 	}
 }
