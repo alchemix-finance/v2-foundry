@@ -23,19 +23,19 @@ contract Invariants is Functionalities {
 		emit log("Checking Invariant A1");
 
 		int256 debt;
-		int256 debtsAccured;
+		int256 debtsAccrued;
 
 		for (uint256 i = 0; i < userList.length; i++) {
 			(debt, ) = alchemist.accounts(userList[i]);
-			debtsAccured += debt;
+			debtsAccrued += debt;
 		}
 
 		emit log("Eq with state variables");
 		emit log_named_int("Tokens minted", int256(tokensMinted));
-		emit log_named_int("Debts accured", debtsAccured);
-		emit log_named_int("The sum", int256(tokensBurned) + debtsAccured + int256(sentToTransmuter));
+		emit log_named_int("Debts accured", debtsAccrued);
+		emit log_named_int("The sum", int256(tokensBurned) + debtsAccrued + int256(sentToTransmuter));
 
-		assertEq(int256(tokensMinted), int256(tokensBurned) + debtsAccured + int256(sentToTransmuter));
+		assertEq(int256(tokensMinted), int256(tokensBurned) + debtsAccrued + int256(sentToTransmuter));
 	}
 
 	/* Invariant A2: The total number of shares of a yield token is equal to the sum */
@@ -139,34 +139,24 @@ contract Invariants is Functionalities {
 		emit log("Checking Invariant A1 Range");
 
 		int256 debt;
-		uint256 shares;
-		uint256 lastAccruedWeight;
-
-		int256 debtsAccured;
-		uint256 underlyingInTransmutter;
+		int256 debtsAccrued;
 
 		for (uint256 i = 0; i < userList.length; i++) {
 			(debt, ) = alchemist.accounts(userList[i]);
-			debtsAccured += debt;
+			debtsAccrued += debt;
 		}
+
+		int256 sum = int256(tokensBurned) + debtsAccrued + int256(sentToTransmuter);
+		uint256 burnedDelta = uint256(int256(tokensBurned) - (int256(tokensMinted) - debtsAccrued));
+		uint256 liquidateDelta = 1000;
+
+		uint256 maxDelta = tokensBurned > 0 ? burnedDelta : liquidateDelta;
 
 		emit log("Eq with state variables");
 		emit log_named_int("Tokens minted", int256(tokensMinted));
-		emit log_named_int("Debts accured", debtsAccured);
-		emit log_named_int("The sum", int256(tokensBurned) + debtsAccured + int256(sentToTransmuter));
+		emit log_named_int("Debts accured", debtsAccrued);
+		emit log_named_int("The sum", sum);
 
-		// tests when taking into account burned tokens
-		if (tokensBurned > 0) {
-			// gets actual amount burned to use as a
-			uint256 amountBurned = uint256(int256(tokensMinted) - debtsAccured);
-			// burned should always be larger than the actual amount burned
-			assertGe(int256(tokensBurned), int256(amountBurned));
-			assertGe(int256(tokensMinted), int256(amountBurned) + debtsAccured + int256(sentToTransmuter));
-		}
-		// tests for scenarios not including burned tokens
-		else {
-			assertLe(int256(tokensMinted), int256(tokensBurned) + debtsAccured + int256(sentToTransmuter));
-			assertGt(int256(tokensMinted), int256(tokensBurned) + debtsAccured + int256(sentToTransmuter) - 1000);
-		}
+		assertApproxEq(tokensMinted, uint256(sum), maxDelta);
 	}
 }

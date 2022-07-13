@@ -2,6 +2,8 @@
 pragma solidity ^0.8.13;
 
 import { DSTest } from "../../../lib/ds-test/src/test.sol";
+import { DSTestPlus } from "./DSTestPlus.sol";
+
 import "../../../lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 
 import { CheatCodes } from "../../test/utils/Cheatcodes.sol";
@@ -22,7 +24,7 @@ import { ITokenAdapter } from "../../interfaces/ITokenAdapter.sol";
 import { IAlchemistV2AdminActions } from "../../interfaces/alchemist/IAlchemistV2AdminActions.sol";
 import { IAlchemistV2 } from "../../interfaces/IAlchemistV2.sol";
 
-contract Functionalities is DSTest {
+contract Functionalities is DSTest, DSTestPlus {
 	// Callable contract variables
 	AlchemistV2 alchemist;
 	TransmuterV2 transmuter;
