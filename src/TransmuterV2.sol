@@ -99,7 +99,7 @@ contract TransmuterV2 is ITransmuterV2, Initializable, ReentrancyGuardUpgradeabl
   /// @dev The identifier of the role which maintains other roles.
   bytes32 public constant ADMIN = keccak256("ADMIN");
 
-  /// @dev The identitifer of the sentinel role
+  /// @dev The identifier of the sentinel role
   bytes32 public constant SENTINEL = keccak256("SENTINEL");
 
   /// @inheritdoc ITransmuterV2
@@ -139,6 +139,7 @@ contract TransmuterV2 is ITransmuterV2, Initializable, ReentrancyGuardUpgradeabl
   /// @dev The amount of decimal places needed to normalize collateral to debtToken
   uint256 public override conversionFactor;
 
+  /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() initializer {}
 
   function initialize(
@@ -180,7 +181,7 @@ contract TransmuterV2 is ITransmuterV2, Initializable, ReentrancyGuardUpgradeabl
     _;
   }
 
-  /// @dev A modifier which checks if caller is a sentinel.
+  /// @dev A modifier which checks whether the transmuter is unpaused.
   modifier notPaused() {
     if (isPaused) {
       revert IllegalState();
@@ -197,6 +198,7 @@ contract TransmuterV2 is ITransmuterV2, Initializable, ReentrancyGuardUpgradeabl
   function setCollateralSource(address _newCollateralSource) external {
     _onlyAdmin();
     buffer = _newCollateralSource;
+    emit SetNewCollateralSource(_newCollateralSource);
   }
 
   function setPause(bool pauseState) external onlySentinelOrAdmin {
@@ -348,14 +350,14 @@ contract TransmuterV2 is ITransmuterV2, Initializable, ReentrancyGuardUpgradeabl
   }
 
   /// @inheritdoc ITransmuterV2
-  function getUnexchangedBalance(address owner) external view override returns (uint256 unexchangedBalance) {
+  function getUnexchangedBalance(address owner) external view override returns (uint256) {
     Account storage account = accounts[owner];
 
     if (account.occupiedTick <= satisfiedTick) {
       return 0;
     }
 
-    unexchangedBalance = account.unexchangedBalance;
+    uint256 unexchangedBalance = account.unexchangedBalance;
 
     uint256 exchanged = LiquidityMath.calculateProduct(
       unexchangedBalance,

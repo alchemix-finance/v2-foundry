@@ -4,7 +4,6 @@ pragma solidity ^0.8.13;
 import {AccessControl} from "../lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
 import {Initializable} from "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 import "../lib/openzeppelin-contracts/contracts/utils/math/Math.sol";
-import {SafeMath} from "../lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol";
 
 import "./base/Errors.sol";
 
@@ -24,8 +23,9 @@ import "./interfaces/IERC20TokenReceiver.sol";
 ///
 /// @notice An interface contract to buffer funds between the Alchemist and the Transmuter
 contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
-    using SafeMath for uint256;
     using FixedPointMath for FixedPointMath.Number;
+
+    uint256 public constant BPS = 10_000;
 
     /// @notice The identifier of the role which maintains other roles.
     bytes32 public constant ADMIN = keccak256("ADMIN");
@@ -75,6 +75,7 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
     /// @dev A mapping of underlying tokens to divert to the AMO.
     mapping(address => bool) public divertToAmo;
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {}
 
     /// @dev Initialize the contract
@@ -156,9 +157,9 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
     }
 
     /// @inheritdoc ITransmuterBuffer
-    function getTotalCredit() public view override returns (uint256 credit) {
+    function getTotalCredit() public view override returns (uint256) {
         (int256 debt, ) = IAlchemistV2(alchemist).accounts(address(this));
-        credit = debt >= 0 ? 0 : SafeCast.toUint256(-debt);
+        return debt >= 0 ? 0 : SafeCast.toUint256(-debt);
     }
 
     /// @inheritdoc ITransmuterBuffer
@@ -169,7 +170,7 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
         returns (uint256 totalBuffered)
     {
         totalBuffered = TokenUtils.safeBalanceOf(underlyingToken, address(this));
-        for (uint256 i = 0; i < _yieldTokens[underlyingToken].length; i++) {
+        for (uint256 i = 0; i < _yieldTokens[underlyingToken].length; ++i) {
             totalBuffered += _getTotalBuffered(_yieldTokens[underlyingToken][i]);
         }
     }
@@ -180,10 +181,13 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
         address[] memory tokens,
         uint256[] memory weights
     ) external override onlyAdmin {
+        if(tokens.length != weights.length) {
+            revert IllegalArgument();
+        }
         Weighting storage weighting = weightings[weightToken];
         delete weighting.tokens;
         weighting.totalWeight = 0;
-        for (uint256 i = 0; i < tokens.length; i++) {
+        for (uint256 i = 0; i < tokens.length; ++i) {
             address yieldToken = tokens[i];
 
             // For any weightToken that is not the debtToken, we want to verify that the yield-tokens being
@@ -232,14 +236,14 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
         sources[_alchemist] = true;
 
         if (alchemist != address(0)) {
-            for (uint256 i = 0; i < registeredUnderlyings.length; i++) {
+            for (uint256 i = 0; i < registeredUnderlyings.length; ++i) {
                 TokenUtils.safeApprove(registeredUnderlyings[i], alchemist, 0);
             }
             TokenUtils.safeApprove(debtToken, alchemist, 0);
         }
 
         alchemist = _alchemist;
-        for (uint256 i = 0; i < registeredUnderlyings.length; i++) {
+        for (uint256 i = 0; i < registeredUnderlyings.length; ++i) {
             TokenUtils.safeApprove(registeredUnderlyings[i], alchemist, type(uint256).max);
         }
         TokenUtils.safeApprove(debtToken, alchemist, type(uint256).max);
@@ -269,7 +273,7 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
         }
 
         // only add to the array if not already contained in it
-        for (uint256 i = 0; i < registeredUnderlyings.length; i++) {
+        for (uint256 i = 0; i < registeredUnderlyings.length; ++i) {
             if (registeredUnderlyings[i] == underlyingToken) {
                 revert IllegalState();
             }
@@ -379,12 +383,12 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
         }
 
         // clear current strats
-        for (uint256 j = 0; j < registeredUnderlyings.length; j++) {
+        for (uint256 j = 0; j < registeredUnderlyings.length; ++j) {
             delete _yieldTokens[registeredUnderlyings[j]];
         }
 
         uint256 numYTokens = supportedYieldTokens.length;
-        for (uint256 i = 0; i < numYTokens; i++) {
+        for (uint256 i = 0; i < numYTokens; ++i) {
             address yieldToken = supportedYieldTokens[i];
 
             IAlchemistV2.YieldTokenParams memory params = IAlchemistV2(alchemist)
@@ -435,6 +439,7 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
     /// @dev Gets the total value of the yield tokens in units of underlying tokens that this contract holds.
     ///
     /// @param yieldToken The address of the target yield token.
+    /// @return totalBuffered The total amount buffered.
     function _getTotalBuffered(address yieldToken)
         internal
         view
@@ -448,9 +453,10 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
         return (balance * tokensPerShare) / 10**params.decimals;
     }
 
-    /// @dev Updates the available flow for a give underlying token
+    /// @dev Updates the available flow for a give underlying token.
     ///
-    /// @param underlyingToken the underlying token whos flow is being updated
+    /// @param underlyingToken the underlying token whos flow is being updated.
+    /// @return marginalFlow the marginal flow.
     function _updateFlow(address underlyingToken) internal returns (uint256) {
         // additional flow to be allocated based on flow rate
         uint256 marginalFlow = (block.timestamp -
@@ -476,7 +482,7 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
         IAlchemistV2(alchemist).poke(address(this));
 
         Weighting storage weighting = weightings[weightToken];
-        for (uint256 j = 0; j < weighting.tokens.length; j++) {
+        for (uint256 j = 0; j < weighting.tokens.length; ++j) {
             address token = weighting.tokens[j];
             uint256 actionAmt = (amount * weighting.weights[token]) / weighting.totalWeight;
             action(token, actionAmt);
@@ -517,7 +523,7 @@ contract TransmuterBuffer is ITransmuterBuffer, AccessControl, Initializable {
             wantShares = availableShares;
         }
         // Allow 1% slippage
-        uint256 minimumAmountOut = amountUnderlying - amountUnderlying * 100 / 10000;
+        uint256 minimumAmountOut = amountUnderlying - amountUnderlying * 100 / BPS;
         if (wantShares > 0) {
             IAlchemistV2(alchemist).withdrawUnderlying(token, wantShares, address(this), minimumAmountOut);
         }

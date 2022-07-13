@@ -28,7 +28,7 @@ library TokenUtils {
             abi.encodeWithSelector(IERC20Metadata.decimals.selector)
         );
 
-        if (!success || data.length < 32) {
+        if (token.code.length == 0 || !success || data.length < 32) {
             revert ERC20CallFailed(token, success, data);
         }
 
@@ -48,7 +48,7 @@ library TokenUtils {
             abi.encodeWithSelector(IERC20.balanceOf.selector, account)
         );
 
-        if (!success || data.length < 32) {
+        if (token.code.length == 0 || !success || data.length < 32) {
             revert ERC20CallFailed(token, success, data);
         }
 
@@ -67,7 +67,7 @@ library TokenUtils {
             abi.encodeWithSelector(IERC20.transfer.selector, recipient, amount)
         );
 
-        if (!success || (data.length != 0 && !abi.decode(data, (bool)))) {
+        if (token.code.length == 0 || !success || (data.length != 0 && !abi.decode(data, (bool)))) {
             revert ERC20CallFailed(token, success, data);
         }
     }
@@ -84,7 +84,7 @@ library TokenUtils {
             abi.encodeWithSelector(IERC20.approve.selector, spender, value)
         );
 
-        if (!success || (data.length != 0 && !abi.decode(data, (bool)))) {
+        if (token.code.length == 0 || !success || (data.length != 0 && !abi.decode(data, (bool)))) {
             revert ERC20CallFailed(token, success, data);
         }
     }
@@ -102,7 +102,7 @@ library TokenUtils {
             abi.encodeWithSelector(IERC20.transferFrom.selector, owner, recipient, amount)
         );
 
-        if (!success || (data.length != 0 && !abi.decode(data, (bool)))) {
+        if (token.code.length == 0 || !success || (data.length != 0 && !abi.decode(data, (bool)))) {
             revert ERC20CallFailed(token, success, data);
         }
     }
@@ -119,7 +119,7 @@ library TokenUtils {
             abi.encodeWithSelector(IERC20Mintable.mint.selector, recipient, amount)
         );
 
-        if (!success || (data.length != 0 && !abi.decode(data, (bool)))) {
+        if (token.code.length == 0 || !success || (data.length != 0 && !abi.decode(data, (bool)))) {
             revert ERC20CallFailed(token, success, data);
         }
     }
@@ -135,7 +135,7 @@ library TokenUtils {
             abi.encodeWithSelector(IERC20Burnable.burn.selector, amount)
         );
 
-        if (!success || (data.length != 0 && !abi.decode(data, (bool)))) {
+        if (token.code.length == 0 || !success || (data.length != 0 && !abi.decode(data, (bool)))) {
             revert ERC20CallFailed(token, success, data);
         }
     }
@@ -152,7 +152,7 @@ library TokenUtils {
             abi.encodeWithSelector(IERC20Burnable.burnFrom.selector, owner, amount)
         );
 
-        if (!success || (data.length != 0 && !abi.decode(data, (bool)))) {
+        if (token.code.length == 0 || !success || (data.length != 0 && !abi.decode(data, (bool)))) {
             revert ERC20CallFailed(token, success, data);
         }
     }

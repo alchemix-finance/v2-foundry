@@ -27,7 +27,7 @@ contract AlchemicTokenV2 is AccessControl, ReentrancyGuard, ERC20, IERC3156Flash
   bytes32 public constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
   /// @notice The maximum number of basis points needed to represent 100%.
-  uint256 public constant BPS = 10000;
+  uint256 public constant BPS = 10_000;
 
   /// @notice A set of addresses which are whitelisted for minting new tokens.
   mapping(address => bool) public whitelisted;
@@ -52,12 +52,18 @@ contract AlchemicTokenV2 is AccessControl, ReentrancyGuard, ERC20, IERC3156Flash
   /// @param fee The new flash mint fee.
   event SetFlashMintFee(uint256 fee);
 
+  /// @notice An event which is emitted when the max flash loan is updated.
+  ///
+  /// @param maxFlashLoan The new max flash loan.
+  event SetMaxFlashLoan(uint256 maxFlashLoan);
+
   constructor(string memory _name, string memory _symbol, uint256 _flashFee) ERC20(_name, _symbol) {
     _setupRole(ADMIN_ROLE, msg.sender);
     _setupRole(SENTINEL_ROLE, msg.sender);
     _setRoleAdmin(SENTINEL_ROLE, ADMIN_ROLE);
     _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
     flashMintFee = _flashFee;
+    emit SetFlashMintFee(_flashFee);
   }
 
   /// @dev A modifier which checks that the caller has the admin role.
@@ -90,6 +96,9 @@ contract AlchemicTokenV2 is AccessControl, ReentrancyGuard, ERC20, IERC3156Flash
   ///
   /// @param newFee The new flash mint fee.
   function setFlashFee(uint256 newFee) external onlyAdmin {
+    if (newFee >= BPS) {
+      revert IllegalArgument();
+    }
     flashMintFee = newFee;
     emit SetFlashMintFee(flashMintFee);
   }
@@ -98,7 +107,6 @@ contract AlchemicTokenV2 is AccessControl, ReentrancyGuard, ERC20, IERC3156Flash
   ///
   /// @notice This function reverts if `msg.sender` is not whitelisted.
   /// @notice This function reverts if `msg.sender` is paused.
-  /// @notice This function reverts if `msg.sender` has exceeded their mintable ceiling.
   ///
   /// @param recipient The address to mint the tokens to.
   /// @param amount    The amount of tokens to mint.
@@ -161,8 +169,9 @@ contract AlchemicTokenV2 is AccessControl, ReentrancyGuard, ERC20, IERC3156Flash
   /// @notice Adjusts the maximum flashloan amount.
   ///
   /// @param _maxFlashLoanAmount The maximum flashloan amount.
-  function setMaxFlashLoan(uint _maxFlashLoanAmount) external onlyAdmin {
+  function setMaxFlashLoan(uint256 _maxFlashLoanAmount) external onlyAdmin {
     maxFlashLoanAmount = _maxFlashLoanAmount;
+    emit SetMaxFlashLoan(_maxFlashLoanAmount);
   }
 
   /// @notice Gets the maximum amount to be flash loaned of a token.

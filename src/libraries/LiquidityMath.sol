@@ -10,6 +10,8 @@ import { FixedPointMath } from "./FixedPointMath.sol";
 library LiquidityMath {
   using FixedPointMath for FixedPointMath.Number;
 
+  uint256 constant PRECISION = 1e18;
+
   /// @dev Adds a signed delta to an unsigned integer.
   ///
   /// @param  x The unsigned value to add the delta to.
@@ -38,11 +40,11 @@ library LiquidityMath {
 
   /// @notice normalises non 18 digit token values to 18 digits.
   function normalizeValue(uint256 input, uint256 decimals) internal pure returns (uint256) {
-    return (input * (10**18)) / (10**decimals);
+    return (input * PRECISION) / (10**decimals);
   }
 
   /// @notice denormalizes 18 digits back to a token's digits
   function deNormalizeValue(uint256 input, uint256 decimals) internal pure returns (uint256) {
-    return (input * (10**decimals)) / (10**18);
+    return (input * (10**decimals)) / PRECISION;
   }
 }
