@@ -206,7 +206,7 @@ interface ITransmuterBuffer is IERC20TokenReceiver {
   ///
   /// @param yieldToken       The yield token to withdraw.
   /// @param shares           The amount of Alchemist shares to withdraw.
-  /// @param minimumAmountOut The minimum amount of underlying tokens needed to be recieved as a result of unwrapping the yield tokens.
+  /// @param minimumAmountOut The minimum amount of underlying tokens needed to be received as a result of unwrapping the yield tokens.
   function withdrawFromAlchemist(
     address yieldToken,
     uint256 shares,

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.11;
 
 import {IERC20} from "../lib/openzeppelin-contracts/contracts/interfaces/IERC20.sol";
 import {ERC20} from "../lib/solmate/src/tokens/ERC20.sol";
@@ -15,7 +15,10 @@ contract gALCX is ERC20 {
     uint public constant exchangeRatePrecision = 1e18;
     uint public exchangeRate = exchangeRatePrecision;
     address public owner;
+    address public pendingOwner;
 
+    event NewPendingOwner(address _pendingOwner);
+    event NewOwner(address _owner);
     event ExchangeRateChange(uint _exchangeRate);
     event Stake(address _from, uint _gAmount, uint _amount);
     event Unstake(address _from, uint _gAmount, uint _amount);
@@ -34,10 +37,26 @@ contract gALCX is ERC20 {
         _;
     }
 
-    /// @notice Transfer contract ownership
-    /// @param _owner The new owner address
-    function transferOwnership(address _owner) external onlyOwner {
-        owner = _owner;
+    /// @notice Offer to transfer contract ownership.
+    /// @param newPendingOwner The new address to offer ownership to.
+    function setPendingOwner(address newPendingOwner) external {
+        require(msg.sender == owner, "!owner");
+        emit NewPendingOwner(newPendingOwner);
+        pendingOwner = newPendingOwner;
+    }
+
+    /// @notice Accept the contract ownership.
+    function acceptOwnership() external {
+        require(msg.sender == pendingOwner, "!pendingOwner");
+        emit NewOwner(pendingOwner);
+        owner = pendingOwner;
+        pendingOwner = address(0);
+    }
+
+    function renounceOwnership() external {
+        require(msg.sender == owner, "!owner");
+        emit NewOwner(address(0x0));
+        owner = address(0);
     }
 
     /// @notice Set a new staking pool address and migrate funds there
@@ -49,6 +68,8 @@ contract gALCX is ERC20 {
 
         uint poolBalance = pools.getStakeTotalDeposited(address(this), poolId);
         pools.withdraw(poolId, poolBalance);
+       // Revoke old pool approval
+        alcx.approve(address(pools), 0);
         // Update staking pool address and id
         pools = IALCXSource(_pools);
         poolId = _poolId;
@@ -58,12 +79,12 @@ contract gALCX is ERC20 {
         pools.deposit(poolId, balance);
     }
 
+    // PUBLIC FUNCTIONS
+
     /// @notice Approve the staking pool to move funds in this address, can be called by anyone
     function reApprove() public {
-        bool success = alcx.approve(address(pools), type(uint).max);
+        alcx.approve(address(pools), type(uint).max);
     }
-
-    // PUBLIC FUNCTIONS
 
     /// @notice Claim and autocompound rewards
     function bumpExchangeRate() public {
@@ -73,10 +94,13 @@ contract gALCX is ERC20 {
         uint balance = alcx.balanceOf(address(this));
 
         if (balance > 0) {
-            exchangeRate += (balance * exchangeRatePrecision) / totalSupply;
-            emit ExchangeRateChange(exchangeRate);
             // Restake
             pools.deposit(poolId, balance);
+            // Update exchange rate
+            if (totalSupply > 0) { // handle rare edge case of stake, unstake, send tokens
+                exchangeRate += (balance * exchangeRatePrecision) / totalSupply;
+                emit ExchangeRateChange(exchangeRate);
+            }
         }
     }
 

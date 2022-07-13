@@ -28,19 +28,13 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
   bytes32 public constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
   /// @notice The maximum number of basis points needed to represent 100%.
-  uint256 public constant BPS = 10000;
+  uint256 public constant BPS = 10_000;
 
   /// @notice A set of addresses which are whitelisted for minting new tokens.
   mapping(address => bool) public whitelisted;
 
   /// @notice A set of addresses which are paused from minting new tokens.
   mapping(address => bool) public paused;
-
-  /// @notice The amount that each address is permitted to mint.
-  mapping(address => uint256) public mintCeiling;
-
-  /// @notice The amount of tokens that each address has already minted.
-  mapping(address => uint256) public totalMinted;
 
   /// @notice Fee for flash minting
   uint256 public flashMintFee;
@@ -58,6 +52,11 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
   ///
   /// @param fee The new flash mint fee.
   event SetFlashMintFee(uint256 fee);
+
+  /// @notice An event which is emitted when the max flash loan is updated.
+  ///
+  /// @param maxFlashLoan The new max flash loan.
+  event SetMaxFlashLoan(uint256 maxFlashLoan);
 
   function __AlchemicTokenV2Base_init() internal {
     _setupRole(ADMIN_ROLE, msg.sender);
@@ -96,6 +95,9 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
   ///
   /// @param newFee The new flash mint fee.
   function setFlashFee(uint256 newFee) external onlyAdmin {
+    if (newFee >= BPS) {
+      revert IllegalArgument();
+    }
     flashMintFee = newFee;
     emit SetFlashMintFee(flashMintFee);
   }
@@ -104,7 +106,6 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
   ///
   /// @notice This function reverts if `msg.sender` is not whitelisted.
   /// @notice This function reverts if `msg.sender` is paused.
-  /// @notice This function reverts if `msg.sender` has exceeded their mintable ceiling.
   ///
   /// @param recipient The address to mint the tokens to.
   /// @param amount    The amount of tokens to mint.
@@ -112,13 +113,6 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
     if (paused[msg.sender]) {
       revert IllegalState();
     }
-
-    uint256 total = amount + totalMinted[msg.sender];
-    if (total > mintCeiling[msg.sender]) {
-      revert IllegalState();
-    }
-
-    totalMinted[msg.sender] = total;
 
     _mint(recipient, amount);
   }
@@ -140,16 +134,6 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
   /// @param sentinel The address to set as a sentinel.
   function setSentinel(address sentinel) external onlyAdmin {
     _setupRole(SENTINEL_ROLE, sentinel);
-  }
-
-  /// @notice Sets the maximum amount of tokens that `minter` is allowed to mint.
-  ///
-  /// @notice This function reverts if `msg.sender` is not an admin.
-  ///
-  /// @param minter  The address of the minter.
-  /// @param maximum The maximum amount of tokens that the minter is allowed to mint.
-  function setCeiling(address minter, uint256 maximum) external onlyAdmin {
-    mintCeiling[minter] = maximum;
   }
 
   /// @notice Pauses `minter` from minting tokens.
@@ -181,20 +165,12 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
     _burn(account, amount);
   }
 
-  /// @notice Lowers the number of tokens which the `msg.sender` has minted.
-  ///
-  /// @notice This reverts if the `msg.sender` is not whitelisted.
-  ///
-  /// @param amount The amount to lower the minted amount by.
-  function lowerHasMinted(uint256 amount) external onlyWhitelisted {
-    totalMinted[msg.sender] = totalMinted[msg.sender] - amount;
-  }
-
   /// @notice Adjusts the maximum flashloan amount.
   ///
   /// @param _maxFlashLoanAmount The maximum flashloan amount.
-  function setMaxFlashLoan(uint _maxFlashLoanAmount) external onlyAdmin {
+  function setMaxFlashLoan(uint256 _maxFlashLoanAmount) external onlyAdmin {
     maxFlashLoanAmount = _maxFlashLoanAmount;
+    emit SetMaxFlashLoan(_maxFlashLoanAmount);
   }
 
   /// @notice Gets the maximum amount to be flash loaned of a token.
