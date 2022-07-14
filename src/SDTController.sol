@@ -8,6 +8,7 @@ import { Unauthorized, IllegalState, IllegalArgument } from "./base/Errors.sol";
 import "./interfaces/stakedao/IveSDT.sol";
 import "./interfaces/stakedao/IRewardDistributor.sol";
 import "./interfaces/snapshot/IDelegateRegistry.sol";
+import "./interfaces/stakedao/ILiquidityGauge.sol";
 
 contract SDTController is Initializable, OwnableUpgradeable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -17,6 +18,7 @@ contract SDTController is Initializable, OwnableUpgradeable {
   address public delegateRegistry;
   address public rewardDistributor;
   address public rewardToken;
+  address public crvRewardDistributor;
 
   constructor() initializer {}
 
@@ -68,5 +70,13 @@ contract SDTController is Initializable, OwnableUpgradeable {
   function claim() external onlyOwner {
     uint256 amountClaimed = IRewardDistributor(rewardDistributor).claim();
     IERC20Upgradeable(rewardToken).safeTransfer(owner(), amountClaimed);
+  }
+
+  function setCrvRewardDistributor(address _crvRewardDistributor) external onlyOwner {
+    crvRewardDistributor = _crvRewardDistributor;
+  }
+
+  function claimRewards() external onlyOwner {
+    ILiquidityGauge(crvRewardDistributor).claim_rewards(address(this), owner());
   }
 }
