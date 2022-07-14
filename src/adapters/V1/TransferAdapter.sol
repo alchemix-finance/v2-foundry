@@ -66,8 +66,8 @@ contract TransferAdapter is IVaultAdapter {
   }
 
   /// @dev A modifier which reverts if the caller is not the admin.
-  modifier onlyAdmin() {
-    require(admin == msg.sender, "TransferAdapter: only admin");
+  modifier onlyAlchemist() {
+    require(address(alchemistV1) == msg.sender, "TransferAdapter: only alchemist");
     _;
   }
 
@@ -99,7 +99,7 @@ contract TransferAdapter is IVaultAdapter {
   ///
   /// @param _recipient the account to withdraw the tokes to.
   /// @param _amount    the amount of tokens to withdraw.
-  function withdraw(address _recipient, uint256 _amount) external override onlyAdmin {
+  function withdraw(address _recipient, uint256 _amount) external override onlyAlchemist {
     if(_amount != 1) {
       revert IllegalArgument("TransferAdapter: Amount must be 1");
     }
@@ -110,11 +110,12 @@ contract TransferAdapter is IVaultAdapter {
 
     uint256 deposited = alchemistV1.getCdpTotalDeposited(tx.origin);
     uint256 debt = alchemistV1.getCdpTotalDebt(tx.origin);
+    
+    _currentNumberOfUsers += 1;
+    hasMigrated[tx.origin] = true;
 
     SafeERC20.safeApprove(underlyingToken, address(alchemistV2), deposited);
     alchemistV2.depositUnderlying(yieldToken, deposited, _recipient, 0);
-
-    hasMigrated[tx.origin] = true;
 
     // Due to a rounding error, users with 2:1 collateralization ratio will be considered undercollateralized.
     // 1000000 wei is deducted from the users debt to correct this.
@@ -126,14 +127,12 @@ contract TransferAdapter is IVaultAdapter {
       }
     }
 
-    _currentNumberOfUsers += 1;
-
     if(_totalNumberOfUsers == _currentNumberOfUsers) {
       _sweepRemainder();
     }
   }
 
-  function _sweepRemainder() internal onlyAdmin {
-    SafeERC20.safeTransfer(underlyingToken, address(alchemistV2), IERC20(underlyingToken).balanceOf(address(this)));
+  function _sweepRemainder() internal onlyAlchemist {
+    SafeERC20.safeTransfer(underlyingToken, address(admin), IERC20(underlyingToken).balanceOf(address(this)));
   }
 }
