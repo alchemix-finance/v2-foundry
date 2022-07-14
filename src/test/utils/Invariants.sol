@@ -23,22 +23,19 @@ contract Invariants is Functionalities {
 		emit log("Checking Invariant A1");
 
 		int256 debt;
-		uint256 shares;
-		uint256 lastAccruedWeight;
-
-		int256 debtsAccured;
-		uint256 underlyingInTransmutter;
+		int256 debtsAccrued;
 
 		for (uint256 i = 0; i < userList.length; i++) {
 			(debt, ) = alchemist.accounts(userList[i]);
-			debtsAccured += debt;
+			debtsAccrued += debt;
 		}
 
 		emit log("Eq with state variables");
 		emit log_named_int("Tokens minted", int256(tokensMinted));
-		emit log_named_int("Debts accured", debtsAccured);
-		emit log_named_int("The sum", int256(tokensBurned) + debtsAccured + int256(sentToTransmuter));
-		assertEq(int256(tokensMinted), int256(tokensBurned) + debtsAccured + int256(sentToTransmuter));
+		emit log_named_int("Debts accured", debtsAccrued);
+		emit log_named_int("The sum", int256(tokensBurned) + debtsAccrued + int256(sentToTransmuter));
+
+		assertEq(int256(tokensMinted), int256(tokensBurned) + debtsAccrued + int256(sentToTransmuter));
 	}
 
 	/* Invariant A2: The total number of shares of a yield token is equal to the sum */
@@ -117,21 +114,20 @@ contract Invariants is Functionalities {
 
 	function checkAllInvariants(
 		address[] calldata userList,
-		address fakeYield,
-		address fakeUnderlying,
+		address fakeYieldToken,
+		address fakeUnderlyingToken,
 		uint256 minted,
 		uint256 burned,
 		uint256 sentToTransmuter
 	) public {
-		invariantA1(userList, fakeYield, minted, burned, sentToTransmuter);
-		invariantA2(userList, fakeYield);
-		invariantA3(userList, fakeYield);
-		invariantA7(userList, fakeYield);
-		invariantA8(userList, fakeYield, fakeUnderlying);
+		invariantA1(userList, fakeYieldToken, minted, burned, sentToTransmuter);
+		invariantA2(userList, fakeYieldToken);
+		invariantA3(userList, fakeYieldToken);
+		invariantA7(userList, fakeYieldToken);
+		invariantA8(userList, fakeYieldToken, fakeUnderlyingToken);
 	}
 
 	/* Invariant A1 with range assertions to account for rounding errors
-	 * Assert a range of 1000 wei
 	 */
 	function invariantA1Range(
 		address[] calldata userList,
@@ -143,24 +139,20 @@ contract Invariants is Functionalities {
 		emit log("Checking Invariant A1 Range");
 
 		int256 debt;
-		uint256 shares;
-		uint256 lastAccruedWeight;
-
-		int256 debtsAccured;
-		uint256 underlyingInTransmutter;
+		int256 debtsAccrued;
 
 		for (uint256 i = 0; i < userList.length; i++) {
 			(debt, ) = alchemist.accounts(userList[i]);
-			debtsAccured += debt;
+			debtsAccrued += debt;
 		}
 
-		int256 sum = int256(tokensBurned) + debtsAccured + int256(sentToTransmuter);
+		int256 sum = int256(tokensBurned) + debtsAccrued + int256(sentToTransmuter);
 
 		emit log("Eq with state variables");
 		emit log_named_int("Tokens minted", int256(tokensMinted));
-		emit log_named_int("Debts accured", debtsAccured);
+		emit log_named_int("Debts accured", debtsAccrued);
 		emit log_named_int("The sum", sum);
-		assertLe(int256(tokensMinted), sum);
-		assertGt(int256(tokensMinted), sum - 1000);
+
+		assertRelApproxEq(tokensMinted, uint256(sum), 300);
 	}
 }
