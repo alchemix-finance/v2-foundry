@@ -18,7 +18,7 @@ contract SDTController is Initializable, OwnableUpgradeable {
   address public delegateRegistry;
   address public rewardDistributor;
   address public rewardToken;
-  address public crvRewardDistributor = 0x7f50786A0b15723D741727882ee99a0BF34e3466;
+  address public crvRewardDistributor;
 
   constructor() initializer {}
 
@@ -77,6 +77,6 @@ contract SDTController is Initializable, OwnableUpgradeable {
   }
 
   function claimRewards() external onlyOwner {
-    ILiquidityGauge(crvRewardDistributor).claim_rewards(address(msg.sender), owner());
+    ILiquidityGauge(crvRewardDistributor).claim_rewards(address(this), owner());
   }
 }
