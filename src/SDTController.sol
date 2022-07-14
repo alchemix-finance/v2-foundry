@@ -14,6 +14,7 @@ contract SDTController is Initializable, OwnableUpgradeable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
   address public constant SDT = 0x73968b9a57c6E53d41345FD57a6E6ae27d6CDB2F;
   address public constant veSDT = 0x0C30476f66034E11782938DF8e4384970B6c9e8a;
+  string public constant version = "1.1.0";
 
   address public delegateRegistry;
   address public rewardDistributor;
