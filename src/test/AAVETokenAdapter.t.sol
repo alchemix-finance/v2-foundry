@@ -140,27 +140,27 @@ contract AAVETokenAdapterTest is DSTestPlus, stdCheats {
         assertEq(staticAToken.balanceOf(address(adapter)), 0);
     }
 
-    // function testRoundTripFuzz(uint256 amount) external {
-    //     hevm.assume(
-    //         amount >= 10**SafeERC20.expectDecimals(dai) && 
-    //         amount < type(uint96).max
-    //     );
+    function testRoundTripFuzz(uint256 amount) external {
+        hevm.assume(
+            amount >= 10**SafeERC20.expectDecimals(dai) && 
+            amount < type(uint96).max
+        );
         
-    //     tip(dai, address(this), amount);
+        tip(dai, address(this), amount);
 
-    //     SafeERC20.safeApprove(dai, address(adapter), amount);
-    //     uint256 wrapped = adapter.wrap(amount, address(this));
+        SafeERC20.safeApprove(dai, address(adapter), amount);
+        uint256 wrapped = adapter.wrap(amount, address(this));
 
-    //     uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(address(staticAToken));
-    //     assertApproxEq(amount, underlyingValue, amount * 10000 / 1e18);
+        uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(address(staticAToken));
+        assertApproxEq(amount, underlyingValue, amount * 10000 / 1e18);
         
-    //     SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
-    //     uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
+        SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
+        uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
         
-    //     assertApproxEq(IERC20(dai).balanceOf(address(0xbeef)), unwrapped, 10000);
-    //     assertEq(staticAToken.balanceOf(address(this)), 0);
-    //     assertEq(staticAToken.balanceOf(address(adapter)), 0);
-    // }
+        assertApproxEq(IERC20(dai).balanceOf(address(0xbeef)), unwrapped, 10000);
+        assertEq(staticAToken.balanceOf(address(this)), 0);
+        assertEq(staticAToken.balanceOf(address(adapter)), 0);
+    }
 
     function testAppreciation() external {
         tip(dai, address(this), 1e18);
