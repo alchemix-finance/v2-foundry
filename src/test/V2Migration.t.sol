@@ -51,7 +51,7 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
     function setUp() external {
         newAlchemistV2 = new AlchemistV2();
         pausableTransmuterConduit = new PausableTransmuterConduit(governance, DAI, alchemistV1USDAddress, transmuterV1Address);
-        transferAdapter = new TransferAdapter(governance, alUSD, DAI, yvDAI, alchemistV1USDAddress, alchemistV2USDAddress, 1186);
+        transferAdapter = new TransferAdapter(governance, alUSD, DAI, yvDAI, alchemistV1USDAddress, alchemistV2USDAddress, 2992);
 
         // Allow adapter to deposit underlying tokens into V2
         // & Set adapter address in the alchemist V2
@@ -162,7 +162,7 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
 
         // List of addresses from V1
         V1AddressList V1List = new V1AddressList();
-        address[2654] memory addresses = V1List.getAddresses();
+        address[2992] memory addresses = V1List.getAddresses();
 
         // Loop until all addresses have migrated
         for (uint i = 0; i < addresses.length; i++) {
