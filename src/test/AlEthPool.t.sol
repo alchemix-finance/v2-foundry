@@ -126,58 +126,43 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 		return false;
 	}
 
-	// wip
-	// function testGetDx() external {
-	// 	uint256 dx;
-	// 	uint256 balance = 10;
-	// 	uint256[8] memory balances = [
-	// 		uint256(8642515749474252628415),
-	// 		uint256(29731013613678119677889),
-	// 		uint256(0),
-	// 		uint256(0),
-	// 		uint256(0),
-	// 		uint256(0),
-	// 		uint256(0),
-	// 		uint256(0)
-	// 	];
-	// 	uint256[8] memory rates = [
-	// 		uint256(0),
-	// 		uint256(0),
-	// 		uint256(0),
-	// 		uint256(0),
-	// 		uint256(0),
-	// 		uint256(0),
-	// 		uint256(0),
-	// 		uint256(0)
-	// 	];
-	// 	uint256[8] memory precisions = [
-	// 		uint256(1000000000000000000),
-	// 		uint256(1000000000000000000),
-	// 		uint256(0),
-	// 		uint256(0),
-	// 		uint256(0),
-	// 		uint256(0),
-	// 		uint256(0),
-	// 		uint256(0)
-	// 	];
+	function testGetDx() external {
+		uint256 dx;
 
-	// 	dx = calculator.get_dx(
-	// 		int128(38237110009691290102777),
-	// 		balances,
-	// 		100,
-	// 		4000000,
-	// 		rates,
-	// 		precisions,
-	// 		bool(true),
-	// 		int128(1),
-	// 		int128(0),
-	// 		1000000000000000000
-	// 	);
-	// 	emit log_named_uint("dx", dx);
-	// 	console.log("~ dx", dx);
+		int128 n_coins = int128(int256(metaPool.totalSupply()));
+		uint256[2] memory poolBalances = metaPool.get_balances();
+		uint256[8] memory balances = [poolBalances[0], poolBalances[1], 0, 0, 0, 0, 0, 0];
+		uint256 amp = metaPool.A();
+		uint256 fee = metaPool.fee();
+		uint256[8] memory rates = [
+			uint256(0),
+			uint256(0),
+			uint256(0),
+			uint256(0),
+			uint256(0),
+			uint256(0),
+			uint256(0),
+			uint256(0)
+		];
+		uint256[8] memory precisions = [
+			uint256(1000000000000000000),
+			uint256(1000000000000000000),
+			uint256(0),
+			uint256(0),
+			uint256(0),
+			uint256(0),
+			uint256(0),
+			uint256(0)
+		];
+		bool underlying = true;
+		int128 i = 1;
+		int128 j = 0;
+		uint256 dy = 1000000000000000000;
 
-	// 	assertEq(balance, dx);
-	// }
+		dx = calculator.get_dx(int128(n_coins), balances, amp, fee, rates, precisions, underlying, i, j, dy);
+
+		emit log_named_uint("dx", dx);
+	}
 }
 
 // cast call 0xc1DB00a8E5Ef7bfa476395cdbcc98235477cDE4E "get_dx(int128,uint256[8],uint256,uint256,uint256[8],uint256[8],bool,int128,int128,uint256)(uint256)" 38237110009691290102777 "[8642515749474252628415,29731013613678119677889,0,0,0,0,0,0]" 100 4000000 "[0,0,0,0,0,0,0,0]" "[1000000000000000000,1000000000000000000,0,0,0,0,0,0]" true 1 0 1000000000000000000
