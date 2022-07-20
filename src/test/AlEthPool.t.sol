@@ -27,7 +27,7 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 		baseDx = 100000;
 
 		// set desired dy here
-		targetDy = 99900;
+		targetDy = 99999;
 
 		// Amount to change the pool by
 		poolChange = getAlEthChange();
