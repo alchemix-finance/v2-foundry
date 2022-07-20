@@ -25,16 +25,19 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 	function setUp() public {
 		alETH = metaPool.coins(1);
 		baseDx = 100000;
+
 		// set desired dy here
 		targetDy = 99900;
-		poolChange = getPoolChange();
+
+		// Amount to change the pool by
+		poolChange = getAlEthChange();
 	}
 
-	// Test to confirm the change in alETH achieves the desired dy
+	// Test the change in alETH achieves the desired dy
 	function testPoolChange() external {
 		hevm.startPrank(gauge, gauge);
 
-		addOrRemoveLiquidity(poolChange, gauge);
+		addOrRemoveLiquidity(poolChange);
 
 		uint256 dy = metaPool.get_dy(1, 0, baseDx);
 
@@ -43,7 +46,8 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 		assertApproxEq(targetDy, dy, 10);
 	}
 
-	function getPoolChange() public returns (int256) {
+	// Get the amount of alETH to add or remove from the pool
+	function getAlEthChange() public returns (int256) {
 		uint256 startBalance;
 		uint256 endBalance;
 		uint256 alEthBalance;
@@ -63,14 +67,12 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 		alEthBalance = alETH.balanceOf(gauge);
 		alETH.approve(address(metaPool), alEthBalance);
 
-		hevm.stopPrank();
-
 		dy = metaPool.get_dy(1, 0, baseDx);
 		emit log_named_uint("current dy", dy);
 
 		// logic to add or remove liquidity
 		emit log_named_uint("target dy", targetDy);
-		loop(targetDy, dy, gauge);
+		loop(targetDy, dy);
 
 		// get balances after change
 		targetBalances = metaPool.get_balances();
@@ -80,42 +82,40 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 		emit log_named_int("alEth liquidity change", alEthChange);
 
 		// revert pool changes so account can be used to test adding or removing liquidity
-		revertPoolChanges(alEthChange, gauge);
+		revertPoolChanges(alEthChange);
+
+		hevm.stopPrank();
 
 		return alEthChange;
 	}
 
-	function loop(
-		uint256 target,
-		uint256 dy,
-		address account
-	) public {
+	// Until target dy is reached add or remove liquidity
+	function loop(uint256 target, uint256 dy) public {
 		// Amount to increase or decrease alETH liquidity by
-		uint256 change = 1e18;
+		uint256 amount = 1e18;
 		bool solved = false;
 
 		while (!solved) {
-			balancePool(change, dy, target, account);
+			balancePool(amount, dy, target);
 			solved = dxSolved(target);
 		}
 	}
 
+	// Determine to add or remove alETH by an amount
 	function balancePool(
-		uint256 change,
+		uint256 amount,
 		uint256 dy,
-		uint256 target,
-		address account
+		uint256 target
 	) public {
-		hevm.startPrank(account, account);
 		if (dy > target) {
-			metaPool.add_liquidity([uint256(0), change], 0);
+			metaPool.add_liquidity([uint256(0), amount], 0);
 		} else {
-			metaPool.remove_liquidity_one_coin(change, 1, 0);
+			metaPool.remove_liquidity_one_coin(amount, 1, 0);
 		}
-		hevm.stopPrank();
 	}
 
-	function dxSolved(uint256 target) public returns (bool) {
+	// Check if target dy has been reached
+	function dxSolved(uint256 target) public view returns (bool) {
 		uint256 buffer = 3;
 		uint256 dy = metaPool.get_dy(1, 0, baseDx);
 		if (dy == target) {
@@ -135,25 +135,25 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 		return false;
 	}
 
-	function addOrRemoveLiquidity(int256 change, address account) public {
-		if (change > 0) {
-			tip(address(alETH), gauge, uint256(change));
-			alETH.approve(address(metaPool), uint256(change));
-			metaPool.add_liquidity([uint256(0), uint256(change)], 0);
+	// Add or remove liquidity based on given amount
+	function addOrRemoveLiquidity(int256 amount) public {
+		if (amount > 0) {
+			tip(address(alETH), gauge, uint256(amount));
+			alETH.approve(address(metaPool), uint256(amount));
+			metaPool.add_liquidity([uint256(0), uint256(amount)], 0);
 		} else {
-			metaPool.remove_liquidity_one_coin(uint256(change * -1), 1, 0);
+			metaPool.remove_liquidity_one_coin(uint256(amount * -1), 1, 0);
 		}
 	}
 
-	function revertPoolChanges(int256 change, address account) public {
-		hevm.startPrank(account, account);
-		if (change < 0) {
-			tip(address(alETH), gauge, uint256(change));
-			alETH.approve(address(metaPool), uint256(change));
-			metaPool.add_liquidity([uint256(0), uint256(change * -1)], 0);
+	// Revert adding or removing liquidity
+	function revertPoolChanges(int256 amount) public {
+		if (amount < 0) {
+			tip(address(alETH), gauge, uint256(amount));
+			alETH.approve(address(metaPool), uint256(amount));
+			metaPool.add_liquidity([uint256(0), uint256(amount * -1)], 0);
 		} else {
-			metaPool.remove_liquidity_one_coin(uint256(change), 1, 0);
+			metaPool.remove_liquidity_one_coin(uint256(amount), 1, 0);
 		}
-		hevm.stopPrank();
 	}
 }
