@@ -18,28 +18,44 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 	ICalculator constant calculator = ICalculator(0xc1DB00a8E5Ef7bfa476395cdbcc98235477cDE4E);
 	address gauge = 0x12dCD9E8D1577b5E4F066d8e7D404404Ef045342;
 	IERC20 alETH;
-	uint256 dx;
-	int256 alEthChange;
+	uint256 baseDx;
 	uint256 targetDy;
+	int256 poolChange;
 
 	function setUp() public {
 		alETH = metaPool.coins(1);
-		dx = 1000000000000000000;
-		targetDy = 970000000000000000;
+		baseDx = 100000;
+		// set desired dy here
+		targetDy = 99900;
+		poolChange = getPoolChange();
 	}
 
-	function testPool() external {
+	// Test to confirm the change in alETH achieves the desired dy
+	function testPoolChange() external {
+		hevm.startPrank(gauge, gauge);
+
+		addOrRemoveLiquidity(poolChange, gauge);
+
+		uint256 dy = metaPool.get_dy(1, 0, baseDx);
+
+		hevm.stopPrank();
+
+		assertApproxEq(targetDy, dy, 10);
+	}
+
+	function getPoolChange() public returns (int256) {
 		uint256 startBalance;
 		uint256 endBalance;
 		uint256 alEthBalance;
+		int256 alEthChange;
 		uint256 dy;
 		uint256[2] memory balances;
 		uint256[2] memory targetBalances;
 
-		hevm.startPrank(gauge, gauge);
-
 		balances = metaPool.get_balances();
 		startBalance = balances[1];
+
+		hevm.startPrank(gauge, gauge);
 
 		// make sure gauge has enough alEth to deposit
 		tip(address(alETH), gauge, balances[1]);
@@ -47,13 +63,14 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 		alEthBalance = alETH.balanceOf(gauge);
 		alETH.approve(address(metaPool), alEthBalance);
 
-		dy = metaPool.get_dy(1, 0, 1e18);
-		emit log_named_uint("dy", dy);
+		hevm.stopPrank();
+
+		dy = metaPool.get_dy(1, 0, baseDx);
+		emit log_named_uint("current dy", dy);
 
 		// logic to add or remove liquidity
-		targetDy = dy - 1e9;
-		emit log_named_uint("targetDy", targetDy);
-		loop(targetDy, dy);
+		emit log_named_uint("target dy", targetDy);
+		loop(targetDy, dy, gauge);
 
 		// get balances after change
 		targetBalances = metaPool.get_balances();
@@ -62,34 +79,23 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 		alEthChange = int256(endBalance) - int256(startBalance);
 		emit log_named_int("alEth liquidity change", alEthChange);
 
-		hevm.stopPrank();
+		// revert pool changes so account can be used to test adding or removing liquidity
+		revertPoolChanges(alEthChange, gauge);
+
+		return alEthChange;
 	}
 
-	// Test to confirm the change in alETH achieves the desired dy
-	function testPoolChange() external {
-		hevm.startPrank(address(0xbeef), address(0xbeef));
-
-		if (alEthChange > 0) {
-			tip(address(alETH), address(0xbeef), uint256(alEthChange));
-			alETH.approve(address(metaPool), uint256(alEthChange));
-			metaPool.add_liquidity([uint256(0), uint256(alEthChange)], 0);
-		} else {
-			metaPool.remove_liquidity_one_coin(uint256(alEthChange * -1), 1, 0);
-		}
-
-		uint256 currentDy = metaPool.get_dy(1, 0, dx);
-		targetDy = currentDy - 1e9;
-
-		assertApproxEq(targetDy, currentDy, 1e6);
-	}
-
-	function loop(uint256 target, uint256 dy) public {
+	function loop(
+		uint256 target,
+		uint256 dy,
+		address account
+	) public {
 		// Amount to increase or decrease alETH liquidity by
-		uint256 change = 1e15;
+		uint256 change = 1e18;
 		bool solved = false;
 
 		while (!solved) {
-			balancePool(change, dy, target);
+			balancePool(change, dy, target, account);
 			solved = dxSolved(target);
 		}
 	}
@@ -97,18 +103,21 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 	function balancePool(
 		uint256 change,
 		uint256 dy,
-		uint256 target
+		uint256 target,
+		address account
 	) public {
+		hevm.startPrank(account, account);
 		if (dy > target) {
 			metaPool.add_liquidity([uint256(0), change], 0);
 		} else {
 			metaPool.remove_liquidity_one_coin(change, 1, 0);
 		}
+		hevm.stopPrank();
 	}
 
 	function dxSolved(uint256 target) public returns (bool) {
-		uint256 buffer = 1e9;
-		uint256 dy = metaPool.get_dy(1, 0, dx);
+		uint256 buffer = 3;
+		uint256 dy = metaPool.get_dy(1, 0, baseDx);
 		if (dy == target) {
 			return true;
 		}
@@ -126,43 +135,25 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 		return false;
 	}
 
-	function testGetDx() external {
-		uint256 dx;
+	function addOrRemoveLiquidity(int256 change, address account) public {
+		if (change > 0) {
+			tip(address(alETH), gauge, uint256(change));
+			alETH.approve(address(metaPool), uint256(change));
+			metaPool.add_liquidity([uint256(0), uint256(change)], 0);
+		} else {
+			metaPool.remove_liquidity_one_coin(uint256(change * -1), 1, 0);
+		}
+	}
 
-		int128 n_coins = int128(int256(metaPool.totalSupply()));
-		uint256[2] memory poolBalances = metaPool.get_balances();
-		uint256[8] memory balances = [poolBalances[0], poolBalances[1], 0, 0, 0, 0, 0, 0];
-		uint256 amp = metaPool.A();
-		uint256 fee = metaPool.fee();
-		uint256[8] memory rates = [
-			uint256(0),
-			uint256(0),
-			uint256(0),
-			uint256(0),
-			uint256(0),
-			uint256(0),
-			uint256(0),
-			uint256(0)
-		];
-		uint256[8] memory precisions = [
-			uint256(1000000000000000000),
-			uint256(1000000000000000000),
-			uint256(0),
-			uint256(0),
-			uint256(0),
-			uint256(0),
-			uint256(0),
-			uint256(0)
-		];
-		bool underlying = true;
-		int128 i = 1;
-		int128 j = 0;
-		uint256 dy = 1000000000000000000;
-
-		dx = calculator.get_dx(int128(n_coins), balances, amp, fee, rates, precisions, underlying, i, j, dy);
-
-		emit log_named_uint("dx", dx);
+	function revertPoolChanges(int256 change, address account) public {
+		hevm.startPrank(account, account);
+		if (change < 0) {
+			tip(address(alETH), gauge, uint256(change));
+			alETH.approve(address(metaPool), uint256(change));
+			metaPool.add_liquidity([uint256(0), uint256(change * -1)], 0);
+		} else {
+			metaPool.remove_liquidity_one_coin(uint256(change), 1, 0);
+		}
+		hevm.stopPrank();
 	}
 }
-
-// cast call 0xc1DB00a8E5Ef7bfa476395cdbcc98235477cDE4E "get_dx(int128,uint256[8],uint256,uint256,uint256[8],uint256[8],bool,int128,int128,uint256)(uint256)" 38237110009691290102777 "[8642515749474252628415,29731013613678119677889,0,0,0,0,0,0]" 100 4000000 "[0,0,0,0,0,0,0,0]" "[1000000000000000000,1000000000000000000,0,0,0,0,0,0]" true 1 0 1000000000000000000
