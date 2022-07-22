@@ -58,6 +58,6 @@ contract RocketStakedEthereumAdapterV1Test is DSTestPlus, stdCheats {
         
         assertEq(rETH.allowance(address(this), address(adapter)), 0);
         assertEq(weth.balanceOf(address(0xbeef)), unwrapped);
-        assertEq(weth.balanceOf(address(0xbeef)), expectedEth);
+        assertApproxEq(weth.balanceOf(address(0xbeef)), expectedEth, expectedEth * 970 / 1000);
     }
 }
