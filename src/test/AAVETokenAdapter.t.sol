@@ -107,7 +107,7 @@ contract AAVETokenAdapterTest is DSTestPlus, stdCheats {
         TokenUtils.safeApprove(underlyingToken, alchemist, amount);
         IAlchemistV2(alchemist).depositUnderlying(address(newStaticAToken), amount, address(this), 0);
         (uint256 startShares, ) = IAlchemistV2(alchemist).positions(address(this), address(newStaticAToken));
-        uint256 expectedValue = startShares * startPrice / 1e18;
+        uint256 expectedValue = startShares * startPrice / (10 ** newStaticAToken.decimals());
         assertApproxEq(amount, expectedValue, 1000);
 
         uint256 startBal = IERC20(underlyingToken).balanceOf(address(this));

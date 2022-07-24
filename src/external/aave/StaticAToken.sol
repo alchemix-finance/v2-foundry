@@ -4,6 +4,7 @@ pragma experimental ABIEncoderV2;
 
 import {ILendingPool} from '../../interfaces/external/aave/ILendingPool.sol';
 import {IERC20} from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {IERC20Metadata} from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {IAToken} from '../../interfaces/external/aave/IAToken.sol';
 import {ERC20} from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import {SafeERC20} from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -49,6 +50,8 @@ contract StaticAToken is ERC20 {
   /// We choose to have sequentiality on them for each user to avoid potentially dangerous/bad UX cases
   mapping(address => uint256) public _nonces;
 
+  uint8 private _decimals;
+
   constructor(
     ILendingPool lendingPool,
     address aToken,
@@ -61,6 +64,11 @@ contract StaticAToken is ERC20 {
     IERC20 underlyingAsset = IERC20(IAToken(aToken).UNDERLYING_ASSET_ADDRESS());
     ASSET = underlyingAsset;
     TokenUtils.safeApprove(address(underlyingAsset), address(lendingPool), type(uint256).max);
+    _decimals = IERC20Metadata(aToken).decimals();
+  }
+
+  function decimals() public view override returns (uint8) {
+    return _decimals;
   }
 
   /**
