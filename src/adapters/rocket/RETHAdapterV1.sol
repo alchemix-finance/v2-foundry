@@ -32,7 +32,7 @@ contract RETHAdapterV1 is ITokenAdapter, MutexLock {
 
     address constant uniswapRouterV3 = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
 
-    string public override version = "1.0.0";
+    string public override version = "1.1.0";
 
     address public immutable alchemist;
     address public immutable override token;
@@ -100,14 +100,11 @@ contract RETHAdapterV1 is ITokenAdapter, MutexLock {
                 recipient: address(this),
                 deadline: block.timestamp,
                 amountIn: amount,
-                amountOutMinimum: amount * 970 / 1000,
+                amountOutMinimum: 0,
                 sqrtPriceLimitX96: 0
             });
 
         uint256 receivedEth = ISwapRouter(uniswapRouterV3).exactInputSingle(params);
-
-        // Wrap the ETH that we received from the burn.
-        IWETH9(underlyingToken).deposit{value: receivedEth}();
 
         // Transfer the tokens to the recipient.
         SafeERC20.safeTransfer(underlyingToken, recipient, receivedEth);
