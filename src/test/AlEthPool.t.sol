@@ -9,11 +9,11 @@ import { DSTestPlus } from "./utils/DSTestPlus.sol";
 
 import { IEthStableMetaPool } from "../interfaces/external/curve/IEthStableMetaPool.sol";
 import { IERC20TokenReceiver } from "../interfaces/IERC20TokenReceiver.sol";
+import { EthAssetManager } from "../EthAssetManager.sol";
 
 contract AlEthPoolTest is DSTestPlus, stdCheats {
 	IEthStableMetaPool constant metaPool = IEthStableMetaPool(0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e);
-	IERC20TokenReceiver constant manager = IERC20TokenReceiver(0xe761bf731A06fE8259FeE05897B2687D56933110);
-	address gauge = 0x12dCD9E8D1577b5E4F066d8e7D404404Ef045342;
+	EthAssetManager elixir = EthAssetManager(payable(0xe761bf731A06fE8259FeE05897B2687D56933110));
 	IERC20 alETH;
 	uint256 baseDx;
 	uint256 targetDy;
@@ -33,7 +33,7 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 		// Amount to rebalance alETH
 		int256 alEthRebalance = getAlEthChange();
 
-		hevm.startPrank(gauge, gauge);
+		hevm.startPrank(address(elixir), address(elixir));
 
 		addOrRemoveLiquidity(alEthRebalance, alEthAsset);
 
@@ -49,7 +49,7 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 		// Amount to rebalance ETH
 		int256 ethRebalance = getEthChange();
 
-		hevm.startPrank(gauge, gauge);
+		hevm.startPrank(address(elixir), address(elixir));
 
 		addOrRemoveLiquidity(ethRebalance, ethAsset);
 
@@ -68,17 +68,18 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 		uint256 dy;
 		uint256[2] memory balances;
 		uint256[2] memory targetBalances;
+		uint256 elixirBalance;
+		address operator = elixir.operator();
 
 		balances = metaPool.get_balances();
 		startBalance = balances[1];
 
-		hevm.startPrank(gauge, gauge);
+		// make sure elixir can make necessary amount of deposits or withdrawals
+		tip(address(metaPool), address(elixir), balances[1]);
+		tip(address(alETH), address(elixir), balances[1]);
 
-		// make sure gauge has enough alEth to deposit
-		deal(gauge, balances[0] * 2);
-		tip(address(alETH), gauge, balances[1]);
+		hevm.startPrank(address(elixir), address(elixir));
 
-		// alEthBalance = alETH.balanceOf(gauge);
 		alETH.approve(address(metaPool), balances[1]);
 
 		dy = metaPool.get_dy(alEthAsset, ethAsset, baseDx);
@@ -94,7 +95,8 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 
 		// alEthChange = (int256(endBalance) - int256(startBalance)) * 2;
 		alEthChange = (int256(endBalance) - int256(startBalance));
-		emit log_named_int("alEth liquidity change", alEthChange);
+		emit log_named_int("alEth liquidity change in wei", alEthChange);
+		emit log_named_int("alEth liquidity change in eth", alEthChange / 1e18);
 
 		// revert pool changes so account can be used to test adding or removing liquidity
 		revertPoolChanges(alEthChange, alEthAsset);
@@ -116,15 +118,13 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 		balances = metaPool.get_balances();
 		startBalance = balances[0];
 
-		hevm.startPrank(address(0xbeef), address(0xbeef));
+		hevm.startPrank(address(elixir), address(elixir));
 
-		// Ensure account has enough alETH and ETH to test
-		deal(address(0xbeef), balances[0] * 3);
-		tip(address(alETH), address(0xbeef), balances[1]);
+		// make sure elixir can make necessary amount of deposits or withdrawals
+		deal(address(elixir), balances[0] * 2);
+		tip(address(metaPool), address(elixir), balances[1]);
+
 		alETH.approve(address(metaPool), balances[1]);
-
-		// add tokens to the pool to maintain dy and allow account to withdraw for testing
-		if (dy > targetDy) metaPool.add_liquidity{ value: startBalance }([startBalance, balances[1]], 0);
 
 		dy = metaPool.get_dy(alEthAsset, ethAsset, baseDx);
 		emit log_named_uint("current dy", dy);
@@ -138,7 +138,8 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 		endBalance = targetBalances[0];
 
 		ethChange = int256(endBalance) - int256(startBalance);
-		emit log_named_int("ETH liquidity change", ethChange);
+		emit log_named_int("ETH liquidity change in wei", ethChange);
+		emit log_named_int("ETH liquidity change in eth", ethChange / 1e18);
 
 		// revert pool changes so account can be used to test adding or removing liquidity
 		revertPoolChanges(ethChange, ethAsset);
@@ -185,7 +186,7 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 
 	// Check if target dy has been reached
 	function dxSolved(uint256 target) public view returns (bool) {
-		uint256 buffer = 2;
+		uint256 buffer = 0;
 		uint256 delta;
 		uint256 dy = metaPool.get_dy(alEthAsset, ethAsset, baseDx);
 		if (dy == target) return true;
@@ -200,8 +201,8 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 	// Add or remove liquidity based on given amount
 	function addOrRemoveLiquidity(int256 amount, int128 asset) public {
 		if (amount > 0) {
-			deal(gauge, uint256(amount));
-			tip(address(alETH), gauge, uint256(amount));
+			deal(address(elixir), uint256(amount));
+			tip(address(alETH), address(elixir), uint256(amount));
 			alETH.approve(address(metaPool), uint256(amount));
 			// determine whether to add ETH or alETH
 			asset == 1
@@ -215,8 +216,8 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 	// Revert adding or removing liquidity
 	function revertPoolChanges(int256 amount, int128 asset) public {
 		if (amount < 0) {
-			deal(gauge, uint256(amount));
-			tip(address(alETH), gauge, uint256(amount));
+			deal(address(elixir), uint256(amount));
+			tip(address(alETH), address(elixir), uint256(amount));
 			alETH.approve(address(metaPool), uint256(amount));
 			// determine whether to add ETH or alETH
 			asset == 1
