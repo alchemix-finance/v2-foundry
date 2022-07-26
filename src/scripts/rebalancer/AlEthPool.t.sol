@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.13;
 
-import { stdCheats } from "../../lib/forge-std/src/stdlib.sol";
-import { console } from "../../lib/forge-std/src/console.sol";
-import { IERC20 } from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import { stdCheats } from "../../../lib/forge-std/src/stdlib.sol";
+import { console } from "../../../lib/forge-std/src/console.sol";
+import { IERC20 } from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
-import { DSTestPlus } from "./utils/DSTestPlus.sol";
+import { DSTestPlus } from "../../test/utils/DSTestPlus.sol";
 
-import { IEthStableMetaPool } from "../interfaces/external/curve/IEthStableMetaPool.sol";
-import { IERC20TokenReceiver } from "../interfaces/IERC20TokenReceiver.sol";
-import { EthAssetManager } from "../EthAssetManager.sol";
+import { IEthStableMetaPool } from "../../interfaces/external/curve/IEthStableMetaPool.sol";
+import { IERC20TokenReceiver } from "../../interfaces/IERC20TokenReceiver.sol";
+import { EthAssetManager } from "../../EthAssetManager.sol";
 
 contract AlEthPoolTest is DSTestPlus, stdCheats {
 	IEthStableMetaPool constant metaPool = IEthStableMetaPool(0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e);
