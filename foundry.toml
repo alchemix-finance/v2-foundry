@@ -1,4 +1,4 @@
-[default]
+[profile.default]
 src = 'src'
 out = 'out'
 libs = ['lib']
@@ -9,7 +9,7 @@ ignored_error_codes = [1878]
 bytecode_hash="ipfs"
 rpc_storage_caching = { chains = "all", endpoints = "remote" }
 
-[lite]
+[profile.lite]
 src = 'src'
 out = 'out'
 libs = ['lib']

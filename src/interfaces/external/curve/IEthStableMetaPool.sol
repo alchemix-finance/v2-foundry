@@ -11,6 +11,10 @@ interface IEthStableMetaPool is IERC20 {
     function coins(uint256 index) external view returns (IERC20);
 
     function A() external view returns (uint256);
+    
+    function fee() external view returns (uint256);
+    
+    function totalSupply() external view returns (uint256);
 
     function get_virtual_price() external view returns (uint256);
 

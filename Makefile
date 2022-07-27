@@ -52,3 +52,5 @@ test_file_debug_test :; FOUNDRY_PROFILE=$(PROFILE) forge test $(FORK_URL) $(MATC
 
 # runs single test within file with added verbosity for failing test from a given block: "make test_file_block_debug_test FILE=RETHAdapterV1 TEST=testUnwrap"
 test_file_block_debug_test :; FOUNDRY_PROFILE=$(PROFILE) forge test $(FORK_URL) $(MATCH_PATH) $(MATCH_TEST) $(FORK_BLOCK) -vvv
+
+alEth_pool :; FOUNDRY_PROFILE=$(PROFILE) forge test $(FORK_URL) --match-path src/scripts/rebalancer/AlEthPool.t.sol -vv --gas-limit 18446744073709551615
