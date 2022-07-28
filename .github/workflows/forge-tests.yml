@@ -38,34 +38,43 @@ on: pull_request
 # on: push
 
 jobs:
-    forge-tests:
-        name: Runs hardhat tests and lite profile of foundry tests 
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v2
+  forge-tests:
+    name: Runs lite profile of foundry tests 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
 
-            - name: Install Foundry
-              uses: onbjerg/foundry-toolchain@v1
-              with:
-                  version: nightly
+      - name: Install Foundry
+        uses: onbjerg/foundry-toolchain@v1
+        with:
+          version: nightly
 
-            - name: Install dependencies
-              run: forge install
+      - name: Install dependencies
+        run: forge install
 
-            - name: Install submodules
-              run: git submodule update --init --recursive
+      - name: Install submodules
+        run: git submodule update --init --recursive
 
-            - name: Install node modules
-              run: yarn install
-            
-            - name: Compile contracts
-              run: yarn compile
-            
-            - name: Run hardhat tests
-              run: yarn test  
+      - name: Run forge tests
+        env:
+          ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+          TEST_PROFILE: lite
+        run: ./test.sh
+        
+  hardhat-tests:
+    name: Runs hardhat tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
 
-            - name: Run forge tests
-              env:
-                  ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
-                  TEST_PROFILE: lite
-              run: ./test.sh
+      - name: Install submodules
+        run: git submodule update --init --recursive
+
+      - name: Install node modules
+        run: yarn install
+      
+      - name: Compile contracts
+        run: yarn compile
+      
+      - name: Run hardhat tests
+        run: yarn test  
