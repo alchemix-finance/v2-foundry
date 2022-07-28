@@ -62,8 +62,8 @@ contract AlEthPoolTest is DSTestPlus, stdCheats {
 		// to get a final liquidity calculation
 		tip(address(metaPool), address(elixir), elixirPoolTokenBalance);
 		tip(address(alETH), address(elixir), metaPoolBalances[1]);
-		deal(address(elixir), elixirWethAccountBalance);
-		deal(address(elixir), metaPoolBalances[0]);
+		hevm.deal(address(elixir), elixirWethAccountBalance);
+		hevm.deal(address(elixir), metaPoolBalances[0]);
 	}
 
 	// Test that the change in alETH achieves the desired dy
