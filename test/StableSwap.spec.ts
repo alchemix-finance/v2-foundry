@@ -28,7 +28,8 @@ describe("StableSwap", () => {
       [
         "alchemix TEST", 
         "alTEST", 
-        [ bridgeToken.address ]
+        [ bridgeToken.address ], 
+        [ ethers.utils.parseEther('1000000000')]
       ],
       { unsafeAllow: ["delegatecall"] }
     )) as CrossChainCanonicalAlchemicTokenV2;
@@ -129,7 +130,7 @@ describe("StableSwap", () => {
       // Pause exchanges
       await alchemicToken
         .connect(admin)
-        .toggleBridgeToken(bridgeToken.address, false);
+        .setBridgeToken(bridgeToken.address, false);
       // Attempt the exchange
       await expect(
         alchemicToken
@@ -139,7 +140,7 @@ describe("StableSwap", () => {
       // Now unpause
       await alchemicToken
         .connect(admin)
-        .toggleBridgeToken(bridgeToken.address, true);
+        .setBridgeToken(bridgeToken.address, true);
       // Attempt again and don't revert
       await alchemicToken
         .connect(wallet)
@@ -162,7 +163,7 @@ describe("StableSwap", () => {
       // Disable token as bridge token
       await alchemicToken
         .connect(admin)
-        .toggleBridgeToken(bridgeToken.address, false);
+        .setBridgeToken(bridgeToken.address, false);
       // Succeed at withdrawing
       await alchemicToken
         .connect(admin)
