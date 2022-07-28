@@ -2,40 +2,40 @@ name: CI
 
 on: pull_request
 
-jobs:
-    forge-tests:
-        name: Runs hardhat and foundry tests
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v2
+# jobs:
+#     forge-tests:
+#         name: Runs hardhat and foundry tests
+#         runs-on: ubuntu-latest
+#         steps:
+#             - uses: actions/checkout@v2
 
-            - name: Install Foundry
-              uses: onbjerg/foundry-toolchain@v1
-              with:
-                  version: nightly
+#             - name: Install Foundry
+#               uses: onbjerg/foundry-toolchain@v1
+#               with:
+#                   version: nightly
 
-            - name: Install dependencies
-              run: forge install
+#             - name: Install dependencies
+#               run: forge install
 
-            - name: Install submodules
-              run: git submodule update --init --recursive
+#             - name: Install submodules
+#               run: git submodule update --init --recursive
 
-            - name: Install node modules
-              run: yarn install
+#             - name: Install node modules
+#               run: yarn install
             
-            - name: Compile contracts
-              run: yarn compile
+#             - name: Compile contracts
+#               run: yarn compile
             
-            - name: Run hardhat tests
-              run: yarn test  
+#             - name: Run hardhat tests
+#               run: yarn test  
 
-            - name: Run forge tests
-              env:
-                  ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
-                  TEST_PROFILE: default
-              run: ./test.sh
+#             - name: Run forge tests
+#               env:
+#                   ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+#                   TEST_PROFILE: default
+#               run: ./test.sh
 
-on: push
+# on: push
 
 jobs:
     forge-tests:
