@@ -90,21 +90,34 @@ contract RETHAdapterV1 is ITokenAdapter, MutexLock {
         // Transfer the rETH from the message sender.
         SafeERC20.safeTransferFrom(token, msg.sender, address(this), amount);
 
-        // Set up and execute uniswap exchange
-        SafeERC20.safeApprove(token, uniswapRouterV3, amount);
-        ISwapRouter.ExactInputSingleParams memory params =
-            ISwapRouter.ExactInputSingleParams({
-                tokenIn: token,
-                tokenOut: underlyingToken,
-                fee: 3000,
-                recipient: address(this),
-                deadline: block.timestamp,
-                amountIn: amount,
-                amountOutMinimum: 0,
-                sqrtPriceLimitX96: 0
-            });
+        uint256 receivedEth = 0;
 
-        uint256 receivedEth = ISwapRouter(uniswapRouterV3).exactInputSingle(params);
+        uint256 ethValue = IRETH(token).getEthValue(amount);
+        if (IRETH(token).getTotalCollateral() >= ethValue) {
+            // Burn the rETH to receive ETH.
+            uint256 startingEthBalance = address(this).balance;
+            IRETH(token).burn(amount);
+            receivedEth = address(this).balance - startingEthBalance;
+
+            // Wrap the ETH that we received from the burn.
+            IWETH9(underlyingToken).deposit{value: receivedEth}();
+        } else {
+            // Set up and execute uniswap exchange
+            SafeERC20.safeApprove(token, uniswapRouterV3, amount);
+            ISwapRouter.ExactInputSingleParams memory params =
+                ISwapRouter.ExactInputSingleParams({
+                    tokenIn: token,
+                    tokenOut: underlyingToken,
+                    fee: 3000,
+                    recipient: address(this),
+                    deadline: block.timestamp,
+                    amountIn: amount,
+                    amountOutMinimum: 0,
+                    sqrtPriceLimitX96: 0
+                });
+
+            receivedEth = ISwapRouter(uniswapRouterV3).exactInputSingle(params);
+        }
 
         // Transfer the tokens to the recipient.
         SafeERC20.safeTransfer(underlyingToken, recipient, receivedEth);

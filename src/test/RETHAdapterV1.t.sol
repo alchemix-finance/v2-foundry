@@ -49,6 +49,7 @@ contract RocketStakedEthereumAdapterV1Test is DSTestPlus, stdCheats {
         IWhitelist(whitelistETH).add(address(adapter));
         IWhitelist(whitelistETH).add(address(this));
         IAlchemistV2(alchemistETH).setMaximumExpectedValue(address(rETH), 10000000000000 ether);
+        IAlchemistV2(alchemistETH).setTokenAdapter(address(rETH), address(adapter));
         hevm.stopPrank();
     }
 
@@ -84,6 +85,29 @@ contract RocketStakedEthereumAdapterV1Test is DSTestPlus, stdCheats {
         assertApproxEq(weth.balanceOf(address(this)), expectedEth, expectedEth * 970 / 1000);
     }
 
+    function testWithdrawUnderlyingViaBurn() external {
+        tip(address(rETH), address(this), 1e18);
+
+        uint256 expectedEth = rETH.getEthValue(1e18);
+        hevm.deal(address(rETH), expectedEth);
+        uint256 beforeCollateral = rETH.getTotalCollateral();
+        assertEq(beforeCollateral, expectedEth);
+
+        // Deposit into position
+        SafeERC20.safeApprove(address(rETH), alchemistETH, 1e18);
+        uint256 shares = IAlchemistV2(alchemistETH).deposit(address(rETH), 1e18, address(this));
+
+        // Withdraw and unwrap
+        uint256 unwrapped = IAlchemistV2(alchemistETH).withdrawUnderlying(address(rETH), shares, address(this), 0);
+
+        uint256 afterCollateral = rETH.getTotalCollateral();
+        assertApproxEq(afterCollateral, 0, 10);
+
+        // assertEq(rETH.allowance(address(this), address(adapter)), 0);
+        assertEq(weth.balanceOf(address(this)), unwrapped);
+        assertApproxEq(weth.balanceOf(address(this)), expectedEth, expectedEth * 970 / 1000);
+    }
+
     function testHarvest() external {
         tip(address(rETH), address(this), 1e18);
 
@@ -112,12 +136,36 @@ contract RocketStakedEthereumAdapterV1Test is DSTestPlus, stdCheats {
 
         SafeERC20.safeApprove(address(rETH), alchemistETH, 1e18);
         uint256 shares = IAlchemistV2(alchemistETH).deposit(address(rETH), 1e18, address(this));
-
-        IAlchemistV2(alchemistETH).mint(shares/4, address(this));
+        uint256 pps = IAlchemistV2(alchemistETH).getUnderlyingTokensPerShare(address(rETH));
+        uint256 mintAmt = shares * pps / 1e18 / 4;
+        IAlchemistV2(alchemistETH).mint(mintAmt, address(this));
 
         (int256 debtBefore, ) = IAlchemistV2(alchemistETH).accounts(address(this));
 
-        uint256 sharesLiquidated = IAlchemistV2(alchemistETH).liquidate(address(rETH), shares/4, 0);
+        uint256 sharesLiquidated = IAlchemistV2(alchemistETH).liquidate(address(rETH), shares / 4, mintAmt * 97 / 100);
+
+        (int256 debtAfter, ) = IAlchemistV2(alchemistETH).accounts(address(this));
+
+        (uint256 sharesLeft, ) =  IAlchemistV2(alchemistETH).positions(address(this), address(rETH));
+
+        assertApproxEq(0, uint256(debtAfter), mintAmt - mintAmt * 97 / 100);
+        assertEq(shares - sharesLiquidated, sharesLeft);
+    }
+
+    function testLiquidateViaBurn() external {
+        tip(address(rETH), address(this), 1e18);
+
+        uint256 expectedEth = rETH.getEthValue(1e18);
+        hevm.deal(address(rETH), expectedEth);
+        SafeERC20.safeApprove(address(rETH), alchemistETH, 1e18);
+        uint256 shares = IAlchemistV2(alchemistETH).deposit(address(rETH), 1e18, address(this));
+        uint256 pps = IAlchemistV2(alchemistETH).getUnderlyingTokensPerShare(address(rETH));
+        uint256 mintAmt = shares * pps / 1e18 / 4;
+        IAlchemistV2(alchemistETH).mint(mintAmt, address(this));
+
+        (int256 debtBefore, ) = IAlchemistV2(alchemistETH).accounts(address(this));
+
+        uint256 sharesLiquidated = IAlchemistV2(alchemistETH).liquidate(address(rETH), shares / 4, 0);
 
         (int256 debtAfter, ) = IAlchemistV2(alchemistETH).accounts(address(this));
 
