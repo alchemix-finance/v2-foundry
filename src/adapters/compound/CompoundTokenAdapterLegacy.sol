@@ -3,14 +3,14 @@ pragma solidity 0.8.13;
 import {SafeERC20} from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC20} from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
-import {LibCompound} from "../../libraries/LibCompound.sol";
+import {LibCompoundLegacy} from "../../libraries/LibCompoundLegacy.sol";
 
-import {ICERC20} from "../../interfaces/compound/ICERC20.sol";
+import {ICERC20Legacy} from "../../interfaces/compound/ICERC20Legacy.sol";
 import {ITokenAdapter} from "../../interfaces/ITokenAdapter.sol";
 import {TokenUtils} from "../../libraries/TokenUtils.sol";
 import "../../base/ErrorMessages.sol";
 
-contract CompoundTokenAdapter is ITokenAdapter {
+contract CompoundTokenAdapterLegacy is ITokenAdapter {
     /// @dev Compound error code for a noop.
     uint256 private constant NO_ERROR = 0;
 
@@ -18,7 +18,7 @@ contract CompoundTokenAdapter is ITokenAdapter {
     uint256 private constant FIXED_POINT_SCALAR = 1e18;
 
     /// @dev Codehash of the tokens interest rate model
-    bytes32 private constant codehash = 0xf1b38fbd0c8d45c0420f991d1ba0722097cb4bb44bd18053f15f46e0f9e37208;
+    bytes32 private constant codehash = 0x78c7d7cdaf29691632ad34daa36f2464f6fef803160c456ebf8be7473dfb9d72;
 
     string public version = "1.0.0";
     address public alchemist;
@@ -37,7 +37,7 @@ contract CompoundTokenAdapter is ITokenAdapter {
     constructor(address _alchemist, address _token) {
         alchemist = _alchemist;
         token = _token;
-        underlyingToken = ICERC20(token).underlying();
+        underlyingToken = ICERC20Legacy(token).underlying();
     }
 
     /// @dev Checks that the message sender is the alchemist that the adapter is bound to.
@@ -50,10 +50,10 @@ contract CompoundTokenAdapter is ITokenAdapter {
 
     /// @inheritdoc ITokenAdapter
     function price() external view override returns (uint256) {
-        if (address(ICERC20(token).interestRateModel()).codehash != codehash) {
+        if (address(ICERC20Legacy(token).interestRateModel()).codehash != codehash) {
             revert IllegalState("Interest rate model has changed!");
         }
-        return LibCompound.viewExchangeRate(ICERC20(token)) / 10**10;
+        return LibCompoundLegacy.viewExchangeRate(ICERC20Legacy(token)) / 10**10;
     }
 
     /// @inheritdoc ITokenAdapter
@@ -64,7 +64,7 @@ contract CompoundTokenAdapter is ITokenAdapter {
         uint256 startingBalance = TokenUtils.safeBalanceOf(token, address(this));
 
         uint256 error;
-        if ((error = ICERC20(token).mint(amount)) != NO_ERROR) {
+        if ((error = ICERC20Legacy(token).mint(amount)) != NO_ERROR) {
             revert CompoundError(error);
         }
 
@@ -83,7 +83,7 @@ contract CompoundTokenAdapter is ITokenAdapter {
         uint256 startingBalance = TokenUtils.safeBalanceOf(underlyingToken, address(this));
 
         uint256 error;
-        if ((error = ICERC20(token).redeem(amount)) != NO_ERROR) {
+        if ((error = ICERC20Legacy(token).redeem(amount)) != NO_ERROR) {
             revert CompoundError(error);
         }
 

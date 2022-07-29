@@ -7,10 +7,12 @@ import {DSTestPlus} from "./utils/DSTestPlus.sol";
 import {stdCheats} from "../../lib/forge-std/src/stdlib.sol";
 
 import {CompoundTokenAdapter} from "../adapters/compound/CompoundTokenAdapter.sol";
+import {CompoundTokenAdapterLegacy} from "../adapters/compound/CompoundTokenAdapterLegacy.sol";
 
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IAlchemistV2AdminActions} from "../interfaces/alchemist/IAlchemistV2AdminActions.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
+import {ICERC20} from "../interfaces/compound/ICERC20.sol";
 
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 import {TokenUtils} from "../libraries/TokenUtils.sol";
@@ -55,18 +57,32 @@ contract CompoundTokenAdapterTest is DSTestPlus, stdCheats {
         // runTokenTest(alchemistAlETH, ceth, weth, 1000 ether);
     }
 
-    function runTokenTest(address alchemist, address cToken, address underlyingToken, uint256 amount) internal {
-        CompoundTokenAdapter cTokenAdapter = new CompoundTokenAdapter(alchemistAlUSD, cToken);
-        IAlchemistV2.YieldTokenConfig memory ytc = IAlchemistV2AdminActions.YieldTokenConfig({
-            adapter: address(cTokenAdapter),
-            maximumLoss: 1,
-            maximumExpectedValue: 1000000 ether,
-            creditUnlockBlocks: 7200
-        });
-        hevm.startPrank(alchemistAdmin);
-        IAlchemistV2(alchemist).addYieldToken(cToken, ytc);
-        IAlchemistV2(alchemist).setYieldTokenEnabled(cToken, true);
-        hevm.stopPrank();
+    function runTokenTest(address alchemist, address cToken, address underlyingToken, uint256 amount) internal {        
+        if (cToken == cusdc) {
+            CompoundTokenAdapterLegacy cTokenAdapter = new CompoundTokenAdapterLegacy(alchemistAlUSD, cToken);
+            IAlchemistV2.YieldTokenConfig memory ytc = IAlchemistV2AdminActions.YieldTokenConfig({
+                adapter: address(cTokenAdapter),
+                maximumLoss: 1,
+                maximumExpectedValue: 1000000 ether,
+                creditUnlockBlocks: 7200
+            });
+            hevm.startPrank(alchemistAdmin);
+            IAlchemistV2(alchemist).addYieldToken(cToken, ytc);
+            IAlchemistV2(alchemist).setYieldTokenEnabled(cToken, true);
+            hevm.stopPrank();
+        } else {
+            CompoundTokenAdapter cTokenAdapter = new CompoundTokenAdapter(alchemistAlUSD, cToken);
+            IAlchemistV2.YieldTokenConfig memory ytc = IAlchemistV2AdminActions.YieldTokenConfig({
+                adapter: address(cTokenAdapter),
+                maximumLoss: 1,
+                maximumExpectedValue: 1000000 ether,
+                creditUnlockBlocks: 7200
+            });
+            hevm.startPrank(alchemistAdmin);
+            IAlchemistV2(alchemist).addYieldToken(cToken, ytc);
+            IAlchemistV2(alchemist).setYieldTokenEnabled(cToken, true);
+            hevm.stopPrank();
+        }
 
         tip(underlyingToken, address(this), amount);
         uint256 startPrice = IAlchemistV2(alchemist).getUnderlyingTokensPerShare(cToken);
@@ -101,7 +117,7 @@ contract CompoundTokenAdapterTest is DSTestPlus, stdCheats {
         uint256 wrapped = adapter.wrap(depositAmount, address(this));
 
         uint256 price = adapter.price();
-        uint256 underlyingValue = wrapped * price / 10**SafeERC20.expectDecimals(cdai);
+        uint256 underlyingValue = wrapped * price / 10**(SafeERC20.expectDecimals(cdai));
         assertApproxEq(depositAmount, underlyingValue, 10**10);
         
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
@@ -113,7 +129,7 @@ contract CompoundTokenAdapterTest is DSTestPlus, stdCheats {
     }
 
     function testRoundTripUsdc() external {
-        CompoundTokenAdapter adapter = new CompoundTokenAdapter(address(this), cusdc);
+        CompoundTokenAdapterLegacy adapter = new CompoundTokenAdapterLegacy(address(this), cusdc);
 
         uint256 depositAmount = 1e6;
 
@@ -123,8 +139,8 @@ contract CompoundTokenAdapterTest is DSTestPlus, stdCheats {
         uint256 wrapped = adapter.wrap(depositAmount, address(this));
 
         uint256 price = adapter.price();
-        uint256 underlyingValue = wrapped * price / 10**SafeERC20.expectDecimals(cusdc);
-        assertApproxEq(depositAmount, underlyingValue, 10**10);
+        uint256 underlyingValue = wrapped * price / 10**(SafeERC20.expectDecimals(cusdc));
+        assertApproxEq(depositAmount, underlyingValue, 20);
         
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
@@ -147,7 +163,7 @@ contract CompoundTokenAdapterTest is DSTestPlus, stdCheats {
         SafeERC20.safeApprove(dai, address(adapter), amount);
         uint256 wrapped = adapter.wrap(amount, address(this));
 
-        uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(cdai);
+        uint256 underlyingValue = wrapped * adapter.price() / 10**(SafeERC20.expectDecimals(cdai));
         console.logUint(underlyingValue);
         console.logUint(amount);
         assertApproxEq(amount, underlyingValue, amount * 10**10 / 10**18); // lose 9+ decimals of precision
