@@ -19,6 +19,7 @@ import {ITokenAdapter} from "../../interfaces/ITokenAdapter.sol";
 import {IWETH9} from "../../interfaces/external/IWETH9.sol";
 import {IRETH} from "../../interfaces/external/rocket/IRETH.sol";
 import {IRocketStorage} from "../../interfaces/external/rocket/IRocketStorage.sol";
+import {ISwapRouter} from "../../interfaces/external/uniswap/ISwapRouter.sol";
 
 struct InitializationParams {
     address alchemist;
@@ -29,7 +30,9 @@ struct InitializationParams {
 contract RETHAdapterV1 is ITokenAdapter, MutexLock {
     using RocketPool for IRocketStorage;
 
-    string public override version = "1.0.0";
+    address constant uniswapRouterV3 = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
+
+    string public override version = "1.1.0";
 
     address public immutable alchemist;
     address public immutable override token;
@@ -87,13 +90,34 @@ contract RETHAdapterV1 is ITokenAdapter, MutexLock {
         // Transfer the rETH from the message sender.
         SafeERC20.safeTransferFrom(token, msg.sender, address(this), amount);
 
-        // Burn the rETH to receive ETH.
-        uint256 startingEthBalance = address(this).balance;
-        IRETH(token).burn(amount);
-        uint256 receivedEth = address(this).balance - startingEthBalance;
+        uint256 receivedEth = 0;
 
-        // Wrap the ETH that we received from the burn.
-        IWETH9(underlyingToken).deposit{value: receivedEth}();
+        uint256 ethValue = IRETH(token).getEthValue(amount);
+        if (IRETH(token).getTotalCollateral() >= ethValue) {
+            // Burn the rETH to receive ETH.
+            uint256 startingEthBalance = address(this).balance;
+            IRETH(token).burn(amount);
+            receivedEth = address(this).balance - startingEthBalance;
+
+            // Wrap the ETH that we received from the burn.
+            IWETH9(underlyingToken).deposit{value: receivedEth}();
+        } else {
+            // Set up and execute uniswap exchange
+            SafeERC20.safeApprove(token, uniswapRouterV3, amount);
+            ISwapRouter.ExactInputSingleParams memory params =
+                ISwapRouter.ExactInputSingleParams({
+                    tokenIn: token,
+                    tokenOut: underlyingToken,
+                    fee: 3000,
+                    recipient: address(this),
+                    deadline: block.timestamp,
+                    amountIn: amount,
+                    amountOutMinimum: 0,
+                    sqrtPriceLimitX96: 0
+                });
+
+            receivedEth = ISwapRouter(uniswapRouterV3).exactInputSingle(params);
+        }
 
         // Transfer the tokens to the recipient.
         SafeERC20.safeTransfer(underlyingToken, recipient, receivedEth);
