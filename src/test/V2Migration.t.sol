@@ -136,7 +136,7 @@ contract V2MigrationTest is DSTestPlus, stdCheats {
         assertApproxEq(underlyingValue, 100e18, 100e18 * 10 / BPS);
     }
 
-    function ptestMigrateAllUserFunds() external {
+    function testMigrateAllUserFunds() external {
         // Pull funds from current vault and flush to the transfer adapter
         hevm.startPrank(governance);
         (uint256 withdrawnAmount, ) = alchemistV1USD.recallAll(1);
