@@ -4,7 +4,6 @@ pragma solidity 0.8.13;
 import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
-import {stdCheats} from "../../lib/forge-std/src/stdlib.sol";
 
 import {
     AAVETokenAdapter,
@@ -22,7 +21,7 @@ import {ATokenGateway} from "../adapters/aave/ATokenGateway.sol";
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 import {console} from "../../lib/forge-std/src/console.sol";
 
-contract ATokenGatewayTest is DSTestPlus, stdCheats {
+contract ATokenGatewayTest is DSTestPlus {
     uint256 constant BPS = 10000;
     address constant dai = 0x6B175474E89094C44Da98b954EedeAC495271d0F; // ETH mainnet DAI
     address constant aToken = 0x028171bCA77440897B824Ca71D1c56caC55b68A3;

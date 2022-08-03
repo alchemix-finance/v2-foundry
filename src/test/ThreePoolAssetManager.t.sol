@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.13;
 
-import {stdCheats} from "../../lib/forge-std/src/stdlib.sol";
 import {console} from "../../lib/forge-std/src/console.sol";
 import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
@@ -25,7 +24,7 @@ import {IConvexToken} from "../interfaces/external/convex/IConvexToken.sol";
 import {IStableMetaPool} from "../interfaces/external/curve/IStableMetaPool.sol";
 import {IStableSwap3Pool} from "../interfaces/external/curve/IStableSwap3Pool.sol";
 
-contract ThreePoolAssetManagerTest is DSTestPlus, stdCheats {
+contract ThreePoolAssetManagerTest is DSTestPlus {
     ITransmuterBuffer constant transmuterBuffer = ITransmuterBuffer(0x1EEd2DbeB9fc23Ab483F447F38F289cA15f79Bac);
     address constant transmuterBufferAdmin = address(0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9);
     IERC20 constant crv = IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52);

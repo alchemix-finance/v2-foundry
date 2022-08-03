@@ -4,7 +4,6 @@ pragma solidity 0.8.13;
 import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
-import {stdCheats} from "../../lib/forge-std/src/stdlib.sol";
 
 import {
     VesperAdapterV1,
@@ -16,7 +15,7 @@ import {IVesperPool} from "../interfaces/external/vesper/IVesperPool.sol";
 
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 
-contract VesperAdapterV1Test is DSTestPlus, stdCheats {
+contract VesperAdapterV1Test is DSTestPlus {
     uint256 constant BPS = 10000;
     IVesperPool constant vesperPool = IVesperPool(0xd1C117319B3595fbc39b471AB1fd485629eb05F2);
     IWETH9 constant weth = IWETH9(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);

@@ -4,7 +4,6 @@ pragma solidity 0.8.13;
 import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
-import {stdCheats} from "../../lib/forge-std/src/stdlib.sol";
 
 import {
     AAVETokenAdapter,
@@ -21,7 +20,7 @@ import {SafeERC20} from "../libraries/SafeERC20.sol";
 import {TokenUtils} from "../libraries/TokenUtils.sol";
 import {console} from "../../lib/forge-std/src/console.sol";
 
-contract AAVETokenAdapterTest is DSTestPlus, stdCheats {
+contract AAVETokenAdapterTest is DSTestPlus {
     uint256 constant BPS = 10000;
     address constant dai = 0x6B175474E89094C44Da98b954EedeAC495271d0F; // ETH mainnet DAI
     ILendingPool lendingPool = ILendingPool(0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9);
