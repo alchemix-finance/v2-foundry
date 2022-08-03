@@ -51,7 +51,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     uint256 public constant FIXED_POINT_SCALAR = 1e18;
 
     /// @inheritdoc IAlchemistV2Immutables
-    string public constant override version = "2.2.7";
+    string public constant override version = "2.2.8";
 
     /// @inheritdoc IAlchemistV2Immutables
     address public override debtToken;
@@ -114,12 +114,12 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
 
     /// @inheritdoc IAlchemistV2State
     function getYieldTokensPerShare(address yieldToken) external view override returns (uint256) {
-        return _convertSharesToYieldTokens(yieldToken, 10**_yieldTokens[yieldToken].decimals);
+        return convertSharesToYieldTokens(yieldToken, 10**_yieldTokens[yieldToken].decimals);
     }
 
     /// @inheritdoc IAlchemistV2State
     function getUnderlyingTokensPerShare(address yieldToken) external view override returns (uint256) {
-        return _convertSharesToUnderlyingTokens(yieldToken, 10**_yieldTokens[yieldToken].decimals);
+        return convertSharesToUnderlyingTokens(yieldToken, 10**_yieldTokens[yieldToken].decimals);
     }
 
     /// @inheritdoc IAlchemistV2State
@@ -508,7 +508,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         _onlyAdmin();
         _checkSupportedYieldToken(yieldToken);
 
-        uint256 expectedValue = _convertYieldTokensToUnderlying(yieldToken, _yieldTokens[yieldToken].activeBalance);
+        uint256 expectedValue = convertYieldTokensToUnderlying(yieldToken, _yieldTokens[yieldToken].activeBalance);
 
         _yieldTokens[yieldToken].expectedValue = expectedValue;
 
@@ -785,7 +785,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         //
         // It is implied that this value is greater than zero because `debt` is greater than zero so a noop is not possible
         // beyond this point. Casting the debt to an unsigned integer is also safe because `debt` is greater than zero.
-        uint256 maximumAmount = _normalizeDebtTokensToUnderlying(underlyingToken, uint256(debt));
+        uint256 maximumAmount = normalizeDebtTokensToUnderlying(underlyingToken, uint256(debt));
 
         // Limit the number of underlying tokens to repay up to the maximum allowed.
         uint256 actualAmount = amount > maximumAmount ? maximumAmount : amount;
@@ -798,7 +798,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
           revert RepayLimitExceeded(underlyingToken, actualAmount, currentRepayLimit);
         }
 
-        uint256 credit = _normalizeUnderlyingTokensToDebt(underlyingToken, actualAmount);
+        uint256 credit = normalizeUnderlyingTokensToDebt(underlyingToken, actualAmount);
 
         // Update the recipient's debt.
         _updateDebt(recipient, -SafeCast.toInt256(credit));
@@ -847,16 +847,16 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         //
         // It is implied that this value is greater than zero because `debt` is greater than zero. Casting the debt to an
         // unsigned integer is also safe for this reason.
-        uint256 maximumShares = _convertUnderlyingTokensToShares(
+        uint256 maximumShares = convertUnderlyingTokensToShares(
           yieldToken,
-          _normalizeDebtTokensToUnderlying(underlyingToken, uint256(unrealizedDebt))
+          normalizeDebtTokensToUnderlying(underlyingToken, uint256(unrealizedDebt))
         );
 
         // Limit the number of shares to liquidate up to the maximum allowed.
         uint256 actualShares = shares > maximumShares ? maximumShares : shares;
 
         // Unwrap the yield tokens that the shares are worth.
-        uint256 amountYieldTokens      = _convertSharesToYieldTokens(yieldToken, actualShares);
+        uint256 amountYieldTokens      = convertSharesToYieldTokens(yieldToken, actualShares);
         uint256 amountUnderlyingTokens = _unwrap(yieldToken, amountYieldTokens, address(this), minimumAmountOut);
 
         // Again, perform another noop check. It is possible that the amount of underlying tokens that were received by
@@ -878,7 +878,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         // Distribute unlocked credit to depositors.
         _distributeUnlockedCreditDeposited(msg.sender);
 
-        uint256 credit = _normalizeUnderlyingTokensToDebt(underlyingToken, amountUnderlyingTokens);
+        uint256 credit = normalizeUnderlyingTokensToDebt(underlyingToken, amountUnderlyingTokens);
 
         // Update the message sender's account, proactively burn shares, decrease the amount of debt incurred, and then
         // decrease the value of the token that the system is expected to hold.
@@ -954,7 +954,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         uint256 feeAmount = amountUnderlyingTokens * protocolFee / BPS;
         uint256 distributeAmount = amountUnderlyingTokens - feeAmount;
 
-        uint256 credit = _normalizeUnderlyingTokensToDebt(underlyingToken, distributeAmount);
+        uint256 credit = normalizeUnderlyingTokensToDebt(underlyingToken, distributeAmount);
 
         // Distribute credit to all of the users who hold shares of the yield token.
         _distributeCredit(yieldToken, credit);
@@ -1036,13 +1036,13 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
             return;
         }
 
-        uint256 currentValue = _convertYieldTokensToUnderlying(yieldToken, activeBalance);
+        uint256 currentValue = convertYieldTokensToUnderlying(yieldToken, activeBalance);
         uint256 expectedValue = _yieldTokens[yieldToken].expectedValue;
         if (currentValue <= expectedValue) {
             return;
         }
 
-        uint256 harvestable = _convertUnderlyingTokensToYield(yieldToken, currentValue - expectedValue);
+        uint256 harvestable = convertUnderlyingTokensToYield(yieldToken, currentValue - expectedValue);
         if (harvestable == 0) {
             return;
         }
@@ -1195,7 +1195,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         // the accrued weights so that the debt is properly calculated before the account is validated.
         _distributeUnlockedCreditDeposited(owner);
 
-        uint256 amountYieldTokens = _convertSharesToYieldTokens(yieldToken, shares);
+        uint256 amountYieldTokens = convertSharesToYieldTokens(yieldToken, shares);
 
         // Update the owner's account, burn shares from the owner's account, and then decrease the value of the token
         // that the system is expected to hold.
@@ -1257,7 +1257,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     ) internal {
         YieldTokenParams memory yieldTokenParams = _yieldTokens[yieldToken];
 
-        uint256 amountUnderlyingTokens = _convertYieldTokensToUnderlying(yieldToken, amount);
+        uint256 amountUnderlyingTokens = convertYieldTokensToUnderlying(yieldToken, amount);
         uint256 updatedActiveBalance   = operation(yieldTokenParams.activeBalance, amount);
         uint256 updatedExpectedValue   = operation(yieldTokenParams.expectedValue, amountUnderlyingTokens);
 
@@ -1274,7 +1274,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     function _loss(address yieldToken) internal view returns (uint256) {
         YieldTokenParams memory yieldTokenParams = _yieldTokens[yieldToken];
 
-        uint256 amountUnderlyingTokens = _convertYieldTokensToUnderlying(yieldToken, yieldTokenParams.activeBalance);
+        uint256 amountUnderlyingTokens = convertYieldTokensToUnderlying(yieldToken, yieldTokenParams.activeBalance);
         uint256 expectedUnderlyingValue = yieldTokenParams.expectedValue;
 
         return expectedUnderlyingValue > amountUnderlyingTokens
@@ -1474,7 +1474,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
             return;
         }
 
-        uint256 collateralization = _totalValue(owner) * FIXED_POINT_SCALAR / uint256(debt);
+        uint256 collateralization = totalValue(owner) * FIXED_POINT_SCALAR / uint256(debt);
 
         if (collateralization < minimumCollateralization) {
             revert Undercollateralized();
@@ -1486,7 +1486,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @param owner The address of the account owner.
     ///
     /// @return The total value.
-    function _totalValue(address owner) internal view returns (uint256) {
+    function totalValue(address owner) public view returns (uint256) {
         uint256 totalValue = 0;
 
         Sets.AddressSet storage depositedTokens = _accounts[owner].depositedTokens;
@@ -1494,9 +1494,9 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
             address yieldToken             = depositedTokens.values[i];
             address underlyingToken        = _yieldTokens[yieldToken].underlyingToken;
             uint256 shares                 = _accounts[owner].balances[yieldToken];
-            uint256 amountUnderlyingTokens = _convertSharesToUnderlyingTokens(yieldToken, shares);
+            uint256 amountUnderlyingTokens = convertSharesToUnderlyingTokens(yieldToken, shares);
 
-            totalValue += _normalizeUnderlyingTokensToDebt(underlyingToken, amountUnderlyingTokens);
+            totalValue += normalizeUnderlyingTokensToDebt(underlyingToken, amountUnderlyingTokens);
         }
 
         return totalValue;
@@ -1516,7 +1516,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         address yieldToken,
         uint256 amount
     ) internal returns (uint256) {
-        uint256 shares = _convertYieldTokensToShares(yieldToken, amount);
+        uint256 shares = convertYieldTokensToShares(yieldToken, amount);
 
         if (_accounts[recipient].balances[yieldToken] == 0) {
           _accounts[recipient].depositedTokens.add(yieldToken);
@@ -1592,13 +1592,13 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
           return activeBalance;
         }
 
-        uint256 currentValue = _convertYieldTokensToUnderlying(yieldToken, activeBalance);
+        uint256 currentValue = convertYieldTokensToUnderlying(yieldToken, activeBalance);
         uint256 expectedValue = yieldTokenParams.expectedValue;
         if (currentValue <= expectedValue) {
           return activeBalance;
         }
 
-        uint256 harvestable = _convertUnderlyingTokensToYield(yieldToken, currentValue - expectedValue);
+        uint256 harvestable = convertUnderlyingTokensToYield(yieldToken, currentValue - expectedValue);
         if (harvestable == 0) {
           return activeBalance;
         }
@@ -1636,7 +1636,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @param amount     The amount of yield tokens.
     ///
     /// @return The number of shares.
-    function _convertYieldTokensToShares(address yieldToken, uint256 amount) internal view returns (uint256) {
+    function convertYieldTokensToShares(address yieldToken, uint256 amount) public view returns (uint256) {
         if (_yieldTokens[yieldToken].totalShares == 0) {
             return amount;
         }
@@ -1649,7 +1649,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @param shares     The amount of shares.
     ///
     /// @return The amount of yield tokens.
-    function _convertSharesToYieldTokens(address yieldToken, uint256 shares) internal view returns (uint256) {
+    function convertSharesToYieldTokens(address yieldToken, uint256 shares) public view returns (uint256) {
         uint256 totalShares = _yieldTokens[yieldToken].totalShares;
         if (totalShares == 0) {
           return shares;
@@ -1663,9 +1663,9 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @param shares     The amount of shares.
     ///
     /// @return The amount of underlying tokens.
-    function _convertSharesToUnderlyingTokens(address yieldToken, uint256 shares) internal view returns (uint256) {
-        uint256 amountYieldTokens = _convertSharesToYieldTokens(yieldToken, shares);
-        return _convertYieldTokensToUnderlying(yieldToken, amountYieldTokens);
+    function convertSharesToUnderlyingTokens(address yieldToken, uint256 shares) public view returns (uint256) {
+        uint256 amountYieldTokens = convertSharesToYieldTokens(yieldToken, shares);
+        return convertYieldTokensToUnderlying(yieldToken, amountYieldTokens);
     }
 
     /// @dev Gets the amount of an underlying token that `amount` of `yieldToken` is exchangeable for.
@@ -1674,7 +1674,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @param amount     The amount of yield tokens.
     ///
     /// @return The amount of underlying tokens.
-    function _convertYieldTokensToUnderlying(address yieldToken, uint256 amount) internal view returns (uint256) {
+    function convertYieldTokensToUnderlying(address yieldToken, uint256 amount) public view returns (uint256) {
         YieldTokenParams storage yieldTokenParams = _yieldTokens[yieldToken];
         ITokenAdapter adapter = ITokenAdapter(yieldTokenParams.adapter);
         return amount * adapter.price() / 10**yieldTokenParams.decimals;
@@ -1686,7 +1686,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @param amount     The amount of underlying tokens.
     ///
     /// @return The amount of yield tokens.
-    function _convertUnderlyingTokensToYield(address yieldToken, uint256 amount) internal view returns (uint256) {
+    function convertUnderlyingTokensToYield(address yieldToken, uint256 amount) public view returns (uint256) {
         YieldTokenParams storage yieldTokenParams = _yieldTokens[yieldToken];
         ITokenAdapter adapter = ITokenAdapter(yieldTokenParams.adapter);
         return amount * 10**yieldTokenParams.decimals / adapter.price();
@@ -1698,9 +1698,9 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @param amount     The amount of underlying tokens.
     ///
     /// @return The amount of shares.
-    function _convertUnderlyingTokensToShares(address yieldToken, uint256 amount) internal view returns (uint256) {
-        uint256 amountYieldTokens = _convertUnderlyingTokensToYield(yieldToken, amount);
-        return _convertYieldTokensToShares(yieldToken, amountYieldTokens);
+    function convertUnderlyingTokensToShares(address yieldToken, uint256 amount) public view returns (uint256) {
+        uint256 amountYieldTokens = convertUnderlyingTokensToYield(yieldToken, amount);
+        return convertYieldTokensToShares(yieldToken, amountYieldTokens);
     }
 
     /// @dev Normalize `amount` of `underlyingToken` to a value which is comparable to units of the debt token.
@@ -1709,7 +1709,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @param amount          The amount of the debt token.
     ///
     /// @return The normalized amount.
-    function _normalizeUnderlyingTokensToDebt(address underlyingToken, uint256 amount) internal view returns (uint256) {
+    function normalizeUnderlyingTokensToDebt(address underlyingToken, uint256 amount) public view returns (uint256) {
         return amount * _underlyingTokens[underlyingToken].conversionFactor;
     }
 
@@ -1723,7 +1723,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @param amount          The amount of the debt token.
     ///
     /// @return The normalized amount.
-    function _normalizeDebtTokensToUnderlying(address underlyingToken, uint256 amount) internal view returns (uint256) {
+    function normalizeDebtTokensToUnderlying(address underlyingToken, uint256 amount) public view returns (uint256) {
         return amount / _underlyingTokens[underlyingToken].conversionFactor;
     }
 
