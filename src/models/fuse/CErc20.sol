@@ -1,4 +1,6 @@
-contract CErc20 {
+import {IERC20} from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {ReentrancyGuard} from "../../../lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
+contract CErc20 is ReentrancyGuard {
 	uint initialExchangeRate;
 	uint reserveFactor;
 	uint adminFee;
@@ -120,7 +122,7 @@ contract CErc20 {
 	}
 
 	function transfer(address dst, uint256 amount) external returns (bool) {
-		returns transferFrom(msg.sender, dst, amount);
+		return transferFrom(msg.sender, dst, amount);
 	}
 	
 	function transferFrom(address src, address dst, uint256 amount)
@@ -140,7 +142,7 @@ contract CErc20 {
 		}
 
 		if (spender != src) {
-			transferAllowances[src][spender] -= amount;;
+			transferAllowances[src][spender] -= amount;
 		}
 
 		accountTokens[src] -= amount;
