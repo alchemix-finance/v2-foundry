@@ -10,9 +10,7 @@ contract V1Deprecatooooor is Ownable {
     function deprecate(address alchemist, address altoken) external onlyOwner {
         IAlToken(altoken).pauseAlchemist(address(alchemist), true);
         uint256 numVaults = IAlchemistV1(alchemist).vaultCount();
-        for (uint256 i = 0; i < numVaults - 1; i++) {
-            IAlchemistV1(alchemist).recallAll(i);
-        }
+        IAlchemistV1(alchemist).recallAll(numVaults - 2);
         IAlchemistV1(alchemist).flush();
         IAlchemistV1(alchemist).setEmergencyExit(true);
     }
