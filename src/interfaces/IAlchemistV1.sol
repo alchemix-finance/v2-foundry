@@ -19,4 +19,5 @@ interface IAlchemistV1 {
     function liquidate(uint256 _amount) external returns (uint256, uint256);
     function harvest(uint256 _vaultId) external returns (uint256, uint256);
     function repay(uint256 _parentAmount, uint256 _childAmount) external;
+    function vaultCount() external returns (uint256);
 }
