@@ -107,7 +107,9 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @dev An iterable set of the yield tokens that are supported by the system.
     Sets.AddressSet private _supportedYieldTokens;
 
-    /// @custom:oz-upgrades-unsafe-allow constructor
+    /// @inheritdoc IAlchemistV2State
+    address public override transferAdapter;
+
     constructor() initializer {}
 
     /// @inheritdoc IAlchemistV2State
@@ -528,6 +530,23 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         TokenUtils.safeTransfer(rewardToken, admin, amount);
 
         emit SweepTokens(rewardToken, amount);
+    }
+
+    /// @inheritdoc IAlchemistV2AdminActions
+    function setTransferAdapterAddress(address transferAdapterAddress) external override lock {
+        _onlyAdmin();
+        transferAdapter = transferAdapterAddress;
+    }
+
+    /// @inheritdoc IAlchemistV2AdminActions
+    function transferDebtV1(
+        address owner, 
+        int256 debt
+    ) external override lock {
+        _onlyTransferAdapter();
+        _poke(owner);
+        _updateDebt(owner, debt);
+        _validate(owner);
     }
 
     /// @inheritdoc IAlchemistV2Actions
@@ -981,6 +1000,15 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @dev `msg.sender` must be a keeper or this call will revert with an {Unauthorized} error.
     function _onlyKeeper() internal view {
         if (!keepers[msg.sender]) {
+            revert Unauthorized();
+        }
+    }
+
+    /// @dev Checks that the `msg.sender` is the V1 transfer adapter.
+    ///
+    /// @dev `msg.sender` must be the administrator or this call will revert with an {Unauthorized} error.
+    function _onlyTransferAdapter() internal view {
+        if (msg.sender != transferAdapter) {
             revert Unauthorized();
         }
     }
