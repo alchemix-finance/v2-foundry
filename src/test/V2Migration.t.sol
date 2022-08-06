@@ -6,7 +6,6 @@ import {V1AddressList} from "../addresses.sol";
 import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
-import {stdCheats} from "../../lib/forge-std/src/stdlib.sol";
 
 import {AlchemistV2} from "../AlchemistV2.sol";
 import {PausableTransmuterConduit} from "../PausableTransmuterConduit.sol";
@@ -22,7 +21,7 @@ import {IWhitelist} from "../interfaces/IWhitelist.sol";
 import {FixedPointMath} from "../libraries/FixedPointMath.sol";
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 
-contract V2MigrationTest is DSTestPlus, stdCheats {
+contract V2MigrationTest is DSTestPlus {
     uint256 constant BPS = 10000;
     uint256 constant scalar = 10**18;
     address constant alchemistV1USDAddress = 0xc21D353FF4ee73C572425697f4F5aaD2109fe35b;
