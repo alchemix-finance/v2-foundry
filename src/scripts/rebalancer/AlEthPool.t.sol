@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.13;
 
-import { stdCheats } from "../../../lib/forge-std/src/stdlib.sol";
-import { console } from "../../../lib/forge-std/src/console.sol";
 import { IERC20 } from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 import { DSTestPlus } from "../../test/utils/DSTestPlus.sol";
@@ -12,7 +10,7 @@ import { IERC20TokenReceiver } from "../../interfaces/IERC20TokenReceiver.sol";
 import { IConvexRewards } from "../../interfaces/external/convex/IConvexRewards.sol";
 import { EthAssetManager } from "../../EthAssetManager.sol";
 
-contract AlEthPoolTest is DSTestPlus, stdCheats {
+contract AlEthPoolTest is DSTestPlus {
 	IEthStableMetaPool constant metaPool = IEthStableMetaPool(0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e);
 	EthAssetManager elixir = EthAssetManager(payable(0xe761bf731A06fE8259FeE05897B2687D56933110));
 	IConvexRewards convex = IConvexRewards(0x48Bc302d8295FeA1f8c3e7F57D4dDC9981FEE410);

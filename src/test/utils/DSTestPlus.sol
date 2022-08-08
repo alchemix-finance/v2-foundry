@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
-import {DSTest} from "../../../lib/ds-test/src/test.sol";
+import {Test} from "../../../lib/forge-std/src/Test.sol";
 
 import {Hevm} from "./Hevm.sol";
 
 /// @notice Extended testing framework for DappTools projects.
 /// @author Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/test/utils/DSTestPlus.sol)
-contract DSTestPlus is DSTest {
+contract DSTestPlus is Test {
     Hevm internal constant hevm = Hevm(HEVM_ADDRESS);
 
     address internal constant DEAD_ADDRESS = 0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF;
@@ -26,15 +26,6 @@ contract DSTestPlus is DSTest {
         string memory label = checkpointLabel;
 
         emit log_named_uint(string(abi.encodePacked(label, " Gas")), checkpointGasLeft - checkpointGasLeft2);
-    }
-
-    function fail(string memory err) internal virtual {
-        emit log_named_string("Error", err);
-        fail();
-    }
-
-    function assertFalse(bool data) internal virtual {
-        assertTrue(!data);
     }
 
     function assertUint128Eq(uint128 a, uint128 b) internal virtual {
@@ -129,27 +120,6 @@ contract DSTestPlus is DSTest {
 
     function expectUnsupportedOperationError(string memory message) internal {
         hevm.expectRevert(abi.encodeWithSignature("UnsupportedOperation(string)", message));
-    }
-
-    function bound(
-        uint256 x,
-        uint256 min,
-        uint256 max
-    ) internal pure returns (uint256 result) {
-        require(max >= min, "MAX_LESS_THAN_MIN");
-
-        uint256 size = max - min;
-
-        if (max != type(uint256).max) size++; // Make the max inclusive.
-        if (size == 0) return min; // Using max would be equivalent as well.
-        // Ensure max is inclusive in cases where x != 0 and max is at uint max.
-        if (max == type(uint256).max && x != 0) x--; // Accounted for later.
-
-        if (x < min) x += size * (((min - x) / size) + 1);
-        result = min + ((x - min) % size);
-
-        // Account for decrementing x to make max inclusive.
-        if (max == type(uint256).max && x != 0) result++;
     }
 
     function min3(

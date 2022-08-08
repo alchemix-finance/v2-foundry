@@ -2,7 +2,6 @@
 pragma solidity 0.8.13;
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
-import {stdCheats} from "../../lib/forge-std/src/stdlib.sol";
 import "../../lib/forge-std/src/console.sol";
 
 import {
@@ -20,7 +19,7 @@ import {IWhitelist} from "../interfaces/IWhitelist.sol";
 import {RocketPool} from "../libraries/RocketPool.sol";
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 
-contract RocketStakedEthereumAdapterV1Test is DSTestPlus, stdCheats {
+contract RocketStakedEthereumAdapterV1Test is DSTestPlus {
     address constant admin = 0x8392F6669292fA56123F71949B52d883aE57e225;
     address constant alchemistETH = 0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c;
     address constant alETH = 0x0100546F2cD4C9D97f798fFC9755E47865FF7Ee6;

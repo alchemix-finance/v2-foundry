@@ -9,7 +9,6 @@ import {SafeERC20} from "../libraries/SafeERC20.sol";
 import {StaticAToken} from "../external/aave/StaticAToken.sol";
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
-import {stdCheats} from "../../lib/forge-std/src/stdlib.sol";
 
 import {
     AAVETokenAdapter,
@@ -27,7 +26,7 @@ import {IAlchemistV2AdminActions} from "../interfaces/alchemist/IAlchemistV2Admi
 import {ILendingPool} from "../interfaces/external/aave/ILendingPool.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
 
-contract MigrationToolTestETH is DSTestPlus, stdCheats {
+contract MigrationToolTestETH is DSTestPlus {
     address constant admin = 0x8392F6669292fA56123F71949B52d883aE57e225;
     address constant alchemistETH = 0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c;
     address constant alETH = 0x0100546F2cD4C9D97f798fFC9755E47865FF7Ee6;

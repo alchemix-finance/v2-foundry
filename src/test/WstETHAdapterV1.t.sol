@@ -2,7 +2,6 @@
 pragma solidity 0.8.13;
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
-import {stdCheats} from "../../lib/forge-std/src/stdlib.sol";
 
 import {
     WstETHAdapterV1,
@@ -16,7 +15,7 @@ import {IWstETH} from "../interfaces/external/lido/IWstETH.sol";
 
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 
-contract WstETHAdapterV1Test is DSTestPlus, stdCheats {
+contract WstETHAdapterV1Test is DSTestPlus {
     IStETH constant stETH = IStETH(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84);
     IWstETH constant wstETH = IWstETH(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0);
     IWETH9 constant weth = IWETH9(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);

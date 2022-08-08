@@ -4,7 +4,6 @@ pragma solidity 0.8.13;
 import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
-import {stdCheats} from "../../lib/forge-std/src/stdlib.sol";
 
 import {
     FuseTokenAdapterV1,
@@ -16,7 +15,7 @@ import {ICERC20} from "../interfaces/external/compound/ICERC20.sol";
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 import {LibFuse} from "../libraries/LibFuse.sol";
 
-contract FuseTokenAdapterV1Test is DSTestPlus, stdCheats {
+contract FuseTokenAdapterV1Test is DSTestPlus {
     uint256 constant BPS = 10000;
     ICERC20 constant fDAI = ICERC20(0x7e9cE3CAa9910cc048590801e64174957Ed41d43);
 

@@ -12,6 +12,14 @@ import * as fs from "fs";
 
 dotenv.config();
 
+function getRemappings() {
+  return fs
+    .readFileSync("remappings.txt", "utf8")
+    .split("\n")
+    .filter(Boolean) // remove empty lines
+    .map((line) => line.trim().split("="));
+}
+
 const generateRandomHex = (size: number) =>
   [...Array(size)]
     .map(() => Math.floor(Math.random() * 16).toString(16))
@@ -26,6 +34,20 @@ const config = {
         runs: 200,
       },
     },
+  },
+  preprocess: {
+    eachLine: (hre) => ({
+      transform: (line: string) => {
+        if (line.match(/^\s*import /i)) {
+          getRemappings().forEach(([find, replace]) => {
+            if (line.match(find)) {
+              line = line.replace(find, replace);
+            }
+          });
+        }
+        return line;
+      },
+    }),
   },
   paths: {
     sources: './src',
