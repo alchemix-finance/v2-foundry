@@ -2,5 +2,3 @@ solmate/=lib/solmate/src/
 ds-test/=lib/ds-test/src/
 openzeppelin-contracts/=lib/openzeppelin-contracts/
 forge-std/=lib/forge-std/src/
-openzeppelin-contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/
-../../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol=@openzeppelin/contracts/token/ERC20/IERC20.sol
