@@ -26,6 +26,8 @@ MATCH_TEST=--match-test $(TEST)
 # rpc url
 FORK_URL=--fork-url https://eth-mainnet.alchemyapi.io/v2/$(ALCHEMY_API_KEY)
 
+FORK_URL_OPTIMISM=--fork-url https://opt-mainnet.g.alchemy.com/v2/$(OPTIMISM_ALCHEMY_API_KEY)
+
 # runs all tests: "make test"
 test :; FOUNDRY_PROFILE=$(PROFILE) forge test $(FORK_URL)
 
@@ -43,6 +45,9 @@ test_file_debug :; FOUNDRY_PROFILE=$(PROFILE) forge test $(FORK_URL) $(MATCH_PAT
 
 # runs specific test file from a given block (setting block is optional): "make test_file_block FILE=RETHAdapterV1"
 test_file_block :; FOUNDRY_PROFILE=$(PROFILE) forge test $(FORK_URL) $(MATCH_PATH) $(FORK_BLOCK)
+
+# runs specific test file from a given block (setting block is optional): "make test_file_block_optimism FILE=RETHAdapterV1"
+test_file_block_optimism :; FOUNDRY_PROFILE=$(PROFILE) forge test $(FORK_URL_OPTIMISM) $(MATCH_PATH) $(FORK_BLOCK)
 
 # runs specific test file with added verbosity for failing tests from a given block: "make test_file_block_debug FILE=RETHAdapterV1"
 test_file_block_debug :; FOUNDRY_PROFILE=$(PROFILE) forge test $(FORK_URL) $(MATCH_PATH) $(FORK_BLOCK) -vvv

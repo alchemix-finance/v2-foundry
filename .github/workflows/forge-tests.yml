@@ -58,6 +58,7 @@ jobs:
       - name: Run forge tests
         env:
           ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+          OPTIMISM_ALCHEMY_API_KEY: 4{{ secrets.OPTIMISM_ALCHEMY_API_KEY }}
           TEST_PROFILE: lite
         run: ./test.sh
         
