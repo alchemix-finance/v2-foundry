@@ -5,18 +5,14 @@ import {IllegalState, Unauthorized} from "../../base/ErrorMessages.sol";
 import {MutexLock} from "../../base/MutexLock.sol";
 import {IERC20Minimal} from "../../interfaces/IERC20Minimal.sol";
 import {ITokenAdapter} from "../../interfaces/ITokenAdapter.sol";
-import {IAaveV3Pool} from "../../interfaces/external/aave/IAaveV3Pool.sol";
+import {IStaticAToken} from "../../interfaces/external/aave/IStaticAToken.sol";
 
 import {TokenUtils} from "../../libraries/TokenUtils.sol";
-import {console} from "../../../lib/forge-std/src/console.sol";
-
 
 struct InitializationParams {
     address alchemist;
     address token;
     address underlyingToken;
-    address pool;
-    address oracle;
 }
 
 contract AaveV3Adapter is ITokenAdapter, MutexLock {
@@ -24,8 +20,6 @@ contract AaveV3Adapter is ITokenAdapter, MutexLock {
     address public alchemist;
     address public override token;
     address public override underlyingToken;
-    address public pool;
-    address public oracle;
     uint8 public tokenDecimals;
 
     constructor(InitializationParams memory params) {
@@ -33,8 +27,6 @@ contract AaveV3Adapter is ITokenAdapter, MutexLock {
         token = params.token;
         underlyingToken = params.underlyingToken;
         tokenDecimals = TokenUtils.expectDecimals(token);
-        pool = params.pool;
-        oracle = params.oracle;
     }
 
     /// @dev Checks that the message sender is the alchemist that the adapter is bound to.
@@ -47,28 +39,27 @@ contract AaveV3Adapter is ITokenAdapter, MutexLock {
 
     /// @inheritdoc ITokenAdapter
     function price() external view override returns (uint256) {
-        // In AAVE V3 depositing and withdrawing are expected to mint/burn the same amount of underlying/shares specified
-        // Always a 1:1 ratio
-        return 10**TokenUtils.expectDecimals(underlyingToken);
+        return IStaticAToken(token).staticToDynamicAmount(10**tokenDecimals);
     }
 
     /// @inheritdoc ITokenAdapter
     function wrap(uint256 amount, address recipient) external lock onlyAlchemist override returns (uint256) {
         TokenUtils.safeTransferFrom(underlyingToken, msg.sender, address(this), amount);
-        TokenUtils.safeApprove(underlyingToken, pool, amount);
+        TokenUtils.safeApprove(underlyingToken, token, amount);
 
-        // Does not return 
-        IAaveV3Pool(pool).deposit(underlyingToken, amount, recipient, 0);
-
-        return amount;
+        // 0 - referral code (deprecated).
+        // true - "from underlying", we are depositing the underlying token, not the aToken.
+        return IStaticAToken(token).deposit(recipient, amount, 0, true);
     }
 
     /// @inheritdoc ITokenAdapter
     function unwrap(uint256 amount, address recipient) external lock onlyAlchemist override returns (uint256) {
         TokenUtils.safeTransferFrom(token, msg.sender, address(this), amount);
-        TokenUtils.safeApprove(token, pool, amount);
-        uint256 amountWithdrawn = IAaveV3Pool(pool).withdraw(underlyingToken, amount, recipient);
 
-        return amount;
+        (uint256 amountBurnt, uint256 amountWithdrawn) = IStaticAToken(token).withdraw(recipient, amount, true);
+        if (amountBurnt != amount) {
+           revert IllegalState("Amount burnt mismatch");
+        }
+        return amountWithdrawn;
     }
 } 

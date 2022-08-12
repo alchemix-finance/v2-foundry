@@ -10,9 +10,11 @@ import {
     InitializationParams as AdapterInitializationParams
 } from "../adapters/aaveV3/AaveV3Adapter.sol";
 
-import {IAaveV3Pool} from "../interfaces/external/aave/IAaveV3Pool.sol";
+import {StaticAToken} from "../external/aave/StaticAToken.sol";
+
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IAlchemistV2AdminActions} from "../interfaces/alchemist/IAlchemistV2AdminActions.sol";
+import {ILendingPool} from "../interfaces/external/aave/ILendingPool.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
 
 import {SafeERC20} from "../libraries/SafeERC20.sol";
@@ -20,28 +22,106 @@ import {TokenUtils} from "../libraries/TokenUtils.sol";
 import {console} from "../../lib/forge-std/src/console.sol";
 
 contract AaveV3TokenAdapterTest is DSTestPlus {
+    // These are for mainnet change once deployed on optimism
+    address constant alchemistAlUSD = 0x5C6374a2ac4EBC38DeA0Fc1F8716e5Ea1AdD94dd;
+    address constant alchemistAlETH = 0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c;
+    address constant alchemistAdmin = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
+    address constant alchemistAlUSDWhitelist = 0x78537a6CeBa16f412E123a90472C6E0e9A8F1132;
+    address constant alchemistAlETHWhitelist = 0xA3dfCcbad1333DC69997Da28C961FF8B2879e653;
     uint256 constant BPS = 10000;
     address constant dai = 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1; // Optimism DAI
     address constant daiPool = 0x794a61358D6845594F94dc1DB02A252b5b4814aD;
     address constant aOptDAI = 0x82E64f49Ed5EC1bC6e43DAD4FC8Af9bb3A2312EE;
     address constant aaveOracle = 0xD81eb3728a631871a7eBBaD631b5f424909f0c77;
-    IAaveV3Pool lendingPool = IAaveV3Pool(0x794a61358D6845594F94dc1DB02A252b5b4814aD);
     AaveV3Adapter adapter;
-    // address alchemistAlUSD = 0x5C6374a2ac4EBC38DeA0Fc1F8716e5Ea1AdD94dd;
-    // address alchemistAlETH = 0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c;
-    // address alchemistAdmin = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
-    // address alchemistAlUSDWhitelist = 0x78537a6CeBa16f412E123a90472C6E0e9A8F1132;
-    // address alchemistAlETHWhitelist = 0xA3dfCcbad1333DC69997Da28C961FF8B2879e653;
+    StaticAToken staticAToken;
+    ILendingPool lendingPool = ILendingPool(0x794a61358D6845594F94dc1DB02A252b5b4814aD);
 
     function setUp() external {
+        staticAToken = new StaticAToken(
+            lendingPool,
+            aOptDAI,
+            "staticAaveOptimismDai",
+            "aOptDai"
+        );
+
         adapter = new AaveV3Adapter(AdapterInitializationParams({
             alchemist:          address(this),
-            token:              aOptDAI,
-            underlyingToken:    dai,
-            pool:               daiPool,
-            oracle:             aaveOracle
+            token:              address(staticAToken),
+            underlyingToken:    dai
         }));
+        // hevm.startPrank(alchemistAdmin);
+        // IWhitelist(alchemistAlUSDWhitelist).add(address(this));
+        // IWhitelist(alchemistAlETHWhitelist).add(address(this));
+        // hevm.stopPrank();
+
+        // hevm.label(0x82E64f49Ed5EC1bC6e43DAD4FC8Af9bb3A2312EE, "aOptDAI");
+        // hevm.label(0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1, "DAI");
+        // hevm.label(0xBcca60bB61934080951369a648Fb03DF4F96263C, "aUSDC");
+        // hevm.label(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, "USDC");
+        // hevm.label(0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811, "aUSDT");
+        // hevm.label(0xdAC17F958D2ee523a2206206994597C13D831ec7, "USDT");
+        // hevm.label(0x030bA81f1c18d280636F32af80b9AAd02Cf0854e, "aWETH");
+        // hevm.label(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, "WETH");
     }
+
+    // function testTokenDai() external {
+    //     runTokenTest(alchemistAlUSD, 0x82E64f49Ed5EC1bC6e43DAD4FC8Af9bb3A2312EE, 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1, "Static Aave Optimism DAI", "saOptDAI", 1000 ether);
+    // }
+
+    // function testTokenUsdc() external {
+    //     runTokenTest(alchemistAlUSD, 0xBcca60bB61934080951369a648Fb03DF4F96263C, 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, "Static Aave USDC", "saUSDC", 1000000000);
+    // }
+
+    // function testTokenUsdt() external {
+    //     runTokenTest(alchemistAlUSD, 0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811, 0xdAC17F958D2ee523a2206206994597C13D831ec7, "Static Aave USDT", "saUSDT", 1000000000);
+    // }
+
+    // function testTokenWeth() external {
+    //     runTokenTest(alchemistAlETH, 0x030bA81f1c18d280636F32af80b9AAd02Cf0854e, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, "Static Aave WETH", "saWETH", 1000 ether);
+    // }
+
+    // function runTokenTest(address alchemist, address aToken, address underlyingToken, string memory name, string memory symbol, uint256 amount) internal {
+    //     StaticAToken newStaticAToken = new StaticAToken(
+    //         lendingPool,
+    //         aToken,
+    //         name,
+    //         symbol
+    //     );
+    //     AaveV3Adapter newAdapter = new AaveV3Adapter(AdapterInitializationParams({
+    //         alchemist:       alchemist,
+    //         token:           address(newStaticAToken),
+    //         underlyingToken: underlyingToken
+    //     }));
+    //     IAlchemistV2.YieldTokenConfig memory ytc = IAlchemistV2AdminActions.YieldTokenConfig({
+    //         adapter: address(newAdapter),
+    //         maximumLoss: 1,
+    //         maximumExpectedValue: 1000000 ether,
+    //         creditUnlockBlocks: 7200
+    //     });
+    //     hevm.startPrank(alchemistAdmin);
+    //     IAlchemistV2(alchemist).addYieldToken(address(newStaticAToken), ytc);
+    //     IAlchemistV2(alchemist).setYieldTokenEnabled(address(newStaticAToken), true);
+    //     hevm.stopPrank();
+
+    //     deal(underlyingToken, address(this), amount);
+    //     uint256 startPrice = IAlchemistV2(alchemist).getUnderlyingTokensPerShare(address(newStaticAToken));
+    //     TokenUtils.safeApprove(underlyingToken, alchemist, amount);
+    //     IAlchemistV2(alchemist).depositUnderlying(address(newStaticAToken), amount, address(this), 0);
+    //     (uint256 startShares, ) = IAlchemistV2(alchemist).positions(address(this), address(newStaticAToken));
+    //     uint256 expectedValue = startShares * startPrice / (10 ** newStaticAToken.decimals());
+    //     assertApproxEq(amount, expectedValue, 1000);
+
+    //     uint256 startBal = IERC20(underlyingToken).balanceOf(address(this));
+    //     assertEq(startBal, 0);
+
+    //     IAlchemistV2(alchemist).withdrawUnderlying(address(newStaticAToken), startShares, address(this), 0);
+    //     (uint256 endShares, ) = IAlchemistV2(alchemist).positions(address(this), address(newStaticAToken));
+    //     assertEq(endShares, 0);
+
+    //     uint256 endBal = IERC20(underlyingToken).balanceOf(address(this));
+    //     assertApproxEq(endBal, amount, 1);
+    // }
 
     function testRoundTrip() external {
         uint256 depositAmount = 1e18;
@@ -50,14 +130,16 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
 
         SafeERC20.safeApprove(dai, address(adapter), depositAmount);
         uint256 wrapped = adapter.wrap(depositAmount, address(this));
-        assertGe(depositAmount, wrapped);
+
+        uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(address(staticAToken));
+        assertGe(depositAmount, underlyingValue);
         
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
         
         assertEq(IERC20(dai).balanceOf(address(0xbeef)), unwrapped);
-        assertEq(IERC20(aOptDAI).balanceOf(address(this)), 0);
-        assertEq(IERC20(aOptDAI).balanceOf(address(adapter)), 0);
+        assertEq(staticAToken.balanceOf(address(this)), 0);
+        assertEq(staticAToken.balanceOf(address(adapter)), 0);
     }
 
     function testRoundTripFuzz(uint256 amount) external {
@@ -70,14 +152,16 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
 
         SafeERC20.safeApprove(dai, address(adapter), amount);
         uint256 wrapped = adapter.wrap(amount, address(this));
-        assertEq(amount, wrapped);
+
+        uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(address(staticAToken));
+        assertApproxEq(amount, underlyingValue, amount * 10000 / 1e18);
         
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
         
         assertApproxEq(IERC20(dai).balanceOf(address(0xbeef)), unwrapped, 10000);
-        assertEq(IERC20(aOptDAI).balanceOf(address(this)), 0);
-        assertEq(IERC20(aOptDAI).balanceOf(address(adapter)), 0);
+        assertEq(staticAToken.balanceOf(address(this)), 0);
+        assertEq(staticAToken.balanceOf(address(adapter)), 0);
     }
 
     function testAppreciation() external {
@@ -89,11 +173,8 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
         hevm.roll(block.number + 1000);
         hevm.warp(block.timestamp + 100000);
 
-        // type(uint256).max will cause aave to withdraw using all shares that have accumulated
-        // Not sure how to approve this so for now will just measure balance
-        uint256 accruedShares = IERC20(aOptDAI).balanceOf(address(this));
-        SafeERC20.safeApprove(adapter.token(), address(adapter), accruedShares);
-        uint256 unwrapped = adapter.unwrap(accruedShares, address(0xbeef));
+        SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
+        uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
         assertGt(unwrapped, 1e18);
     }
 }
