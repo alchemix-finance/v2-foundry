@@ -7,13 +7,18 @@ import "../../lib/openzeppelin-contracts/contracts/proxy/transparent/Transparent
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 
 import {
-    AaveV3Adapter,
+    AAVETokenAdapter,
     InitializationParams as AdapterInitializationParams
-} from "../adapters/aaveV3/AaveV3Adapter.sol";
+} from "../adapters/aave/AAVETokenAdapter.sol";
+
+import {
+    Sidecar,
+    InitializationParams as SidecarInitializationParams
+} from "../utils/Sidecar.sol";
 
 import {AlchemicTokenV2} from "../AlchemictokenV2.sol";
 import {AlchemistV2} from "../AlchemistV2.sol";
-import {StaticAToken} from "../external/aave/StaticAToken.sol";
+import {StaticATokenV3} from "../external/aave/StaticATokenV3.sol";
 import {TransmuterV2} from "../TransmuterV2.sol";
 import {TransmuterBuffer} from "../Transmuterbuffer.sol";
 import {Whitelist} from "../utils/Whitelist.sol";
@@ -21,6 +26,7 @@ import {Whitelist} from "../utils/Whitelist.sol";
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IAlchemistV2AdminActions} from "../interfaces/alchemist/IAlchemistV2AdminActions.sol";
 import {ILendingPool} from "../interfaces/external/aave/ILendingPool.sol";
+import {IRewardsController} from "../interfaces/external/aave/IRewardsController.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
 
 import {SafeERC20} from "../libraries/SafeERC20.sol";
@@ -31,10 +37,11 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
     // These are for mainnet change once deployed on optimism
     // address constant alchemistAlUSD = 0x5C6374a2ac4EBC38DeA0Fc1F8716e5Ea1AdD94dd;
     // address constant alchemistAlETH = 0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c;
-    // address constant alchemistAdmin = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
+    address constant alchemistAdmin = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
     // address constant alchemistAlUSDWhitelist = 0x78537a6CeBa16f412E123a90472C6E0e9A8F1132;
     // address constant alchemistAlETHWhitelist = 0xA3dfCcbad1333DC69997Da28C961FF8B2879e653;
     uint256 constant BPS = 10000;
+    address constant alUSD = 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A;
     address constant dai = 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1; // Optimism DAI
     address constant aOptDAI = 0x82E64f49Ed5EC1bC6e43DAD4FC8Af9bb3A2312EE;
     address constant usdc = 0x7F5c764cBc14f9669B88837ca1490cCa17c31607;
@@ -43,31 +50,22 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
     address constant aOptUSDT = 0x6ab707Aca953eDAeFBc4fD23bA73294241490620;
     address constant weth = 0x4200000000000000000000000000000000000006;
     address constant aOptWETH = 0xe50fA9b3c56FfB159cB0FCA61F5c9D750e8128c8;
+    address constant rewardsController = 0x929EC64c34a17401F460460D4B9390518E5B473e;
+    address constant rewardToken = 0x4200000000000000000000000000000000000042;
+    address constant velodromeRouter = 0x9c12939390052919aF3155f41Bf4160Fd3666A6f;
 
     AlchemistV2 alchemistUSD;
     AlchemistV2 alchemistETH;
     AlchemicTokenV2 alchemicToken;
-    AaveV3Adapter adapter;
-    StaticAToken staticAToken;
+    AAVETokenAdapter adapter;
+    StaticATokenV3 staticAToken;
+    Sidecar sidecar;
     TransmuterV2 transmuter;
     TransmuterBuffer buffer;
     ILendingPool lendingPool = ILendingPool(0x794a61358D6845594F94dc1DB02A252b5b4814aD);
     Whitelist whitelist;
 
     function setUp() external {
-        staticAToken = new StaticAToken(
-            lendingPool,
-            aOptDAI,
-            "staticAaveOptimismDai",
-            "aOptDai"
-        );
-
-        adapter = new AaveV3Adapter(AdapterInitializationParams({
-            alchemist:          address(this),
-            token:              address(staticAToken),
-            underlyingToken:    dai
-        }));
-
         whitelist = new Whitelist();
         alchemicToken = new AlchemicTokenV2("Test", "tst", 18);
         buffer = new TransmuterBuffer();
@@ -95,7 +93,34 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
 		alchemistETH = AlchemistV2(address(proxyAlchemistETH));
         whitelist.add(address(this));
 
-        IAlchemistV2AdminActions.UnderlyingTokenConfig memory config = IAlchemistV2AdminActions.UnderlyingTokenConfig({
+        SidecarInitializationParams memory sidecarParams = SidecarInitializationParams({
+            alchemist:          address(alchemistUSD),
+            debtToken:          alUSD,
+            rewardsController:  rewardsController,
+            rewardToken:        rewardToken,
+            swapRouter:         velodromeRouter
+        });
+
+        sidecar = new Sidecar(sidecarParams);
+
+        whitelist.add(address(sidecar));
+
+        staticAToken = new StaticATokenV3(
+            lendingPool,
+            IRewardsController(rewardsController),
+            aOptDAI,
+            address(sidecar),
+            "staticAaveOptimismDai",
+            "aOptDai"
+        );
+
+        adapter = new AAVETokenAdapter(AdapterInitializationParams({
+            alchemist:          address(this),
+            token:              address(staticAToken),
+            underlyingToken:    dai
+        }));
+
+        IAlchemistV2AdminActions.UnderlyingTokenConfig memory underlyingConfig = IAlchemistV2AdminActions.UnderlyingTokenConfig({
 			repayLimitMinimum: 1,
 			repayLimitMaximum: 1000,
 			repayLimitBlocks: 10,
@@ -104,13 +129,13 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
 			liquidationLimitBlocks: 7200
 		});
 
-		alchemistUSD.addUnderlyingToken(dai, config);
+		alchemistUSD.addUnderlyingToken(dai, underlyingConfig);
         alchemistUSD.setUnderlyingTokenEnabled(dai, true);
-        alchemistUSD.addUnderlyingToken(usdc, config);
+        alchemistUSD.addUnderlyingToken(usdc, underlyingConfig);
         alchemistUSD.setUnderlyingTokenEnabled(usdc, true);
-		alchemistUSD.addUnderlyingToken(usdt, config);
+		alchemistUSD.addUnderlyingToken(usdt, underlyingConfig);
         alchemistUSD.setUnderlyingTokenEnabled(usdt, true);
-        alchemistETH.addUnderlyingToken(weth, config);
+        alchemistETH.addUnderlyingToken(weth, underlyingConfig);
         alchemistETH.setUnderlyingTokenEnabled(weth, true);
 
         hevm.label(0x82E64f49Ed5EC1bC6e43DAD4FC8Af9bb3A2312EE, "aOptDAI");
@@ -140,16 +165,18 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
     }
 
     function runTokenTest(AlchemistV2 alchemist, address aToken, address underlyingToken, string memory name, string memory symbol, uint256 amount) internal {
-        StaticAToken newStaticAToken = new StaticAToken(
+        StaticATokenV3 newStaticAToken = new StaticATokenV3(
             lendingPool,
+            IRewardsController(rewardsController),
             aToken,
+            address(sidecar),
             name,
             symbol
         );
-        AaveV3Adapter newAdapter = new AaveV3Adapter(AdapterInitializationParams({
-            alchemist:       address(alchemist),
-            token:           address(newStaticAToken),
-            underlyingToken: underlyingToken
+        AAVETokenAdapter newAdapter = new AAVETokenAdapter(AdapterInitializationParams({
+            alchemist:          address(alchemist),
+            token:              address(newStaticAToken),
+            underlyingToken:    underlyingToken
         }));
         IAlchemistV2.YieldTokenConfig memory ytc = IAlchemistV2AdminActions.YieldTokenConfig({
             adapter: address(newAdapter),
@@ -222,16 +249,52 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
     }
 
     function testAppreciation() external {
-        deal(dai, address(this), 1e18);
+        deal(dai, address(this), 1000e18);
 
-        SafeERC20.safeApprove(dai, address(adapter), 1e18);
-        uint256 wrapped = adapter.wrap(1e18, address(this));
+        SafeERC20.safeApprove(dai, address(adapter), 1000e18);
+        uint256 wrapped = adapter.wrap(1000e18, address(this));
         
-        hevm.roll(block.number + 1000);
-        hevm.warp(block.timestamp + 100000);
+        hevm.roll(block.number + 10000000000);
+        hevm.warp(block.timestamp + 1000000000);
 
+        address[] memory assets = new address[](1);
+        assets[0] = aOptDAI;
+
+        assertGt(IRewardsController(rewardsController).getUserRewards(assets, address(staticAToken), rewardToken), 0);
+        
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
-        assertGt(unwrapped, 1e18);
+        assertGt(unwrapped, 1000e18);
+    }
+
+    function testSidecar() external {
+        AAVETokenAdapter sidecarAdapter = new AAVETokenAdapter(AdapterInitializationParams({
+            alchemist:          address(alchemistUSD),
+            token:              address(staticAToken),
+            underlyingToken:    dai
+        }));
+
+        IAlchemistV2AdminActions.YieldTokenConfig memory yieldConfig = IAlchemistV2AdminActions.YieldTokenConfig({
+            adapter: address(sidecarAdapter),
+            maximumLoss: 1,
+            maximumExpectedValue: 1000000000 ether,
+            creditUnlockBlocks: 7200
+		});
+
+        alchemistUSD.addYieldToken(address(staticAToken), yieldConfig);
+        alchemistUSD.setYieldTokenEnabled(address(staticAToken), true);
+        deal(dai, address(this), 1000000e18);
+
+        SafeERC20.safeApprove(dai, address(alchemistUSD), 1000000e18);
+        alchemistUSD.depositUnderlying(address(staticAToken), 1000000e18, address(this), 0);
+        
+        hevm.roll(block.number + 10000000);
+        hevm.warp(block.timestamp + 10000000);
+
+        address[] memory assets = new address[](1);
+        assets[0] = address(staticAToken);
+        sidecar.claimAndDistributeRewards(assets);
+
+        assertGt(IERC20(rewardToken).balanceOf(address(sidecar)), 0);
     }
 }

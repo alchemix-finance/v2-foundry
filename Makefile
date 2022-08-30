@@ -47,7 +47,7 @@ test_file_debug :; FOUNDRY_PROFILE=$(PROFILE) forge test $(FORK_URL) $(MATCH_PAT
 test_file_block :; FOUNDRY_PROFILE=$(PROFILE) forge test $(FORK_URL) $(MATCH_PATH) $(FORK_BLOCK)
 
 # runs specific test file from a given block (setting block is optional): "make test_file_block_optimism FILE=RETHAdapterV1"
-test_file_block_optimism :; FOUNDRY_PROFILE=$(PROFILE) forge test $(FORK_URL_OPTIMISM) $(MATCH_PATH) $(FORK_BLOCK)
+test_file_block_optimism :; FOUNDRY_PROFILE=$(PROFILE) forge test $(FORK_URL_OPTIMISM) $(MATCH_PATH) $(FORK_BLOCK) -vvv
 
 # runs specific test file with added verbosity for failing tests from a given block: "make test_file_block_debug FILE=RETHAdapterV1"
 test_file_block_debug :; FOUNDRY_PROFILE=$(PROFILE) forge test $(FORK_URL) $(MATCH_PATH) $(FORK_BLOCK) -vvv

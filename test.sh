@@ -13,4 +13,4 @@ make test_file_block FILE=WstETHAdapterV1;
 # make test_file_block FILE=InvariantsTests;
 make test_file_block FILE=AAVETokenAdapter;
 make test_file_block FILE=ATokenGateway;
-make test_file_block_optimism FILE=AaveV3TokenAdapter;
+make test_file_block_optimism FILE=AaveV3TokenAdapter BLOCK=19739153;
