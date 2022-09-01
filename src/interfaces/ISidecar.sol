@@ -16,5 +16,6 @@ interface ISidecar {
     /// @return The reward token.
     function swapRouter() external view returns (address);
 
-    function claimAndDistributeRewards(address[] calldata tokens) external returns (uint256);
+    /// @notice Claims rewards tokens, swaps on velodrome for alUSD
+    function claimAndDistributeRewards(address[] calldata tokens, uint256 expectedPriceOP) external returns (uint256);
 }

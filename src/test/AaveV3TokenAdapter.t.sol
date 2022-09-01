@@ -24,6 +24,7 @@ import {TransmuterBuffer} from "../Transmuterbuffer.sol";
 import {Whitelist} from "../utils/Whitelist.sol";
 
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
+import {IAlchemicToken} from "../interfaces/IAlchemicToken.sol";
 import {IAlchemistV2AdminActions} from "../interfaces/alchemist/IAlchemistV2AdminActions.sol";
 import {ILendingPool} from "../interfaces/external/aave/ILendingPool.sol";
 import {IRewardsController} from "../interfaces/external/aave/IRewardsController.sol";
@@ -37,7 +38,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
     // These are for mainnet change once deployed on optimism
     // address constant alchemistAlUSD = 0x5C6374a2ac4EBC38DeA0Fc1F8716e5Ea1AdD94dd;
     // address constant alchemistAlETH = 0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c;
-    address constant alchemistAdmin = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
+    address constant alchemistAdmin = 0xC224bf25Dcc99236F00843c7D8C4194abE8AA94a;
     // address constant alchemistAlUSDWhitelist = 0x78537a6CeBa16f412E123a90472C6E0e9A8F1132;
     // address constant alchemistAlETHWhitelist = 0xA3dfCcbad1333DC69997Da28C961FF8B2879e653;
     uint256 constant BPS = 10000;
@@ -56,7 +57,6 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
 
     AlchemistV2 alchemistUSD;
     AlchemistV2 alchemistETH;
-    AlchemicTokenV2 alchemicToken;
     AAVETokenAdapter adapter;
     StaticATokenV3 staticAToken;
     Sidecar sidecar;
@@ -67,13 +67,13 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
 
     function setUp() external {
         whitelist = new Whitelist();
-        alchemicToken = new AlchemicTokenV2("Test", "tst", 18);
+        //IAlchemicToken alchemicToken = IAlchemicToken(alUSD);
         buffer = new TransmuterBuffer();
         transmuter = new TransmuterV2();
         
 		IAlchemistV2AdminActions.InitializationParams memory params = IAlchemistV2AdminActions.InitializationParams({
 			admin: address(this),
-			debtToken: address(alchemicToken),
+			debtToken: alUSD,
 			transmuter: address(buffer),
 			minimumCollateralization: 2 * 1e18,
 			protocolFee: 1000,
@@ -91,7 +91,6 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
 		alchemistUSD = AlchemistV2(address(proxyAlchemistUSD));
         TransparentUpgradeableProxy proxyAlchemistETH = new TransparentUpgradeableProxy(address(alch), alchemistAdmin, alchemParams);
 		alchemistETH = AlchemistV2(address(proxyAlchemistETH));
-        whitelist.add(address(this));
 
         SidecarInitializationParams memory sidecarParams = SidecarInitializationParams({
             alchemist:          address(alchemistUSD),
@@ -103,7 +102,16 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
 
         sidecar = new Sidecar(sidecarParams);
 
+        whitelist.add(address(this));
         whitelist.add(address(sidecar));
+        hevm.startPrank(alchemistAdmin);
+        IAlchemicToken(alUSD).setWhitelist(address(this), true);
+        IAlchemicToken(alUSD).setWhitelist(address(sidecar), true);
+        IAlchemicToken(alUSD).setWhitelist(address(alchemistUSD), true);
+        hevm.stopPrank();
+
+        hevm.prank(address(sidecar));
+        TokenUtils.safeApprove(rewardToken, velodromeRouter, 2**256 - 1);
 
         staticAToken = new StaticATokenV3(
             lendingPool,
@@ -287,14 +295,20 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
 
         SafeERC20.safeApprove(dai, address(alchemistUSD), 1000000e18);
         alchemistUSD.depositUnderlying(address(staticAToken), 1000000e18, address(this), 0);
-        
+
+        alchemistUSD.mint(400000e18, address(this));
+
         hevm.roll(block.number + 10000000);
         hevm.warp(block.timestamp + 10000000);
 
+        (uint256 debtBefore, ) = alchemistUSD.positions(address((this)), address(staticAToken));
+
         address[] memory assets = new address[](1);
         assets[0] = address(staticAToken);
-        sidecar.claimAndDistributeRewards(assets);
+        sidecar.claimAndDistributeRewards(assets, 0);
 
-        assertGt(IERC20(rewardToken).balanceOf(address(sidecar)), 0);
+        (uint256 debtAfter, ) = alchemistUSD.positions(address((this)), address(staticAToken));
+
+        assertGt(debtBefore, debtAfter);
     }
 }
