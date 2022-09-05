@@ -134,33 +134,47 @@ contract MigrationToolTestUSD is DSTestPlus {
     }
 
     function testMigrateMaxDAI() external {
-        migrationDifferentVaultMaximumShares(1000e18, yvDAI, DAI, address(staticATokenDAI), 18);
+        migrationDifferentVaultMaximumShares(1000e18, yvDAI, DAI, address(staticATokenDAI), 18, BPS);
     }
 
     function testMigratePartialDAI() external {
-        migrationDifferentVaultPartialShares(1000e18, yvDAI, DAI, address(staticATokenDAI), 18);
+        migrationDifferentVaultPartialShares(1000e18, yvDAI, DAI, address(staticATokenDAI), 18, BPS);
+    }
+
+    function testMigrateDaiPartialDebt() external {
+        migrationDifferentVaultMaximumShares(1000e18, yvDAI, DAI, address(staticATokenDAI), 18, 10);
     }
 
     function testMigrateMaxUSDT() external {
-        migrationDifferentVaultMaximumShares(1000e6, yvUSDT, USDT, address(staticATokenUSDT), 6);
+        migrationDifferentVaultMaximumShares(1000e6, yvUSDT, USDT, address(staticATokenUSDT), 6, BPS);
     }
 
     function testMigratePartialUSDT() external {
-        migrationDifferentVaultPartialShares(1000e6, yvUSDT, USDT, address(staticATokenUSDT), 6);
+        migrationDifferentVaultPartialShares(1000e6, yvUSDT, USDT, address(staticATokenUSDT), 6, BPS);
+    }
+
+    function testMigrateUSDTParitalDebt() external {
+        migrationDifferentVaultPartialShares(1000e6, yvUSDT, USDT, address(staticATokenUSDT), 6, 100);
     }
 
     function testMigrateMaxUSDC() external {
-        migrationDifferentVaultMaximumShares(1000e6, yvUSDC, USDC, address(staticATokenUSDC), 6);
+        migrationDifferentVaultMaximumShares(1000e6, yvUSDC, USDC, address(staticATokenUSDC), 6, BPS);
     }
 
     function testMigratePartialUSDC() external {
-        migrationDifferentVaultPartialShares(1000e6, yvUSDC, USDC, address(staticATokenUSDC), 6);
+        migrationDifferentVaultPartialShares(1000e6, yvUSDC, USDC, address(staticATokenUSDC), 6, BPS);
     }
 
-    function testMigrationFuzz(uint256 p1, uint256 p2, uint256 p3) external {
+    function testMigrateUSDCPartialDebt() external {
+        migrationDifferentVaultPartialShares(1000e6, yvUSDC, USDC, address(staticATokenUSDC), 6, 420);
+    }
+
+    function testMigrationFuzz(uint256 p1, uint256 p2, uint256 p3, uint256 debtBps) external {
         hevm.assume(p1 >= 1e18);
         hevm.assume(p2 >= 1e6);
         hevm.assume(p3 >= 1e6);
+        hevm.assume(debtBps > 0);
+        hevm.assume(debtBps <= BPS);
 
         // Pre deposit a random position
         while (p1 > 2000000e18) {
@@ -172,7 +186,7 @@ contract MigrationToolTestUSD is DSTestPlus {
         AlchemistUSD.depositUnderlying(yvDAI, p1, address(this), 0);
         (uint256 shares, ) = AlchemistUSD.positions(address(this), yvDAI);
         uint256 underlyingValue = shares * AlchemistUSD.getUnderlyingTokensPerShare(yvDAI)  / 10**18;
-        AlchemistUSD.mint(underlyingValue/2, address(this));
+        AlchemistUSD.mint(underlyingValue/2 * debtBps / BPS, address(this));
 
         // Pre deposit a random position
         while (p2 > 2000000e6) {
@@ -185,14 +199,14 @@ contract MigrationToolTestUSD is DSTestPlus {
         (shares, ) = AlchemistUSD.positions(address(this), yvUSDC);
         underlyingValue = shares * AlchemistUSD.getUnderlyingTokensPerShare(yvUSDC)  / 10**6;
         uint256 debtValue = underlyingValue * 10**(18 - 6);
-        AlchemistUSD.mint(debtValue/2, address(this));
+        AlchemistUSD.mint(debtValue/2 * debtBps / BPS, address(this));
 
         // Migrate random amount
         while (p3 > 2000000e6) {
             p3 = p3 / 2;
         }
 
-        migrationDifferentVaultMaximumShares(p3, yvUSDT, USDT, address(staticATokenUSDT), 6);
+        migrationDifferentVaultMaximumShares(p3, yvUSDT, USDT, address(staticATokenUSDT), 6, debtBps);
     }
 
     function testZap() external {
@@ -218,20 +232,14 @@ contract MigrationToolTestUSD is DSTestPlus {
         uint256 newUnderlyingValue = newShares * AlchemistUSD.getUnderlyingTokensPerShare(address(staticATokenDAI)) / 10**18;
         assertGt(newUnderlyingValue, underlyingValue * 9999 / BPS);
 
-        // Verify debts are the same
-        (int256 secondPositionDebt, ) = AlchemistUSD.accounts(address(this));
-        assertEq(secondPositionDebt, firstPositionDebt);
-
-        // Verify new position
-        (uint256 sharesConfirmed, ) = AlchemistUSD.positions(address(this), address(staticATokenDAI));
-        assertEq(newShares, sharesConfirmed);
+        verifyCdp(firstPositionDebt, newShares, shares, address(staticATokenDAI));
 
         // Verify old position is gone
-        (sharesConfirmed, ) = AlchemistUSD.positions(address(this), yvDAI);
+        (uint256 sharesConfirmed, ) = AlchemistUSD.positions(address(this), yvDAI);
         assertEq(0, sharesConfirmed);
     }
 
-    function migrationDifferentVaultMaximumShares(uint256 amount, address yearnToken, address underlying, address staticToken, uint256 decimals) public {
+    function migrationDifferentVaultMaximumShares(uint256 amount, address yearnToken, address underlying, address staticToken, uint256 decimals, uint256 debtBps) public {
         tip(underlying, address(this), amount);
 
         // Create new position
@@ -242,7 +250,7 @@ contract MigrationToolTestUSD is DSTestPlus {
         // Debt conversion in this case only divides by 1 so I left it out.
         uint256 underlyingValue = shares * AlchemistUSD.getUnderlyingTokensPerShare(yearnToken)  / 10**decimals;
         uint256 debtValue = underlyingValue * 10**(18 - decimals);
-        AlchemistUSD.mint(debtValue/2, address(this));
+        AlchemistUSD.mint(debtValue/2 * debtBps / BPS, address(this));
         
         // Debt after original mint
         (int256 firstPositionDebt, ) = AlchemistUSD.accounts(address(this));
@@ -256,20 +264,14 @@ contract MigrationToolTestUSD is DSTestPlus {
         uint256 newUnderlyingValue = newShares * AlchemistUSD.getUnderlyingTokensPerShare(staticToken) / 10**decimals;
         assertGt(newUnderlyingValue, underlyingValue * 9999 / BPS);
 
-        // Verify debts are the same
-        (int256 secondPositionDebt, ) = AlchemistUSD.accounts(address(this));
-        assertEq(secondPositionDebt, firstPositionDebt);
-
-        // Verify new position
-        (uint256 sharesConfirmed, ) = AlchemistUSD.positions(address(this), staticToken);
-        assertEq(newShares, sharesConfirmed);
+        verifyCdp(firstPositionDebt, newShares, shares, staticToken);
 
         // Verify old position is gone
-        (sharesConfirmed, ) = AlchemistUSD.positions(address(this), yearnToken);
+        (uint256 sharesConfirmed, ) = AlchemistUSD.positions(address(this), yearnToken);
         assertEq(0, sharesConfirmed);
     }
 
-    function migrationDifferentVaultPartialShares(uint256 amount, address yearnToken, address underlying, address staticToken, uint256 decimals) public {
+    function migrationDifferentVaultPartialShares(uint256 amount, address yearnToken, address underlying, address staticToken, uint256 decimals, uint256 debtBps) public {
         tip(underlying, address(this), amount);
         
         // Create new position
@@ -280,7 +282,7 @@ contract MigrationToolTestUSD is DSTestPlus {
         // Debt conversion in this case only divides by 1 so I left it out.
         uint256 underlyingValue = shares * AlchemistUSD.getUnderlyingTokensPerShare(yearnToken)  / 10**decimals;
         uint256 debtValue = underlyingValue * 10**(18 - decimals);
-        AlchemistUSD.mint(debtValue/2, address(this));
+        AlchemistUSD.mint(debtValue/2 * debtBps / BPS, address(this));
 
         // Debt after original mint
         (int256 firstPositionDebt, ) = AlchemistUSD.accounts(address(this));
@@ -295,16 +297,10 @@ contract MigrationToolTestUSD is DSTestPlus {
         uint256 newUnderlyingValue = (newShares + oldShares) * AlchemistUSD.getUnderlyingTokensPerShare(staticToken) / 10**decimals;
         assertGt(newUnderlyingValue, underlyingValue * 9999 / BPS);
 
-        // Verify debts are the same
-        (int256 secondPositionDebt, ) = AlchemistUSD.accounts(address(this));
-        assertEq(secondPositionDebt, firstPositionDebt);
-
-        // Verify new position
-        (uint256 sharesConfirmed, ) = AlchemistUSD.positions(address(this), staticToken);
-        assertEq(newShares, sharesConfirmed);
+        verifyCdp(firstPositionDebt, newShares, shares, staticToken);
 
         // Verify old position
-        (sharesConfirmed, ) = AlchemistUSD.positions(address(this), yearnToken);
+        (uint256 sharesConfirmed, ) = AlchemistUSD.positions(address(this), yearnToken);
         assertApproxEq(shares / 2, sharesConfirmed, 1);
     }
 
@@ -326,6 +322,16 @@ contract MigrationToolTestUSD is DSTestPlus {
         IAlchemistV2(alchemist).addYieldToken(aToken, ytc);
         IAlchemistV2(alchemist).setYieldTokenEnabled(aToken, true);
         hevm.stopPrank();
+    }
+
+    function verifyCdp(int256 firstPositionDebt, uint256 newShares, uint256 shares, address staticToken) internal {
+        // Verify debts are the same
+        (int256 secondPositionDebt, ) = AlchemistUSD.accounts(address(this));
+        assertEq(secondPositionDebt, firstPositionDebt);
+
+        // Verify new position
+        (uint256 sharesConfirmed, ) = AlchemistUSD.positions(address(this), staticToken);
+        assertEq(newShares, sharesConfirmed);
     }
 
 }
