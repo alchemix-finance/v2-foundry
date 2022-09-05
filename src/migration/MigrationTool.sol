@@ -19,6 +19,7 @@ import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IAlchemistV2State} from "../interfaces/alchemist/IAlchemistV2State.sol";
 import {IMigrationTool} from "../interfaces/IMigrationTool.sol";
 import {IWETH9} from "../interfaces/external/IWETH9.sol";
+import {SafeCast} from "../libraries/SafeCast.sol";
 
 struct InitializationParams {
     address alchemist;
@@ -101,9 +102,10 @@ contract MigrationTool is IMigrationTool, Multicall {
         uint256 newPositionShares = alchemist.depositUnderlying(targetYieldToken, underlyingWithdrawn, msg.sender, minReturnShares);
 
         if (debt > 0) {
+            (int256 latestDebt, ) = alchemist.accounts(msg.sender);
             // Mint al token which will be burned to fulfill flash loan requirements
-            alchemist.mintFrom(msg.sender, mintable, address(this));
-            alchemicToken.burn(mintable);
+            alchemist.mintFrom(msg.sender, SafeCast.toUint256(debt - latestDebt), address(this));
+            alchemicToken.burn(alchemicToken.balanceOf(address(this)));
         }
 
 	    return newPositionShares;
