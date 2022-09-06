@@ -636,7 +636,7 @@ describe("TransmuterV2", () => {
     });
   });
 
-  describe("claim", () => {
+  describe.only("claim", () => {
     context("after under fulfilling a deposit", () => {
       describe("18 decimals", () => {
         const depositAmount = parseEther("500");
@@ -819,6 +819,22 @@ describe("TransmuterV2", () => {
       await expect(
         transmuter.connect(caller).claim(depositAmount, caller.address)
       ).emit(transmuter, "Claim");
+    });
+
+    it("claims to the recipient", async () => {
+      const recipient = "0xdead000000000000000000000000000000000000"
+      const depositAmount = parseEther("500");
+      const exchangeAmount = parseEther("1000");
+
+      await transmuter.connect(caller).deposit(depositAmount, caller.address);
+      await transmuterBuffer
+        .connect(deployer)
+        .exchange(underlyingToken.address, exchangeAmount);
+
+      await transmuter.connect(caller).claim(depositAmount, recipient);
+
+      const deployerBal = await underlyingToken.balanceOf(recipient);
+      expect(deployerBal).equal(depositAmount);
     });
   });
 
