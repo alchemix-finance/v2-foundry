@@ -19,11 +19,11 @@ import {
     InitializationParams as SidecarInitializationParams
 } from "../utils/Sidecar.sol";
 
-import {AlchemicTokenV2} from "../AlchemictokenV2.sol";
+import {AlchemicTokenV2} from "../AlchemicTokenV2.sol";
 import {AlchemistV2} from "../AlchemistV2.sol";
 import {StaticATokenV3} from "../external/aave/StaticATokenV3.sol";
 import {TransmuterV2} from "../TransmuterV2.sol";
-import {TransmuterBuffer} from "../Transmuterbuffer.sol";
+import {TransmuterBuffer} from "../TransmuterBuffer.sol";
 import {Whitelist} from "../utils/Whitelist.sol";
 
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
