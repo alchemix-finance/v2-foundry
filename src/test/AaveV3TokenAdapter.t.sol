@@ -6,6 +6,9 @@ import "../../lib/openzeppelin-contracts/contracts/proxy/transparent/Transparent
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 
+import {AlchemixHarvesterOptimism} from "../keepers/AlchemixHarvesterOptimism.sol";
+import {HarvestResolverOptimism} from "../keepers/HarvestResolverOptimism.sol";
+
 import {
     AAVETokenAdapter,
     InitializationParams as AdapterInitializationParams
@@ -26,6 +29,7 @@ import {Whitelist} from "../utils/Whitelist.sol";
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IAlchemicToken} from "../interfaces/IAlchemicToken.sol";
 import {IAlchemistV2AdminActions} from "../interfaces/alchemist/IAlchemistV2AdminActions.sol";
+import "../interfaces/IERC20TokenReceiver.sol";
 import {ILendingPool} from "../interfaces/external/aave/ILendingPool.sol";
 import {IRewardsController} from "../interfaces/external/aave/IRewardsController.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
@@ -34,7 +38,7 @@ import {SafeERC20} from "../libraries/SafeERC20.sol";
 import {TokenUtils} from "../libraries/TokenUtils.sol";
 import {console} from "../../lib/forge-std/src/console.sol";
 
-contract AaveV3TokenAdapterTest is DSTestPlus {
+contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
     // These are for mainnet change once deployed on optimism
     // address constant alchemistAlUSD = 0x5C6374a2ac4EBC38DeA0Fc1F8716e5Ea1AdD94dd;
     // address constant alchemistAlETH = 0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c;
@@ -57,7 +61,9 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
 
     AlchemistV2 alchemistUSD;
     AlchemistV2 alchemistETH;
+    AlchemixHarvesterOptimism harvester;
     AAVETokenAdapter adapter;
+    HarvestResolverOptimism harvestResolver;
     StaticATokenV3 staticAToken;
     Sidecar sidecar;
     TransmuterV2 transmuter;
@@ -67,17 +73,21 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
 
     function setUp() external {
         whitelist = new Whitelist();
-        //IAlchemicToken alchemicToken = IAlchemicToken(alUSD);
-        buffer = new TransmuterBuffer();
+
+        // Set up buffer and transmuter
+        TransmuterBuffer transmuterBuffer = new TransmuterBuffer();
+        bytes memory bufferParams = abi.encodeWithSelector(TransmuterBuffer.initialize.selector, address(this), alUSD);
+		TransparentUpgradeableProxy proxyBuffer = new TransparentUpgradeableProxy(address(transmuterBuffer), alchemistAdmin, bufferParams);
+		buffer = TransmuterBuffer(address(proxyBuffer));
         transmuter = new TransmuterV2();
         
 		IAlchemistV2AdminActions.InitializationParams memory params = IAlchemistV2AdminActions.InitializationParams({
 			admin: address(this),
 			debtToken: alUSD,
-			transmuter: address(buffer),
+			transmuter: address(this),
 			minimumCollateralization: 2 * 1e18,
 			protocolFee: 1000,
-			protocolFeeReceiver: address(10),
+			protocolFeeReceiver: address(this),
 			mintingLimitMinimum: 1,
 			mintingLimitMaximum: uint256(type(uint160).max),
 			mintingLimitBlocks: 300,
@@ -110,8 +120,10 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
         IAlchemicToken(alUSD).setWhitelist(address(alchemistUSD), true);
         hevm.stopPrank();
 
-        hevm.prank(address(sidecar));
+        hevm.startPrank(address(sidecar));
         TokenUtils.safeApprove(rewardToken, velodromeRouter, 2**256 - 1);
+        TokenUtils.safeApprove(alUSD, address(alchemistUSD), 2**256 - 1);
+        hevm.stopPrank();
 
         staticAToken = new StaticATokenV3(
             lendingPool,
@@ -121,6 +133,10 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
             "staticAaveOptimismDai",
             "aOptDai"
         );
+
+        address[] memory assets = new address[](1);
+        assets[0] = address(staticAToken);
+        sidecar.setYieldTokens(assets);
 
         adapter = new AAVETokenAdapter(AdapterInitializationParams({
             alchemist:          address(this),
@@ -291,8 +307,8 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
 
         alchemistUSD.addYieldToken(address(staticAToken), yieldConfig);
         alchemistUSD.setYieldTokenEnabled(address(staticAToken), true);
-        deal(dai, address(this), 1000000e18);
 
+        deal(dai, address(this), 1000000e18);
         SafeERC20.safeApprove(dai, address(alchemistUSD), 1000000e18);
         alchemistUSD.depositUnderlying(address(staticAToken), 1000000e18, address(this), 0);
 
@@ -301,14 +317,90 @@ contract AaveV3TokenAdapterTest is DSTestPlus {
         hevm.roll(block.number + 10000000);
         hevm.warp(block.timestamp + 10000000);
 
-        (uint256 debtBefore, ) = alchemistUSD.positions(address((this)), address(staticAToken));
-
+        // Keeper check balance of token
+        uint256 rewards = IRewardsController(rewardsController).getUserAccruedRewards(address(staticAToken), rewardToken);
+        (int256 debtBefore, ) = alchemistUSD.accounts(address((this)));
         address[] memory assets = new address[](1);
         assets[0] = address(staticAToken);
-        sidecar.claimAndDistributeRewards(assets, 0);
-
-        (uint256 debtAfter, ) = alchemistUSD.positions(address((this)), address(staticAToken));
+        sidecar.claimAndDistributeRewards(assets, rewards * 9999 / 10000);
+        (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
 
         assertGt(debtBefore, debtAfter);
+    }
+
+    function testSidecarWithHarvester() external {
+        AAVETokenAdapter sidecarAdapter = new AAVETokenAdapter(AdapterInitializationParams({
+            alchemist:          address(alchemistUSD),
+            token:              address(staticAToken),
+            underlyingToken:    dai
+        }));
+
+        IAlchemistV2AdminActions.YieldTokenConfig memory yieldConfig = IAlchemistV2AdminActions.YieldTokenConfig({
+            adapter: address(sidecarAdapter),
+            maximumLoss: 1,
+            maximumExpectedValue: 1000000000 ether,
+            creditUnlockBlocks: 7200
+		});
+
+        alchemistUSD.addYieldToken(address(staticAToken), yieldConfig);
+        alchemistUSD.setYieldTokenEnabled(address(staticAToken), true);
+
+        buffer.setSource(address(alchemistUSD), true);
+
+        // Keepers
+        harvestResolver = new HarvestResolverOptimism();
+        harvester = new AlchemixHarvesterOptimism(address(this), 100000, address(harvestResolver), address(sidecar));
+        harvestResolver.setHarvester(address(harvester), true);
+        harvestResolver.addHarvestJob(true, address(alchemistUSD), address(sidecar), address(staticAToken), aOptDAI, 1000, 0, 0);
+        alchemistUSD.setKeeper(address(harvester), true);
+
+        deal(dai, address(this), 1000000e18);
+        SafeERC20.safeApprove(dai, address(alchemistUSD), 1000000e18);
+        alchemistUSD.depositUnderlying(address(staticAToken), 1000000e18, address(this), 0);
+
+        alchemistUSD.mint(400000e18, address(this));
+
+        hevm.roll(block.number + 10000000);
+        hevm.warp(block.timestamp + 10000000);
+
+        // Keeper check balance of token
+        (bool canExec, bytes memory execPayload) = harvestResolver.checker();
+
+        (address alch, address yield, uint256 minOut, uint256 expectedExchange) = abi.decode(extractCalldata(execPayload), (address, address, uint256, uint256));
+
+        (int256 debtBefore, ) = alchemistUSD.accounts(address((this)));
+        harvester.harvest(address(alchemistUSD), address(staticAToken), 0, expectedExchange);
+        (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
+
+        assertGt(debtBefore, debtAfter);
+    }
+
+    // For decoding bytes that have selector header
+    function extractCalldata(bytes memory calldataWithSelector) internal pure returns (bytes memory) {
+        bytes memory calldataWithoutSelector;
+
+        require(calldataWithSelector.length >= 4);
+
+        assembly {
+            let totalLength := mload(calldataWithSelector)
+            let targetLength := sub(totalLength, 4)
+            calldataWithoutSelector := mload(0x40)
+            
+            mstore(calldataWithoutSelector, targetLength)
+
+            mstore(0x40, add(0x20, targetLength))
+
+            mstore(add(calldataWithoutSelector, 0x20), shl(0x20, mload(add(calldataWithSelector, 0x20))))
+
+            for { let i := 0x1C } lt(i, targetLength) { i := add(i, 0x20) } {
+                mstore(add(add(calldataWithoutSelector, 0x20), i), mload(add(add(calldataWithSelector, 0x20), add(i, 0x04))))
+            }
+        }
+
+        return calldataWithoutSelector;
+    }
+
+    function onERC20Received(address token, uint256 value) external {
+        return;
     }
 }

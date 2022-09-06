@@ -12,8 +12,6 @@ import "../interfaces/ISidecar.sol";
 import "../libraries/Sets.sol";
 import "../libraries/TokenUtils.sol";
 
-import {console} from "../../lib/forge-std/src/console.sol";
-
 struct InitializationParams {
     address alchemist;
     address debtToken;
@@ -25,12 +23,14 @@ struct InitializationParams {
 /// @title  Sidecar
 /// @author Alchemix Finance
 contract Sidecar is ISidecar {
+    uint256 constant FIXED_POINT_SCALAR = 1e18;
+    uint256 constant BPS = 10000;
     string public override version = "1.0.0";
     address public alchemist;
     address public debtToken;
     address public override rewardToken;
     address public override swapRouter;
-    uint256 FIXED_POINT_SCALAR = 1e18;
+    address[] public yieldTokens;
 
     constructor(InitializationParams memory params) {
         alchemist       = params.alchemist;
@@ -50,15 +50,30 @@ contract Sidecar is ISidecar {
 
             totalClaimed += claimed;
 
-            // Velodrome Swap Routes: OP -> USDC -> alUSD
-            IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](2);
-            routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x7F5c764cBc14f9669B88837ca1490cCa17c31607, false);
-            routes[1] = IVelodromeSwapRouter.route(0x7F5c764cBc14f9669B88837ca1490cCa17c31607, 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A, true);
-            IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(claimed, 0, routes, address(this), block.timestamp);
-            TokenUtils.safeApprove(rewardToken, alchemist, claimed);
+            if (debtToken == 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A) {
+                // Velodrome Swap Routes: OP -> USDC -> alUSD
+                IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](2);
+                routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x7F5c764cBc14f9669B88837ca1490cCa17c31607, false);
+                routes[1] = IVelodromeSwapRouter.route(0x7F5c764cBc14f9669B88837ca1490cCa17c31607, 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A, true);
+                IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(claimed, expectedPriceOP * 9999 / BPS, routes, address(this), block.timestamp);
+            } else {
+                // Velodrome Swap Routes: OP -> alETH
+                IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](1);
+                routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x3E29D3A9316dAB217754d13b28646B76607c5f04, false);
+                IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(claimed, expectedPriceOP * 9999 / BPS, routes, address(this), block.timestamp);
+            }
+
+            // Donate to alchemist depositors
             IAlchemistV2(alchemist).donate(tokens[i], IERC20(debtToken).balanceOf(address(this)));
         }
-
         return totalClaimed;
+    }
+
+    function setYieldTokens(address[] calldata tokens) external {
+        yieldTokens = tokens;
+    }
+
+    function getYieldTokens() external view returns (address[] memory) {
+        return yieldTokens;
     }
 }

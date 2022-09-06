@@ -15,4 +15,9 @@ interface IVelodromeSwapRouter {
         address to,
         uint deadline
     ) external returns (uint[] memory amounts);
+
+    function getAmountsOut(
+        uint amountIn,
+        route[] memory routes
+    ) external view returns (uint[] memory amounts);
 }
