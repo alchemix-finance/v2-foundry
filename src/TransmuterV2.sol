@@ -245,7 +245,7 @@ contract TransmuterV2 is ITransmuterV2, Initializable, ReentrancyGuardUpgradeabl
       })
     );
     TokenUtils.safeBurn(syntheticToken, _normalizeUnderlyingTokensToDebt(amount));
-    ITransmuterBuffer(buffer).withdraw(underlyingToken, amount, msg.sender);
+    ITransmuterBuffer(buffer).withdraw(underlyingToken, amount, recipient);
     emit Claim(msg.sender, recipient, amount);
   }
 
