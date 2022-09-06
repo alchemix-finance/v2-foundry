@@ -636,7 +636,7 @@ describe("TransmuterV2", () => {
     });
   });
 
-  describe.only("claim", () => {
+  describe("claim", () => {
     context("after under fulfilling a deposit", () => {
       describe("18 decimals", () => {
         const depositAmount = parseEther("500");
