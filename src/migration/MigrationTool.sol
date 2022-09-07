@@ -27,7 +27,7 @@ struct InitializationParams {
 }
 
 contract MigrationTool is IMigrationTool, Multicall {
-    string public override version = "1.0.0";
+    string public override version = "1.0.1";
     uint256 FIXED_POINT_SCALAR = 1e18;
 
     mapping(address => uint256) public decimals;
