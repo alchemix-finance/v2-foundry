@@ -134,10 +134,6 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
             "aOptDai"
         );
 
-        address[] memory assets = new address[](1);
-        assets[0] = address(staticAToken);
-        sidecar.setYieldTokens(assets);
-
         adapter = new AAVETokenAdapter(AdapterInitializationParams({
             alchemist:          address(this),
             token:              address(staticAToken),

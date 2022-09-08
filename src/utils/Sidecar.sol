@@ -6,8 +6,8 @@ import {TokenUtils} from "../libraries/TokenUtils.sol";
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IStaticAToken} from "../interfaces/external/aave/IStaticAToken.sol";
 import {IVelodromeSwapRouter} from "../interfaces/external/velodrome/IVelodromeSwapRouter.sol";
+import {Unauthorized, IllegalState, IllegalArgument} from "../base/ErrorMessages.sol";
 
-import "../base/Errors.sol";
 import "../interfaces/ISidecar.sol";
 import "../libraries/Sets.sol";
 import "../libraries/TokenUtils.sol";
@@ -30,7 +30,6 @@ contract Sidecar is ISidecar {
     address public debtToken;
     address public override rewardToken;
     address public override swapRouter;
-    address[] public yieldTokens;
 
     constructor(InitializationParams memory params) {
         alchemist       = params.alchemist;
@@ -39,7 +38,7 @@ contract Sidecar is ISidecar {
         swapRouter      = params.swapRouter;
     }
 
-    function claimAndDistributeRewards(address[] calldata tokens, uint256 expectedPriceOP) external returns (uint256) {
+    function claimAndDistributeRewards(address[] calldata tokens, uint256 minimumOpOut) external returns (uint256) {
         uint256 totalClaimed;
 
         for (uint i = 0; i < tokens.length; i++) {
@@ -55,25 +54,19 @@ contract Sidecar is ISidecar {
                 IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](2);
                 routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x7F5c764cBc14f9669B88837ca1490cCa17c31607, false);
                 routes[1] = IVelodromeSwapRouter.route(0x7F5c764cBc14f9669B88837ca1490cCa17c31607, 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A, true);
-                IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(claimed, expectedPriceOP * 9999 / BPS, routes, address(this), block.timestamp);
-            } else {
+                IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(claimed, minimumOpOut * 9999 / BPS, routes, address(this), block.timestamp);
+            } else if (debtToken == 0x3E29D3A9316dAB217754d13b28646B76607c5f04) {
                 // Velodrome Swap Routes: OP -> alETH
                 IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](1);
                 routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x3E29D3A9316dAB217754d13b28646B76607c5f04, false);
-                IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(claimed, expectedPriceOP * 9999 / BPS, routes, address(this), block.timestamp);
+                IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(claimed, minimumOpOut * 9999 / BPS, routes, address(this), block.timestamp);
+            } else {
+                revert IllegalArgument("Debt token not supported");
             }
 
             // Donate to alchemist depositors
             IAlchemistV2(alchemist).donate(tokens[i], IERC20(debtToken).balanceOf(address(this)));
         }
         return totalClaimed;
-    }
-
-    function setYieldTokens(address[] calldata tokens) external {
-        yieldTokens = tokens;
-    }
-
-    function getYieldTokens() external view returns (address[] memory) {
-        return yieldTokens;
     }
 }

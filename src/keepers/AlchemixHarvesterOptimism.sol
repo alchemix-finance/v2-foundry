@@ -33,11 +33,12 @@ contract AlchemixHarvesterOptimism is IAlchemixHarvesterOptimism, AlchemixGelato
   /// @param alchemist        The address of the target alchemist.
   /// @param yieldToken       The address of the target yield token.
   /// @param minimumAmountOut The minimum amount of tokens expected to be harvested.
+  /// @param minimumOpValue   The minimum OP to debt tokens.
   function harvest(
     address alchemist,
     address yieldToken,
     uint256 minimumAmountOut,
-    uint256 expectedExchange
+    uint256 minimumOpValue
   ) external override {
     if (msg.sender != gelatoPoker) {
       revert Unauthorized();
@@ -50,7 +51,7 @@ contract AlchemixHarvesterOptimism is IAlchemixHarvesterOptimism, AlchemixGelato
     // Claim and distribute optimism rewards
     address[] memory assets = new address[](1);
     assets[0] = address(yieldToken);
-    ISidecar(sidecar).claimAndDistributeRewards(assets, expectedExchange);
+    ISidecar(sidecar).claimAndDistributeRewards(assets, minimumOpValue);
 
     IHarvestResolver(resolver).recordHarvest(yieldToken);
   }
