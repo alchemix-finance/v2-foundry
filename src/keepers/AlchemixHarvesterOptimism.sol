@@ -5,7 +5,7 @@ import "./AlchemixGelatoKeeper.sol";
 import "../interfaces/IAlchemistV2.sol";
 import "../interfaces/keepers/IHarvestResolver.sol";
 import "../interfaces/keepers/IAlchemixHarvesterOptimism.sol";
-import "../interfaces/ISidecar.sol";
+import "../interfaces/IRewardCollector.sol";
 
 contract AlchemixHarvesterOptimism is IAlchemixHarvesterOptimism, AlchemixGelatoKeeper {
   /// @notice The address of the resolver.
@@ -31,7 +31,7 @@ contract AlchemixHarvesterOptimism is IAlchemixHarvesterOptimism, AlchemixGelato
   /// @param minimumOpValue   The minimum OP to debt tokens.
   function harvest(
     address alchemist,
-    address sidecar,
+    address rewardCollector,
     address yieldToken,
     uint256 minimumAmountOut,
     uint256 minimumOpValue
@@ -47,7 +47,7 @@ contract AlchemixHarvesterOptimism is IAlchemixHarvesterOptimism, AlchemixGelato
     // Claim and distribute optimism rewards
     address[] memory assets = new address[](1);
     assets[0] = address(yieldToken);
-    ISidecar(sidecar).claimAndDistributeRewards(assets, minimumOpValue);
+    IRewardCollector(rewardCollector).claimAndDistributeRewards(assets, minimumOpValue);
 
     IHarvestResolver(resolver).recordHarvest(yieldToken);
   }

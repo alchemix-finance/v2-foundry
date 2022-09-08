@@ -1,6 +1,6 @@
 pragma solidity ^0.8.13;
 
-interface ISidecar {
+interface IRewardCollector {
     /// @notice Gets the current version.
     ///
     /// @return The version.

@@ -1,7 +1,7 @@
 pragma solidity ^0.8.13;
 
 import {IRewardsController} from '../interfaces/external/aave/IRewardsController.sol';
-import {ISidecar} from "../interfaces/ISidecar.sol";
+import {IRewardCollector} from "../interfaces/IRewardCollector.sol";
 import {IVelodromeSwapRouter} from "../interfaces/external/velodrome/IVelodromeSwapRouter.sol";
 
 import "../interfaces/keepers/IResolver.sol";
@@ -25,7 +25,7 @@ contract HarvestResolverOptimism is IResolver, Ownable {
   event SetHarvestJob(
     bool active,
     address alchemist,
-    address sidecar,
+    address rewardCollector,
     address staticToken,
     address yieldToken,
     uint256 minimumHarvestAmount,
@@ -44,7 +44,7 @@ contract HarvestResolverOptimism is IResolver, Ownable {
   struct HarvestJob {
     bool active;
     address alchemist;
-    address sidecar;
+    address rewardCollector;
     address aaveToken;
     uint256 lastHarvest;
     uint256 minimumHarvestAmount;
@@ -109,7 +109,7 @@ contract HarvestResolverOptimism is IResolver, Ownable {
   function addHarvestJob(
     bool active,
     address alchemist,
-    address sidecar,
+    address rewardCollector,
     address staticToken,
     address aaveToken,
     uint256 minimumHarvestAmount,
@@ -128,7 +128,7 @@ contract HarvestResolverOptimism is IResolver, Ownable {
     harvestJobs[staticToken] = HarvestJob(
       active,
       alchemist,
-      sidecar,
+      rewardCollector,
       aaveToken,
       block.timestamp,
       minimumHarvestAmount,
@@ -136,7 +136,7 @@ contract HarvestResolverOptimism is IResolver, Ownable {
       slippageBps
     );
 
-    emit SetHarvestJob(active, alchemist, sidecar, staticToken, aaveToken, minimumHarvestAmount, minimumDelay, slippageBps);
+    emit SetHarvestJob(active, alchemist, rewardCollector, staticToken, aaveToken, minimumHarvestAmount, minimumDelay, slippageBps);
 
     // Only add the yield token to the list if it doesnt exist yet.
     for (uint256 i = 0; i < yieldTokens.length; i++) {
@@ -167,12 +167,12 @@ contract HarvestResolverOptimism is IResolver, Ownable {
     harvestJobs[yieldToken].alchemist = alchemist;
   }
 
-  /// @notice Sets the sidecar of a harvest job.
+  /// @notice Sets the rewardCollector of a harvest job.
   ///
   /// @param yieldToken   The address of the yield token to be harvested.
-  /// @param sidecar      The address of the sidecar to be harvested.
-  function setSidecar(address yieldToken, address sidecar) external onlyOwner {
-    harvestJobs[yieldToken].alchemist = sidecar;
+  /// @param rewardCollector      The address of the rewardCollector to be harvested.
+  function setRewardCollector(address yieldToken, address rewardCollector) external onlyOwner {
+    harvestJobs[yieldToken].alchemist = rewardCollector;
   }
 
   /// @notice Sets the minimum harvest amount of a harvest job.
@@ -256,22 +256,22 @@ contract HarvestResolverOptimism is IResolver, Ownable {
             uint256[] memory expectedExchange = new uint256[](1);
             address[] memory token = new address[](1);
             token[0] = h.aaveToken;
-            uint256 claimable = IRewardsController(0x929EC64c34a17401F460460D4B9390518E5B473e).getUserRewards(token, yieldToken, ISidecar(h.sidecar).rewardToken());
+            uint256 claimable = IRewardsController(0x929EC64c34a17401F460460D4B9390518E5B473e).getUserRewards(token, yieldToken, IRewardCollector(h.rewardCollector).rewardToken());
             // Find expected amount out before calling harvest
-            if (ISidecar(h.sidecar).debtToken() == 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A) {
+            if (IRewardCollector(h.rewardCollector).debtToken() == 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A) {
               // OP -> USDC -> alUSD
               IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](2);
               routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x7F5c764cBc14f9669B88837ca1490cCa17c31607, false);
               routes[1] = IVelodromeSwapRouter.route(0x7F5c764cBc14f9669B88837ca1490cCa17c31607, 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A, true);
-              expectedExchange = IVelodromeSwapRouter(ISidecar(h.sidecar).swapRouter()).getAmountsOut(claimable, routes);
-            } else if (ISidecar(h.sidecar).debtToken() == 0x3E29D3A9316dAB217754d13b28646B76607c5f04) {
+              expectedExchange = IVelodromeSwapRouter(IRewardCollector(h.rewardCollector).swapRouter()).getAmountsOut(claimable, routes);
+            } else if (IRewardCollector(h.rewardCollector).debtToken() == 0x3E29D3A9316dAB217754d13b28646B76607c5f04) {
               // Velodrome Swap Routes: OP -> alETH
               IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](1);
               routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x3E29D3A9316dAB217754d13b28646B76607c5f04, false);
-              IVelodromeSwapRouter(ISidecar(h.sidecar).swapRouter()).getAmountsOut(claimable, routes);
-              expectedExchange = IVelodromeSwapRouter(ISidecar(h.sidecar).swapRouter()).getAmountsOut(claimable, routes);
+              IVelodromeSwapRouter(IRewardCollector(h.rewardCollector).swapRouter()).getAmountsOut(claimable, routes);
+              expectedExchange = IVelodromeSwapRouter(IRewardCollector(h.rewardCollector).swapRouter()).getAmountsOut(claimable, routes);
             } else {
-                revert IllegalState("Sidecar debt token is not supported");
+                revert IllegalState("RewardCollector debt token is not supported");
             }
             return (
               true,

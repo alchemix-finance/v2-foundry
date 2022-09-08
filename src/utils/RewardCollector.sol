@@ -8,7 +8,7 @@ import {IStaticAToken} from "../interfaces/external/aave/IStaticAToken.sol";
 import {IVelodromeSwapRouter} from "../interfaces/external/velodrome/IVelodromeSwapRouter.sol";
 import {Unauthorized, IllegalState, IllegalArgument} from "../base/ErrorMessages.sol";
 
-import "../interfaces/ISidecar.sol";
+import "../interfaces/IRewardCollector.sol";
 import "../libraries/Sets.sol";
 import "../libraries/TokenUtils.sol";
 
@@ -20,9 +20,9 @@ struct InitializationParams {
     address swapRouter;
 }
 
-/// @title  Sidecar
+/// @title  RewardCollector
 /// @author Alchemix Finance
-contract Sidecar is ISidecar {
+contract RewardCollector is IRewardCollector {
     uint256 constant FIXED_POINT_SCALAR = 1e18;
     uint256 constant BPS = 10000;
     string public override version = "1.0.0";
@@ -61,7 +61,7 @@ contract Sidecar is ISidecar {
                 routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x3E29D3A9316dAB217754d13b28646B76607c5f04, false);
                 IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(claimed, minimumOpOut * 9999 / BPS, routes, address(this), block.timestamp);
             } else {
-                revert IllegalState("Sidecar debt token is not supported");
+                revert IllegalState("Reward collector `debtToken` is not supported");
             }
 
             // Donate to alchemist depositors

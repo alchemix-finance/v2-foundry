@@ -13,7 +13,7 @@ import {WadRayMath} from './WadRayMath.sol';
 import {TokenUtils} from "../../libraries/TokenUtils.sol";
 
 /**
- * @title StaticAToken updated to work with alchemix sideCar
+ * @title StaticAToken updated to work with alchemix rewardCollector
  * @dev Wrapper token that allows to deposit tokens on the Aave protocol and receive
  * a token which balance doesn't increase automatically, but uses an ever-increasing exchange rate
  * - Only supporting deposits and withdrawals
@@ -43,7 +43,7 @@ contract StaticATokenV3 is ERC20 {
       'Withdraw(address owner,address recipient,uint256 staticAmount, uint256 dynamicAmount, bool toUnderlying, uint256 nonce,uint256 deadline)'
     );
 
-  address public immutable SIDECAR;
+  address public immutable REWARDCOLLECTOR;
   ILendingPool public immutable LENDING_POOL;
   IRewardsController public immutable REWARDS_CONTROLLER;
   IERC20 public immutable ATOKEN;
@@ -59,14 +59,14 @@ contract StaticATokenV3 is ERC20 {
     ILendingPool lendingPool,
     IRewardsController rewardsController,
     address aToken,
-    address sidecar,
+    address rewardCollector,
     string memory wrappedTokenName,
     string memory wrappedTokenSymbol
   ) public ERC20(wrappedTokenName, wrappedTokenSymbol) {
     LENDING_POOL = lendingPool;
     REWARDS_CONTROLLER = rewardsController;
     ATOKEN = IERC20(aToken);
-    SIDECAR = sidecar;
+    REWARDCOLLECTOR = rewardCollector;
 
     IERC20 underlyingAsset = IERC20(IAToken(aToken).UNDERLYING_ASSET_ADDRESS());
     ASSET = underlyingAsset;
@@ -79,7 +79,7 @@ contract StaticATokenV3 is ERC20 {
   }
 
   function claimRewards() public {
-    require(msg.sender == SIDECAR, 'NOT_SIDECAR');
+    require(msg.sender == REWARDCOLLECTOR, 'Not REWARDCOLLECTOR');
     address[] memory assets = new address[](1);
     assets[0] = address(ATOKEN);
     REWARDS_CONTROLLER.claimAllRewards(assets, msg.sender);
@@ -234,7 +234,7 @@ contract StaticATokenV3 is ERC20 {
       'INVALID_SIGNATURE'
     );
     _nonces[depositor] = currentValidNonce + 1;
-    _deposit(depositor, recipient, value, referralCode, fromUnderlying);
+    return _deposit(depositor, recipient, value, referralCode, fromUnderlying);
   }
 
   /**
