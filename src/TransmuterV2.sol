@@ -103,7 +103,7 @@ contract TransmuterV2 is ITransmuterV2, Initializable, ReentrancyGuardUpgradeabl
   bytes32 public constant SENTINEL = keccak256("SENTINEL");
 
   /// @inheritdoc ITransmuterV2
-  string public constant override version = "2.2.0";
+  string public constant override version = "2.2.1";
 
   /// @dev the synthetic token to be transmuted
   address public syntheticToken;
