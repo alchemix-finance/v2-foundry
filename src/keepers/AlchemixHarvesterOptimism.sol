@@ -11,9 +11,6 @@ contract AlchemixHarvesterOptimism is IAlchemixHarvesterOptimism, AlchemixGelato
   /// @notice The address of the resolver.
   address public resolver;
 
-  /// @notice The address of the sidecar.
-  address public sidecar;
-
   constructor(
     address _gelatoPoker,
     uint256 _maxGasPrice,
@@ -26,10 +23,6 @@ contract AlchemixHarvesterOptimism is IAlchemixHarvesterOptimism, AlchemixGelato
     resolver = _resolver;
   }
 
-  function setSidecar(address _sidecar) external onlyOwner {
-    sidecar = _sidecar;
-  }
-
   /// @notice Runs a the specified harvest job and donates optimism rewards.
   ///
   /// @param alchemist        The address of the target alchemist.
@@ -38,6 +31,7 @@ contract AlchemixHarvesterOptimism is IAlchemixHarvesterOptimism, AlchemixGelato
   /// @param minimumOpValue   The minimum OP to debt tokens.
   function harvest(
     address alchemist,
+    address sidecar,
     address yieldToken,
     uint256 minimumAmountOut,
     uint256 minimumOpValue

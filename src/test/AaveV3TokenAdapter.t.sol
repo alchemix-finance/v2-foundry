@@ -349,7 +349,6 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         // Keepers
         harvestResolver = new HarvestResolverOptimism();
         harvester = new AlchemixHarvesterOptimism(address(this), 100000, address(harvestResolver));
-        harvester.setSidecar( address(sidecar));
         harvestResolver.setHarvester(address(harvester), true);
         harvestResolver.addHarvestJob(true, address(alchemistUSD), address(sidecar), address(staticAToken), aOptDAI, 1000, 0, 0);
         alchemistUSD.setKeeper(address(harvester), true);
@@ -369,7 +368,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         (address alch, address yield, uint256 minOut, uint256 expectedExchange) = abi.decode(extractCalldata(execPayload), (address, address, uint256, uint256));
 
         (int256 debtBefore, ) = alchemistUSD.accounts(address((this)));
-        harvester.harvest(address(alchemistUSD), address(staticAToken), 0, expectedExchange);
+        harvester.harvest(address(alchemistUSD), address(sidecar), address(staticAToken), 0, expectedExchange);
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
 
         assertEq(IERC20(rewardToken).balanceOf(address(sidecar)), 0);
