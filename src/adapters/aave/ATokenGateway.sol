@@ -48,7 +48,7 @@ contract ATokenGateway is IATokenGateway, Ownable {
         address yieldToken,
         uint256 shares,
         address recipient
-    ) external override returns (uint256 amountWithdrawn) {
+    ) external override returns (uint256) {
         _onlyWhitelisted();
         uint256 staticATokensWithdrawn = IAlchemistV2(alchemist).withdrawFrom(msg.sender, yieldToken, shares, address(this));
         // false - "from underlying", we are depositing the aToken, not the underlying token.
@@ -56,6 +56,7 @@ contract ATokenGateway is IATokenGateway, Ownable {
         if (amountBurnt != staticATokensWithdrawn) {
             revert IllegalState("not enough burnt");
         }
+        return amountWithdrawn;
     }
 
     /// @dev Checks the whitelist for msg.sender.

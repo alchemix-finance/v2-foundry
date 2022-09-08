@@ -84,11 +84,12 @@ contract ATokenGatewayTest is DSTestPlus {
         assertEq(midBal, 0);
 
         IAlchemistV2(alchemist).approveWithdraw(address(gateway), address(staticAToken), sharesIssued);
-        gateway.withdraw(address(staticAToken), sharesIssued, address(this));
+        uint256 amountWithdrawn = gateway.withdraw(address(staticAToken), sharesIssued, address(this));
         (uint256 endShares, ) = IAlchemistV2(alchemist).positions(address(this), address(staticAToken));
         assertEq(endShares, 0);
 
         uint256 endBal = IERC20(aToken).balanceOf(address(this));
         assertEq(endBal, amount);
+        assertEq(amountWithdrawn, endBal);
     }
 }
