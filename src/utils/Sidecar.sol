@@ -61,7 +61,7 @@ contract Sidecar is ISidecar {
                 routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x3E29D3A9316dAB217754d13b28646B76607c5f04, false);
                 IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(claimed, minimumOpOut * 9999 / BPS, routes, address(this), block.timestamp);
             } else {
-                revert IllegalArgument("Debt token not supported");
+                revert IllegalState("Sidecar debt token is not supported");
             }
 
             // Donate to alchemist depositors

@@ -321,6 +321,9 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         sidecar.claimAndDistributeRewards(assets, rewards * 9999 / 10000);
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
 
+        assertEq(IERC20(rewardToken).balanceOf(address(sidecar)), 0);
+        assertEq(IERC20(alUSD).balanceOf(address(sidecar)), 0);
+        assertEq(IERC20(usdc).balanceOf(address(sidecar)), 0);
         assertGt(debtBefore, debtAfter);
     }
 
@@ -345,7 +348,8 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
 
         // Keepers
         harvestResolver = new HarvestResolverOptimism();
-        harvester = new AlchemixHarvesterOptimism(address(this), 100000, address(harvestResolver), address(sidecar));
+        harvester = new AlchemixHarvesterOptimism(address(this), 100000, address(harvestResolver));
+        harvester.setSidecar( address(sidecar));
         harvestResolver.setHarvester(address(harvester), true);
         harvestResolver.addHarvestJob(true, address(alchemistUSD), address(sidecar), address(staticAToken), aOptDAI, 1000, 0, 0);
         alchemistUSD.setKeeper(address(harvester), true);
@@ -368,6 +372,9 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         harvester.harvest(address(alchemistUSD), address(staticAToken), 0, expectedExchange);
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
 
+        assertEq(IERC20(rewardToken).balanceOf(address(sidecar)), 0);
+        assertEq(IERC20(alUSD).balanceOf(address(sidecar)), 0);
+        assertEq(IERC20(usdc).balanceOf(address(sidecar)), 0);
         assertGt(debtBefore, debtAfter);
     }
 

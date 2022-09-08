@@ -17,15 +17,17 @@ contract AlchemixHarvesterOptimism is IAlchemixHarvesterOptimism, AlchemixGelato
   constructor(
     address _gelatoPoker,
     uint256 _maxGasPrice,
-    address _resolver,
-    address _sidecar
+    address _resolver
   ) AlchemixGelatoKeeper(_gelatoPoker, _maxGasPrice) {
     resolver = _resolver;
-    sidecar = _sidecar;
   }
 
   function setResolver(address _resolver) external onlyOwner {
     resolver = _resolver;
+  }
+
+  function setSidecar(address _sidecar) external onlyOwner {
+    sidecar = _sidecar;
   }
 
   /// @notice Runs a the specified harvest job and donates optimism rewards.

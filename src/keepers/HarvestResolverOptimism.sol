@@ -12,7 +12,8 @@ import "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import "../../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 import "../../lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol";
 import "../libraries/SafeCast.sol";
-import "../base/Errors.sol";
+
+import {Unauthorized, IllegalState} from "../base/ErrorMessages.sol";
 
 contract HarvestResolverOptimism is IResolver, Ownable {
   /// @notice Thrown when the yield token of a harvest job being added is disabled in the alchemist of the harvest job being added.
@@ -69,7 +70,7 @@ contract HarvestResolverOptimism is IResolver, Ownable {
 
   modifier onlyHarvester() {
     if (!harvesters[msg.sender]) {
-      revert Unauthorized();
+      revert Unauthorized("Caller is not the harvester");
     }
     _;
   }
@@ -263,12 +264,14 @@ contract HarvestResolverOptimism is IResolver, Ownable {
               routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x7F5c764cBc14f9669B88837ca1490cCa17c31607, false);
               routes[1] = IVelodromeSwapRouter.route(0x7F5c764cBc14f9669B88837ca1490cCa17c31607, 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A, true);
               expectedExchange = IVelodromeSwapRouter(ISidecar(h.sidecar).swapRouter()).getAmountsOut(claimable, routes);
-            } else {
+            } else if (ISidecar(h.sidecar).debtToken() == 0x3E29D3A9316dAB217754d13b28646B76607c5f04) {
               // Velodrome Swap Routes: OP -> alETH
               IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](1);
               routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x3E29D3A9316dAB217754d13b28646B76607c5f04, false);
               IVelodromeSwapRouter(ISidecar(h.sidecar).swapRouter()).getAmountsOut(claimable, routes);
               expectedExchange = IVelodromeSwapRouter(ISidecar(h.sidecar).swapRouter()).getAmountsOut(claimable, routes);
+            } else {
+                revert IllegalState("Sidecar debt token is not supported");
             }
             return (
               true,
