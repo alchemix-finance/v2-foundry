@@ -348,7 +348,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
 
         // Keepers
         harvestResolver = new HarvestResolverOptimism();
-        harvester = new AlchemixHarvesterOptimism(address(this), 100000, address(harvestResolver));
+        harvester = new AlchemixHarvesterOptimism(address(this), 100000e18, address(harvestResolver));
         harvestResolver.setHarvester(address(harvester), true);
         harvestResolver.addHarvestJob(true, address(alchemistUSD), address(rewardCollector), address(staticAToken), aOptDAI, 1000, 0, 0);
         alchemistUSD.setKeeper(address(harvester), true);
