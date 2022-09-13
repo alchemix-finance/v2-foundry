@@ -45,12 +45,13 @@ contract StaticATokenV3 is ERC20 {
       'Withdraw(address owner,address recipient,uint256 staticAmount, uint256 dynamicAmount, bool toUnderlying, uint256 nonce,uint256 deadline)'
     );
 
-  address admin;
-  address public REWARDCOLLECTOR;
   ILendingPool public immutable LENDING_POOL;
   IRewardsController public immutable REWARDS_CONTROLLER;
   IERC20 public immutable ATOKEN;
   IERC20 public immutable ASSET;
+  address public admin;
+  address public pendingAdmin;
+  address public rewardCollector;
 
   /// @dev owner => next valid nonce to submit with permit(), metaDeposit() and metaWithdraw()
   /// We choose to have sequentiality on them for each user to avoid potentially dangerous/bad UX cases
@@ -62,15 +63,15 @@ contract StaticATokenV3 is ERC20 {
     ILendingPool lendingPool,
     address rewardsController,
     address aToken,
-    address rewardCollector,
+    address _rewardCollector,
     string memory wrappedTokenName,
     string memory wrappedTokenSymbol
-  ) public ERC20(wrappedTokenName, wrappedTokenSymbol) {
+  ) ERC20(wrappedTokenName, wrappedTokenSymbol) {
     admin = msg.sender;
     LENDING_POOL = lendingPool;
     REWARDS_CONTROLLER = IRewardsController(rewardsController);
     ATOKEN = IERC20(aToken);
-    REWARDCOLLECTOR = rewardCollector;
+    rewardCollector = _rewardCollector;
 
     IERC20 underlyingAsset = IERC20(IAToken(aToken).UNDERLYING_ASSET_ADDRESS());
     ASSET = underlyingAsset;
@@ -83,20 +84,26 @@ contract StaticATokenV3 is ERC20 {
   }
 
   function claimRewards() public {
-    require(msg.sender == REWARDCOLLECTOR, 'Not REWARDCOLLECTOR');
+    require(msg.sender == rewardCollector, 'Not rewardCollector');
     address[] memory assets = new address[](1);
     assets[0] = address(ATOKEN);
     REWARDS_CONTROLLER.claimAllRewards(assets, msg.sender);
   }
 
-  function setAdmin(address newAdmin) external {
+  function setPendingAdmin(address newAdmin) external {
     _onlyAdmin();
-    admin = newAdmin;
+    require(newAdmin != address(0), "0 address");
+    pendingAdmin = newAdmin;
   }
 
-  function setRewardCollector(address rewardCollector) external {
+  function acceptAdmin() external {
+    require(msg.sender == pendingAdmin, "must be pending admin");
+    admin = pendingAdmin;
+  }
+
+  function setRewardCollector(address _rewardCollector) external {
     _onlyAdmin();
-    REWARDCOLLECTOR = rewardCollector;
+    rewardCollector = _rewardCollector;
   }
 
   /**
