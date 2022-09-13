@@ -12,6 +12,8 @@ import {SafeERC20} from "../../../lib/openzeppelin-contracts/contracts/token/ERC
 import {WadRayMath} from './WadRayMath.sol';
 import {TokenUtils} from "../../libraries/TokenUtils.sol";
 
+import {Unauthorized, IllegalState, IllegalArgument} from "../../base/Errors.sol";
+
 /**
  * @title StaticAToken updated to work with alchemix rewardCollector
  * @dev Wrapper token that allows to deposit tokens on the Aave protocol and receive
@@ -43,7 +45,8 @@ contract StaticATokenV3 is ERC20 {
       'Withdraw(address owner,address recipient,uint256 staticAmount, uint256 dynamicAmount, bool toUnderlying, uint256 nonce,uint256 deadline)'
     );
 
-  address public immutable REWARDCOLLECTOR;
+  address admin;
+  address public REWARDCOLLECTOR;
   ILendingPool public immutable LENDING_POOL;
   IRewardsController public immutable REWARDS_CONTROLLER;
   IERC20 public immutable ATOKEN;
@@ -57,14 +60,15 @@ contract StaticATokenV3 is ERC20 {
 
   constructor(
     ILendingPool lendingPool,
-    IRewardsController rewardsController,
+    address rewardsController,
     address aToken,
     address rewardCollector,
     string memory wrappedTokenName,
     string memory wrappedTokenSymbol
   ) public ERC20(wrappedTokenName, wrappedTokenSymbol) {
+    admin = msg.sender;
     LENDING_POOL = lendingPool;
-    REWARDS_CONTROLLER = rewardsController;
+    REWARDS_CONTROLLER = IRewardsController(rewardsController);
     ATOKEN = IERC20(aToken);
     REWARDCOLLECTOR = rewardCollector;
 
@@ -83,6 +87,16 @@ contract StaticATokenV3 is ERC20 {
     address[] memory assets = new address[](1);
     assets[0] = address(ATOKEN);
     REWARDS_CONTROLLER.claimAllRewards(assets, msg.sender);
+  }
+
+  function setAdmin(address newAdmin) external {
+    _onlyAdmin();
+    admin = newAdmin;
+  }
+
+  function setRewardCollector(address rewardCollector) external {
+    _onlyAdmin();
+    REWARDCOLLECTOR = rewardCollector;
   }
 
   /**
@@ -345,6 +359,15 @@ contract StaticATokenV3 is ERC20 {
           address(this)
         )
       );
+  }
+
+  /// @dev Checks that the `msg.sender` is the administrator.
+  ///
+  /// @dev `msg.sender` must be the administrator or this call will revert with an {Unauthorized} error.
+  function _onlyAdmin() internal view {
+      if (msg.sender != admin) {
+          revert Unauthorized();
+      }
   }
 
   function _deposit(

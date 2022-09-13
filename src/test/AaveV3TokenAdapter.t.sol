@@ -127,7 +127,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
 
         staticAToken = new StaticATokenV3(
             lendingPool,
-            IRewardsController(rewardsController),
+            rewardsController,
             aOptDAI,
             address(rewardCollector),
             "staticAaveOptimismDai",
@@ -187,7 +187,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
     function runTokenTest(AlchemistV2 alchemist, address aToken, address underlyingToken, string memory name, string memory symbol, uint256 amount) internal {
         StaticATokenV3 newStaticAToken = new StaticATokenV3(
             lendingPool,
-            IRewardsController(rewardsController),
+            rewardsController,
             aToken,
             address(rewardCollector),
             name,
