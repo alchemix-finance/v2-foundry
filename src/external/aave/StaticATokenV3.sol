@@ -60,7 +60,7 @@ contract StaticATokenV3 is ERC20 {
   uint8 private _decimals;
 
   constructor(
-    ILendingPool lendingPool,
+    address lendingPool,
     address rewardsController,
     address aToken,
     address _rewardCollector,
@@ -68,7 +68,7 @@ contract StaticATokenV3 is ERC20 {
     string memory wrappedTokenSymbol
   ) ERC20(wrappedTokenName, wrappedTokenSymbol) {
     admin = msg.sender;
-    LENDING_POOL = lendingPool;
+    LENDING_POOL = ILendingPool(lendingPool);
     REWARDS_CONTROLLER = IRewardsController(rewardsController);
     ATOKEN = IERC20(aToken);
     rewardCollector = _rewardCollector;
