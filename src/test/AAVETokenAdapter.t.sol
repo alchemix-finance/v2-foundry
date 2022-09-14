@@ -18,7 +18,6 @@ import {IWhitelist} from "../interfaces/IWhitelist.sol";
 
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 import {TokenUtils} from "../libraries/TokenUtils.sol";
-import {console} from "../../lib/forge-std/src/console.sol";
 
 contract AAVETokenAdapterTest is DSTestPlus {
     uint256 constant BPS = 10000;

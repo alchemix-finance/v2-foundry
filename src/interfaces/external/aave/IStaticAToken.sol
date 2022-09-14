@@ -24,6 +24,8 @@ interface IStaticAToken is IERC20 {
 
   function _nonces(address owner) external returns (uint256);
 
+  function claimRewards() external;
+
   function deposit(
     address recipient,
     uint256 amount,
