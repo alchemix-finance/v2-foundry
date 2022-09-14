@@ -126,7 +126,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         hevm.stopPrank();
 
         staticAToken = new StaticATokenV3(
-            lendingPool,
+            address(lendingPool),
             rewardsController,
             aOptDAI,
             address(rewardCollector),
@@ -186,7 +186,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
 
     function runTokenTest(AlchemistV2 alchemist, address aToken, address underlyingToken, string memory name, string memory symbol, uint256 amount) internal {
         StaticATokenV3 newStaticAToken = new StaticATokenV3(
-            lendingPool,
+            address(lendingPool),
             rewardsController,
             aToken,
             address(rewardCollector),
