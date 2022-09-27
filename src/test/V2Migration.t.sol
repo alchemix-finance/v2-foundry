@@ -200,4 +200,45 @@ contract V2MigrationTest is DSTestPlus {
         // Hopefully the contract is completely drained or at least almost.
         assertEq(IERC20(DAI).balanceOf(address(transferAdapter)), 0);
     }
+
+    function testForceMigrateSingleUserFunds() external {
+        // V1 debt before migration
+        uint256 originalDebt = alchemistV1USD.getCdpTotalDebt(address(0xbeef));
+
+        // Pull funds from current vault and flush to the transfer adapter
+        hevm.startPrank(governance);
+        (uint256 withdrawnAmount, ) = alchemistV1USD.recallAll(1);
+        alchemistV1USD.migrate(transferAdapter);
+        uint256 flushed = alchemistV1USD.flush();
+        hevm.stopPrank();
+        // Contract may have previous balance so check if flushed is greater than or equal to withdrawn amount
+        assertGt(flushed, withdrawnAmount - 1);
+
+        // Pause the transmuter
+        hevm.prank(governance);
+        pausableTransmuterConduit.pauseTransmuter(true);
+        // Stop V1 from minting more alUSD
+        hevm.prank(treasury);
+        alchemicToken.setWhitelist(alchemistV1USDAddress, false);
+        // Pause the alchemist.
+        hevm.prank(governance);
+        alchemistV1USD.setEmergencyExit(true);
+
+        // Roll chain ahead
+        hevm.roll(block.number + 10);
+
+        // User withdraws 
+        hevm.startPrank(0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9, 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9);
+        // Withdraw correctly using 1
+        transferAdapter.forceMigrate(address(0xbeef));
+        hevm.stopPrank();
+
+        // Debts must be the same as debt in V1
+        (int256 V2Debt, ) = alchemistV2USD.accounts(address(0xbeef));
+        assertEq(int256(originalDebt), V2Debt);
+        // Verify underlying value of position in V2
+        (uint256 shares, uint256 weight) = alchemistV2USD.positions(address(0xbeef), yvDAI);
+        uint256 underlyingValue = shares * alchemistV2USD.getUnderlyingTokensPerShare(yvDAI) / scalar;
+        assertApproxEq(underlyingValue, 100e18, 100e18 * 10 / BPS);
+    }
 }

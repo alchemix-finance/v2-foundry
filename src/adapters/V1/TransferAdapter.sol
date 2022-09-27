@@ -65,9 +65,15 @@ contract TransferAdapter is IVaultAdapter {
     _currentNumberOfUsers = 0;
   }
 
-  /// @dev A modifier which reverts if the caller is not the admin.
+  /// @dev A modifier which reverts if the caller is not the alchemist.
   modifier onlyAlchemist() {
     require(address(alchemistV1) == msg.sender, "TransferAdapter: only alchemist");
+    _;
+  }
+
+  /// @dev A modifier which reverts if the caller is not the admin.
+  modifier onlyAdmin() {
+    require(address(admin) == msg.sender, "TransferAdapter: only admin");
     _;
   }
 
@@ -124,6 +130,31 @@ contract TransferAdapter is IVaultAdapter {
         alchemistV2.transferDebtV1(_recipient, SafeCast.toInt256(debt) - 1000000);
       } else {
         alchemistV2.transferDebtV1(_recipient, SafeCast.toInt256(debt));
+      }
+    }
+
+    if(_totalNumberOfUsers == _currentNumberOfUsers) {
+      _sweepRemainder();
+    }
+  }
+
+  function forceMigrate(address account) public onlyAdmin {
+    uint256 deposited = alchemistV1.getCdpTotalDeposited(account);
+    uint256 debt = alchemistV1.getCdpTotalDebt(account);
+    
+    _currentNumberOfUsers += 1;
+    hasMigrated[account] = true;
+
+    SafeERC20.safeApprove(underlyingToken, address(alchemistV2), deposited);
+    alchemistV2.depositUnderlying(yieldToken, deposited, account, 0);
+
+    // Due to a rounding error, users with 2:1 collateralization ratio will be considered undercollateralized.
+    // 1000000 wei is deducted from the users debt to correct this.
+    if(debt > 0){
+      if(deposited / debt == 2){
+        alchemistV2.transferDebtV1(account, SafeCast.toInt256(debt) - 1000000);
+      } else {
+        alchemistV2.transferDebtV1(account, SafeCast.toInt256(debt));
       }
     }
 
