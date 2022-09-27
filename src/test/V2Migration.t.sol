@@ -21,6 +21,8 @@ import {IWhitelist} from "../interfaces/IWhitelist.sol";
 import {FixedPointMath} from "../libraries/FixedPointMath.sol";
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 
+import {console} from "../../lib/forge-std/src/console.sol";
+
 contract V2MigrationTest is DSTestPlus {
     uint256 constant BPS = 10000;
     uint256 constant scalar = 10**18;
@@ -64,7 +66,7 @@ contract V2MigrationTest is DSTestPlus {
         hevm.stopPrank();
 
         // Start a position in V1 as 0xbeef and go into debt
-        tip(DAI, address(0xbeef), 200e18);
+        deal(DAI, address(0xbeef), 200e18);
         hevm.startPrank(address(0xbeef), address(0xbeef));
         SafeERC20.safeApprove(DAI, alchemistV1USDAddress, 100e18);
         alchemistV1USD.deposit(100e18);
