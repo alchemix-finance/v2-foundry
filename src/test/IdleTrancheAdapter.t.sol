@@ -42,7 +42,7 @@ contract IdleTrancheAdapterTest is DSTestPlus {
     }
 
     function testPrice() external {
-        assertEq(adapter.price(), idleCDO.tranchePrice(token));
+        assertEq(adapter.price(), idleCDO.virtualPrice(token));
     }
 
     function testWrap() external {

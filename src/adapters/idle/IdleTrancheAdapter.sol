@@ -24,7 +24,7 @@ contract IdleTrancheAdapter is ITokenAdapter {
 
     /// @inheritdoc ITokenAdapter
     function price() external view override returns (uint256) {
-        return idleCDO.tranchePrice(token);
+        return idleCDO.virtualPrice(token);
     }
 
     /// @inheritdoc ITokenAdapter
