@@ -229,6 +229,9 @@ contract V2MigrationTest is DSTestPlus {
         // Roll chain ahead
         hevm.roll(block.number + 10);
 
+        hevm.expectRevert("TransferAdapter: only admin");
+        transferAdapter.forceMigrate(address(0xbeef));
+
         // User withdraws 
         hevm.startPrank(0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9, 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9);
         // Withdraw correctly using 1

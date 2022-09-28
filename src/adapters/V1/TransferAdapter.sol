@@ -73,7 +73,7 @@ contract TransferAdapter is IVaultAdapter {
 
   /// @dev A modifier which reverts if the caller is not the admin.
   modifier onlyAdmin() {
-    require(address(admin) == msg.sender, "TransferAdapter: only admin");
+    require(admin == msg.sender, "TransferAdapter: only admin");
     _;
   }
 
