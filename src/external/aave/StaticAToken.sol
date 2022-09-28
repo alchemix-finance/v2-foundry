@@ -220,7 +220,7 @@ contract StaticAToken is ERC20 {
       'INVALID_SIGNATURE'
     );
     _nonces[depositor] = currentValidNonce + 1;
-    _deposit(depositor, recipient, value, referralCode, fromUnderlying);
+    return _deposit(depositor, recipient, value, referralCode, fromUnderlying);
   }
 
   /**
