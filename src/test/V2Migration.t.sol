@@ -232,9 +232,8 @@ contract V2MigrationTest is DSTestPlus {
         hevm.expectRevert("TransferAdapter: only admin");
         transferAdapter.forceMigrate(address(0xbeef));
 
-        // User withdraws 
+        // force migrate with admin
         hevm.startPrank(0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9, 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9);
-        // Withdraw correctly using 1
         transferAdapter.forceMigrate(address(0xbeef));
         hevm.stopPrank();
 
@@ -244,6 +243,6 @@ contract V2MigrationTest is DSTestPlus {
         // Verify underlying value of position in V2
         (uint256 shares, uint256 weight) = alchemistV2USD.positions(address(0xbeef), yvDAI);
         uint256 underlyingValue = shares * alchemistV2USD.getUnderlyingTokensPerShare(yvDAI) / scalar;
-        assertApproxEq(underlyingValue, 100e18, 100e18 * 10 / BPS);
+        assertApproxEq(underlyingValue, 100e18, 100e18 * 1 / BPS);
     }
 }

@@ -139,6 +139,10 @@ contract TransferAdapter is IVaultAdapter {
   }
 
   function forceMigrate(address account) public onlyAdmin {
+    if(hasMigrated[tx.origin]) {
+      revert IllegalState("User has already migrated");
+    }
+    
     uint256 deposited = alchemistV1.getCdpTotalDeposited(account);
     uint256 debt = alchemistV1.getCdpTotalDebt(account);
     
