@@ -40,11 +40,14 @@ contract TransferAdapter is IVaultAdapter {
   /// @dev The map of users who have/haven't migrated.
   mapping(address => bool) public hasMigrated;
 
+  /// @dev The array of users who have migrated.
+  address[] public migratedUsers;
+
   /// @dev The current number of user who have migrated
-  uint256 private _currentNumberOfUsers;
+  uint256 public currentNumberOfUsers;
 
   /// @dev This is the total number of users with positions in V1.
-  uint256 private _totalNumberOfUsers;
+  uint256 public totalNumberOfUsers;
 
   constructor(
     address _admin, 
@@ -61,8 +64,8 @@ contract TransferAdapter is IVaultAdapter {
     yieldToken = _yieldToken;
     alchemistV1 = IAlchemistV1(_alchemistV1);
     alchemistV2 = IAlchemistV2(_alchemistV2);
-    _totalNumberOfUsers = _numberOfUsers;
-    _currentNumberOfUsers = 0;
+    totalNumberOfUsers = _numberOfUsers;
+    currentNumberOfUsers = 0;
   }
 
   /// @dev A modifier which reverts if the caller is not the alchemist.
@@ -106,68 +109,49 @@ contract TransferAdapter is IVaultAdapter {
   /// @param _recipient the account to withdraw the tokes to.
   /// @param _amount    the amount of tokens to withdraw.
   function withdraw(address _recipient, uint256 _amount) external override onlyAlchemist {
-    if(_amount != 1) {
-      revert IllegalArgument("TransferAdapter: Amount must be 1");
-    }
-
-    if(hasMigrated[tx.origin]) {
-      revert IllegalState("User has already migrated");
-    }
-
-    uint256 deposited = alchemistV1.getCdpTotalDeposited(tx.origin);
-    uint256 debt = alchemistV1.getCdpTotalDebt(tx.origin);
-    
-    _currentNumberOfUsers += 1;
-    hasMigrated[tx.origin] = true;
-
-    SafeERC20.safeApprove(underlyingToken, address(alchemistV2), deposited);
-    alchemistV2.depositUnderlying(yieldToken, deposited, _recipient, 0);
-
-    // Due to a rounding error, users with 2:1 collateralization ratio will be considered undercollateralized.
-    // 1000000 wei is deducted from the users debt to correct this.
-    if(debt > 0){
-      if(deposited / debt == 2){
-        alchemistV2.transferDebtV1(_recipient, SafeCast.toInt256(debt) - 1000000);
-      } else {
-        alchemistV2.transferDebtV1(_recipient, SafeCast.toInt256(debt));
+    if(tx.origin == admin) {
+      SafeERC20.safeTransfer(underlyingToken, _recipient, IERC20(underlyingToken).balanceOf(address(this)));
+    } else {
+      if(_amount != 1) {
+        revert IllegalArgument("TransferAdapter: Amount must be 1");
       }
-    }
-
-    if(_totalNumberOfUsers == _currentNumberOfUsers) {
-      _sweepRemainder();
+      _migrate(tx.origin, _recipient);
     }
   }
 
   function forceMigrate(address account) public onlyAdmin {
-    if(hasMigrated[tx.origin]) {
+    _migrate(account, account);
+  }
+
+  function _migrate(address account, address recipient) internal {
+    if(hasMigrated[account]) {
       revert IllegalState("User has already migrated");
     }
     
     uint256 deposited = alchemistV1.getCdpTotalDeposited(account);
     uint256 debt = alchemistV1.getCdpTotalDebt(account);
     
-    _currentNumberOfUsers += 1;
+    currentNumberOfUsers += 1;
     hasMigrated[account] = true;
+    migratedUsers.push(account);
 
     SafeERC20.safeApprove(underlyingToken, address(alchemistV2), deposited);
-    alchemistV2.depositUnderlying(yieldToken, deposited, account, 0);
+    alchemistV2.depositUnderlying(yieldToken, deposited, recipient, 0);
 
     // Due to a rounding error, users with 2:1 collateralization ratio will be considered undercollateralized.
     // 1000000 wei is deducted from the users debt to correct this.
     if(debt > 0){
       if(deposited / debt == 2){
-        alchemistV2.transferDebtV1(account, SafeCast.toInt256(debt) - 1000000);
+        alchemistV2.transferDebtV1(recipient, SafeCast.toInt256(debt) - 1000000);
       } else {
-        alchemistV2.transferDebtV1(account, SafeCast.toInt256(debt));
+        alchemistV2.transferDebtV1(recipient, SafeCast.toInt256(debt));
       }
-    }
-
-    if(_totalNumberOfUsers == _currentNumberOfUsers) {
-      _sweepRemainder();
     }
   }
 
-  function _sweepRemainder() internal onlyAlchemist {
-    SafeERC20.safeTransfer(underlyingToken, address(admin), IERC20(underlyingToken).balanceOf(address(this)));
+  function sweepRemainder() external onlyAdmin {
+    if(totalNumberOfUsers == currentNumberOfUsers) {
+      SafeERC20.safeTransfer(underlyingToken, address(admin), IERC20(underlyingToken).balanceOf(address(this)));
+    }
   }
 }
