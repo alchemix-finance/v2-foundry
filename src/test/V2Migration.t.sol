@@ -21,6 +21,8 @@ import {IWhitelist} from "../interfaces/IWhitelist.sol";
 import {FixedPointMath} from "../libraries/FixedPointMath.sol";
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 
+import {console} from "../../lib/forge-std/src/console.sol";
+
 contract V2MigrationTest is DSTestPlus {
     uint256 constant BPS = 10000;
     uint256 constant scalar = 10**18;
@@ -48,7 +50,7 @@ contract V2MigrationTest is DSTestPlus {
     function setUp() external {
         newAlchemistV2 = new AlchemistV2();
         pausableTransmuterConduit = new PausableTransmuterConduit(governance, DAI, alchemistV1USDAddress, transmuterV1Address);
-        transferAdapter = new TransferAdapter(governance, alUSD, DAI, yvDAI, alchemistV1USDAddress, alchemistV2USDAddress, 2992);
+        transferAdapter = new TransferAdapter(governance, alUSD, DAI, yvDAI, alchemistV1USDAddress, alchemistV2USDAddress);
 
         // Allow adapter to deposit underlying tokens into V2
         // & Set adapter address in the alchemist V2
@@ -64,7 +66,7 @@ contract V2MigrationTest is DSTestPlus {
         hevm.stopPrank();
 
         // Start a position in V1 as 0xbeef and go into debt
-        tip(DAI, address(0xbeef), 200e18);
+        deal(DAI, address(0xbeef), 200e18);
         hevm.startPrank(address(0xbeef), address(0xbeef));
         SafeERC20.safeApprove(DAI, alchemistV1USDAddress, 100e18);
         alchemistV1USD.deposit(100e18);
@@ -196,8 +198,84 @@ contract V2MigrationTest is DSTestPlus {
             uint256 underlyingValue = (sharesDiff * alchemistV2USD.getUnderlyingTokensPerShare(yvDAI) / scalar);
             assertApproxEq(underlyingValue, V1Deposited, V1Deposited * 10 / BPS);
         }
+    }
 
-        // Hopefully the contract is completely drained or at least almost.
-        assertEq(IERC20(DAI).balanceOf(address(transferAdapter)), 0);
+    function testForceMigrateSingleUserFunds() external {
+        // V1 debt before migration
+        uint256 originalDebt = alchemistV1USD.getCdpTotalDebt(address(0xbeef));
+
+        // Pull funds from current vault and flush to the transfer adapter
+        hevm.startPrank(governance);
+        (uint256 withdrawnAmount, ) = alchemistV1USD.recallAll(1);
+        alchemistV1USD.migrate(transferAdapter);
+        uint256 flushed = alchemistV1USD.flush();
+        hevm.stopPrank();
+        // Contract may have previous balance so check if flushed is greater than or equal to withdrawn amount
+        assertGt(flushed, withdrawnAmount - 1);
+
+        // Pause the transmuter
+        hevm.prank(governance);
+        pausableTransmuterConduit.pauseTransmuter(true);
+        // Stop V1 from minting more alUSD
+        hevm.prank(treasury);
+        alchemicToken.setWhitelist(alchemistV1USDAddress, false);
+        // Pause the alchemist.
+        hevm.prank(governance);
+        alchemistV1USD.setEmergencyExit(true);
+
+        // Roll chain ahead
+        hevm.roll(block.number + 10);
+
+        hevm.expectRevert("TransferAdapter: only admin");
+        transferAdapter.forceMigrate(address(0xbeef));
+
+        // force migrate with admin
+        hevm.startPrank(0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9, 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9);
+        transferAdapter.forceMigrate(address(0xbeef));
+        hevm.stopPrank();
+
+        // Debts must be the same as debt in V1
+        (int256 V2Debt, ) = alchemistV2USD.accounts(address(0xbeef));
+        assertEq(int256(originalDebt), V2Debt);
+        // Verify underlying value of position in V2
+        (uint256 shares, uint256 weight) = alchemistV2USD.positions(address(0xbeef), yvDAI);
+        uint256 underlyingValue = shares * alchemistV2USD.getUnderlyingTokensPerShare(yvDAI) / scalar;
+        assertApproxEq(underlyingValue, 100e18, 100e18 * 1 / BPS);
+    }
+
+    function testAdminRecallFunds() external {
+        // Pull funds from current vault and flush to the transfer adapter
+        hevm.startPrank(governance);
+        (uint256 withdrawnAmount, ) = alchemistV1USD.recallAll(1);
+        alchemistV1USD.migrate(transferAdapter);
+        uint256 flushed = alchemistV1USD.flush();
+        hevm.stopPrank();
+
+        // Pause the transmuter
+        hevm.prank(governance);
+        pausableTransmuterConduit.pauseTransmuter(true);
+        // Stop V1 from minting more alUSD
+        hevm.prank(treasury);
+        alchemicToken.setWhitelist(alchemistV1USDAddress, false);
+        // Pause the alchemist.
+        hevm.prank(governance);
+        alchemistV1USD.setEmergencyExit(true);
+
+        // Roll chain ahead
+        hevm.roll(block.number + 10);
+
+        // force migrate with admin
+        hevm.startPrank(0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9, 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9);
+        transferAdapter.forceMigrate(address(0xbeef));
+        hevm.stopPrank();
+
+        hevm.startPrank(governance, governance);
+        uint256 taBalBeforeRecall = IERC20(DAI).balanceOf(address(transferAdapter));
+        uint256 alchBalBeforeRecall = IERC20(DAI).balanceOf(address(alchemistV1USD));
+        alchemistV1USD.recallAll(2);
+        uint256 alchBalAfterRecall = IERC20(DAI).balanceOf(address(alchemistV1USD));
+
+        assertEq(alchBalBeforeRecall, 0);
+        assertEq(taBalBeforeRecall, alchBalAfterRecall);
     }
 }

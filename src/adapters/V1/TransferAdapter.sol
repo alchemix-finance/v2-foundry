@@ -40,11 +40,8 @@ contract TransferAdapter is IVaultAdapter {
   /// @dev The map of users who have/haven't migrated.
   mapping(address => bool) public hasMigrated;
 
-  /// @dev The current number of user who have migrated
-  uint256 private _currentNumberOfUsers;
-
-  /// @dev This is the total number of users with positions in V1.
-  uint256 private _totalNumberOfUsers;
+  /// @dev The array of users who have migrated.
+  address[] public migratedUsers;
 
   constructor(
     address _admin, 
@@ -52,8 +49,7 @@ contract TransferAdapter is IVaultAdapter {
     address _underlyingToken, 
     address _yieldToken, 
     address _alchemistV1, 
-    address _alchemistV2,
-    uint256 _numberOfUsers
+    address _alchemistV2
   ) {
     admin = _admin;
     _debtToken = debtToken;
@@ -61,13 +57,17 @@ contract TransferAdapter is IVaultAdapter {
     yieldToken = _yieldToken;
     alchemistV1 = IAlchemistV1(_alchemistV1);
     alchemistV2 = IAlchemistV2(_alchemistV2);
-    _totalNumberOfUsers = _numberOfUsers;
-    _currentNumberOfUsers = 0;
+  }
+
+  /// @dev A modifier which reverts if the caller is not the alchemist.
+  modifier onlyAlchemist() {
+    require(address(alchemistV1) == msg.sender, "TransferAdapter: only alchemist");
+    _;
   }
 
   /// @dev A modifier which reverts if the caller is not the admin.
-  modifier onlyAlchemist() {
-    require(address(alchemistV1) == msg.sender, "TransferAdapter: only alchemist");
+  modifier onlyAdmin() {
+    require(admin == msg.sender, "TransferAdapter: only admin");
     _;
   }
 
@@ -100,39 +100,42 @@ contract TransferAdapter is IVaultAdapter {
   /// @param _recipient the account to withdraw the tokes to.
   /// @param _amount    the amount of tokens to withdraw.
   function withdraw(address _recipient, uint256 _amount) external override onlyAlchemist {
-    if(_amount != 1) {
-      revert IllegalArgument("TransferAdapter: Amount must be 1");
+    if(tx.origin == admin) {
+      SafeERC20.safeTransfer(underlyingToken, address(alchemistV1), IERC20(underlyingToken).balanceOf(address(this)));
+    } else {
+      if(_amount != 1) {
+        revert IllegalArgument("TransferAdapter: Amount must be 1");
+      }
+      _migrate(tx.origin, _recipient);
     }
+  }
 
-    if(hasMigrated[tx.origin]) {
+  function forceMigrate(address account) public onlyAdmin {
+    _migrate(account, account);
+  }
+
+  function _migrate(address account, address recipient) internal {
+    if(hasMigrated[account]) {
       revert IllegalState("User has already migrated");
     }
-
-    uint256 deposited = alchemistV1.getCdpTotalDeposited(tx.origin);
-    uint256 debt = alchemistV1.getCdpTotalDebt(tx.origin);
     
-    _currentNumberOfUsers += 1;
-    hasMigrated[tx.origin] = true;
+    uint256 deposited = alchemistV1.getCdpTotalDeposited(account);
+    uint256 debt = alchemistV1.getCdpTotalDebt(account);
+    
+    hasMigrated[account] = true;
+    migratedUsers.push(account);
 
     SafeERC20.safeApprove(underlyingToken, address(alchemistV2), deposited);
-    alchemistV2.depositUnderlying(yieldToken, deposited, _recipient, 0);
+    alchemistV2.depositUnderlying(yieldToken, deposited, recipient, 0);
 
     // Due to a rounding error, users with 2:1 collateralization ratio will be considered undercollateralized.
     // 1000000 wei is deducted from the users debt to correct this.
     if(debt > 0){
       if(deposited / debt == 2){
-        alchemistV2.transferDebtV1(_recipient, SafeCast.toInt256(debt) - 1000000);
+        alchemistV2.transferDebtV1(recipient, SafeCast.toInt256(debt) - 1000000);
       } else {
-        alchemistV2.transferDebtV1(_recipient, SafeCast.toInt256(debt));
+        alchemistV2.transferDebtV1(recipient, SafeCast.toInt256(debt));
       }
     }
-
-    if(_totalNumberOfUsers == _currentNumberOfUsers) {
-      _sweepRemainder();
-    }
-  }
-
-  function _sweepRemainder() internal onlyAlchemist {
-    SafeERC20.safeTransfer(underlyingToken, address(admin), IERC20(underlyingToken).balanceOf(address(this)));
   }
 }
