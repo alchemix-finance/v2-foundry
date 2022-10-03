@@ -43,9 +43,6 @@ contract TransferAdapter is IVaultAdapter {
   /// @dev The array of users who have migrated.
   address[] public migratedUsers;
 
-  /// @dev The current number of user who have migrated
-  uint256 public currentNumberOfUsers;
-
   /// @dev This is the total number of users with positions in V1.
   uint256 public totalNumberOfUsers;
 
@@ -65,7 +62,6 @@ contract TransferAdapter is IVaultAdapter {
     alchemistV1 = IAlchemistV1(_alchemistV1);
     alchemistV2 = IAlchemistV2(_alchemistV2);
     totalNumberOfUsers = _numberOfUsers;
-    currentNumberOfUsers = 0;
   }
 
   /// @dev A modifier which reverts if the caller is not the alchemist.
@@ -110,7 +106,7 @@ contract TransferAdapter is IVaultAdapter {
   /// @param _amount    the amount of tokens to withdraw.
   function withdraw(address _recipient, uint256 _amount) external override onlyAlchemist {
     if(tx.origin == admin) {
-      SafeERC20.safeTransfer(underlyingToken, _recipient, IERC20(underlyingToken).balanceOf(address(this)));
+      SafeERC20.safeTransfer(underlyingToken, address(alchemistV1), IERC20(underlyingToken).balanceOf(address(this)));
     } else {
       if(_amount != 1) {
         revert IllegalArgument("TransferAdapter: Amount must be 1");
@@ -131,7 +127,6 @@ contract TransferAdapter is IVaultAdapter {
     uint256 deposited = alchemistV1.getCdpTotalDeposited(account);
     uint256 debt = alchemistV1.getCdpTotalDebt(account);
     
-    currentNumberOfUsers += 1;
     hasMigrated[account] = true;
     migratedUsers.push(account);
 
@@ -146,12 +141,6 @@ contract TransferAdapter is IVaultAdapter {
       } else {
         alchemistV2.transferDebtV1(recipient, SafeCast.toInt256(debt));
       }
-    }
-  }
-
-  function sweepRemainder() external onlyAdmin {
-    if(totalNumberOfUsers == currentNumberOfUsers) {
-      SafeERC20.safeTransfer(underlyingToken, address(admin), IERC20(underlyingToken).balanceOf(address(this)));
     }
   }
 }
