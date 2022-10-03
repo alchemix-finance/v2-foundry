@@ -50,7 +50,7 @@ contract V2MigrationTest is DSTestPlus {
     function setUp() external {
         newAlchemistV2 = new AlchemistV2();
         pausableTransmuterConduit = new PausableTransmuterConduit(governance, DAI, alchemistV1USDAddress, transmuterV1Address);
-        transferAdapter = new TransferAdapter(governance, alUSD, DAI, yvDAI, alchemistV1USDAddress, alchemistV2USDAddress, 2992);
+        transferAdapter = new TransferAdapter(governance, alUSD, DAI, yvDAI, alchemistV1USDAddress, alchemistV2USDAddress);
 
         // Allow adapter to deposit underlying tokens into V2
         // & Set adapter address in the alchemist V2

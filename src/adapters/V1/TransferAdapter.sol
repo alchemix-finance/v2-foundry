@@ -43,17 +43,13 @@ contract TransferAdapter is IVaultAdapter {
   /// @dev The array of users who have migrated.
   address[] public migratedUsers;
 
-  /// @dev This is the total number of users with positions in V1.
-  uint256 public totalNumberOfUsers;
-
   constructor(
     address _admin, 
     address _debtToken, 
     address _underlyingToken, 
     address _yieldToken, 
     address _alchemistV1, 
-    address _alchemistV2,
-    uint256 _numberOfUsers
+    address _alchemistV2
   ) {
     admin = _admin;
     _debtToken = debtToken;
@@ -61,7 +57,6 @@ contract TransferAdapter is IVaultAdapter {
     yieldToken = _yieldToken;
     alchemistV1 = IAlchemistV1(_alchemistV1);
     alchemistV2 = IAlchemistV2(_alchemistV2);
-    totalNumberOfUsers = _numberOfUsers;
   }
 
   /// @dev A modifier which reverts if the caller is not the alchemist.
