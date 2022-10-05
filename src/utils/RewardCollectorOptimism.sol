@@ -15,14 +15,13 @@ import "../libraries/TokenUtils.sol";
 struct InitializationParams {
     address alchemist;
     address debtToken;
-    address rewardsController;
     address rewardToken;
     address swapRouter;
 }
 
-/// @title  RewardCollector
+/// @title  RewardCollectorOptimism
 /// @author Alchemix Finance
-contract RewardCollector is IRewardCollector {
+contract RewardCollectorOptimism is IRewardCollector {
     uint256 constant FIXED_POINT_SCALAR = 1e18;
     uint256 constant BPS = 10000;
     string public override version = "1.0.0";
@@ -38,7 +37,7 @@ contract RewardCollector is IRewardCollector {
         swapRouter      = params.swapRouter;
     }
 
-    function claimAndDistributeRewards(address[] calldata tokens, uint256 minimumOpOut) external returns (uint256) {
+    function claimAndDistributeRewards(address[] calldata tokens, uint256 minimumSwap) external returns (uint256) {
         uint256 totalClaimed;
 
         for (uint i = 0; i < tokens.length; i++) {
@@ -54,12 +53,12 @@ contract RewardCollector is IRewardCollector {
                 IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](2);
                 routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x7F5c764cBc14f9669B88837ca1490cCa17c31607, false);
                 routes[1] = IVelodromeSwapRouter.route(0x7F5c764cBc14f9669B88837ca1490cCa17c31607, 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A, true);
-                IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(claimed, minimumOpOut * 9999 / BPS, routes, address(this), block.timestamp);
+                IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(claimed, minimumSwap * 9999 / BPS, routes, address(this), block.timestamp);
             } else if (debtToken == 0x3E29D3A9316dAB217754d13b28646B76607c5f04) {
                 // Velodrome Swap Routes: OP -> alETH
                 IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](1);
                 routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x3E29D3A9316dAB217754d13b28646B76607c5f04, false);
-                IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(claimed, minimumOpOut * 9999 / BPS, routes, address(this), block.timestamp);
+                IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(claimed, minimumSwap * 9999 / BPS, routes, address(this), block.timestamp);
             } else {
                 revert IllegalState("Reward collector `debtToken` is not supported");
             }

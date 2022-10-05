@@ -15,9 +15,9 @@ import {
 } from "../adapters/aave/AAVETokenAdapter.sol";
 
 import {
-    RewardCollector,
+    RewardCollectorOptimism,
     InitializationParams as RewardCollectorInitializationParams
-} from "../utils/RewardCollector.sol";
+} from "../utils/RewardCollectorOptimism.sol";
 
 import {AlchemicTokenV2} from "../AlchemicTokenV2.sol";
 import {AlchemistV2} from "../AlchemistV2.sol";
@@ -65,7 +65,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
     AAVETokenAdapter adapter;
     HarvestResolverOptimism harvestResolver;
     StaticATokenV3 staticAToken;
-    RewardCollector rewardCollector;
+    RewardCollectorOptimism rewardCollector;
     TransmuterV2 transmuter;
     TransmuterBuffer buffer;
     ILendingPool lendingPool = ILendingPool(0x794a61358D6845594F94dc1DB02A252b5b4814aD);
@@ -105,12 +105,11 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         RewardCollectorInitializationParams memory rewardCollectorParams = RewardCollectorInitializationParams({
             alchemist:          address(alchemistUSD),
             debtToken:          alUSD,
-            rewardsController:  rewardsController,
             rewardToken:        rewardToken,
             swapRouter:         velodromeRouter
         });
 
-        rewardCollector = new RewardCollector(rewardCollectorParams);
+        rewardCollector = new RewardCollectorOptimism(rewardCollectorParams);
 
         whitelist.add(address(this));
         whitelist.add(address(rewardCollector));

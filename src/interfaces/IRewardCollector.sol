@@ -24,8 +24,8 @@ interface IRewardCollector {
     /// @notice Claims rewards tokens, swaps on velodrome for alUSD.
     ///
     /// @param  tokens          The yield tokens to claim rewards for.
-    /// @param  minimumOpOut    The minimum OP to debt tokens.
+    /// @param  minimumSwap     The minimum OP to debt tokens.
     ///
     /// @return claimed         The amount of reward tokens claimed.
-    function claimAndDistributeRewards(address[] calldata tokens, uint256 minimumOpOut) external returns (uint256 claimed);
+    function claimAndDistributeRewards(address[] calldata tokens, uint256 minimumSwap) external returns (uint256 claimed);
 }

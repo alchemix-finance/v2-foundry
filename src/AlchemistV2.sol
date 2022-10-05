@@ -13,6 +13,7 @@ import "./interfaces/IERC20TokenReceiver.sol";
 import "./interfaces/ITokenAdapter.sol";
 import "./interfaces/IAlchemicToken.sol";
 import "./interfaces/IWhitelist.sol";
+import "./interfaces/external/vesper/IVesperRewards.sol";
 
 import "./libraries/SafeCast.sol";
 import "./libraries/Sets.sol";
@@ -516,8 +517,8 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     }
 
     /// @inheritdoc IAlchemistV2AdminActions
-    function sweepTokens(address rewardToken, uint256 amount) external override lock {
-        _onlyAdmin();
+    function sweepRewardTokens(address rewardToken) external override lock {
+        _onlyKeeper();
 
         if (_supportedYieldTokens.contains(rewardToken)) {
             revert UnsupportedToken(rewardToken);
@@ -527,9 +528,23 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
             revert UnsupportedToken(rewardToken);
         }
 
-        TokenUtils.safeTransfer(rewardToken, admin, amount);
+        // If VSP Reward
+        if (rewardToken == 0x1b40183EFB4Dd766f11bDa7A7c3AD8982e998421) {
+            (address[] memory addresses, uint256[] memory amounts) = IVesperRewards(0x51EEf73abf5d4AC5F41De131591ed82c27a7Be3D).claimable(address(this));
 
-        emit SweepTokens(rewardToken, amount);
+            // Loop through rewards tokens to find claimable (transferable) amount
+            for (uint i = 0; i < addresses.length; i++) {
+                if (addresses[i] == 0x1b40183EFB4Dd766f11bDa7A7c3AD8982e998421) {
+                    // Claim VSP owned by the alchemist and transfer to the rewardCollector
+                    IVesperRewards(0x51EEf73abf5d4AC5F41De131591ed82c27a7Be3D).claimReward(address(this));
+                    TokenUtils.safeTransfer(0x1b40183EFB4Dd766f11bDa7A7c3AD8982e998421, msg.sender, TokenUtils.safeBalanceOf(rewardToken, address(this)));
+
+                    emit SweepRewardTokens(rewardToken, amounts[i]);
+                }
+            }
+        } else {
+            return;
+        }
     }
 
     /// @inheritdoc IAlchemistV2AdminActions

@@ -121,7 +121,7 @@ interface IAlchemistV2Events {
     ///
     /// @param rewardToken The address of the reward token.
     /// @param amount      The amount of 'rewardToken' swept into the admin.
-    event SweepTokens(address indexed rewardToken, uint256 amount);
+    event SweepRewardTokens(address indexed rewardToken, uint256 amount);
 
     /// @notice Emitted when `owner` grants `spender` the ability to mint debt tokens on its behalf.
     ///
