@@ -297,8 +297,9 @@ interface IAlchemistV2AdminActions {
     /// @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.
     /// @notice `rewardToken` must not be a yield or underlying token or this call will revert with a {UnsupportedToken} error.
     ///
-    /// @param rewardToken The address of the reward token to snap.
-    function sweepRewardTokens(address rewardToken) external;
+    /// @param rewardToken The address of the reward token sweep.
+    /// @param yieldToken The address of the yield token whose rewards are being swept.
+    function sweepRewardTokens(address rewardToken, address yieldToken) external;
 
     /// @notice Set the address of the V1 transfer adapter.
     ///
