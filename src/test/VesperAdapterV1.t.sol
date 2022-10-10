@@ -218,36 +218,77 @@ contract VesperAdapterV1Test is DSTestPlus {
         assertGt(debtBefore, debtAfter);
     }
 
-    // fuzzing tests not passing. Undercollateralized in some cases.
+    function testRewardsETHFuzz(uint256 amount) external {
+        hevm.assume(
+            amount >= 10**SafeERC20.expectDecimals(address(weth)) && 
+            amount < type(uint96).max
+        );
 
+        deal(address(weth), address(this), amount);
 
-    // function testRewardsETHFuzz(uint256 amount) external {
-    //     hevm.assume(
-    //         amount >= 10**SafeERC20.expectDecimals(address(weth)) && 
-    //         amount < type(uint96).max
-    //     );
+        SafeERC20.safeApprove(address(weth), address(alchemistETH), amount);
+        alchemistETH.depositUnderlying(address(vesperPool), amount, address(this), 0);
 
-    //     deal(address(weth), address(this), amount);
+        (int256 debtBefore, ) = alchemistETH.accounts(address((this)));
 
-    //     SafeERC20.safeApprove(address(weth), address(alchemistETH), amount);
-    //     alchemistETH.depositUnderlying(address(vesperPool), amount, address(this), 0);
-
-    //     alchemistETH.mint(40e18, address(this));
-
-    //     (int256 debtBefore, ) = alchemistETH.accounts(address((this)));
-
-    //     hevm.warp(block.timestamp + 10000000000);
-    //     hevm.roll(block.number + 10000000000);
+        hevm.warp(block.timestamp + 10000000000);
+        hevm.roll(block.number + 10000000000);
         
-    //     address[] memory assets = new address[](1);
-    //     assets[0] = address(vesperPool);
-    //     rewardCollectorVesper.claimAndDistributeRewards(assets, 0);
+        address[] memory assets = new address[](1);
+        assets[0] = address(vesperPool);
+        rewardCollectorVesper.claimAndDistributeRewards(assets, 0);
 
-    //     (int256 debtAfter, ) = alchemistETH.accounts(address((this)));
-    //     assertGt(debtBefore, debtAfter);
-    // }
+        (int256 debtAfter, ) = alchemistETH.accounts(address((this)));
+        assertGt(debtBefore, debtAfter);
+    }
 
-    function testRewardsUSD() external {
+    function testRewardsDAI() external {
+        deal(address(DAI), address(this), 100e18);
+        deal(address(USDC), address(this), 100e18);
+
+        SafeERC20.safeApprove(DAI, address(alchemistUSD), 100e18);
+        alchemistUSD.depositUnderlying(vaDAI, 100e18, address(this), 0);
+
+        alchemistUSD.mint(40e18, address(this));
+
+        (int256 debtBefore, ) = alchemistUSD.accounts(address((this)));
+
+        hevm.warp(block.timestamp + 1000000);
+        hevm.roll(block.number + 1000000);
+        
+        address[] memory assets = new address[](2);
+        assets[0] = vaDAI;
+        assets[1] = vaUSDC;
+        rewardCollectorVesperUSD.claimAndDistributeRewards(assets, 0);
+
+        (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
+        assertGt(debtBefore, debtAfter);
+    }
+
+        function testRewardsUSDC() external {
+        deal(address(DAI), address(this), 100e18);
+        deal(address(USDC), address(this), 100e18);
+
+        SafeERC20.safeApprove(USDC, address(alchemistUSD), 100e18);
+        alchemistUSD.depositUnderlying(vaUSDC, 100e18, address(this), 0);
+
+        alchemistUSD.mint(40e18, address(this));
+
+        (int256 debtBefore, ) = alchemistUSD.accounts(address((this)));
+
+        hevm.warp(block.timestamp + 1000000);
+        hevm.roll(block.number + 1000000);
+        
+        address[] memory assets = new address[](2);
+        assets[0] = vaDAI;
+        assets[1] = vaUSDC;
+        rewardCollectorVesperUSD.claimAndDistributeRewards(assets, 0);
+
+        (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
+        assertGt(debtBefore, debtAfter);
+    }
+
+    function testRewardsBothUSD() external {
         deal(address(DAI), address(this), 100e18);
         deal(address(USDC), address(this), 100e18);
 
@@ -258,6 +299,40 @@ contract VesperAdapterV1Test is DSTestPlus {
         alchemistUSD.depositUnderlying(vaUSDC, 100e18, address(this), 0);
 
         alchemistUSD.mint(40e18, address(this));
+
+        (int256 debtBefore, ) = alchemistUSD.accounts(address((this)));
+
+        hevm.warp(block.timestamp + 1000000);
+        hevm.roll(block.number + 1000000);
+        
+        address[] memory assets = new address[](2);
+        assets[0] = vaDAI;
+        assets[1] = vaUSDC;
+        rewardCollectorVesperUSD.claimAndDistributeRewards(assets, 0);
+
+        (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
+        assertGt(debtBefore, debtAfter);
+    }
+
+    function testRewardsUSDFuzz(uint256 amountDAI, uint256 amountUSDC) external {
+        hevm.assume(
+            amountDAI >= 10**SafeERC20.expectDecimals(address(weth)) && 
+            amountDAI < type(uint96).max
+        );
+
+        hevm.assume(
+            amountUSDC >= 10**SafeERC20.expectDecimals(address(weth)) && 
+            amountUSDC < type(uint96).max
+        );
+
+        deal(address(DAI), address(this), amountDAI);
+        deal(address(USDC), address(this), amountUSDC);
+
+        SafeERC20.safeApprove(DAI, address(alchemistUSD), amountDAI);
+        alchemistUSD.depositUnderlying(vaDAI, amountDAI, address(this), 0);
+
+        SafeERC20.safeApprove(USDC, address(alchemistUSD), amountUSDC);
+        alchemistUSD.depositUnderlying(vaUSDC, amountUSDC, address(this), 0);
 
         (int256 debtBefore, ) = alchemistUSD.accounts(address((this)));
 

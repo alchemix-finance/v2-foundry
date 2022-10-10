@@ -63,7 +63,7 @@ contract RewardCollectorVesper is IRewardCollector {
             uint256 claimed = IERC20(rewardToken).balanceOf(address(this));
             uint256 received;
             
-            if (claimed == 0) return 0;
+            if (claimed == 0) continue;
 
             if (debtToken == alUSD) {
                 // Swap VSP -> WETH -> DAI
