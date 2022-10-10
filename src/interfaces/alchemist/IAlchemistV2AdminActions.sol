@@ -301,6 +301,15 @@ interface IAlchemistV2AdminActions {
     /// @param yieldToken The address of the yield token whose rewards are being swept.
     function sweepRewardTokens(address rewardToken, address yieldToken) external;
 
+     /// @notice Sweep all of 'token' from the alchemist into the admin.
+    ///
+    /// @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.
+    /// @notice `token` must not be a yield or underlying token or this call will revert with a {UnsupportedToken} error.
+    ///
+    /// @param token The address of the token to sweep.
+    /// @param amount The amount of 'token' to sweep to the admin.
+    function sweepTokens(address token, uint256 amount) external;
+
     /// @notice Set the address of the V1 transfer adapter.
     ///
     /// @notice `msg.sender` must be the admin or this call will revert with an {Unauthorized} error.

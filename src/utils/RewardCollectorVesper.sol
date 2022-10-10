@@ -8,6 +8,8 @@ import {IAlchemistV2State} from "../interfaces/alchemist/IAlchemistV2State.sol";
 import {ICurveFactoryethpool} from "../interfaces/ICurveFactoryethpool.sol";
 import {IStableMetaPool} from "../interfaces/external/curve/IStableMetaPool.sol";
 import {ISwapRouter} from "../interfaces/external/uniswap/ISwapRouter.sol";
+import {IVesperPool} from "../interfaces/external/vesper/IVesperPool.sol";
+import {IVesperRewards} from "../interfaces/external/vesper/IVesperRewards.sol";
 import {IWETH9} from "../interfaces/external/IWETH9.sol";
 
 
@@ -46,6 +48,10 @@ contract RewardCollectorVesper is IRewardCollector {
         debtToken       = params.debtToken;
         rewardToken     = params.rewardToken;
         swapRouter      = params.swapRouter;
+    }
+
+    function claim(address yieldToken) external {
+        IVesperRewards(IVesperPool(yieldToken).poolRewards()).claimReward(address(this));
     }
 
     function claimAndDistributeRewards(address[] calldata tokens, uint256 minimumSwap) external returns (uint256) {

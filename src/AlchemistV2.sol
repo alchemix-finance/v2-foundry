@@ -13,6 +13,7 @@ import "./interfaces/IERC20TokenReceiver.sol";
 import "./interfaces/ITokenAdapter.sol";
 import "./interfaces/IAlchemicToken.sol";
 import "./interfaces/IWhitelist.sol";
+import "./interfaces/IRewardCollector.sol";
 import "./interfaces/external/vesper/IVesperRewards.sol";
 import "./interfaces/external/vesper/IVesperPool.sol";
 
@@ -529,17 +530,26 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
             revert UnsupportedToken(rewardToken);
         }
 
-        // If VSP Reward
-        if (rewardToken == 0x1b40183EFB4Dd766f11bDa7A7c3AD8982e998421) {
-            // Claim VSP owned by the alchemist and transfer to the rewardCollector
-            IVesperRewards(IVesperPool(yieldToken).poolRewards()).claimReward(address(this));
-            uint256 claimed = TokenUtils.safeBalanceOf(rewardToken, address(this));
-            TokenUtils.safeTransfer(0x1b40183EFB4Dd766f11bDa7A7c3AD8982e998421, msg.sender, claimed);
+        msg.sender.delegatecall(abi.encodeWithSignature("claim(address)", yieldToken));
 
-            emit SweepRewardTokens(rewardToken, claimed);
-        } else {
-            return;
+        TokenUtils.safeTransfer(rewardToken, msg.sender, TokenUtils.safeBalanceOf(rewardToken, address(this)));
+    }
+
+    /// @inheritdoc IAlchemistV2AdminActions
+    function sweepTokens(address token, uint256 amount) external override lock {
+        _onlyAdmin();
+
+        if (_supportedYieldTokens.contains(token)) {
+            revert UnsupportedToken(token);
         }
+
+        if (_supportedUnderlyingTokens.contains(token)) {
+            revert UnsupportedToken(token);
+        }
+
+        TokenUtils.safeTransfer(token, admin, amount);
+
+        emit SweepTokens(token, amount);
     }
 
     /// @inheritdoc IAlchemistV2AdminActions
