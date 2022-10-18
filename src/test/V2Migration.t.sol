@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.13;
 
-import {V1AddressList} from "../addresses.sol";
-
 import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
@@ -135,70 +133,70 @@ contract V2MigrationTest is DSTestPlus {
         assertApproxEq(underlyingValue, 100e18, 100e18 * 10 / BPS);
     }
 
-    function testMigrateAllUserFunds() external {
-        // Pull funds from current vault and flush to the transfer adapter
-        hevm.startPrank(governance);
-        (uint256 withdrawnAmount, ) = alchemistV1USD.recallAll(1);
-        alchemistV1USD.migrate(transferAdapter);
-        uint256 flushed = alchemistV1USD.flush();
-        hevm.stopPrank();
-        // Contract may have previous balance so check if flushed is greater than or equal to withdrawn amount
-        assertGt(flushed, withdrawnAmount - 1);
+    // function testMigrateAllUserFunds() external {
+    //     // Pull funds from current vault and flush to the transfer adapter
+    //     hevm.startPrank(governance);
+    //     (uint256 withdrawnAmount, ) = alchemistV1USD.recallAll(1);
+    //     alchemistV1USD.migrate(transferAdapter);
+    //     uint256 flushed = alchemistV1USD.flush();
+    //     hevm.stopPrank();
+    //     // Contract may have previous balance so check if flushed is greater than or equal to withdrawn amount
+    //     assertGt(flushed, withdrawnAmount - 1);
 
-        // Pause the transmuter
-        hevm.prank(governance);
-        pausableTransmuterConduit.pauseTransmuter(true);
-        // Stop V1 from minting more alUSD
-        hevm.prank(treasury);
-        alchemicToken.setWhitelist(alchemistV1USDAddress, false);
-        // Pause the alchemist.
-        hevm.prank(governance);
-        alchemistV1USD.setEmergencyExit(true);
-        hevm.stopPrank();
+    //     // Pause the transmuter
+    //     hevm.prank(governance);
+    //     pausableTransmuterConduit.pauseTransmuter(true);
+    //     // Stop V1 from minting more alUSD
+    //     hevm.prank(treasury);
+    //     alchemicToken.setWhitelist(alchemistV1USDAddress, false);
+    //     // Pause the alchemist.
+    //     hevm.prank(governance);
+    //     alchemistV1USD.setEmergencyExit(true);
+    //     hevm.stopPrank();
 
-        // Roll chain ahead
-        hevm.roll(block.number + 10);
+    //     // Roll chain ahead
+    //     hevm.roll(block.number + 10);
 
-        // List of addresses from V1
-        V1AddressList V1List = new V1AddressList();
-        address[2992] memory addresses = V1List.getAddresses();
+    //     // List of addresses from V1
+    //     V1AddressList V1List = new V1AddressList();
+    //     address[2992] memory addresses = V1List.getAddresses();
 
-        // Loop until all addresses have migrated
-        for (uint i = 0; i < addresses.length; i++) {
-            // Original debt/position from V1
-            uint256 V1Debt = alchemistV1USD.getCdpTotalDebt(addresses[i]);
-            uint256 V1Deposited = alchemistV1USD.getCdpTotalDeposited(addresses[i]);
-            // Orignal debt/position from V2 which is used to calculate the difference
-            // This accounts for users migrating already having positions in V2
-            (int256 V2DebtBefore, ) = alchemistV2USD.accounts(addresses[i]);
-            (uint256 V2SharesBefore, ) = alchemistV2USD.positions(addresses[i], yvDAI);
+    //     // Loop until all addresses have migrated
+    //     for (uint i = 0; i < addresses.length; i++) {
+    //         // Original debt/position from V1
+    //         uint256 V1Debt = alchemistV1USD.getCdpTotalDebt(addresses[i]);
+    //         uint256 V1Deposited = alchemistV1USD.getCdpTotalDeposited(addresses[i]);
+    //         // Orignal debt/position from V2 which is used to calculate the difference
+    //         // This accounts for users migrating already having positions in V2
+    //         (int256 V2DebtBefore, ) = alchemistV2USD.accounts(addresses[i]);
+    //         (uint256 V2SharesBefore, ) = alchemistV2USD.positions(addresses[i], yvDAI);
 
-            // Users with less than 10 wei can possibly cause undercollateralized error
-            if(V1Deposited < 10) {
-                continue;
-            }
+    //         // Users with less than 10 wei can possibly cause undercollateralized error
+    //         if(V1Deposited < 10) {
+    //             continue;
+    //         }
 
-            // User withdraws 
-            hevm.prank(addresses[i], addresses[i]);
-            alchemistV1USD.withdraw(1);
-            (int256 V2DebtAfter, ) = alchemistV2USD.accounts(addresses[i]);
+    //         // User withdraws 
+    //         hevm.prank(addresses[i], addresses[i]);
+    //         alchemistV1USD.withdraw(1);
+    //         (int256 V2DebtAfter, ) = alchemistV2USD.accounts(addresses[i]);
 
-            int256 debtIncrease = V2DebtAfter - V2DebtBefore;
+    //         int256 debtIncrease = V2DebtAfter - V2DebtBefore;
 
-            // Users with 2:1 collaterlization ratio have debt reduced by 1000000 wei
-            if(V1Debt > 0 && V1Deposited / V1Debt == 2) {
-                assertEq(int256(V1Debt) - 1000000, debtIncrease);
-            } else {
-                assertEq(int256(V1Debt), debtIncrease);
-            }
+    //         // Users with 2:1 collaterlization ratio have debt reduced by 1000000 wei
+    //         if(V1Debt > 0 && V1Deposited / V1Debt == 2) {
+    //             assertEq(int256(V1Debt) - 1000000, debtIncrease);
+    //         } else {
+    //             assertEq(int256(V1Debt), debtIncrease);
+    //         }
 
-            // Verify underlying value of position in V2 within 0.1% of original
-            (uint256 V2SharesAfter, ) = alchemistV2USD.positions(addresses[i], yvDAI);
-            uint256 sharesDiff = V2SharesAfter - V2SharesBefore;
-            uint256 underlyingValue = (sharesDiff * alchemistV2USD.getUnderlyingTokensPerShare(yvDAI) / scalar);
-            assertApproxEq(underlyingValue, V1Deposited, V1Deposited * 10 / BPS);
-        }
-    }
+    //         // Verify underlying value of position in V2 within 0.1% of original
+    //         (uint256 V2SharesAfter, ) = alchemistV2USD.positions(addresses[i], yvDAI);
+    //         uint256 sharesDiff = V2SharesAfter - V2SharesBefore;
+    //         uint256 underlyingValue = (sharesDiff * alchemistV2USD.getUnderlyingTokensPerShare(yvDAI) / scalar);
+    //         assertApproxEq(underlyingValue, V1Deposited, V1Deposited * 10 / BPS);
+    //     }
+    // }
 
     function testForceMigrateSingleUserFunds() external {
         // V1 debt before migration
