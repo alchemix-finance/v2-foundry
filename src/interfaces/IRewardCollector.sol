@@ -23,9 +23,9 @@ interface IRewardCollector {
 
     /// @notice Claims rewards tokens, swaps for alUSD.
     ///
-    /// @param  token           The yield token to claim rewards for.
-    /// @param  minimumSwap     The minimum returns to accept.
+    /// @param  token                The yield token to claim rewards for.
+    /// @param  minimumAmountOut     The minimum returns to accept.
     ///
-    /// @return claimed         The amount of reward tokens claimed.
-    function claimAndDistributeRewards(address token, uint256 minimumSwap) external returns (uint256 claimed);
+    /// @return claimed              The amount of reward tokens claimed.
+    function claimAndDistributeRewards(address token, uint256 minimumAmountOut) external returns (uint256 claimed);
 }

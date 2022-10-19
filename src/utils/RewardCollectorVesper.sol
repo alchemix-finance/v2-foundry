@@ -54,7 +54,7 @@ contract RewardCollectorVesper is IRewardCollector {
         IVesperRewards(IVesperPool(yieldToken).poolRewards()).claimReward(address(this));
     }
 
-    function claimAndDistributeRewards(address token, uint256 minimumSwap) external returns (uint256) {
+    function claimAndDistributeRewards(address token, uint256 minimumAmountOut) external returns (uint256) {
 
         IAlchemistV2(alchemist).sweepRewardTokens(rewardToken, token);
 
@@ -74,7 +74,7 @@ contract RewardCollectorVesper is IRewardCollector {
                     path: swapPath,
                     recipient: address(this),
                     amountIn: claimed,
-                    amountOutMinimum: minimumSwap
+                    amountOutMinimum: minimumAmountOut
                 });
 
             received = ISwapRouter(swapRouter).exactInput(params);
@@ -89,7 +89,7 @@ contract RewardCollectorVesper is IRewardCollector {
                     path: swapPath,
                     recipient: address(this),
                     amountIn: claimed,
-                    amountOutMinimum: minimumSwap
+                    amountOutMinimum: minimumAmountOut
                 });
 
             received = ISwapRouter(swapRouter).exactInput(params);
