@@ -210,9 +210,7 @@ contract VesperAdapterV1Test is DSTestPlus {
         hevm.warp(block.timestamp + 10000000000);
         hevm.roll(block.number + 10000000000);
         
-        address[] memory assets = new address[](1);
-        assets[0] = address(vesperPool);
-        rewardCollectorVesper.claimAndDistributeRewards(assets, 0);
+        rewardCollectorVesper.claimAndDistributeRewards(address(vesperPool), 0);
 
         (int256 debtAfter, ) = alchemistETH.accounts(address((this)));
         assertGt(debtBefore, debtAfter);
@@ -234,9 +232,7 @@ contract VesperAdapterV1Test is DSTestPlus {
         hevm.warp(block.timestamp + 10000000000);
         hevm.roll(block.number + 10000000000);
         
-        address[] memory assets = new address[](1);
-        assets[0] = address(vesperPool);
-        rewardCollectorVesper.claimAndDistributeRewards(assets, 0);
+        rewardCollectorVesper.claimAndDistributeRewards(address(vesperPool), 0);
 
         (int256 debtAfter, ) = alchemistETH.accounts(address((this)));
         assertGt(debtBefore, debtAfter);
@@ -256,10 +252,7 @@ contract VesperAdapterV1Test is DSTestPlus {
         hevm.warp(block.timestamp + 1000000);
         hevm.roll(block.number + 1000000);
         
-        address[] memory assets = new address[](2);
-        assets[0] = vaDAI;
-        assets[1] = vaUSDC;
-        rewardCollectorVesperUSD.claimAndDistributeRewards(assets, 0);
+        rewardCollectorVesperUSD.claimAndDistributeRewards(vaDAI, 0);
 
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
         assertGt(debtBefore, debtAfter);
@@ -279,10 +272,7 @@ contract VesperAdapterV1Test is DSTestPlus {
         hevm.warp(block.timestamp + 1000000);
         hevm.roll(block.number + 1000000);
         
-        address[] memory assets = new address[](2);
-        assets[0] = vaDAI;
-        assets[1] = vaUSDC;
-        rewardCollectorVesperUSD.claimAndDistributeRewards(assets, 0);
+        rewardCollectorVesperUSD.claimAndDistributeRewards(vaUSDC, 0);
 
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
         assertGt(debtBefore, debtAfter);
@@ -305,10 +295,8 @@ contract VesperAdapterV1Test is DSTestPlus {
         hevm.warp(block.timestamp + 1000000);
         hevm.roll(block.number + 1000000);
         
-        address[] memory assets = new address[](2);
-        assets[0] = vaDAI;
-        assets[1] = vaUSDC;
-        rewardCollectorVesperUSD.claimAndDistributeRewards(assets, 0);
+        rewardCollectorVesperUSD.claimAndDistributeRewards(vaDAI, 0);
+        rewardCollectorVesperUSD.claimAndDistributeRewards(vaUSDC, 0);
 
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
         assertGt(debtBefore, debtAfter);
@@ -339,10 +327,8 @@ contract VesperAdapterV1Test is DSTestPlus {
         hevm.warp(block.timestamp + 1000000);
         hevm.roll(block.number + 1000000);
         
-        address[] memory assets = new address[](2);
-        assets[0] = vaDAI;
-        assets[1] = vaUSDC;
-        rewardCollectorVesperUSD.claimAndDistributeRewards(assets, 0);
+        rewardCollectorVesperUSD.claimAndDistributeRewards(vaDAI, 0);
+        rewardCollectorVesperUSD.claimAndDistributeRewards(vaUSDC, 0);
 
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
         assertGt(debtBefore, debtAfter);

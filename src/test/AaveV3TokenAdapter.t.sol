@@ -315,9 +315,8 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         // Keeper check balance of token
         uint256 rewards = IRewardsController(rewardsController).getUserAccruedRewards(address(staticAToken), rewardToken);
         (int256 debtBefore, ) = alchemistUSD.accounts(address((this)));
-        address[] memory assets = new address[](1);
-        assets[0] = address(staticAToken);
-        rewardCollector.claimAndDistributeRewards(assets, rewards * 9999 / 10000);
+
+        rewardCollector.claimAndDistributeRewards(address(staticAToken), rewards * 9999 / 10000);
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
 
         assertEq(IERC20(rewardToken).balanceOf(address(rewardCollector)), 0);

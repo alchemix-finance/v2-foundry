@@ -54,58 +54,55 @@ contract RewardCollectorVesper is IRewardCollector {
         IVesperRewards(IVesperPool(yieldToken).poolRewards()).claimReward(address(this));
     }
 
-    function claimAndDistributeRewards(address[] calldata tokens, uint256 minimumSwap) external returns (uint256) {
-        uint256 totalClaimed = 0;    
+    function claimAndDistributeRewards(address token, uint256 minimumSwap) external returns (uint256) {
 
-        for (uint i = 0; i < tokens.length; i++) {
-            IAlchemistV2(alchemist).sweepRewardTokens(rewardToken, tokens[i]);
+        IAlchemistV2(alchemist).sweepRewardTokens(rewardToken, token);
 
-            uint256 claimed = IERC20(rewardToken).balanceOf(address(this));
-            uint256 received;
-            
-            if (claimed == 0) continue;
+        uint256 claimed = IERC20(rewardToken).balanceOf(address(this));
+        uint256 received;
+        
+        if (claimed == 0) return 0;
 
-            if (debtToken == alUSD) {
-                // Swap VSP -> WETH -> DAI
-                // As of now this will only swap DAI for alUSD in curve
-                // Possibly need to rotate which tokens get used
-                bytes memory swapPath = abi.encodePacked(rewardToken, uint24(3000), WETH, uint24(3000), DAI);
+        if (debtToken == alUSD) {
+            // Swap VSP -> WETH -> DAI
+            // As of now this will only swap DAI for alUSD in curve
+            // Possibly need to rotate which tokens get used
+            bytes memory swapPath = abi.encodePacked(rewardToken, uint24(3000), WETH, uint24(3000), DAI);
 
-                ISwapRouter.ExactInputParams memory params =
-                    ISwapRouter.ExactInputParams({
-                        path: swapPath,
-                        recipient: address(this),
-                        amountIn: claimed,
-                        amountOutMinimum: minimumSwap
-                    });
+            ISwapRouter.ExactInputParams memory params =
+                ISwapRouter.ExactInputParams({
+                    path: swapPath,
+                    recipient: address(this),
+                    amountIn: claimed,
+                    amountOutMinimum: minimumSwap
+                });
 
-                received = ISwapRouter(swapRouter).exactInput(params);
-                // Curve 3CRV + alUSD meta pool swap to alUSD
-                IStableMetaPool(curveMetaPool).exchange_underlying(1, 0, received, received * 9900 / BPS);
-            } else if (debtToken == alETH) {
-                // Swap VSP -> WETH
-                bytes memory swapPath = abi.encodePacked(rewardToken, uint24(3000), WETH);
+            received = ISwapRouter(swapRouter).exactInput(params);
+            // Curve 3CRV + alUSD meta pool swap to alUSD
+            IStableMetaPool(curveMetaPool).exchange_underlying(1, 0, received, received * 9900 / BPS);
+        } else if (debtToken == alETH) {
+            // Swap VSP -> WETH
+            bytes memory swapPath = abi.encodePacked(rewardToken, uint24(3000), WETH);
 
-                ISwapRouter.ExactInputParams memory params =
-                    ISwapRouter.ExactInputParams({
-                        path: swapPath,
-                        recipient: address(this),
-                        amountIn: claimed,
-                        amountOutMinimum: minimumSwap
-                    });
+            ISwapRouter.ExactInputParams memory params =
+                ISwapRouter.ExactInputParams({
+                    path: swapPath,
+                    recipient: address(this),
+                    amountIn: claimed,
+                    amountOutMinimum: minimumSwap
+                });
 
-                received = ISwapRouter(swapRouter).exactInput(params);
-                IWETH9(WETH).withdraw(received);
-                // Curve alETH + ETH factory pool swap to alETH
-                ICurveFactoryethpool(curveFactoryPool).exchange{value: received}(0, 1, received, received * 9900 / BPS);
-            } else {
-                revert IllegalState("Reward collector `debtToken` is not supported");
-            }
-
-            IAlchemistV2(alchemist).donate(tokens[i], IERC20(debtToken).balanceOf(address(this)));
+            received = ISwapRouter(swapRouter).exactInput(params);
+            IWETH9(WETH).withdraw(received);
+            // Curve alETH + ETH factory pool swap to alETH
+            ICurveFactoryethpool(curveFactoryPool).exchange{value: received}(0, 1, received, received * 9900 / BPS);
+        } else {
+            revert IllegalState("Reward collector `debtToken` is not supported");
         }
 
-        return totalClaimed;
+        IAlchemistV2(alchemist).donate(token, IERC20(debtToken).balanceOf(address(this)));
+
+        return claimed;
     }
 
     receive() external payable {}

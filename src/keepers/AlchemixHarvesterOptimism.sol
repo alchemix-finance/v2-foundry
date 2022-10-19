@@ -44,10 +44,7 @@ contract AlchemixHarvesterOptimism is IAlchemixHarvesterOptimism, AlchemixGelato
     }
     IAlchemistV2(alchemist).harvest(yieldToken, minimumAmountOut);
 
-    // Claim and distribute optimism rewards
-    address[] memory assets = new address[](1);
-    assets[0] = address(yieldToken);
-    IRewardCollector(rewardCollector).claimAndDistributeRewards(assets, minimumOpValue);
+    IRewardCollector(rewardCollector).claimAndDistributeRewards(yieldToken, minimumOpValue);
 
     IHarvestResolver(resolver).recordHarvest(yieldToken);
   }
