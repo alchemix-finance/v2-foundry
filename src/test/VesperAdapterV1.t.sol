@@ -222,9 +222,9 @@ contract VesperAdapterV1Test is DSTestPlus {
         (uint160 sqrtPriceX96,,,,,,) =  pool.slot0();
         uint256 priceWETH = uint(sqrtPriceX96) * (uint(sqrtPriceX96)) * (1e18) >> (96 * 2);
 
-        uint256 daiRewardsExchange = amountsDAI[0] * priceWETH / 1e18;
+        uint256 wethRewardsExchange = amountsDAI[0] * priceWETH / 1e18;
         
-        rewardCollectorVesper.claimAndDistributeRewards(address(vesperPool), daiRewardsExchange * 9900 / BPS);
+        rewardCollectorVesper.claimAndDistributeRewards(address(vesperPool), wethRewardsExchange * 9900 / BPS);
 
         (int256 debtAfter, ) = alchemistETH.accounts(address((this)));
         assertGt(debtBefore, debtAfter);
@@ -336,8 +336,13 @@ contract VesperAdapterV1Test is DSTestPlus {
             amountDAI < type(uint96).max
         );
 
+        hevm.assume(
+            amountUSDC >= 10**SafeERC20.expectDecimals(address(USDC)) && 
+            amountUSDC < type(uint96).max
+        );
+
         deal(address(DAI), address(this), amountDAI);
-        deal(address(USDC), address(this), amountDAI);
+        deal(address(USDC), address(this), amountUSDC);
 
         SafeERC20.safeApprove(DAI, address(alchemistUSD), amountDAI);
         alchemistUSD.depositUnderlying(vaDAI, amountDAI, address(this), 0);
