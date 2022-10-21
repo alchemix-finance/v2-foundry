@@ -268,7 +268,7 @@ contract HarvestResolverOptimism is IResolver, Ownable {
             }
             return (
               true,
-              abi.encodeWithSelector(IAlchemixHarvesterOptimism.harvest.selector, h.alchemist, yieldToken, minimumAmountOut, expectedExchange)
+              abi.encodeWithSelector(IAlchemixHarvesterOptimism.harvest.selector, h.alchemist, h.rewardCollector, yieldToken, minimumAmountOut, expectedExchange)
             );
           }
         }
