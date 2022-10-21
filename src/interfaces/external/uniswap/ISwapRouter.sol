@@ -70,4 +70,15 @@ interface ISwapRouter {
   ///
   /// @return amountIn The amount of the input token
   function exactOutput(ExactOutputParams calldata params) external payable returns (uint256 amountIn);
+
+  /// @notice Ensures that the current (synthetic) tick over the path is no worse than
+  /// `maximumTickDivergence` ticks away from the average as of `secondsAgo`
+  /// @param path The path to fetch prices over
+  /// @param maximumTickDivergence The maximum number of ticks that the price can degrade by
+  /// @param secondsAgo The number of seconds ago to compute oracle prices against
+  function checkOracleSlippage(
+      bytes memory path,
+      uint24 maximumTickDivergence,
+      uint32 secondsAgo
+  ) external view;
 }

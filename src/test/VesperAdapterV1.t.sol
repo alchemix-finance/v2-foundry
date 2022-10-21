@@ -20,6 +20,9 @@ import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IAlchemistV2AdminActions} from "../interfaces/alchemist/IAlchemistV2AdminActions.sol";
 import {IWETH9} from "../interfaces/external/IWETH9.sol";
 import {IProxyAdmin} from "../interfaces/external/IProxyAdmin.sol";
+import {ISwapRouter} from "../interfaces/external/uniswap/ISwapRouter.sol";
+import {IUniswapV3Factory} from "../interfaces/external/uniswap/IUniswapV3Factory.sol";
+import {IUniswapV3Pool} from "../interfaces/external/uniswap/IUniswapV3Pool.sol";
 import {IVesperPool} from "../interfaces/external/vesper/IVesperPool.sol";
 import {IVesperRewards} from "../interfaces/external/vesper/IVesperRewards.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
@@ -38,6 +41,7 @@ contract VesperAdapterV1Test is DSTestPlus {
     address constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
     address constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
     address constant proxyAdminAddress = 0xE0fC5CB7665041CdA26969A2D1ceb5cD5046347d;
+    address constant uniSwapFactory = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
     address constant uniswapRouter = 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45;
     address constant vaDAI = 0x0538C8bAc84E95A9dF8aC10Aad17DbE81b9E36ee;
     address constant vaUSDC = 0xa8b607Aa09B6A2E306F93e74c282Fb13f6A80452;
@@ -209,8 +213,18 @@ contract VesperAdapterV1Test is DSTestPlus {
 
         hevm.warp(block.timestamp + 10000000000);
         hevm.roll(block.number + 10000000000);
+
+        (address[] memory tokensDAI, uint256[] memory amountsDAI) = IVesperRewards(0x51EEf73abf5d4AC5F41De131591ed82c27a7Be3D).claimable(address(alchemistETHAddress));
+
+        IUniswapV3Factory factory = IUniswapV3Factory(uniSwapFactory);
+
+        IUniswapV3Pool pool = IUniswapV3Pool(factory.getPool(vspRewardToken, address(weth), uint24(3000)));
+        (uint160 sqrtPriceX96,,,,,,) =  pool.slot0();
+        uint256 priceWETH = uint(sqrtPriceX96) * (uint(sqrtPriceX96)) * (1e18) >> (96 * 2);
+
+        uint256 daiRewardsExchange = amountsDAI[0] * priceWETH / 1e18;
         
-        rewardCollectorVesper.claimAndDistributeRewards(address(vesperPool), 0);
+        rewardCollectorVesper.claimAndDistributeRewards(address(vesperPool), daiRewardsExchange * 9900 / BPS);
 
         (int256 debtAfter, ) = alchemistETH.accounts(address((this)));
         assertGt(debtBefore, debtAfter);
@@ -252,13 +266,27 @@ contract VesperAdapterV1Test is DSTestPlus {
         hevm.warp(block.timestamp + 1000000);
         hevm.roll(block.number + 1000000);
         
-        rewardCollectorVesperUSD.claimAndDistributeRewards(vaDAI, 0);
+        (address[] memory tokensDAI, uint256[] memory amountsDAI) = IVesperRewards(0x35864296944119F72AA1B468e13449222f3f0E67).claimable(address(alchemistUSDAddress));
+
+        IUniswapV3Factory factory = IUniswapV3Factory(uniSwapFactory);
+
+        IUniswapV3Pool pool = IUniswapV3Pool(factory.getPool(vspRewardToken, address(weth), uint24(3000)));
+        (uint160 sqrtPriceX96,,,,,,) =  pool.slot0();
+        uint256 priceWETH = uint(sqrtPriceX96) * (uint(sqrtPriceX96)) * (1e18) >> (96 * 2);
+
+        pool = IUniswapV3Pool(factory.getPool(address(weth), DAI, uint24(3000)));
+        ( sqrtPriceX96,,,,,,) =  pool.slot0();
+        uint256 priceDAI = uint(sqrtPriceX96) * (uint(sqrtPriceX96)) * (1e18) >> (96 * 2);
+
+        uint256 daiRewardsExchange = amountsDAI[0] * priceWETH / priceDAI;
+
+        rewardCollectorVesperUSD.claimAndDistributeRewards(vaDAI, daiRewardsExchange * 9900 / BPS);
 
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
         assertGt(debtBefore, debtAfter);
     }
 
-        function testRewardsUSDC() external {
+    function testRewardsUSDC() external {
         deal(address(DAI), address(this), 100e18);
         deal(address(USDC), address(this), 100e18);
 
@@ -326,7 +354,7 @@ contract VesperAdapterV1Test is DSTestPlus {
 
         hevm.warp(block.timestamp + 1000000);
         hevm.roll(block.number + 1000000);
-        
+
         rewardCollectorVesperUSD.claimAndDistributeRewards(vaDAI, 0);
         rewardCollectorVesperUSD.claimAndDistributeRewards(vaUSDC, 0);
 

@@ -7,6 +7,7 @@ import {IVelodromeSwapRouter} from "../interfaces/external/velodrome/IVelodromeS
 import "../interfaces/keepers/IResolver.sol";
 import "../interfaces/IAlchemistV2.sol";
 import "../interfaces/keepers/IAlchemixHarvesterOptimism.sol";
+import "../interfaces/external/chainlink/IChainlinkOracle.sol";
 import "../interfaces/ITokenAdapter.sol";
 import "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import "../../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
@@ -253,29 +254,21 @@ contract HarvestResolverOptimism is IResolver, Ownable {
             minimumAmountOut = minimumAmountOut - (minimumAmountOut * h.slippageBps) / SLIPPAGE_PRECISION;
 
             // Find out the expected exchange of OP to debt token
-            uint256[] memory expectedExchange = new uint256[](1);
+            uint256 expectedExchange;
             address[] memory token = new address[](1);
             token[0] = h.aaveToken;
             uint256 claimable = IRewardsController(0x929EC64c34a17401F460460D4B9390518E5B473e).getUserRewards(token, yieldToken, IRewardCollector(h.rewardCollector).rewardToken());
             // Find expected amount out before calling harvest
             if (IRewardCollector(h.rewardCollector).debtToken() == 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A) {
-              // OP -> USDC -> alUSD
-              IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](2);
-              routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x7F5c764cBc14f9669B88837ca1490cCa17c31607, false);
-              routes[1] = IVelodromeSwapRouter.route(0x7F5c764cBc14f9669B88837ca1490cCa17c31607, 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A, true);
-              expectedExchange = IVelodromeSwapRouter(IRewardCollector(h.rewardCollector).swapRouter()).getAmountsOut(claimable, routes);
+              expectedExchange = claimable * uint256(IChainlinkOracle(0x0D276FC14719f9292D5C1eA2198673d1f4269246).latestAnswer()) / 1e8;
             } else if (IRewardCollector(h.rewardCollector).debtToken() == 0x3E29D3A9316dAB217754d13b28646B76607c5f04) {
-              // Velodrome Swap Routes: OP -> alETH
-              IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](1);
-              routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x3E29D3A9316dAB217754d13b28646B76607c5f04, false);
-              IVelodromeSwapRouter(IRewardCollector(h.rewardCollector).swapRouter()).getAmountsOut(claimable, routes);
-              expectedExchange = IVelodromeSwapRouter(IRewardCollector(h.rewardCollector).swapRouter()).getAmountsOut(claimable, routes);
+              expectedExchange = claimable * uint256(IChainlinkOracle(0x0D276FC14719f9292D5C1eA2198673d1f4269246).latestAnswer()) / uint256(IChainlinkOracle(0x13e3Ee699D1909E989722E753853AE30b17e08c5).latestAnswer());
             } else {
                 revert IllegalState("RewardCollector debt token is not supported");
             }
             return (
               true,
-              abi.encodeWithSelector(IAlchemixHarvesterOptimism.harvest.selector, h.alchemist, yieldToken, minimumAmountOut, expectedExchange[0])
+              abi.encodeWithSelector(IAlchemixHarvesterOptimism.harvest.selector, h.alchemist, yieldToken, minimumAmountOut, expectedExchange)
             );
           }
         }
