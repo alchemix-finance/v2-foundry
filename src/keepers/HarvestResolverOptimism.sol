@@ -260,15 +260,15 @@ contract HarvestResolverOptimism is IResolver, Ownable {
             uint256 claimable = IRewardsController(0x929EC64c34a17401F460460D4B9390518E5B473e).getUserRewards(token, yieldToken, IRewardCollector(h.rewardCollector).rewardToken());
             // Find expected amount out before calling harvest
             if (IRewardCollector(h.rewardCollector).debtToken() == 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A) {
-              expectedExchange = claimable * uint256(IChainlinkOracle(0x0D276FC14719f9292D5C1eA2198673d1f4269246).latestAnswer()) / 1e8;
+              expectedExchange = claimable * uint256(IChainlinkOracle(0x0D276FC14719f9292D5C1eA2198673d1f4269246).latestAnswer()) / 1e10;
             } else if (IRewardCollector(h.rewardCollector).debtToken() == 0x3E29D3A9316dAB217754d13b28646B76607c5f04) {
-              expectedExchange = claimable * uint256(IChainlinkOracle(0x0D276FC14719f9292D5C1eA2198673d1f4269246).latestAnswer()) / uint256(IChainlinkOracle(0x13e3Ee699D1909E989722E753853AE30b17e08c5).latestAnswer());
+              expectedExchange = claimable * uint256(IChainlinkOracle(0x0D276FC14719f9292D5C1eA2198673d1f4269246).latestAnswer()) / uint256(IChainlinkOracle(0x13e3Ee699D1909E989722E753853AE30b17e08c5).latestAnswer()) /1e18;
             } else {
                 revert IllegalState("RewardCollector debt token is not supported");
             }
             return (
               true,
-              abi.encodeWithSelector(IAlchemixHarvesterOptimism.harvest.selector, h.alchemist, h.rewardCollector, yieldToken, minimumAmountOut, expectedExchange)
+              abi.encodeWithSelector(IAlchemixHarvesterOptimism.harvest.selector, h.alchemist, h.rewardCollector, yieldToken, minimumAmountOut, expectedExchange * 9900 / 10000)
             );
           }
         }
