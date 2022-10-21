@@ -365,6 +365,8 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
 
         (address alch, address rewardCollector, address yield, uint256 minOut, uint256 expectedExchange) = abi.decode(extractCalldata(execPayload), (address, address, address, uint256, uint256));
 
+        console.logUint(expectedExchange);
+
         (int256 debtBefore, ) = alchemistUSD.accounts(address((this)));
         harvester.harvest(address(alchemistUSD), address(rewardCollector), address(staticAToken), 0, expectedExchange);
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));

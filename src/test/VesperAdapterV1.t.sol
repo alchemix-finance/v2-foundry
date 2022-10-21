@@ -336,13 +336,8 @@ contract VesperAdapterV1Test is DSTestPlus {
             amountDAI < type(uint96).max
         );
 
-        hevm.assume(
-            amountUSDC >= 10**SafeERC20.expectDecimals(address(weth)) && 
-            amountUSDC < type(uint96).max
-        );
-
         deal(address(DAI), address(this), amountDAI);
-        deal(address(USDC), address(this), amountUSDC);
+        deal(address(USDC), address(this), amountDAI);
 
         SafeERC20.safeApprove(DAI, address(alchemistUSD), amountDAI);
         alchemistUSD.depositUnderlying(vaDAI, amountDAI, address(this), 0);
