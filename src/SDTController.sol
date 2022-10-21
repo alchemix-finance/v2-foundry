@@ -9,6 +9,7 @@ import "./interfaces/stakedao/IveSDT.sol";
 import "./interfaces/stakedao/IRewardDistributor.sol";
 import "./interfaces/snapshot/IDelegateRegistry.sol";
 import "./interfaces/stakedao/ILiquidityGauge.sol";
+import "./interfaces/stakedao/IGaugeController.sol";
 
 contract SDTController is Initializable, OwnableUpgradeable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -20,6 +21,7 @@ contract SDTController is Initializable, OwnableUpgradeable {
   address public rewardDistributor;
   address public rewardToken;
   address public crvRewardDistributor;
+  address public gaugeController;
 
   constructor() initializer {}
 
@@ -28,6 +30,7 @@ contract SDTController is Initializable, OwnableUpgradeable {
     delegateRegistry = 0x469788fE6E9E9681C6ebF3bF78e7Fd26Fc015446;
     rewardDistributor = 0x29f3dd38dB24d3935CF1bf841e6b2B461A3E5D92;
     rewardToken = 0x5af15DA84A4a6EDf2d9FA6720De921E1026E37b7;
+    gaugeController = 0x75f8f7fa4b6DA6De9F4fE972c811b778cefce882;
   }
 
   function createLock(uint256 value, uint256 lockTime) external onlyOwner {
@@ -68,9 +71,17 @@ contract SDTController is Initializable, OwnableUpgradeable {
     rewardToken = _rewardToken;
   }
 
+  function setGaugeController(address _gaugeController) external onlyOwner {
+    gaugeController = _gaugeController;
+  }
+
   function claim() external onlyOwner {
     uint256 amountClaimed = IRewardDistributor(rewardDistributor).claim();
     IERC20Upgradeable(rewardToken).safeTransfer(owner(), amountClaimed);
+  }
+
+  function voteForGaugeWeights(address gaugeAddress, uint256 weight) external onlyOwner {
+    IGaugeController(rewardDistributor).vote_for_gauge_weights(gaugeAddress, weight);
   }
 
   function setCrvRewardDistributor(address _crvRewardDistributor) external onlyOwner {
