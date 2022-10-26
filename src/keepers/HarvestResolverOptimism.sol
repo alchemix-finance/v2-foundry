@@ -6,7 +6,7 @@ import {IVelodromeSwapRouter} from "../interfaces/external/velodrome/IVelodromeS
 
 import "../interfaces/keepers/IResolver.sol";
 import "../interfaces/IAlchemistV2.sol";
-import "../interfaces/keepers/IAlchemixHarvesterOptimism.sol";
+import "../interfaces/keepers/IAlchemixHarvester.sol";
 import "../interfaces/external/chainlink/IChainlinkOracle.sol";
 import "../interfaces/ITokenAdapter.sol";
 import "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
@@ -42,6 +42,7 @@ contract HarvestResolverOptimism is IResolver, Ownable {
 
   /// @notice Emitted when a harvest is recorded.
   event RecordHarvest(address yieldToken);
+  
   struct HarvestJob {
     bool active;
     address alchemist;
@@ -268,7 +269,7 @@ contract HarvestResolverOptimism is IResolver, Ownable {
             }
             return (
               true,
-              abi.encodeWithSelector(IAlchemixHarvesterOptimism.harvest.selector, h.alchemist, h.rewardCollector, yieldToken, minimumAmountOut, expectedExchange * 9900 / 10000)
+              abi.encodeWithSelector(IAlchemixHarvester.harvest.selector, h.alchemist, h.rewardCollector, yieldToken, minimumAmountOut, expectedExchange * 9900 / 10000)
             );
           }
         }

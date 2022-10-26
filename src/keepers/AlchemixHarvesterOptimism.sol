@@ -4,10 +4,10 @@ import "../../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 import "./AlchemixGelatoKeeper.sol";
 import "../interfaces/IAlchemistV2.sol";
 import "../interfaces/keepers/IHarvestResolver.sol";
-import "../interfaces/keepers/IAlchemixHarvesterOptimism.sol";
+import "../interfaces/keepers/IAlchemixHarvester.sol";
 import "../interfaces/IRewardCollector.sol";
 
-contract AlchemixHarvesterOptimism is IAlchemixHarvesterOptimism, AlchemixGelatoKeeper {
+contract AlchemixHarvesterOptimism is IAlchemixHarvester, AlchemixGelatoKeeper {
   /// @notice The address of the resolver.
   address public resolver;
 
