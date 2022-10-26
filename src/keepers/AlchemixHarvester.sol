@@ -11,6 +11,9 @@ contract AlchemixHarvester is IAlchemixHarvester, AlchemixGelatoKeeper {
   /// @notice The address of the resolver.
   address public resolver;
 
+  /// @notice Mapping of yield tokens to reward collectors
+  mapping(address => address) public rewardCollectors;
+
   constructor(
     address _gelatoPoker,
     uint256 _maxGasPrice,
@@ -23,6 +26,10 @@ contract AlchemixHarvester is IAlchemixHarvester, AlchemixGelatoKeeper {
     resolver = _resolver;
   }
 
+  function addRewardCollector(address _yieldToken, address _rewardcollector) external onlyOwner {
+    rewardCollectors[_yieldToken] = _rewardcollector;
+  }
+
   /// @notice Runs a the specified harvest job and donates optimism rewards.
   ///
   /// @param alchemist                The address of the target alchemist.
@@ -31,7 +38,6 @@ contract AlchemixHarvester is IAlchemixHarvester, AlchemixGelatoKeeper {
   /// @param expectedRewardsExchange  The minimum VSP to debt tokens.
   function harvest(
     address alchemist,
-    address rewardCollector,
     address yieldToken,
     uint256 minimumAmountOut,
     uint256 expectedRewardsExchange
@@ -44,8 +50,8 @@ contract AlchemixHarvester is IAlchemixHarvester, AlchemixGelatoKeeper {
     }
     IAlchemistV2(alchemist).harvest(yieldToken, minimumAmountOut);
 
-    if (rewardCollector != address(0)) {
-      IRewardCollector(rewardCollector).claimAndDistributeRewards(yieldToken, expectedRewardsExchange);
+    if (rewardCollectors[yieldToken] != address(0)) {
+      IRewardCollector(rewardCollectors[yieldToken]).claimAndDistributeRewards(yieldToken, expectedRewardsExchange);
     }
 
     IHarvestResolver(resolver).recordHarvest(yieldToken);

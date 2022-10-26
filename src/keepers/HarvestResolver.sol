@@ -31,7 +31,6 @@ contract HarvestResolver is IResolver, Ownable {
   event SetHarvestJob(
     bool active,
     address alchemist,
-    address rewardCollector,
     address rewardToken,
     address yieldToken,
     uint256 minimumHarvestAmount,
@@ -51,7 +50,6 @@ contract HarvestResolver is IResolver, Ownable {
     bool active;
     address yieldToken;
     address alchemist;
-    address rewardCollector;
     address rewardToken;
     uint256 lastHarvest;
     uint256 minimumHarvestAmount;
@@ -110,7 +108,6 @@ contract HarvestResolver is IResolver, Ownable {
   /// @param active               A flag for whether or not the harvest job is active.
   /// @param yieldToken           The address of the yield token to be harvested.
   /// @param alchemist            The address of the alchemist to be harvested.
-  /// @param rewardCollector      Address of the reward collector. 0 for none.
   /// @param rewardToken          Address of the reward token. 0 for none.
   /// @param minimumHarvestAmount The minimum amount of harvestable funds required in order to run the harvest job.
   /// @param minimumDelay         The minimum delay (in seconds) needed between successive runs of the job.
@@ -118,7 +115,6 @@ contract HarvestResolver is IResolver, Ownable {
     bool active,
     address yieldToken,
     address alchemist,
-    address rewardCollector,
     address rewardToken,
     uint256 minimumHarvestAmount,
     uint256 minimumDelay,
@@ -137,7 +133,6 @@ contract HarvestResolver is IResolver, Ownable {
       active,
       yieldToken,
       alchemist,
-      rewardCollector,
       rewardToken,
       block.timestamp,
       minimumHarvestAmount,
@@ -145,7 +140,7 @@ contract HarvestResolver is IResolver, Ownable {
       slippageBps
     );
 
-    emit SetHarvestJob(active, alchemist, rewardCollector, rewardToken, yieldToken, minimumHarvestAmount, minimumDelay, slippageBps);
+    emit SetHarvestJob(active, alchemist, rewardToken, yieldToken, minimumHarvestAmount, minimumDelay, slippageBps);
 
     // Only add the yield token to the list if it doesnt exist yet.
     for (uint256 i = 0; i < yieldTokens.length; i++) {
@@ -272,12 +267,12 @@ contract HarvestResolver is IResolver, Ownable {
               }
               return (
                 true,
-                abi.encodeWithSelector(IAlchemixHarvester.harvest.selector, h.alchemist, h.rewardCollector, yieldToken, minimumAmountOut, expectedExchange * 9900 / 10000)
+                abi.encodeWithSelector(IAlchemixHarvester.harvest.selector, h.alchemist, yieldToken, minimumAmountOut, expectedExchange * 9900 / 10000)
               );
             } else {
               return (
                 true,
-                abi.encodeWithSelector(IAlchemixHarvester.harvest.selector, h.alchemist, h.rewardCollector, yieldToken, minimumAmountOut, 0)
+                abi.encodeWithSelector(IAlchemixHarvester.harvest.selector, h.alchemist, yieldToken, minimumAmountOut, 0)
               );
             }
           }
