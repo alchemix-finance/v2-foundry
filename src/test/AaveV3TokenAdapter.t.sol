@@ -6,7 +6,7 @@ import "../../lib/openzeppelin-contracts/contracts/proxy/transparent/Transparent
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 
-import {AlchemixHarvesterOptimism} from "../keepers/AlchemixHarvesterOptimism.sol";
+import {AlchemixHarvester} from "../keepers/AlchemixHarvester.sol";
 import {HarvestResolverOptimism} from "../keepers/HarvestResolverOptimism.sol";
 
 import {
@@ -61,7 +61,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
 
     AlchemistV2 alchemistUSD;
     AlchemistV2 alchemistETH;
-    AlchemixHarvesterOptimism harvester;
+    AlchemixHarvester harvester;
     AAVETokenAdapter adapter;
     HarvestResolverOptimism harvestResolver;
     StaticATokenV3 staticAToken;
@@ -346,7 +346,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
 
         // Keepers
         harvestResolver = new HarvestResolverOptimism();
-        harvester = new AlchemixHarvesterOptimism(address(this), 100000e18, address(harvestResolver));
+        harvester = new AlchemixHarvester(address(this), 100000e18, address(harvestResolver));
         harvestResolver.setHarvester(address(harvester), true);
         harvestResolver.addHarvestJob(true, address(alchemistUSD), address(rewardCollector), address(staticAToken), aOptDAI, 1000, 0, 0);
         alchemistUSD.setKeeper(address(harvester), true);
