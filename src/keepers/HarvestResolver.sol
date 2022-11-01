@@ -36,6 +36,7 @@ contract HarvestResolver is IResolver, Ownable {
   event SetHarvestJob(
     bool active,
     address alchemist,
+    address aaveToken,
     address reward,
     address yieldToken,
     uint256 minimumHarvestAmount,
@@ -54,6 +55,7 @@ contract HarvestResolver is IResolver, Ownable {
   struct HarvestJob {
     bool active;
     address alchemist;
+    address aaveToken;
     address reward;
     address yieldToken;
     uint256 lastHarvest;
@@ -112,6 +114,7 @@ contract HarvestResolver is IResolver, Ownable {
   ///
   /// @param active               A flag for whether or not the harvest job is active.
   /// @param alchemist            The address of the alchemist to be harvested.
+  /// @param aaveToken            The aave optimism token that is wrapped in the static one.
   /// @param reward               Address of the reward token. 0 for none.
   /// @param yieldToken           The address of the yield token to be harvested.
   /// @param minimumHarvestAmount The minimum amount of harvestable funds required in order to run the harvest job.
@@ -119,6 +122,7 @@ contract HarvestResolver is IResolver, Ownable {
   function addHarvestJob(
     bool active,
     address alchemist,
+    address aaveToken,
     address reward,
     address yieldToken,
     uint256 minimumHarvestAmount,
@@ -137,6 +141,7 @@ contract HarvestResolver is IResolver, Ownable {
     harvestJobs[yieldToken] = HarvestJob(
       active,
       alchemist,
+      aaveToken,
       reward,
       yieldToken,
       block.timestamp,
@@ -145,7 +150,7 @@ contract HarvestResolver is IResolver, Ownable {
       slippageBps
     );
 
-    emit SetHarvestJob(active, alchemist, reward, yieldToken, minimumHarvestAmount, minimumDelay, slippageBps);
+    emit SetHarvestJob(active, alchemist, aaveToken, reward, yieldToken, minimumHarvestAmount, minimumDelay, slippageBps);
 
     // Only add the yield token to the list if it doesnt exist yet.
     for (uint256 i = 0; i < yieldTokens.length; i++) {
@@ -281,7 +286,7 @@ contract HarvestResolver is IResolver, Ownable {
             // We can assume that this is optimism and handle rewards accordingly.
             if (h.reward != address(0)) {
               address[] memory token = new address[](1);
-              token[0] = h.yieldToken;
+              token[0] = h.aaveToken;
               uint256 claimable = IRewardsController(0x929EC64c34a17401F460460D4B9390518E5B473e).getUserRewards(token, yieldToken, IRewardCollector(h.reward).rewardToken());
               // Find expected amount out before calling harvest
               if (IRewardCollector(h.reward).debtToken() == 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A) {
