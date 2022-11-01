@@ -21,11 +21,11 @@ interface IRewardCollector {
     /// @return The debt token
     function debtToken() external view returns (address);
 
-    /// @notice Claims rewards tokens, swaps on velodrome for alUSD.
+    /// @notice Claims rewards tokens, swaps for alUSD.
     ///
-    /// @param  tokens          The yield tokens to claim rewards for.
-    /// @param  minimumOpOut    The minimum OP to debt tokens.
+    /// @param  token                The yield token to claim rewards for.
+    /// @param  minimumAmountOut     The minimum returns to accept.
     ///
-    /// @return claimed         The amount of reward tokens claimed.
-    function claimAndDistributeRewards(address[] calldata tokens, uint256 minimumOpOut) external returns (uint256 claimed);
+    /// @return claimed              The amount of reward tokens claimed.
+    function claimAndDistributeRewards(address token, uint256 minimumAmountOut) external returns (uint256 claimed);
 }

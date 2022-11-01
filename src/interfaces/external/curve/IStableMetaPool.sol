@@ -31,6 +31,8 @@ interface IStableMetaPool is IERC20 {
 
     function exchange(int128 i, int128 j, uint256 dx, uint256 minimumDy) external returns (uint256);
 
+    function exchange_underlying(int128 i, int128 j, uint256 dx, uint256 minimumDy) external returns (uint256);
+
     function remove_liquidity(uint256 amount, uint256[N_COINS] calldata minimumAmounts) external;
 
     function remove_liquidity_imbalance(

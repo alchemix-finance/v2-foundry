@@ -13,6 +13,9 @@ import "./interfaces/IERC20TokenReceiver.sol";
 import "./interfaces/ITokenAdapter.sol";
 import "./interfaces/IAlchemicToken.sol";
 import "./interfaces/IWhitelist.sol";
+import "./interfaces/IRewardCollector.sol";
+import "./interfaces/external/vesper/IVesperRewards.sol";
+import "./interfaces/external/vesper/IVesperPool.sol";
 
 import "./libraries/SafeCast.sol";
 import "./libraries/Sets.sol";
@@ -516,8 +519,8 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     }
 
     /// @inheritdoc IAlchemistV2AdminActions
-    function sweepTokens(address rewardToken, uint256 amount) external override lock {
-        _onlyAdmin();
+    function sweepRewardTokens(address rewardToken, address yieldToken) external override lock {
+        _onlyKeeper();
 
         if (_supportedYieldTokens.contains(rewardToken)) {
             revert UnsupportedToken(rewardToken);
@@ -527,9 +530,26 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
             revert UnsupportedToken(rewardToken);
         }
 
-        TokenUtils.safeTransfer(rewardToken, admin, amount);
+        msg.sender.delegatecall(abi.encodeWithSignature("claim(address)", yieldToken));
 
-        emit SweepTokens(rewardToken, amount);
+        TokenUtils.safeTransfer(rewardToken, msg.sender, TokenUtils.safeBalanceOf(rewardToken, address(this)));
+    }
+
+    /// @inheritdoc IAlchemistV2AdminActions
+    function sweepTokens(address token, uint256 amount) external override lock {
+        _onlyAdmin();
+
+        if (_supportedYieldTokens.contains(token)) {
+            revert UnsupportedToken(token);
+        }
+
+        if (_supportedUnderlyingTokens.contains(token)) {
+            revert UnsupportedToken(token);
+        }
+
+        TokenUtils.safeTransfer(token, admin, amount);
+
+        emit SweepTokens(token, amount);
     }
 
     /// @inheritdoc IAlchemistV2AdminActions

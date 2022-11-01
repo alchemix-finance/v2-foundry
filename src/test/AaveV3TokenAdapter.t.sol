@@ -6,7 +6,7 @@ import "../../lib/openzeppelin-contracts/contracts/proxy/transparent/Transparent
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 
-import {AlchemixHarvesterOptimism} from "../keepers/AlchemixHarvesterOptimism.sol";
+import {AlchemixHarvester} from "../keepers/AlchemixHarvester.sol";
 import {HarvestResolverOptimism} from "../keepers/HarvestResolverOptimism.sol";
 
 import {
@@ -15,9 +15,9 @@ import {
 } from "../adapters/aave/AAVETokenAdapter.sol";
 
 import {
-    RewardCollector,
+    RewardCollectorOptimism,
     InitializationParams as RewardCollectorInitializationParams
-} from "../utils/RewardCollector.sol";
+} from "../utils/RewardCollectorOptimism.sol";
 
 import {AlchemicTokenV2} from "../AlchemicTokenV2.sol";
 import {AlchemistV2} from "../AlchemistV2.sol";
@@ -61,11 +61,11 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
 
     AlchemistV2 alchemistUSD;
     AlchemistV2 alchemistETH;
-    AlchemixHarvesterOptimism harvester;
+    AlchemixHarvester harvester;
     AAVETokenAdapter adapter;
     HarvestResolverOptimism harvestResolver;
     StaticATokenV3 staticAToken;
-    RewardCollector rewardCollector;
+    RewardCollectorOptimism rewardCollector;
     TransmuterV2 transmuter;
     TransmuterBuffer buffer;
     ILendingPool lendingPool = ILendingPool(0x794a61358D6845594F94dc1DB02A252b5b4814aD);
@@ -105,12 +105,11 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         RewardCollectorInitializationParams memory rewardCollectorParams = RewardCollectorInitializationParams({
             alchemist:          address(alchemistUSD),
             debtToken:          alUSD,
-            rewardsController:  rewardsController,
             rewardToken:        rewardToken,
             swapRouter:         velodromeRouter
         });
 
-        rewardCollector = new RewardCollector(rewardCollectorParams);
+        rewardCollector = new RewardCollectorOptimism(rewardCollectorParams);
 
         whitelist.add(address(this));
         whitelist.add(address(rewardCollector));
@@ -316,9 +315,8 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         // Keeper check balance of token
         uint256 rewards = IRewardsController(rewardsController).getUserAccruedRewards(address(staticAToken), rewardToken);
         (int256 debtBefore, ) = alchemistUSD.accounts(address((this)));
-        address[] memory assets = new address[](1);
-        assets[0] = address(staticAToken);
-        rewardCollector.claimAndDistributeRewards(assets, rewards * 9999 / 10000);
+
+        rewardCollector.claimAndDistributeRewards(address(staticAToken), rewards * 9999 / 10000);
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
 
         assertEq(IERC20(rewardToken).balanceOf(address(rewardCollector)), 0);
@@ -348,10 +346,12 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
 
         // Keepers
         harvestResolver = new HarvestResolverOptimism();
-        harvester = new AlchemixHarvesterOptimism(address(this), 100000e18, address(harvestResolver));
+        harvester = new AlchemixHarvester(address(this), 100000e18, address(harvestResolver));
         harvestResolver.setHarvester(address(harvester), true);
         harvestResolver.addHarvestJob(true, address(alchemistUSD), address(rewardCollector), address(staticAToken), aOptDAI, 1000, 0, 0);
         alchemistUSD.setKeeper(address(harvester), true);
+
+        harvester.addRewardCollector(address(staticAToken), rewardToken);
 
         deal(dai, address(this), 1000000e18);
         SafeERC20.safeApprove(dai, address(alchemistUSD), 1000000e18);
@@ -365,10 +365,10 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         // Keeper check balance of token
         (bool canExec, bytes memory execPayload) = harvestResolver.checker();
 
-        (address alch, address rewardCollector, address yield, uint256 minOut, uint256 expectedExchange) = abi.decode(extractCalldata(execPayload), (address, address, address, uint256, uint256));
+        (address alch, address yield, uint256 minOut, uint256 expectedExchange) = abi.decode(extractCalldata(execPayload), (address, address, uint256, uint256));
 
         (int256 debtBefore, ) = alchemistUSD.accounts(address((this)));
-        harvester.harvest(address(alchemistUSD), address(rewardCollector), address(staticAToken), 0, expectedExchange);
+        harvester.harvest(alch, yield, minOut, expectedExchange);
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
 
         assertEq(IERC20(rewardToken).balanceOf(address(rewardCollector)), 0);
