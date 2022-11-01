@@ -296,6 +296,10 @@ contract HarvestResolver is IResolver, Ownable {
               } else {
                   revert IllegalState();
               }
+              return (
+                true,
+                abi.encodeWithSelector(IAlchemixHarvester.harvest.selector, h.alchemist, yieldToken, minimumAmountOut, expectedExchange * 9900 / 10000)
+              );
             // If reward equals the 0 address then we handle the harvest without rewards.
             } else {
               return (
