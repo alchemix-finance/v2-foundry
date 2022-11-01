@@ -351,7 +351,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         harvestResolver.addHarvestJob(true, address(alchemistUSD), aOptDAI, address(rewardCollector), address(staticAToken), 1000, 0, 0);
         alchemistUSD.setKeeper(address(harvester), true);
 
-        harvester.addRewardCollector(address(staticAToken), rewardToken);
+        harvester.addRewardCollector(address(staticAToken), address(rewardCollector));
 
         deal(dai, address(this), 1000000e18);
         SafeERC20.safeApprove(dai, address(alchemistUSD), 1000000e18);
