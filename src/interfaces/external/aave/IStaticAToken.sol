@@ -19,7 +19,7 @@ interface IStaticAToken is IERC20 {
   }
 
   function LENDING_POOL() external returns (ILendingPool);
-  function ATOKEN() external returns (IERC20);
+  function ATOKEN() external view returns (IERC20);
   function ASSET() external returns (IERC20);
 
   function _nonces(address owner) external returns (uint256);
