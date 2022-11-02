@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 import "../interfaces/external/aave/IRewardsController.sol";
 import "../interfaces/IRewardCollector.sol";
 import "../interfaces/external/velodrome/IVelodromeSwapRouter.sol";
+import "../interfaces/external/aave/IStaticAToken.sol";
 import "../interfaces/keepers/IResolver.sol";
 import "../interfaces/IAlchemistV2.sol";
 import "../interfaces/keepers/IAlchemixHarvester.sol";
@@ -17,14 +18,22 @@ import "../libraries/SafeCast.sol";
 import "../base/Errors.sol";
 
 contract HarvestResolver is IResolver, Ownable {
+  address constant alUsdOptimism = 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A;
+  address constant alEthOptimism = 0x3E29D3A9316dAB217754d13b28646B76607c5f04;
   address constant ethAlchemistAddress = 0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c;
   address constant usdAlchemistAddress = 0x5C6374a2ac4EBC38DeA0Fc1F8716e5Ea1AdD94dd;
   address constant dai = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+  address constant opRewardsController = 0x929EC64c34a17401F460460D4B9390518E5B473e;
+  address constant opToUsdOracle = 0x0D276FC14719f9292D5C1eA2198673d1f4269246;
+  address constant ethToUsdOracle = 0x13e3Ee699D1909E989722E753853AE30b17e08c5;
   address constant uniswapFactory = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
   address constant wethAddress = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
   address constant vaDAI = 0x0538C8bAc84E95A9dF8aC10Aad17DbE81b9E36ee;
   address constant vaUSDC = 0xa8b607Aa09B6A2E306F93e74c282Fb13f6A80452;
   address constant vaETH = 0xd1C117319B3595fbc39b471AB1fd485629eb05F2;
+  address constant vesperRewardsDai = 0x35864296944119F72AA1B468e13449222f3f0E67;
+  address constant vesperRewardsUsdc = 0x2F59B0F98A08E733C66dFB42Bd8E366dC2cfedA6;
+  address constant vesperRewardsEth = 0x2F59B0F98A08E733C66dFB42Bd8E366dC2cfedA6;
   address constant vspRewardToken = 0x1b40183EFB4Dd766f11bDa7A7c3AD8982e998421;
 
   /// @notice Thrown when the yield token of a harvest job being added is disabled in the alchemist of the harvest job being added.
@@ -36,7 +45,6 @@ contract HarvestResolver is IResolver, Ownable {
   event SetHarvestJob(
     bool active,
     address alchemist,
-    address aaveToken,
     address reward,
     address yieldToken,
     uint256 minimumHarvestAmount,
@@ -55,7 +63,6 @@ contract HarvestResolver is IResolver, Ownable {
   struct HarvestJob {
     bool active;
     address alchemist;
-    address aaveToken;
     address reward;
     address yieldToken;
     uint256 lastHarvest;
@@ -114,7 +121,6 @@ contract HarvestResolver is IResolver, Ownable {
   ///
   /// @param active               A flag for whether or not the harvest job is active.
   /// @param alchemist            The address of the alchemist to be harvested.
-  /// @param aaveToken            The aave optimism token that is wrapped in the static one.
   /// @param reward               Address of the reward token. 0 for none.
   /// @param yieldToken           The address of the yield token to be harvested.
   /// @param minimumHarvestAmount The minimum amount of harvestable funds required in order to run the harvest job.
@@ -122,7 +128,6 @@ contract HarvestResolver is IResolver, Ownable {
   function addHarvestJob(
     bool active,
     address alchemist,
-    address aaveToken,
     address reward,
     address yieldToken,
     uint256 minimumHarvestAmount,
@@ -141,7 +146,6 @@ contract HarvestResolver is IResolver, Ownable {
     harvestJobs[yieldToken] = HarvestJob(
       active,
       alchemist,
-      aaveToken,
       reward,
       yieldToken,
       block.timestamp,
@@ -150,7 +154,7 @@ contract HarvestResolver is IResolver, Ownable {
       slippageBps
     );
 
-    emit SetHarvestJob(active, alchemist, aaveToken, reward, yieldToken, minimumHarvestAmount, minimumDelay, slippageBps);
+    emit SetHarvestJob(active, alchemist, reward, yieldToken, minimumHarvestAmount, minimumDelay, slippageBps);
 
     // Only add the yield token to the list if it doesnt exist yet.
     for (uint256 i = 0; i < yieldTokens.length; i++) {
@@ -265,15 +269,15 @@ contract HarvestResolver is IResolver, Ownable {
               // alUSD route for vesper swap
               if (h.alchemist == usdAlchemistAddress) {
                 if (h.yieldToken == vaDAI) {
-                  (address[] memory tokens, uint256[] memory amounts) = IVesperRewards(0x35864296944119F72AA1B468e13449222f3f0E67).claimable(usdAlchemistAddress);
+                  (address[] memory tokens, uint256[] memory amounts) = IVesperRewards(vesperRewardsDai).claimable(usdAlchemistAddress);
                   expectedExchange = _getExpectedExchange(uniswapFactory, h.reward, wethAddress, uint24(3000), dai, uint24(3000), amounts[0]);
                 } else if (h.yieldToken == vaUSDC) {
-                  (address[] memory tokens, uint256[] memory amounts) = IVesperRewards(0x2F59B0F98A08E733C66dFB42Bd8E366dC2cfedA6).claimable(usdAlchemistAddress);
+                  (address[] memory tokens, uint256[] memory amounts) = IVesperRewards(vesperRewardsUsdc).claimable(usdAlchemistAddress);
                   expectedExchange = _getExpectedExchange(uniswapFactory, h.reward, wethAddress, uint24(3000), dai, uint24(3000), amounts[0]);
                 }
               // alETH route for vesper swap
               } else if (h.alchemist == ethAlchemistAddress) {
-                (address[] memory tokens, uint256[] memory amounts) = IVesperRewards(0x51EEf73abf5d4AC5F41De131591ed82c27a7Be3D).claimable(ethAlchemistAddress);
+                (address[] memory tokens, uint256[] memory amounts) = IVesperRewards(vesperRewardsEth).claimable(ethAlchemistAddress);
                 expectedExchange = _getExpectedExchange(uniswapFactory, h.reward, wethAddress, uint24(3000), address(0), uint24(0), amounts[0]);
               }
               return (
@@ -286,13 +290,13 @@ contract HarvestResolver is IResolver, Ownable {
             // We can assume that this is optimism and handle rewards accordingly.
             if (h.reward != address(0)) {
               address[] memory token = new address[](1);
-              token[0] = h.aaveToken;
-              uint256 claimable = IRewardsController(0x929EC64c34a17401F460460D4B9390518E5B473e).getUserRewards(token, yieldToken, IRewardCollector(h.reward).rewardToken());
+              token[0] = address(IStaticAToken(h.yieldToken).ATOKEN());
+              uint256 claimable = IRewardsController(opRewardsController).getUserRewards(token, yieldToken, IRewardCollector(h.reward).rewardToken());
               // Find expected amount out before calling harvest
-              if (IRewardCollector(h.reward).debtToken() == 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A) {
-                expectedExchange = claimable * uint(IChainlinkOracle(0x0D276FC14719f9292D5C1eA2198673d1f4269246).latestAnswer()) / 1e8;
-              } else if (IRewardCollector(h.reward).debtToken() == 0x3E29D3A9316dAB217754d13b28646B76607c5f04) {
-                expectedExchange = claimable * uint(IChainlinkOracle(0x0D276FC14719f9292D5C1eA2198673d1f4269246).latestAnswer()) / uint(IChainlinkOracle(0x13e3Ee699D1909E989722E753853AE30b17e08c5).latestAnswer());
+              if (IRewardCollector(h.reward).debtToken() == alUsdOptimism) {
+                expectedExchange = claimable * uint(IChainlinkOracle(opToUsdOracle).latestAnswer()) / 1e8;
+              } else if (IRewardCollector(h.reward).debtToken() == alEthOptimism) {
+                expectedExchange = claimable * uint(IChainlinkOracle(opToUsdOracle).latestAnswer()) / uint(IChainlinkOracle(ethToUsdOracle).latestAnswer());
               } else {
                   revert IllegalState();
               }

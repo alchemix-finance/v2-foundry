@@ -179,7 +179,6 @@ contract VesperAdapterV1Test is DSTestPlus {
         resolver.addHarvestJob(
             true,
             alchemistUSDAddress,
-            address(0),
             address(vspRewardToken),
             vaDAI,
             0,
@@ -190,7 +189,6 @@ contract VesperAdapterV1Test is DSTestPlus {
         resolver.addHarvestJob(
             true,
             alchemistUSDAddress,
-            address(0),
             address(vspRewardToken),
             vaUSDC,
             0,
@@ -201,7 +199,6 @@ contract VesperAdapterV1Test is DSTestPlus {
         resolver.addHarvestJob(
             true,
             alchemistETHAddress,
-            address(0),
             address(vspRewardToken),
             vaETH,
             0,
