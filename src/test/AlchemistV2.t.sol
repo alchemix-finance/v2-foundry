@@ -36,9 +36,6 @@ contract AlchemistV2Test is DSTestPlus {
     address alchemistWhitelist = 0x78537a6CeBa16f412E123a90472C6E0e9A8F1132;
 
     function setUp() external {
-        AlchemistV2 newAlch = new AlchemistV2();
-        hevm.prank(0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9);
-        IProxyAdmin(0xE0fC5CB7665041CdA26969A2D1ceb5cD5046347d).upgrade(alchemist, address(newAlch));
         hevm.prank(0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9);
         IAlchemistV2(alchemist).setKeeper(address(this), true);
         hevm.prank(0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9);
@@ -46,6 +43,11 @@ contract AlchemistV2Test is DSTestPlus {
     }
 
     function testConfigureCreditUnlockRate() external {
+        // can remove this block once the Alchemist is upgraded in prod
+        AlchemistV2 newAlch = new AlchemistV2();
+        hevm.prank(0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9);
+        IProxyAdmin(0xE0fC5CB7665041CdA26969A2D1ceb5cD5046347d).upgrade(alchemist, address(newAlch));
+
         deal(dai, address(this), 10000e18);
         IERC20(dai).approve(alchemist, 10000e18);
         IAlchemistV2(alchemist).depositUnderlying(ydai, 10000e18, address(this), 0);
@@ -61,9 +63,13 @@ contract AlchemistV2Test is DSTestPlus {
         // set credit unlock rate to half of the previous value
         IAlchemistV2State.YieldTokenParams memory ytp = IAlchemistV2(alchemist).getYieldTokenParameters(ydai);
         uint256 newCreditUnlockRate = ytp.creditUnlockRate / 2;
-        hevm.prank(0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9);
+        hevm.startPrank(0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9);
+        hevm.expectRevert(abi.encodeWithSignature("IllegalState()"));
         IAlchemistV2(alchemist).configureCreditUnlockRate(ydai, 1e18 / newCreditUnlockRate);
 
+        hevm.roll(block.number + 7200);
+        IAlchemistV2(alchemist).configureCreditUnlockRate(ydai, 1e18 / newCreditUnlockRate);
+        hevm.stopPrank();
         IERC20(alusd).approve(alchemist, 1000e18);
         IAlchemistV2(alchemist).burn(1000e18, address(this));
     }
