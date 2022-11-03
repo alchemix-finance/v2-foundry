@@ -10,16 +10,27 @@ import {
     InitializationParams as AdapterInitializationParams
 } from "../adapters/frax/FraxEthAdapter.sol";
 
+import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
+import {IAlchemistV2AdminActions} from "../interfaces/alchemist/IAlchemistV2AdminActions.sol";
+import {IWhitelist} from "../interfaces/IWhitelist.sol";
 import {ICERC20} from "../interfaces/external/compound/ICERC20.sol";
-import {IFraxMinter} from "../interfaces/external/frax/IFraxMinter.sol";
+import {IStakedFraxEth} from "../interfaces/external/frax/IStakedFraxEth.sol";
 
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 import {LibFuse} from "../libraries/LibFuse.sol";
 
 contract FraxEthAdapterTest is DSTestPlus {
     uint256 constant BPS = 10000;
+    uint256 constant MAX_INT = 2**256 - 1;
+
+    address constant admin = 0x8392F6669292fA56123F71949B52d883aE57e225;
+    address constant alchemistETH = 0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c;
+    address constant alETH = 0x0100546F2cD4C9D97f798fFC9755E47865FF7Ee6;
     address constant frxEth = 0x5E8422345238F34275888049021821E8E08CAa1f;
+    address constant owner = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
     address constant sfrxEth = 0xac3E018457B222d93114458476f3E3416Abbe38F;
+    address constant wETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address constant whitelistETH = 0xA3dfCcbad1333DC69997Da28C961FF8B2879e653;
 
     FraxEthAdapter adapter;
 
@@ -28,6 +39,35 @@ contract FraxEthAdapterTest is DSTestPlus {
             token:           sfrxEth,
             underlyingToken: frxEth
         }));
+
+        IAlchemistV2.YieldTokenConfig memory ytc = IAlchemistV2AdminActions.YieldTokenConfig({
+            adapter: address(adapter),
+            maximumLoss: 1,
+            maximumExpectedValue: 1000000 ether,
+            creditUnlockBlocks: 7200
+        });
+
+        IAlchemistV2AdminActions.UnderlyingTokenConfig memory utc = IAlchemistV2AdminActions.UnderlyingTokenConfig({
+			repayLimitMinimum: 1,
+			repayLimitMaximum: 1000,
+			repayLimitBlocks: 10,
+			liquidationLimitMinimum: 1,
+			liquidationLimitMaximum: 1000,
+			liquidationLimitBlocks: 7200
+		});
+
+        hevm.startPrank(owner);
+        IWhitelist(whitelistETH).add(address(adapter));
+        IWhitelist(whitelistETH).add(address(this));
+        IAlchemistV2(alchemistETH).addUnderlyingToken(frxEth, utc);
+        IAlchemistV2(alchemistETH).addYieldToken(sfrxEth, ytc);
+        IAlchemistV2(alchemistETH).setYieldTokenEnabled(sfrxEth, true);
+        IAlchemistV2(alchemistETH).setUnderlyingTokenEnabled(frxEth, true);
+        hevm.stopPrank();
+    }
+
+    function testPrice() external {
+        assertEq(adapter.price(), IStakedFraxEth(sfrxEth).convertToAssets(1e18));
     }
 
     function testRoundTrip() external {
@@ -44,13 +84,13 @@ contract FraxEthAdapterTest is DSTestPlus {
 
         assertGt(unwrapped, 1e18 * 9900 / BPS /* 1% slippage */);
         assertEq(IERC20(sfrxEth).balanceOf(address(this)), 0);
-        assertEq(IERC20(sfrxEth).balanceOf(address(adapter)), 0);
+        assertApproxEq(IERC20(sfrxEth).balanceOf(address(adapter)), 0, 10);
     }
 
     function testRoundTrip(uint256 amount) external {
         hevm.assume(
             amount >= 10**SafeERC20.expectDecimals(adapter.underlyingToken()) && 
-            amount < type(uint96).max
+            amount < 1000000000000000000000
         );
 
          deal(frxEth, address(this), amount);
@@ -66,6 +106,22 @@ contract FraxEthAdapterTest is DSTestPlus {
 
         assertGt(unwrapped, amount * 9900 / BPS /* 1% slippage */);
         assertEq(IERC20(sfrxEth).balanceOf(address(this)), 0);
-        assertEq(IERC20(sfrxEth).balanceOf(address(adapter)), 0);
+        assertApproxEq(IERC20(sfrxEth).balanceOf(address(adapter)), 0, 100);
+    }
+
+    function testRoundTripIntegration() external {
+        deal(frxEth, address(this), 1e18);
+
+        SafeERC20.safeApprove(address(frxEth), address(alchemistETH), 1e18);
+        uint256 wrapped = IAlchemistV2(alchemistETH).depositUnderlying(sfrxEth, 1e18, address(this), 0);
+
+        uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(sfrxEth);
+        assertGt(underlyingValue, 1e18 * 9900 / BPS /* 1% slippage */);
+
+        uint256 unwrapped = IAlchemistV2(alchemistETH).withdrawUnderlying(sfrxEth, wrapped, address(this), 0);
+
+        assertGt(unwrapped, 1e18 * 9900 / BPS /* 1% slippage */);
+        assertEq(IERC20(sfrxEth).balanceOf(address(this)), 0);
+        assertApproxEq(IERC20(sfrxEth).balanceOf(address(adapter)), 0, 10);
     }
 }
