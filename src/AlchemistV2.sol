@@ -21,7 +21,6 @@ import "./libraries/SafeCast.sol";
 import "./libraries/Sets.sol";
 import "./libraries/TokenUtils.sol";
 import "./libraries/Limiters.sol";
-import "../lib/forge-std/src/console.sol";
 
 /// @title  AlchemistV2
 /// @author Alchemix Finance
@@ -1631,7 +1630,6 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         uint256 lastDistributionBlock = yieldTokenParams.lastDistributionBlock;
 
         uint256 percentUnlocked = (block.number - lastDistributionBlock) * creditUnlockRate;
-        console.log("fail", (pendingCredit * percentUnlocked / FIXED_POINT_SCALAR), distributedCredit);
         return percentUnlocked < FIXED_POINT_SCALAR
             ? (pendingCredit * percentUnlocked / FIXED_POINT_SCALAR) - distributedCredit
             : pendingCredit - distributedCredit;
