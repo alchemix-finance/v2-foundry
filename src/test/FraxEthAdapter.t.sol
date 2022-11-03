@@ -11,6 +11,7 @@ import {
 } from "../adapters/frax/FraxEthAdapter.sol";
 
 import {ICERC20} from "../interfaces/external/compound/ICERC20.sol";
+import {IFraxMinter} from "../interfaces/external/frax/IFraxMinter.sol";
 
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 import {LibFuse} from "../libraries/LibFuse.sol";
@@ -19,33 +20,31 @@ contract FraxEthAdapterTest is DSTestPlus {
     uint256 constant BPS = 10000;
     address constant frxEth = 0x5E8422345238F34275888049021821E8E08CAa1f;
     address constant sfrxEth = 0xac3E018457B222d93114458476f3E3416Abbe38F;
-    address constant weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
     FraxEthAdapter adapter;
 
     function setUp() external {
         adapter = new FraxEthAdapter(AdapterInitializationParams({
-            stakingToken:    address(this),
-            token:           frxEth,
-            underlyingToken: 
+            token:           sfrxEth,
+            underlyingToken: frxEth
         }));
     }
 
     function testRoundTrip() external {
-        tip(address(underlyingToken), address(this), 1e18);
+        deal(frxEth, address(this), 1e18);
 
-        SafeERC20.safeApprove(address(underlyingToken), address(adapter), 1e18);
+        SafeERC20.safeApprove(address(frxEth), address(adapter), 1e18);
         uint256 wrapped = adapter.wrap(1e18, address(this));
 
-        uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(address(fDAI));
+        uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(sfrxEth);
         assertGt(underlyingValue, 1e18 * 9900 / BPS /* 1% slippage */);
 
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
-        uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
+        uint256 unwrapped = adapter.unwrap(wrapped, address(this));
 
-        assertEq(underlyingToken.balanceOf(address(0xbeef)), unwrapped);
-        assertEq(fDAI.balanceOf(address(this)), 0);
-        assertEq(fDAI.balanceOf(address(adapter)), 0);
+        assertGt(unwrapped, 1e18 * 9900 / BPS /* 1% slippage */);
+        assertEq(IERC20(sfrxEth).balanceOf(address(this)), 0);
+        assertEq(IERC20(sfrxEth).balanceOf(address(adapter)), 0);
     }
 
     function testRoundTrip(uint256 amount) external {
@@ -53,20 +52,20 @@ contract FraxEthAdapterTest is DSTestPlus {
             amount >= 10**SafeERC20.expectDecimals(adapter.underlyingToken()) && 
             amount < type(uint96).max
         );
-        
-        tip(address(underlyingToken), address(this), amount);
 
-        SafeERC20.safeApprove(address(underlyingToken), address(adapter), amount);
+         deal(frxEth, address(this), amount);
+
+        SafeERC20.safeApprove(address(frxEth), address(adapter), amount);
         uint256 wrapped = adapter.wrap(amount, address(this));
 
-        uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(address(fDAI));
+        uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(sfrxEth);
         assertGt(underlyingValue, amount * 9900 / BPS /* 1% slippage */);
-        
-        SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
-        uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
 
-        assertEq(underlyingToken.balanceOf(address(0xbeef)), unwrapped);
-        assertEq(fDAI.balanceOf(address(this)), 0);
-        assertEq(fDAI.balanceOf(address(adapter)), 0);
+        SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
+        uint256 unwrapped = adapter.unwrap(wrapped, address(this));
+
+        assertGt(unwrapped, amount * 9900 / BPS /* 1% slippage */);
+        assertEq(IERC20(sfrxEth).balanceOf(address(this)), 0);
+        assertEq(IERC20(sfrxEth).balanceOf(address(adapter)), 0);
     }
 }

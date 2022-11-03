@@ -2,14 +2,13 @@ pragma solidity ^0.8.13;
 
 import {IllegalState} from "../../base/Errors.sol";
 
-import "../../interfaces/ITokenAdapter.sol";
-import "../../interfaces/external/frax/IFraxEth.sol";
-import "../../interfaces/external/frax/IStakedFraxEth.sol";
+import {IStakedFraxEth} from "../../interfaces/external/frax/IStakedFraxEth.sol";
+import {ITokenAdapter} from "../../interfaces/ITokenAdapter.sol";
+import {IWETH9} from "../../interfaces/external/IWETH9.sol";
 
 import "../../libraries/TokenUtils.sol";
 
 struct InitializationParams {
-    address stakingToken;
     address token;
     address underlyingToken;
 }
@@ -22,17 +21,15 @@ contract FraxEthAdapter is ITokenAdapter {
 
     address public immutable override token;
     address public immutable override underlyingToken;
-    address public immutable stakingToken;
 
     constructor(InitializationParams memory params) {
-        stakingToken = params.stakingToken;
         token = params.token;
         underlyingToken = params.underlyingToken;
     }
 
     /// @inheritdoc ITokenAdapter
     function price() external view override returns (uint256) {
-        return 0;
+        return IStakedFraxEth(token).convertToAssets(1e18);
     }
 
     /// @inheritdoc ITokenAdapter
@@ -41,31 +38,15 @@ contract FraxEthAdapter is ITokenAdapter {
         TokenUtils.safeApprove(underlyingToken, token, 0);
         TokenUtils.safeApprove(underlyingToken, token, amount);
 
-        IFraxEth(token).minter_mint(address(this), amount);
-
-        return IStakedFraxEth(stakingToken).deposit(amount, recipient);
+        return IStakedFraxEth(token).deposit(amount, recipient);
     }
 
     /// @inheritdoc ITokenAdapter
     function unwrap(uint256 amount, address recipient) external override returns (uint256) {
         TokenUtils.safeTransferFrom(token, msg.sender, address(this), amount);
 
-        uint256 balanceBefore = TokenUtils.safeBalanceOf(token, address(this));
+        IStakedFraxEth(token).withdraw(amount * this.price() / 10**TokenUtils.expectDecimals(token), recipient, address(this));
 
-        uint256 amountWithdrawn = IStakedFraxEth(stakingToken).withdraw(amount, address(this), recipient);
-        IFraxEth(token).minter_burn_from(address(this), amountWithdrawn);
-
-        uint256 balanceAfter = TokenUtils.safeBalanceOf(token, address(this));
-
-        // If the Yearn vault did not burn all of the shares then revert. This is critical in mathematical operations
-        // performed by the system because the system always expects that all of the tokens were unwrapped. In Yearn,
-        // this sometimes does not happen in cases where strategies cannot withdraw all of the requested tokens (an
-        // example strategy where this can occur is with Compound and AAVE where funds may not be accessible because
-        // they were lent out).
-        if (balanceBefore - balanceAfter != amount) {
-            revert IllegalState();
-        }
-
-        return amountWithdrawn;
+        return TokenUtils.safeBalanceOf(underlyingToken, recipient);
     }
 }
