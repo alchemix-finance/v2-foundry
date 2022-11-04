@@ -21,7 +21,6 @@ import "./libraries/SafeCast.sol";
 import "./libraries/Sets.sol";
 import "./libraries/TokenUtils.sol";
 import "./libraries/Limiters.sol";
-import "../lib/forge-std/src/console.sol";
 
 /// @title  AlchemistV2
 /// @author Alchemix Finance

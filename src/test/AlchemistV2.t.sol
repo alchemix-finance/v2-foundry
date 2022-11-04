@@ -23,7 +23,6 @@ import {ATokenGateway} from "../adapters/aave/ATokenGateway.sol";
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 import {IYearnVaultV2} from "../interfaces/external/yearn/IYearnVaultV2.sol";
 import {IProxyAdmin} from "../interfaces/external/IProxyAdmin.sol";
-import {console} from "../../lib/forge-std/src/console.sol";
 
 contract AlchemistV2Test is DSTestPlus {
     uint256 constant BPS = 10000;
@@ -73,7 +72,7 @@ contract AlchemistV2Test is DSTestPlus {
         deal(dai, address(this), 10000e18);
         IERC20(dai).transfer(ydai, 10000e18);
         hevm.roll(block.number + 500);
-        
+
         IERC20(alusd).approve(alchemist, 1000e18);
         IAlchemistV2(alchemist).burn(1000e18, address(this));
     }

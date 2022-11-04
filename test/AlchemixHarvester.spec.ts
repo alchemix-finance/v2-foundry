@@ -242,7 +242,7 @@ describe("AlchemixHarvester", () => {
                 await yToken.connect(depositor).approve(alchemist.address, depositAmt);
                 await alchemist.connect(depositor).deposit(yToken.address, depositAmt);
             })
-    
+
             it("correctly harvests the alchemist", async () => {
                 await token.connect(deployer).transfer(yToken.address, yieldAmt);
                 await increaseTime(waffle.provider, 200);
