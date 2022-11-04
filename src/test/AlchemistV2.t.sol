@@ -53,9 +53,11 @@ contract AlchemistV2Test is DSTestPlus {
         IAlchemistV2(alchemist).depositUnderlying(ydai, 10000e18, address(this), 0);
         IAlchemistV2(alchemist).mint(2000e18, address(this));
         IAlchemistV2(alchemist).harvest(ydai, 0);
-        hevm.roll(block.number + 500);
+
+        // vault gets yield
         deal(dai, address(this), 10000e18);
         IERC20(dai).transfer(ydai, 10000e18);
+        hevm.roll(block.number + 500);
 
         IERC20(alusd).approve(alchemist, 1000e18);
         IAlchemistV2(alchemist).burn(1000e18, address(this));
@@ -66,9 +68,12 @@ contract AlchemistV2Test is DSTestPlus {
         hevm.startPrank(0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9);
         IAlchemistV2(alchemist).configureCreditUnlockRate(ydai, 1e18 / newCreditUnlockRate);
         hevm.stopPrank();
-        hevm.roll(block.number + 500);
+
+        // vault gets moar yield
         deal(dai, address(this), 10000e18);
         IERC20(dai).transfer(ydai, 10000e18);
+        hevm.roll(block.number + 500);
+        
         IERC20(alusd).approve(alchemist, 1000e18);
         IAlchemistV2(alchemist).burn(1000e18, address(this));
     }
