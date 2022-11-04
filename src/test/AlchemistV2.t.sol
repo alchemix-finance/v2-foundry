@@ -64,12 +64,11 @@ contract AlchemistV2Test is DSTestPlus {
         IAlchemistV2State.YieldTokenParams memory ytp = IAlchemistV2(alchemist).getYieldTokenParameters(ydai);
         uint256 newCreditUnlockRate = ytp.creditUnlockRate / 2;
         hevm.startPrank(0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9);
-        hevm.expectRevert(abi.encodeWithSignature("IllegalState()"));
-        IAlchemistV2(alchemist).configureCreditUnlockRate(ydai, 1e18 / newCreditUnlockRate);
-
-        hevm.roll(block.number + 7200);
         IAlchemistV2(alchemist).configureCreditUnlockRate(ydai, 1e18 / newCreditUnlockRate);
         hevm.stopPrank();
+        hevm.roll(block.number + 500);
+        deal(dai, address(this), 10000e18);
+        IERC20(dai).transfer(ydai, 10000e18);
         IERC20(alusd).approve(alchemist, 1000e18);
         IAlchemistV2(alchemist).burn(1000e18, address(this));
     }

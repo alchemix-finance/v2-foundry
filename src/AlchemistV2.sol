@@ -21,6 +21,7 @@ import "./libraries/SafeCast.sol";
 import "./libraries/Sets.sol";
 import "./libraries/TokenUtils.sol";
 import "./libraries/Limiters.sol";
+import "../lib/forge-std/src/console.sol";
 
 /// @title  AlchemistV2
 /// @author Alchemix Finance
@@ -472,13 +473,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         _checkArgument(blocks > 0);
         _checkSupportedYieldToken(yieldToken);
 
-        YieldTokenParams storage yieldTokenParams = _yieldTokens[yieldToken];
-        uint256 percentUnlocked = (block.number - yieldTokenParams.lastDistributionBlock) * yieldTokenParams.creditUnlockRate;
-        console.log(yieldTokenParams.creditUnlockRate);
-        if (percentUnlocked < FIXED_POINT_SCALAR) {
-            revert IllegalState();
-        }
-
+        _distributeCredit(yieldToken, 0);
         _yieldTokens[yieldToken].creditUnlockRate = FIXED_POINT_SCALAR / blocks;
         emit CreditUnlockRateUpdated(yieldToken, blocks);
     }
@@ -1641,6 +1636,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @param amount     The amount of yield tokens.
     ///
     /// @return The number of shares.
+    
     function convertYieldTokensToShares(address yieldToken, uint256 amount) public view returns (uint256) {
         if (_yieldTokens[yieldToken].totalShares == 0) {
             return amount;
