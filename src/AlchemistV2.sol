@@ -536,23 +536,6 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     }
 
     /// @inheritdoc IAlchemistV2AdminActions
-    function sweepTokens(address token, uint256 amount) external override lock {
-        _onlyAdmin();
-
-        if (_supportedYieldTokens.contains(token)) {
-            revert UnsupportedToken(token);
-        }
-
-        if (_supportedUnderlyingTokens.contains(token)) {
-            revert UnsupportedToken(token);
-        }
-
-        TokenUtils.safeTransfer(token, admin, amount);
-
-        emit SweepTokens(token, amount);
-    }
-
-    /// @inheritdoc IAlchemistV2AdminActions
     function setTransferAdapterAddress(address transferAdapterAddress) external override lock {
         _onlyAdmin();
         transferAdapter = transferAdapterAddress;
