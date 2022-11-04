@@ -83,7 +83,7 @@ describe("AlchemixHarvester", () => {
         let yieldAmt = parseEther("50");
 
         beforeEach(async () => {
-            await alResolver.addHarvestJob(true, yToken.address, alchemist.address, parseEther("20"), 1, 1);
+            await alResolver.addHarvestJob(true, alchemist.address, "0x0000000000000000000000000000000000000000", yToken.address, parseEther("20"), 1, 1);
             await token.connect(depositor).approve(yToken.address, depositAmt);
             await yToken.connect(depositor).deposit(depositAmt);
             await yToken.connect(depositor).approve(alchemist.address, depositAmt);
@@ -103,7 +103,7 @@ describe("AlchemixHarvester", () => {
 
         it("returns false if the yield token is not active", async () => {
             await increaseTime(waffle.provider, 200);
-            await alResolver.addHarvestJob(false, yToken.address, alchemist.address, parseEther("20"), 0, 1);
+            await alResolver.addHarvestJob(true, alchemist.address, "0x0000000000000000000000000000000000000000", yToken.address, parseEther("20"), 1, 1);
             const res = await alResolver.checker();
             expect(res.canExec).equal(false);
         })
@@ -125,7 +125,7 @@ describe("AlchemixHarvester", () => {
                 creditUnlockBlocks: 1
             }
             await alchemist.setYieldTokenParameters(yToken2.address, params);
-            await alResolver.addHarvestJob(true, yToken2.address, alchemist.address, parseEther("20"), 1, 1);
+            await alResolver.addHarvestJob(true, alchemist.address, "0x0000000000000000000000000000000000000000", yToken2.address, parseEther("20"), 1, 1);
             await alResolver.removeHarvestJob(yToken.address);
             const harvestJob = await alResolver.harvestJobs(yToken.address);
             expect(harvestJob.active).equal(false);
@@ -164,7 +164,7 @@ describe("AlchemixHarvester", () => {
             }
             await alchemist.setYieldTokenParameters(yToken2.address, params);
             await alchemist.setEnabledYieldToken(yToken2.address, false);
-            await expect(alResolver.addHarvestJob(true, yToken2.address, alchemist.address, parseEther('1'), 1, 1)).revertedWith('');
+            await expect(await alResolver.addHarvestJob(true, alchemist.address, "0x0000000000000000000000000000000000000000", yToken2.address, parseEther("20"), 1, 1)).revertedWith('YieldTokenDisabled()');
         })
 
         it('sets the active flag for a harvest job', async () => {
@@ -236,7 +236,7 @@ describe("AlchemixHarvester", () => {
 
         describe("harvest", () => {
             beforeEach(async () => {
-                await alResolver.addHarvestJob(true, yToken.address, alchemist.address, parseEther("20"), 0, 1);
+                await alResolver.addHarvestJob(true, alchemist.address, "0x0000000000000000000000000000000000000000", yToken.address, parseEther("20"), 1, 1);
                 await token.connect(depositor).approve(yToken.address, depositAmt);
                 await yToken.connect(depositor).deposit(depositAmt);
                 await yToken.connect(depositor).approve(alchemist.address, depositAmt);
@@ -247,18 +247,18 @@ describe("AlchemixHarvester", () => {
                 await token.connect(deployer).transfer(yToken.address, yieldAmt);
                 await increaseTime(waffle.provider, 200);
                 const balBefore = await token.balanceOf(yToken.address);
-                await alHarvester.harvest(alchemist.address, yToken.address, 0);
+                await alHarvester.harvest(alchemist.address, yToken.address, 0, 0);
                 const balAfter = await token.balanceOf(yToken.address);
                 expect(balAfter).equal(balBefore.sub(yieldAmt));
             })
 
             it("reverts if the caller is not the poker", async () => {
-                await expect(alHarvester.connect(depositor).harvest(alchemist.address, token.address, 0)).revertedWith("");
+                await expect(alHarvester.connect(depositor).harvest(alchemist.address, token.address, 0, 0)).revertedWith("");
             })
 
             it("reverts if the gas is too damn high", async () => {
                 await alHarvester.setMaxGasPrice(0);
-                await expect(alHarvester.connect(depositor).harvest(alchemist.address, token.address, 0)).revertedWith("");
+                await expect(alHarvester.connect(depositor).harvest(alchemist.address, token.address, 0, 0)).revertedWith("");
             })
         })
     })
