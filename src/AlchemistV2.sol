@@ -522,10 +522,6 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     function sweepRewardTokens(address rewardToken, address yieldToken) external override lock {
         _onlyKeeper();
 
-        if (_supportedYieldTokens.contains(rewardToken) || _supportedUnderlyingTokens.contains(rewardToken)) {
-            revert UnsupportedToken(rewardToken);
-        }
-
         msg.sender.delegatecall(abi.encodeWithSignature("claim(address)", yieldToken));
 
         TokenUtils.safeTransfer(rewardToken, msg.sender, TokenUtils.safeBalanceOf(rewardToken, address(this)));
