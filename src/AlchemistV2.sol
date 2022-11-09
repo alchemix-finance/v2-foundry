@@ -279,7 +279,6 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         emit TransmuterUpdated(transmuter);
         emit MinimumCollateralizationUpdated(minimumCollateralization);
         emit ProtocolFeeUpdated(protocolFee);
-        emit ProtocolFeeReceiverUpdated(protocolFeeReceiver);
         emit MintingLimitUpdated(params.mintingLimitMaximum, params.mintingLimitBlocks);
     }
 
@@ -522,34 +521,13 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     function sweepRewardTokens(address rewardToken, address yieldToken) external override lock {
         _onlyKeeper();
 
-        if (_supportedYieldTokens.contains(rewardToken)) {
-            revert UnsupportedToken(rewardToken);
-        }
-
-        if (_supportedUnderlyingTokens.contains(rewardToken)) {
+        if (_supportedYieldTokens.contains(rewardToken) || _supportedUnderlyingTokens.contains(rewardToken)) {
             revert UnsupportedToken(rewardToken);
         }
 
         msg.sender.delegatecall(abi.encodeWithSignature("claim(address)", yieldToken));
 
         TokenUtils.safeTransfer(rewardToken, msg.sender, TokenUtils.safeBalanceOf(rewardToken, address(this)));
-    }
-
-    /// @inheritdoc IAlchemistV2AdminActions
-    function sweepTokens(address token, uint256 amount) external override lock {
-        _onlyAdmin();
-
-        if (_supportedYieldTokens.contains(token)) {
-            revert UnsupportedToken(token);
-        }
-
-        if (_supportedUnderlyingTokens.contains(token)) {
-            revert UnsupportedToken(token);
-        }
-
-        TokenUtils.safeTransfer(token, admin, amount);
-
-        emit SweepTokens(token, amount);
     }
 
     /// @inheritdoc IAlchemistV2AdminActions

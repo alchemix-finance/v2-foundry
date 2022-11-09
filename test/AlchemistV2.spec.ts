@@ -716,40 +716,6 @@ describe("AlchemistV2", () => {
     });
   });
 
-  describe("sweep", () => {
-    const sweepAmount = parseUnits("10000", "ether");
-
-    beforeEach(async () => {
-      await rewardToken.mint(alchemist.address, sweepAmount);
-      await rewardToken.approve(alchemist.address, sweepAmount);
-    });
-
-    it("emits SweepTokens event", async() => {
-      await expect(
-        alchemist.connect(admin).sweepTokens(rewardToken.address, 100)
-      ).to.emit(alchemist, "SweepTokens")
-      .withArgs(rewardToken.address, 100);
-    });
-
-    it("reverts if the token is an underlyingToken", async() => {
-      await expect(
-        alchemist.connect(admin).sweepTokens(underlyingToken.address, 100)
-      ).revertedWith('UnsupportedToken("' + underlyingToken.address + '")');
-    });
-
-    it("reverts if token is a yield token", async() => {
-      await expect(
-        alchemist.connect(admin).sweepTokens(yieldToken.address, 100)
-      ).revertedWith('UnsupportedToken("' + yieldToken.address + '")');
-    });
-
-    it("reverts if caller is not the admin", async() => {
-      await expect(
-        alchemist.connect(sentinel).sweepTokens(yieldToken.address, 100)
-      ).revertedWith('Unauthorized()');
-    });    
-  })
-
   describe("approveMint", () => {
     it("sets the mint allowance", async () => {
       const amount = parseUnits("500", "ether");
