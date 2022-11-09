@@ -55,14 +55,6 @@ contract RewardCollectorVesper is IRewardCollector {
     }
 
     function claimAndDistributeRewards(address token, uint256 minimumAmountOut) external returns (uint256) {
-
-        if (
-            IAlchemistV2(alchemist).isSupportedYieldToken(rewardToken) || 
-            IAlchemistV2(alchemist).isSupportedUnderlyingToken(rewardToken)
-        ) {
-            revert IllegalArgument("Invalid reward token");
-        }
-
         IAlchemistV2(alchemist).sweepRewardTokens(rewardToken, token);
 
         uint256 claimed = IERC20(rewardToken).balanceOf(address(this));

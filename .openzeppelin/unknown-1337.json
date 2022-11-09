@@ -1,8 +1,8 @@
 {
   "manifestVersion": "3.2",
   "admin": {
-    "address": "0xE6a025c014c73934f8dC086312164Ea6ba37c69D",
-    "txHash": "0x14b860d6305409d5b667088746fe454319c362ce835160b8be3b9190b418ece9"
+    "address": "0x747ce5555f789b7a72026b5a23C621B4773648fb",
+    "txHash": "0x841134a093ea87a507c20d69804ea8a799e91ca31175040f01af9c171ddee3d5"
   },
   "proxies": [
     {
@@ -1113,6 +1113,81 @@
     {
       "address": "0xaA50d60e3c13BfD107aE9d8061F9F10B799babeB",
       "txHash": "0x98c003a7754a07796c1a49ad4ec0b7f4713f2f295bb91b8a25ee14537f54aca3",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x4093E6594B4F193D6B577257E8080B92d9939C50",
+      "txHash": "0x4ec9c5f2e258d1e89a9bf4ffc96023b4884c3261794d3aae58b517dd94599eb1",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x4FAC8C7C1Fa728acdf48A0Ae0E17408a6067B6a4",
+      "txHash": "0x0a22dbfcef960f63e7b780543bb026b2306ecbb245c4215f1dd3e38f81c5aaf9",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x306822F17A869736CB4D6Dc815Bfa2C26a3713Ea",
+      "txHash": "0x226d22a983eb93c6ad38d4fce7ebc040e5fdaecb8b742bb2d151cfaac2be5468",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x4A767A38a012CeF240E19d9280Cda5902eC16867",
+      "txHash": "0x671e4b7f632df5a59ee5c29cd7bd6b3466716a79fb6c8c4ff2606af38a6d8f6d",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x199e8C2022498252c5E2dA2c55599498dFbfF030",
+      "txHash": "0x4d86c6d51ff900e81b26618d2f2f96a9b0c368214e5cecb4a39dfe492ffa7e09",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xc842F582308a0088A13D3b67B7902d80A26717a1",
+      "txHash": "0x3f7427933dba0b934b22bdc681b97d899a59f5e78e4e8a2a7d7966046629a837",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x1Aac32710390Aa091d4870Fb49F98482b768499A",
+      "txHash": "0x87fd055cfcfded2ca0390acb285e14d0d35c4344dcad310d44cc6079ef4cab2e",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x7D31E696fEE34BB23B8ed8932CfaF1614A4Bb420",
+      "txHash": "0x0e581f510c8e161faa7c1da1310b801a3a5073454179c38bb491495516ee2641",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x6b16F55f837c53DE3D7784BA37b78eB0F5a86DB6",
+      "txHash": "0x36c29e9a5b6526a7d4755b03cf63001d1489dae4bd1ae1f6be52c109a97e6e8c",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xf3072Ae245dd45317f285485034752D401C26bEf",
+      "txHash": "0x1191f617af9a6aa2dd3eb245db50107c20d684a16869960f06193d30520c6c36",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x39A5E8B0fe9E0a6215d013D558f6AA84f24Fc337",
+      "txHash": "0x321d71d8db7609d78266436e139433ee293889dca3fa8b59717bf715f1122cd5",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x95B6d421bcf86862A675cE1F2394F87B310d9379",
+      "txHash": "0x95992917d07f4cdc61e3a601341497a8d200271063736b2ef855b8e8ec0513dc",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x85bd548dfeA05a2E5E542f27e1b42326DF79Ff7f",
+      "txHash": "0x9517cac861e32a36462948a3f61fe68cd834376a151c0006b99f77463042a5c8",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xbe93d80639F586AB078c2a9b6B4cCA1910390965",
+      "txHash": "0x6c64ce1a8a0421437721752622e309baa6eeda7fdbd66dfc57fe64b664c373a3",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x40d29bCFDA5692EC69A02e817029D34b117a3827",
+      "txHash": "0x2669101486a7a84cd7d6fb60b0a7512444b936728121da5b0075c2292d86bc39",
       "kind": "transparent"
     }
   ],
@@ -3494,8 +3569,8 @@
       }
     },
     "4b2521baaed4ab753757b42186ebe32c6667048be8eb391add537ca5ef6ed688": {
-      "address": "0x0ef547648C0bD7911Bb690Ae4F393254a9E986d3",
-      "txHash": "0x5ed9688283d925ea123b96d1262ada7347e29eec19ccd104b559012e3323ff51",
+      "address": "0xf175CfDeb23c09746607ceFF6d9F2c1Aa52F42E2",
+      "txHash": "0x2c6d45f8bce1d2e516db042bb4454eb9b2d0a4ed64bb01a32dcdfc78b4d2c8dd",
       "layout": {
         "storage": [
           {
@@ -3868,8 +3943,8 @@
       }
     },
     "fbeaf8ab4b900c3085ab5c2aa69eb2f8ddc2a5f230fad706c3450c33f10d1ba9": {
-      "address": "0x0218197dD758F8cFBe17f2D343F01C811d3caBd6",
-      "txHash": "0xe3de41eba84409fe4e87a11f0cb41f2ab3d0d807c357f6e182a03225e6545ca9",
+      "address": "0xc3c9E137F71f7e65645bb8f9A1Ba83d1FF777917",
+      "txHash": "0x86e6fb8e38f5736a19be649217e781bbf75237cca469b9213410e3b45ab9c58b",
       "layout": {
         "storage": [
           {
@@ -3973,7 +4048,7 @@
             "label": "weightings",
             "offset": 0,
             "slot": "10",
-            "type": "t_mapping(t_address,t_struct(Weighting)59270_storage)",
+            "type": "t_mapping(t_address,t_struct(Weighting)59281_storage)",
             "contract": "TransmuterBuffer",
             "src": "src/TransmuterBuffer.sol:67"
           },
@@ -4031,7 +4106,7 @@
             "label": "mapping(address => bool)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_address,t_struct(Weighting)59270_storage)": {
+          "t_mapping(t_address,t_struct(Weighting)59281_storage)": {
             "label": "mapping(address => struct ITransmuterBuffer.Weighting)",
             "numberOfBytes": "32"
           },
@@ -4061,7 +4136,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(Weighting)59270_storage": {
+          "t_struct(Weighting)59281_storage": {
             "label": "struct ITransmuterBuffer.Weighting",
             "members": [
               {
@@ -4097,8 +4172,8 @@
       }
     },
     "ecb22df19df8fed8d93024657e88427926313b05a954f56f9f8f764340a19f88": {
-      "address": "0x4413bB589938DBcC9C9BdBB4A72c21cB38F09550",
-      "txHash": "0x33ea312da15ecd9d386562f9220c2bae0a51b1d5898c47786840d5a1668dc736",
+      "address": "0x333Aa6590fA3e04e6722DCE276aA6B0AA0bde234",
+      "txHash": "0x659a073cd65d50e4a4e8f95a59f6b811df1bfda9c8bb8f13622e0c37d9d33c43",
       "layout": {
         "storage": [
           {
@@ -4202,7 +4277,7 @@
             "label": "accounts",
             "offset": 0,
             "slot": "205",
-            "type": "t_mapping(t_address,t_struct(Account)46616_storage)",
+            "type": "t_mapping(t_address,t_struct(Account)46627_storage)",
             "contract": "TransmuterV2",
             "src": "src/TransmuterV2.sol:121"
           },
@@ -4210,7 +4285,7 @@
             "label": "ticks",
             "offset": 0,
             "slot": "206",
-            "type": "t_struct(Cache)62341_storage",
+            "type": "t_struct(Cache)62352_storage",
             "contract": "TransmuterV2",
             "src": "src/TransmuterV2.sol:125"
           },
@@ -4280,7 +4355,7 @@
             "label": "mapping(address => bool)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_address,t_struct(Account)46616_storage)": {
+          "t_mapping(t_address,t_struct(Account)46627_storage)": {
             "label": "mapping(address => struct TransmuterV2.Account)",
             "numberOfBytes": "32"
           },
@@ -4288,11 +4363,11 @@
             "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(Info)62329_storage)": {
+          "t_mapping(t_uint256,t_struct(Info)62340_storage)": {
             "label": "mapping(uint256 => struct Tick.Info)",
             "numberOfBytes": "32"
           },
-          "t_struct(Account)46616_storage": {
+          "t_struct(Account)46627_storage": {
             "label": "struct TransmuterV2.Account",
             "members": [
               {
@@ -4316,12 +4391,12 @@
             ],
             "numberOfBytes": "96"
           },
-          "t_struct(Cache)62341_storage": {
+          "t_struct(Cache)62352_storage": {
             "label": "struct Tick.Cache",
             "members": [
               {
                 "label": "values",
-                "type": "t_mapping(t_uint256,t_struct(Info)62329_storage)",
+                "type": "t_mapping(t_uint256,t_struct(Info)62340_storage)",
                 "offset": 0,
                 "slot": "0"
               },
@@ -4346,7 +4421,7 @@
             ],
             "numberOfBytes": "128"
           },
-          "t_struct(Info)62329_storage": {
+          "t_struct(Info)62340_storage": {
             "label": "struct Tick.Info",
             "members": [
               {
@@ -4357,7 +4432,7 @@
               },
               {
                 "label": "accumulatedWeight",
-                "type": "t_struct(Number)60953_storage",
+                "type": "t_struct(Number)60964_storage",
                 "offset": 0,
                 "slot": "1"
               },
@@ -4376,7 +4451,7 @@
             ],
             "numberOfBytes": "128"
           },
-          "t_struct(Number)60953_storage": {
+          "t_struct(Number)60964_storage": {
             "label": "struct FixedPointMath.Number",
             "members": [
               {
@@ -5676,6 +5751,461 @@
             "numberOfBytes": "96"
           },
           "t_struct(YieldTokenParams)55508_storage": {
+            "label": "struct IAlchemistV2State.YieldTokenParams",
+            "members": [
+              {
+                "label": "decimals",
+                "type": "t_uint8",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "underlyingToken",
+                "type": "t_address",
+                "offset": 1,
+                "slot": "0"
+              },
+              {
+                "label": "adapter",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "maximumLoss",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "maximumExpectedValue",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "creditUnlockRate",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "activeBalance",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "harvestableBalance",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "totalShares",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "7"
+              },
+              {
+                "label": "expectedValue",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "8"
+              },
+              {
+                "label": "pendingCredit",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "9"
+              },
+              {
+                "label": "distributedCredit",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "10"
+              },
+              {
+                "label": "lastDistributionBlock",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "11"
+              },
+              {
+                "label": "accruedWeight",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "12"
+              },
+              {
+                "label": "enabled",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "13"
+              }
+            ],
+            "numberOfBytes": "448"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "38e0752a5795445ac402d282b7447d79b5649b0bb69575a95ab73a13a063bb9c": {
+      "address": "0x2792048D70B9422Fb893104DF15FEaDcC788d306",
+      "txHash": "0xf22c3511c01dc33ea0a2c82fecbeb2ca948e582e7f9e2d49d6a7d33a9078d44b",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "_lockState",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256",
+            "contract": "Mutex",
+            "src": "src/base/Mutex.sol:13"
+          },
+          {
+            "label": "debtToken",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_address",
+            "contract": "AlchemistV2",
+            "src": "src/AlchemistV2.sol:60"
+          },
+          {
+            "label": "admin",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_address",
+            "contract": "AlchemistV2",
+            "src": "src/AlchemistV2.sol:63"
+          },
+          {
+            "label": "pendingAdmin",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_address",
+            "contract": "AlchemistV2",
+            "src": "src/AlchemistV2.sol:66"
+          },
+          {
+            "label": "sentinels",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "AlchemistV2",
+            "src": "src/AlchemistV2.sol:69"
+          },
+          {
+            "label": "keepers",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_mapping(t_address,t_bool)",
+            "contract": "AlchemistV2",
+            "src": "src/AlchemistV2.sol:72"
+          },
+          {
+            "label": "transmuter",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_address",
+            "contract": "AlchemistV2",
+            "src": "src/AlchemistV2.sol:75"
+          },
+          {
+            "label": "minimumCollateralization",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_uint256",
+            "contract": "AlchemistV2",
+            "src": "src/AlchemistV2.sol:78"
+          },
+          {
+            "label": "protocolFee",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_uint256",
+            "contract": "AlchemistV2",
+            "src": "src/AlchemistV2.sol:81"
+          },
+          {
+            "label": "protocolFeeReceiver",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_address",
+            "contract": "AlchemistV2",
+            "src": "src/AlchemistV2.sol:84"
+          },
+          {
+            "label": "whitelist",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_address",
+            "contract": "AlchemistV2",
+            "src": "src/AlchemistV2.sol:87"
+          },
+          {
+            "label": "_mintingLimiter",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_struct(LinearGrowthLimiter)61489_storage",
+            "contract": "AlchemistV2",
+            "src": "src/AlchemistV2.sol:90"
+          },
+          {
+            "label": "_repayLimiters",
+            "offset": 0,
+            "slot": "17",
+            "type": "t_mapping(t_address,t_struct(LinearGrowthLimiter)61489_storage)",
+            "contract": "AlchemistV2",
+            "src": "src/AlchemistV2.sol:93"
+          },
+          {
+            "label": "_liquidationLimiters",
+            "offset": 0,
+            "slot": "18",
+            "type": "t_mapping(t_address,t_struct(LinearGrowthLimiter)61489_storage)",
+            "contract": "AlchemistV2",
+            "src": "src/AlchemistV2.sol:96"
+          },
+          {
+            "label": "_accounts",
+            "offset": 0,
+            "slot": "19",
+            "type": "t_mapping(t_address,t_struct(Account)33078_storage)",
+            "contract": "AlchemistV2",
+            "src": "src/AlchemistV2.sol:99"
+          },
+          {
+            "label": "_underlyingTokens",
+            "offset": 0,
+            "slot": "20",
+            "type": "t_mapping(t_address,t_struct(UnderlyingTokenParams)55488_storage)",
+            "contract": "AlchemistV2",
+            "src": "src/AlchemistV2.sol:102"
+          },
+          {
+            "label": "_yieldTokens",
+            "offset": 0,
+            "slot": "21",
+            "type": "t_mapping(t_address,t_struct(YieldTokenParams)55519_storage)",
+            "contract": "AlchemistV2",
+            "src": "src/AlchemistV2.sol:105"
+          },
+          {
+            "label": "_supportedUnderlyingTokens",
+            "offset": 0,
+            "slot": "22",
+            "type": "t_struct(AddressSet)62180_storage",
+            "contract": "AlchemistV2",
+            "src": "src/AlchemistV2.sol:108"
+          },
+          {
+            "label": "_supportedYieldTokens",
+            "offset": 0,
+            "slot": "24",
+            "type": "t_struct(AddressSet)62180_storage",
+            "contract": "AlchemistV2",
+            "src": "src/AlchemistV2.sol:111"
+          },
+          {
+            "label": "transferAdapter",
+            "offset": 0,
+            "slot": "26",
+            "type": "t_address",
+            "contract": "AlchemistV2",
+            "src": "src/AlchemistV2.sol:114"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_int256": {
+            "label": "int256",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(Account)33078_storage)": {
+            "label": "mapping(address => struct AlchemistV2.Account)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(LinearGrowthLimiter)61489_storage)": {
+            "label": "mapping(address => struct Limiters.LinearGrowthLimiter)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(UnderlyingTokenParams)55488_storage)": {
+            "label": "mapping(address => struct IAlchemistV2State.UnderlyingTokenParams)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(YieldTokenParams)55519_storage)": {
+            "label": "mapping(address => struct IAlchemistV2State.YieldTokenParams)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Account)33078_storage": {
+            "label": "struct AlchemistV2.Account",
+            "members": [
+              {
+                "label": "debt",
+                "type": "t_int256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "balances",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "lastAccruedWeights",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "depositedTokens",
+                "type": "t_struct(AddressSet)62180_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "mintAllowances",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "withdrawAllowances",
+                "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+                "offset": 0,
+                "slot": "6"
+              }
+            ],
+            "numberOfBytes": "224"
+          },
+          "t_struct(AddressSet)62180_storage": {
+            "label": "struct Sets.AddressSet",
+            "members": [
+              {
+                "label": "values",
+                "type": "t_array(t_address)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "indexes",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(LinearGrowthLimiter)61489_storage": {
+            "label": "struct Limiters.LinearGrowthLimiter",
+            "members": [
+              {
+                "label": "maximum",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "rate",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "lastValue",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "lastBlock",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "minLimit",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(UnderlyingTokenParams)55488_storage": {
+            "label": "struct IAlchemistV2State.UnderlyingTokenParams",
+            "members": [
+              {
+                "label": "decimals",
+                "type": "t_uint8",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "conversionFactor",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "enabled",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(YieldTokenParams)55519_storage": {
             "label": "struct IAlchemistV2State.YieldTokenParams",
             "members": [
               {

@@ -279,7 +279,6 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         emit TransmuterUpdated(transmuter);
         emit MinimumCollateralizationUpdated(minimumCollateralization);
         emit ProtocolFeeUpdated(protocolFee);
-        emit ProtocolFeeReceiverUpdated(protocolFeeReceiver);
         emit MintingLimitUpdated(params.mintingLimitMaximum, params.mintingLimitBlocks);
     }
 
@@ -521,6 +520,10 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @inheritdoc IAlchemistV2AdminActions
     function sweepRewardTokens(address rewardToken, address yieldToken) external override lock {
         _onlyKeeper();
+
+        if (_supportedYieldTokens.contains(rewardToken) || _supportedUnderlyingTokens.contains(rewardToken)) {
+            revert UnsupportedToken(rewardToken);
+        }
 
         msg.sender.delegatecall(abi.encodeWithSignature("claim(address)", yieldToken));
 
