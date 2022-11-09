@@ -164,7 +164,7 @@ describe("AlchemixHarvester", () => {
             }
             await alchemist.setYieldTokenParameters(yToken2.address, params);
             await alchemist.setEnabledYieldToken(yToken2.address, false);
-            await expect(await alResolver.addHarvestJob(true, alchemist.address, "0x0000000000000000000000000000000000000000", yToken2.address, parseEther("20"), 1, 1)).revertedWith('YieldTokenDisabled()');
+            await expect(alResolver.addHarvestJob(true, alchemist.address, "0x0000000000000000000000000000000000000000", yToken2.address, parseEther("20"), 1, 1)).revertedWith('YieldTokenDisabled()');
         })
 
         it('sets the active flag for a harvest job', async () => {
