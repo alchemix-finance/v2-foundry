@@ -3,61 +3,97 @@ pragma solidity ^0.8.11;
 import {IllegalState} from "../../base/Errors.sol";
 
 import "../../interfaces/ITokenAdapter.sol";
-import "../../interfaces/external/stakedao/IAngleVault.sol";
+import "../../interfaces/external/stakedao/IAngleStableMaster.sol";
+import "../../interfaces/external/stakedao/IOracle.sol";
+import "../../interfaces/external/stakedao/IPerpetualManager.sol";
+import "../../interfaces/external/stakedao/IPoolManager.sol";
+import "../../interfaces/external/stakedao/ISanToken.sol";
 import "../../interfaces/external/stakedao/ISanVault.sol";
 import "../../interfaces/external/yearn/IYearnVaultV2.sol";
 
 import "../../libraries/TokenUtils.sol";
 
+struct InitializationParams {
+    address alchemist;
+    address angleStableMaster;
+    address poolManager;
+    address sanVault;
+    address token;
+    address underlyingToken;
+    address parentToken;
+}
+
 /// @title  Stakedao San token adapter
 /// @author Alchemix Finance
 contract SanTokenAdapter is ITokenAdapter {
     uint256 private constant MAXIMUM_SLIPPAGE = 10000;
+    uint256 private constant stableManagerBaseParams = 1000000000;
+    uint256 private constant stableManagerBaseTokens = 1000000000000000000;
     string public constant override version = "2.1.0";
 
     address public immutable override token;
     address public immutable override underlyingToken;
+    address public immutable alchemist;
     address public immutable poolManager;
-    IAngleVault angleVault;
+    address public immutable parentToken;
+    IStableMaster angleStableMaster;
     ISanVault sanVault;
 
-    constructor(address _token, address _underlyingToken, address _angleVault, address _poolManager, address _sanVault) {
-        token = _token;
-        underlyingToken = _underlyingToken;
-        poolManager = _poolManager;
-        angleVault = IAngleVault(_angleVault);
-        sanVault = ISanVault(_sanVault);
+    constructor(InitializationParams memory params) {
+        alchemist = params.alchemist;
+        token = params.token;
+        underlyingToken = params.underlyingToken;
+        parentToken = params.parentToken;
+        poolManager = params.poolManager;
+
+        angleStableMaster = IStableMaster(params.angleStableMaster);
+        sanVault = ISanVault(params.sanVault);
     }
 
     /// @inheritdoc ITokenAdapter
     function price() external view override returns (uint256) {
-        // TODO
+        (
+            IERC20 token,
+            ISanToken sanToken,
+            IPerpetualManager perpetualManager,
+            IOracle oracle,
+            uint256 stocksUsers,
+            uint256 sanRate,
+            uint256 collatBase,
+            SLPData memory slpData,
+            MintBurnData memory feeData
+        ) = angleStableMaster.collateralMap(IPoolManager(poolManager));
+
+        uint256 exchange = (10**TokenUtils.expectDecimals(underlyingToken) * (angleStableMaster.BASE_PARAMS() - slpData.slippage) * sanRate) / (angleStableMaster.BASE_PARAMS() * angleStableMaster.BASE_TOKENS());
+
+        return exchange;
     }
 
     /// @inheritdoc ITokenAdapter
     function wrap(uint256 amount, address recipient) external override returns (uint256) {
         TokenUtils.safeTransferFrom(underlyingToken, msg.sender, address(this), amount);
-        TokenUtils.safeApprove(underlyingToken, token, amount);
 
-        angleVault.deposit(amount, recipient, poolManager);
+        TokenUtils.safeApprove(underlyingToken, address(angleStableMaster), amount);
+        angleStableMaster.deposit(amount, address(this), poolManager);
 
-        sanVault.deposit(recipient, TokenUtils.safeBalanceOf(token, address(this)), false);
+        uint256 parentBalance = TokenUtils.safeBalanceOf(parentToken, address(this));
+        TokenUtils.safeApprove(parentToken, address(sanVault), parentBalance);
+        sanVault.deposit(recipient, parentBalance, false);
 
-        return TokenUtils.safeBalanceOf(token, address(this));
+        return TokenUtils.safeBalanceOf(token, recipient);
     }
 
     /// @inheritdoc ITokenAdapter
     function unwrap(uint256 amount, address recipient) external override returns (uint256) {
         TokenUtils.safeTransferFrom(token, msg.sender, address(this), amount);
 
+        TokenUtils.safeApprove(token, address(sanVault), amount);
         sanVault.withdraw(amount);
 
-        angleVault.withdraw(TokenUtils.safeBalanceOf(token, address(this)), address(this), address(this), poolManager);
+        uint256 parentBalance = TokenUtils.safeBalanceOf(parentToken, address(this));
+        TokenUtils.safeApprove(parentToken, address(angleStableMaster), parentBalance);
+        angleStableMaster.withdraw(TokenUtils.safeBalanceOf(parentToken, address(this)), address(this), recipient, poolManager);
 
-        uint256 amountWithdrawn = TokenUtils.safeBalanceOf(underlyingToken, address(this));
-
-        TokenUtils.safeTransfer(underlyingToken, recipient, amountWithdrawn);
-
-        return amountWithdrawn;
+        return TokenUtils.safeBalanceOf(underlyingToken, recipient);
     }
 }
