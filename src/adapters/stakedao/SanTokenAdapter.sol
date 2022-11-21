@@ -2,6 +2,7 @@ pragma solidity ^0.8.11;
 
 import {IllegalState} from "../../base/Errors.sol";
 
+import "../../interfaces/IAlchemistV2.sol";
 import "../../interfaces/ITokenAdapter.sol";
 import "../../interfaces/external/stakedao/IAngleStableMaster.sol";
 import "../../interfaces/external/stakedao/IOracle.sol";
@@ -9,18 +10,19 @@ import "../../interfaces/external/stakedao/IPerpetualManager.sol";
 import "../../interfaces/external/stakedao/IPoolManager.sol";
 import "../../interfaces/external/stakedao/ISanToken.sol";
 import "../../interfaces/external/stakedao/ISanVault.sol";
-import "../../interfaces/external/yearn/IYearnVaultV2.sol";
 
 import "../../libraries/TokenUtils.sol";
 
 struct InitializationParams {
     address alchemist;
+    address angleToken;
     address angleStableMaster;
+    address parentToken;
     address poolManager;
+    address stakeDaoToken;
     address sanVault;
     address token;
     address underlyingToken;
-    address parentToken;
 }
 
 /// @title  Stakedao San token adapter
@@ -34,17 +36,22 @@ contract SanTokenAdapter is ITokenAdapter {
     address public immutable override token;
     address public immutable override underlyingToken;
     address public immutable alchemist;
+    address public immutable angleToken;
     address public immutable poolManager;
     address public immutable parentToken;
+    address public immutable stakeDaoToken;
     IStableMaster angleStableMaster;
     ISanVault sanVault;
 
     constructor(InitializationParams memory params) {
         alchemist = params.alchemist;
-        token = params.token;
-        underlyingToken = params.underlyingToken;
+        angleToken = params.angleToken;
         parentToken = params.parentToken;
         poolManager = params.poolManager;
+        stakeDaoToken = params.stakeDaoToken;
+        token = params.token;
+        underlyingToken = params.underlyingToken;
+
 
         angleStableMaster = IStableMaster(params.angleStableMaster);
         sanVault = ISanVault(params.sanVault);
@@ -95,5 +102,13 @@ contract SanTokenAdapter is ITokenAdapter {
         angleStableMaster.withdraw(TokenUtils.safeBalanceOf(parentToken, address(this)), address(this), recipient, poolManager);
 
         return TokenUtils.safeBalanceOf(underlyingToken, recipient);
+    }
+
+    function harvestableBalance() external view returns (uint256, uint256) {
+        return (TokenUtils.safeBalanceOf(angleToken, address(this)), TokenUtils.safeBalanceOf(stakeDaoToken, address(this)));
+    }
+
+    function donateRewards() external returns (uint256) {
+        
     }
 }

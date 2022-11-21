@@ -28,6 +28,7 @@ contract SanTokenAdapterTest is DSTestPlus {
     address constant admin = 0x8392F6669292fA56123F71949B52d883aE57e225;
     address constant alchemistUSD = 0x5C6374a2ac4EBC38DeA0Fc1F8716e5Ea1AdD94dd;
     address constant alUSD = 0xBC6DA0FE9aD5f3b0d58160288917AA56653660E9;
+    address constant angleToken = 0x31429d1856aD1377A8A0079410B297e1a9e214c2;
     address constant angleStableMaster = 0x5adDc89785D75C86aB939E9e15bfBBb7Fc086A87;
     address constant curvePool = 0xa1F8A6807c402E4A15ef4EBa36528A3FED24E577;
     address constant owner = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
@@ -35,6 +36,7 @@ contract SanTokenAdapterTest is DSTestPlus {
     address constant sanUSDC = 0x9C215206Da4bf108aE5aEEf9dA7caD3352A36Dad;
     address constant sdSanUSDC = 0x8881c497f6F5f2CEcD0742c37c6840bcf5234535;
     address constant sdUsdcYieldToken = 0xAC9978DB68E11EbB9Ffdb65F31053A69522B6320;
+    address constant stakeDaoToken = 0x73968b9a57c6E53d41345FD57a6E6ae27d6CDB2F;
     address constant transmuterBuffer = 0xbc2FB245594a68c927C930FBE2d00680A8C90B9e;
     address constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
     address constant whitelistUSD = 0x78537a6CeBa16f412E123a90472C6E0e9A8F1132;
@@ -44,12 +46,14 @@ contract SanTokenAdapterTest is DSTestPlus {
     function setUp() external {
         adapter = new SanTokenAdapter(AdapterInitializationParams({
             alchemist:              alchemistUSD,
+            angleToken:             angleToken,
             angleStableMaster:      angleStableMaster,
+            parentToken:            sanUSDC,
             poolManager:            poolManagerUSDC,
+            stakeDaoToken:          stakeDaoToken,
             sanVault:               sdSanUSDC,
             token:                  sdUsdcYieldToken,
-            underlyingToken:        USDC,
-            parentToken:            sanUSDC
+            underlyingToken:        USDC
         }));
 
         IAlchemistV2.YieldTokenConfig memory ytc = IAlchemistV2AdminActions.YieldTokenConfig({
@@ -88,44 +92,7 @@ contract SanTokenAdapterTest is DSTestPlus {
         assertApproxEq(IERC20(sdUsdcYieldToken).balanceOf(address(adapter)), 0, 10);
     }
 
-    // function testHarvest() external {
-    //     deal(USDC, address(this), 100e18);
-    //     deal(USDC, address(0xbeef), 100e18);
-
-    //     SafeERC20.safeApprove(address(USDC), address(alchemistUSD), 100e18);
-    //     IAlchemistV2(alchemistUSD).depositUnderlying(sdUsdcYieldToken, 100e18, address(this), 0);
-    //     (int256 debtBefore, ) = IAlchemistV2(alchemistUSD).accounts(address(this));
-
-    //     // Roll ahead then harvest
-    //     hevm.roll(block.number + 100000);
-    //     hevm.warp(block.timestamp + 100000000);
-    //     hevm.prank(owner);
-    //     IAlchemistV2(alchemistUSD).harvest(sdUsdcYieldToken, 0);
-
-    //     // Roll ahead one block then check credited amount
-    //     hevm.roll(block.number + 1);
-    //     (int256 debtAfter, ) = IAlchemistV2(alchemistUSD).accounts(address(this));
-    //     assertGt(debtBefore, debtAfter);
-    // }
-
-    // function testLiquidate() external {
-    //     tip(sfrxEth, address(this), 1e18);
-
-    //     SafeERC20.safeApprove(sfrxEth, alchemistUSD, 1e18);
-    //     uint256 shares = IAlchemistV2(alchemistUSD).deposit(sfrxEth, 1e18, address(this));
-    //     uint256 pps = IAlchemistV2(alchemistUSD).getUnderlyingTokensPerShare(sfrxEth);
-    //     uint256 mintAmt = shares * pps / 1e18 / 4;
-    //     IAlchemistV2(alchemistUSD).mint(mintAmt, address(this));
-
-    //     (int256 debtBefore, ) = IAlchemistV2(alchemistUSD).accounts(address(this));
-
-    //     uint256 sharesLiquidated = IAlchemistV2(alchemistUSD).liquidate(sfrxEth, shares / 4, mintAmt * 97 / 100);
-
-    //     (int256 debtAfter, ) = IAlchemistV2(alchemistUSD).accounts(address(this));
-
-    //     (uint256 sharesLeft, ) =  IAlchemistV2(alchemistUSD).positions(address(this), sfrxEth);
-
-    //     assertApproxEq(0, uint256(debtAfter), mintAmt - mintAmt * 97 / 100);
-    //     assertEq(shares - sharesLiquidated, sharesLeft);
-    // }
+    function testRewardDistribution() external {
+        
+    }
 }
