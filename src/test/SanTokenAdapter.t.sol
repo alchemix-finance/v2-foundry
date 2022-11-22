@@ -12,6 +12,8 @@ import {
 
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IAlchemistV2AdminActions} from "../interfaces/alchemist/IAlchemistV2AdminActions.sol";
+import {ISanGaugeToken} from "../interfaces/external/stakedao/ISanGaugeToken.sol";
+import {ISushiSwapRouter} from "../interfaces/external/sushi/ISushiSwapRouter.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
 import "../interfaces/external/stakedao/ISanVault.sol";
 import "../interfaces/external/stakedao/ISanGaugeToken.sol";
@@ -37,6 +39,7 @@ contract SanTokenAdapterTest is DSTestPlus {
     address constant sdSanUSDC = 0x8881c497f6F5f2CEcD0742c37c6840bcf5234535;
     address constant sdUsdcYieldToken = 0xAC9978DB68E11EbB9Ffdb65F31053A69522B6320;
     address constant stakeDaoToken = 0x73968b9a57c6E53d41345FD57a6E6ae27d6CDB2F;
+    address constant swapRouter = 0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F;
     address constant transmuterBuffer = 0xbc2FB245594a68c927C930FBE2d00680A8C90B9e;
     address constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
     address constant whitelistUSD = 0x78537a6CeBa16f412E123a90472C6E0e9A8F1132;
@@ -51,6 +54,7 @@ contract SanTokenAdapterTest is DSTestPlus {
             parentToken:            sanUSDC,
             poolManager:            poolManagerUSDC,
             stakeDaoToken:          stakeDaoToken,
+            swapRouter:             swapRouter,
             sanVault:               sdSanUSDC,
             token:                  sdUsdcYieldToken,
             underlyingToken:        USDC
@@ -71,17 +75,13 @@ contract SanTokenAdapterTest is DSTestPlus {
         hevm.stopPrank();
     }
 
-    function testPrice() external {    
-        // Not sure what to test price against other than just copying the logic
-        // assertEq(adapter.price(), 0);
-    }
-
     function testRoundTrip() external {
         deal(USDC, address(this), 100e18);
 
         SafeERC20.safeApprove(address(USDC), address(alchemistUSD), 100e18);
         uint256 wrapped = IAlchemistV2(alchemistUSD).depositUnderlying(sdUsdcYieldToken, 100e18, address(this), 0);
 
+        // Test that price is within 0.1% of actual
         uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(sdUsdcYieldToken);
         assertGt(underlyingValue, 1e18 * 9990 / BPS /* 0.1% slippage */);
 
@@ -93,6 +93,18 @@ contract SanTokenAdapterTest is DSTestPlus {
     }
 
     function testRewardDistribution() external {
-        
+        deal(angleToken, address(adapter), 10e18);
+        deal(stakeDaoToken, address(adapter), 10e18);
+        deal(USDC, address(this), 100e18);
+
+        SafeERC20.safeApprove(address(USDC), address(alchemistUSD), 100e18);
+        IAlchemistV2(alchemistUSD).depositUnderlying(sdUsdcYieldToken, 100e18, address(this), 0);
+        IAlchemistV2(alchemistUSD).mint(40e18, address(this));
+
+        adapter.donateRewards();
+
+       (int256 debt, ) = IAlchemistV2(alchemistUSD).accounts(address(this));
+
+       assertGt(40e18, debt);
     }
 }

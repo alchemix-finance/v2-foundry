@@ -8,8 +8,11 @@ import "../../interfaces/external/stakedao/IAngleStableMaster.sol";
 import "../../interfaces/external/stakedao/IOracle.sol";
 import "../../interfaces/external/stakedao/IPerpetualManager.sol";
 import "../../interfaces/external/stakedao/IPoolManager.sol";
+import "../../interfaces/external/stakedao/ISanGaugeToken.sol";
 import "../../interfaces/external/stakedao/ISanToken.sol";
 import "../../interfaces/external/stakedao/ISanVault.sol";
+import "../../interfaces/external/sushi/ISushiSwapRouter.sol";
+
 
 import "../../libraries/TokenUtils.sol";
 
@@ -21,6 +24,7 @@ struct InitializationParams {
     address poolManager;
     address stakeDaoToken;
     address sanVault;
+    address swapRouter;
     address token;
     address underlyingToken;
 }
@@ -40,6 +44,7 @@ contract SanTokenAdapter is ITokenAdapter {
     address public immutable poolManager;
     address public immutable parentToken;
     address public immutable stakeDaoToken;
+    address public immutable swapRouter;
     IStableMaster angleStableMaster;
     ISanVault sanVault;
 
@@ -49,6 +54,7 @@ contract SanTokenAdapter is ITokenAdapter {
         parentToken = params.parentToken;
         poolManager = params.poolManager;
         stakeDaoToken = params.stakeDaoToken;
+        swapRouter = params.swapRouter;
         token = params.token;
         underlyingToken = params.underlyingToken;
 
@@ -104,11 +110,36 @@ contract SanTokenAdapter is ITokenAdapter {
         return TokenUtils.safeBalanceOf(underlyingToken, recipient);
     }
 
+    /// Balance of both reward tokens currently in the contract
     function harvestableBalance() external view returns (uint256, uint256) {
         return (TokenUtils.safeBalanceOf(angleToken, address(this)), TokenUtils.safeBalanceOf(stakeDaoToken, address(this)));
     }
 
     function donateRewards() external returns (uint256) {
-        
+        ISanGaugeToken(token).claim_rewards(address(this));
+
+        (uint256 angle, uint256 sdt) = (TokenUtils.safeBalanceOf(angleToken, address(this)), TokenUtils.safeBalanceOf(stakeDaoToken, address(this)));
+
+        // Angle -> weth -> alUSD
+        address[] memory path = new address[](3);
+        path[0] = 0x31429d1856aD1377A8A0079410B297e1a9e214c2;
+        path[1] = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+        path[2] = 0xBC6DA0FE9aD5f3b0d58160288917AA56653660E9;
+        TokenUtils.safeApprove(angleToken, swapRouter, angle);
+        uint[] memory amountsAngle = ISushiSwapRouter(swapRouter).swapExactTokensForTokens(TokenUtils.safeBalanceOf(angleToken, address(this)), 0, path, address(this), 1669109807);
+
+        // SDT -> weth -> alUSD
+        path[0] = 0x73968b9a57c6E53d41345FD57a6E6ae27d6CDB2F;
+        path[1] = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+        path[2] = 0xBC6DA0FE9aD5f3b0d58160288917AA56653660E9;
+        TokenUtils.safeApprove(stakeDaoToken, swapRouter, sdt);
+        uint[] memory amountsSdt = ISushiSwapRouter(swapRouter).swapExactTokensForTokens(TokenUtils.safeBalanceOf(stakeDaoToken, address(this)), 0, path, address(this), 16691098070);
+        uint256 total = amountsAngle[2] + amountsSdt[2];
+
+        // Donate to users
+        TokenUtils.safeApprove(IAlchemistV2(alchemist).debtToken(), alchemist, total);
+        IAlchemistV2(alchemist).donate(token, total);
+
+        return total;
     }
 }
