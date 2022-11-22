@@ -8,6 +8,7 @@ import {MutexLock} from "../../base/MutexLock.sol";
 
 import {SafeERC20} from "../../libraries/SafeERC20.sol";
 
+import {IChainlinkOracle} from "../../interfaces/external/chainlink/IChainlinkOracle.sol";
 import {ITokenAdapter} from "../../interfaces/ITokenAdapter.sol";
 import {IWETH9} from "../../interfaces/external/IWETH9.sol";
 import {IStableSwap2Pool} from "../../interfaces/external/curve/IStableSwap2Pool.sol";
@@ -20,6 +21,8 @@ struct InitializationParams {
     address parentToken;
     address underlyingToken;
     address curvePool;
+    address oracleStethUsd;
+    address oracleEthUsd;
     uint256 ethPoolIndex;
     uint256 stEthPoolIndex;
     address referral;
@@ -33,6 +36,8 @@ contract WstETHAdapterV1 is ITokenAdapter, MutexLock {
     address public immutable parentToken;
     address public immutable override underlyingToken;
     address public immutable curvePool;
+    address public immutable oracleStethUsd;
+    address public immutable oracleEthUsd;
     uint256 public immutable ethPoolIndex;
     uint256 public immutable stEthPoolIndex;
     address public immutable referral;
@@ -43,6 +48,8 @@ contract WstETHAdapterV1 is ITokenAdapter, MutexLock {
         parentToken     = params.parentToken;
         underlyingToken = params.underlyingToken;
         curvePool       = params.curvePool;
+        oracleStethUsd  = params.oracleStethUsd;
+        oracleEthUsd    = params.oracleEthUsd;
         ethPoolIndex    = params.ethPoolIndex;
         stEthPoolIndex  = params.stEthPoolIndex;
         referral        = params.referral;
@@ -80,7 +87,7 @@ contract WstETHAdapterV1 is ITokenAdapter, MutexLock {
 
     /// @inheritdoc ITokenAdapter
     function price() external view returns (uint256) {
-        return IWstETH(token).getStETHByWstETH(10**SafeERC20.expectDecimals(token));
+        return IWstETH(token).getStETHByWstETH(10**SafeERC20.expectDecimals(token)) * uint256(IChainlinkOracle(oracleStethUsd).latestAnswer()) / uint256(IChainlinkOracle(oracleEthUsd).latestAnswer());
     }
 
     /// @inheritdoc ITokenAdapter
