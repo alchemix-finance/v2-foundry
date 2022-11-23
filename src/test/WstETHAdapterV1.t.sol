@@ -48,6 +48,7 @@ contract WstETHAdapterV1Test is DSTestPlus {
         }));
 
         hevm.startPrank(admin);
+        alchemist.setTokenAdapter(address(wstETH), address(adapter));
         IWhitelist(whitelistETHAddress).add(address(this));
         alchemist.setMaximumExpectedValue(address(wstETH), 1000000000e18);
         hevm.stopPrank();
@@ -55,6 +56,8 @@ contract WstETHAdapterV1Test is DSTestPlus {
 
     function testRoundTrip() external {
         deal(address(weth), address(this), 1e18);
+        
+        uint256 startingBalance = wstETH.balanceOf(address(alchemist));
 
         SafeERC20.safeApprove(address(weth), address(alchemist), 1e18);
         uint256 shares = alchemist.depositUnderlying(address(wstETH), 1e18, address(this), 0);
@@ -63,11 +66,13 @@ contract WstETHAdapterV1Test is DSTestPlus {
         uint256 underlyingValue = shares * adapter.price() / 10**SafeERC20.expectDecimals(address(wstETH));
         assertGt(underlyingValue, 1e18 * 9990 / BPS);
         
-        SafeERC20.safeApprove(adapter.token(), address(adapter), shares);
         uint256 unwrapped = alchemist.withdrawUnderlying(address(wstETH), shares, address(this), shares * 9990 / 10000);
+
+        uint256 endBalance = wstETH.balanceOf(address(alchemist));
         
         assertEq(weth.balanceOf(address(this)), unwrapped);
         assertEq(wstETH.balanceOf(address(this)), 0);
         assertEq(wstETH.balanceOf(address(adapter)), 0);
+        assertApproxEq(endBalance - startingBalance, 0, 10);
     }
 }

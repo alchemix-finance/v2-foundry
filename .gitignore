@@ -1,5 +1,6 @@
 .env
 .idea
+.DS_Store
 cache
 out
 artifacts-rinkeby
