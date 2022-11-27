@@ -5,13 +5,13 @@ import "../lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgrad
 import "../lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "../lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/IERC20Upgradeable.sol";
 import { Unauthorized, IllegalState, IllegalArgument } from "./base/Errors.sol";
+import "./interfaces/saddle/IGaugeController.sol";
 import "./interfaces/saddle/IveSDL.sol";
-import "./interfaces/stakedao/IRewardDistributor.sol";
 import "./interfaces/snapshot/IDelegateRegistry.sol";
-import "./interfaces/stakedao/ILiquidityGauge.sol";
 
 contract SDLController is Initializable, OwnableUpgradeable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
+  address public constant gaugeController = 0x99Cb6c36816dE2131eF2626bb5dEF7E5cc8b9B14;
   address public constant SDL = 0xf1Dc500FdE233A4055e25e5BbF516372BC4F6871;
   address public constant veSDL = 0xD2751CdBED54B87777E805be36670D7aeAe73bb2;
   string public constant version = "1.1.0";
@@ -64,5 +64,9 @@ contract SDLController is Initializable, OwnableUpgradeable {
 
   function setRewardToken(address _rewardToken) external onlyOwner {
     rewardToken = _rewardToken;
+  }
+
+  function voteForGaugeWeights(address gaugeAddress, uint256 weight) external onlyOwner {
+    IGaugeController(gaugeController).vote_for_gauge_weights(gaugeAddress, weight);
   }
 }
