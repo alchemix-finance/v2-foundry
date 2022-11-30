@@ -29,6 +29,7 @@ struct InitializationParams {
 contract MigrationTool is IMigrationTool, Multicall {
     string public override version = "1.0.1";
     uint256 FIXED_POINT_SCALAR = 1e18;
+    address public immutable vaUSDC = 0xa8b607Aa09B6A2E306F93e74c282Fb13f6A80452;
 
     mapping(address => uint256) public decimals;
 
@@ -98,8 +99,13 @@ contract MigrationTool is IMigrationTool, Multicall {
         uint256 underlyingWithdrawn = alchemist.withdrawUnderlyingFrom(msg.sender, startingYieldToken, shares, address(this), minReturnUnderlying);
 
         // Deposit into new position
+        uint256 newPositionShares;
         TokenUtils.safeApprove(targetParams.underlyingToken, address(alchemist), underlyingWithdrawn);
-        uint256 newPositionShares = alchemist.depositUnderlying(targetYieldToken, underlyingWithdrawn, msg.sender, minReturnShares);
+        if (startingYieldToken == vaUSDC) {
+            newPositionShares = alchemist.depositUnderlying(targetYieldToken, underlyingWithdrawn, msg.sender, minReturnShares / 1e12);
+        } else {
+            newPositionShares = alchemist.depositUnderlying(targetYieldToken, underlyingWithdrawn, msg.sender, minReturnShares);
+        }
 
         if (debt > 0) {
             (int256 latestDebt, ) = alchemist.accounts(msg.sender);
