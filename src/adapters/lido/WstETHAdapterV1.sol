@@ -87,7 +87,12 @@ contract WstETHAdapterV1 is ITokenAdapter, MutexLock {
 
     /// @inheritdoc ITokenAdapter
     function price() external view returns (uint256) {
-        return IWstETH(token).getStETHByWstETH(10**SafeERC20.expectDecimals(token)) * uint256(IChainlinkOracle(oracleStethUsd).latestAnswer()) / uint256(IChainlinkOracle(oracleEthUsd).latestAnswer());
+        uint256 stethToEth = uint256(IChainlinkOracle(oracleStethUsd).latestAnswer()) * 1e18 / uint256(IChainlinkOracle(oracleEthUsd).latestAnswer());
+
+        // stETH is capped at 1 ETH
+        if (stethToEth > 1e18) stethToEth = 1e18;
+
+        return IWstETH(token).getStETHByWstETH(10**SafeERC20.expectDecimals(token)) * stethToEth / 1e18;
     }
 
     /// @inheritdoc ITokenAdapter
