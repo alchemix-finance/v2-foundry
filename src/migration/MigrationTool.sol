@@ -54,8 +54,7 @@ contract MigrationTool is IMigrationTool, Multicall {
     function migrateVaults(
         address startingYieldToken,
         address targetYieldToken,
-        uint256 shares,
-        uint256 slippageBps
+        uint256 shares
     ) external override returns (uint256) {
         // Yield tokens cannot be the same to prevent slippage on current position
         if (startingYieldToken == targetYieldToken) {
@@ -93,12 +92,12 @@ contract MigrationTool is IMigrationTool, Multicall {
             alchemist.burn(mintable, msg.sender);
         }
 
-        // Withdraw what you can from the old position. Expected to be within 1 BPS of value calculated by the alchemist.
-        uint256 minReturnUnderlying = alchemist.getUnderlyingTokensPerShare(startingYieldToken) * shares / 10**TokenUtils.expectDecimals(startingYieldToken) * (BPS - slippageBps) / BPS;
+        // Withdraw what you can from the old position. Expected to be within 1 BPS of value calculated by the alchemist to satisfy flash loan.
+        uint256 minReturnUnderlying = alchemist.getUnderlyingTokensPerShare(startingYieldToken) * shares / 10**TokenUtils.expectDecimals(startingYieldToken) * 9999 / BPS;
         uint256 underlyingWithdrawn = alchemist.withdrawUnderlyingFrom(msg.sender, startingYieldToken, shares, address(this), minReturnUnderlying);
 
-        // Deposit into new position. Expected to be within 1 BPS of value calculated by the alchemist.
-        uint256 minReturnShares = 10**TokenUtils.expectDecimals(targetYieldToken) * underlyingWithdrawn / alchemist.getUnderlyingTokensPerShare(targetYieldToken) * (BPS - slippageBps) / BPS;
+        // Deposit into new position. Expected to be within 1 BPS of value calculated by the alchemist to satisfy flash loan.
+        uint256 minReturnShares = 10**TokenUtils.expectDecimals(targetYieldToken) * underlyingWithdrawn / alchemist.getUnderlyingTokensPerShare(targetYieldToken) * 9999 / BPS;
         TokenUtils.safeApprove(targetParams.underlyingToken, address(alchemist), underlyingWithdrawn);
         uint256 newPositionShares = alchemist.depositUnderlying(targetYieldToken, underlyingWithdrawn, msg.sender, minReturnShares);
 
