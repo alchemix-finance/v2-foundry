@@ -101,7 +101,6 @@ contract MigrationTool is IMigrationTool, Multicall {
         TokenUtils.safeApprove(targetParams.underlyingToken, address(alchemist), underlyingWithdrawn);
         uint256 newPositionShares = alchemist.depositUnderlying(targetYieldToken, underlyingWithdrawn, msg.sender, minReturnShares);
 
-
         if (debt > 0) {
             (int256 latestDebt, ) = alchemist.accounts(msg.sender);
             // Mint al token which will be burned to fulfill flash loan requirements
