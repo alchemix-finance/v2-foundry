@@ -83,18 +83,18 @@ contract MigrationToolTestETH is DSTestPlus {
 
     function testUnsupportedVaults() external {
         expectIllegalArgumentError("Yield token is not supported");
-        migrationToolETH.migrateVaults(invalidYieldToken, rETH, 100e18, 90e18, 0);
+        migrationToolETH.migrateVaults(invalidYieldToken, rETH, 100e18, 100);
         
         expectIllegalArgumentError("Yield token is not supported");
-        migrationToolETH.migrateVaults(rETH , invalidYieldToken, 100e18, 90e18, 0);
+        migrationToolETH.migrateVaults(rETH , invalidYieldToken, 100e18, 100);
     }
 
     function testMigrationSameVault() external {
         expectIllegalArgumentError("Yield tokens cannot be the same");
-        migrationToolETH.migrateVaults(rETH, rETH, 100e18, 99e18, 0);
+        migrationToolETH.migrateVaults(rETH, rETH, 100e18, 100);
 
         expectIllegalArgumentError("Yield tokens cannot be the same");
-        migrationToolETH.migrateVaults(wstETH, wstETH, 100e18, 90e18, 0);
+        migrationToolETH.migrateVaults(wstETH, wstETH, 100e18, 100);
     }
 
     function testMigrationDifferentVaultMaximumShares() external {
@@ -117,7 +117,7 @@ contract MigrationToolTestETH is DSTestPlus {
         AlchemistETH.approveMint(address(migrationToolETH), underlyingValue);
 
         // Verify new position underlying value is within 0.01% of original
-        uint256 newShares = migrationToolETH.migrateVaults(yvETH, wstETH, shares, 0, 0);
+        uint256 newShares = migrationToolETH.migrateVaults(yvETH, wstETH, shares, 100);
         uint256 newUnderlyingValue = newShares * AlchemistETH.getUnderlyingTokensPerShare(wstETH) / 10**18;
         assertGt(newUnderlyingValue, underlyingValue * 9999 / BPS);
 
@@ -155,7 +155,7 @@ contract MigrationToolTestETH is DSTestPlus {
 
         // Verify new position underlying value is within 0.1% of original
         (uint256 oldShares, ) = AlchemistETH.positions(address(this), yvETH);
-        uint256 newShares = migrationToolETH.migrateVaults(yvETH, wstETH, shares / 2, 0, 0);
+        uint256 newShares = migrationToolETH.migrateVaults(yvETH, wstETH, shares / 2, 100);
         uint256 newUnderlyingValue = (newShares + oldShares) * AlchemistETH.getUnderlyingTokensPerShare(wstETH) / 10**18;
         assertGt(newUnderlyingValue, underlyingValue * 9999 / BPS);
 
@@ -192,7 +192,7 @@ contract MigrationToolTestETH is DSTestPlus {
         AlchemistETH.approveMint(address(migrationToolETH), underlyingValue);
 
         // Verify new position underlying value is within 0.01% of original
-        uint256 newShares = migrationToolETH.migrateVaults(yvETH, address(staticAToken), shares, 0, 0);
+        uint256 newShares = migrationToolETH.migrateVaults(yvETH, address(staticAToken), shares, 100);
         uint256 newUnderlyingValue = newShares * AlchemistETH.getUnderlyingTokensPerShare(address(staticAToken)) / 10**18;
         assertGt(newUnderlyingValue, underlyingValue * 9999 / BPS);
 

@@ -29,6 +29,7 @@ struct InitializationParams {
 contract MigrationTool is IMigrationTool, Multicall {
     string public override version = "1.0.1";
     uint256 FIXED_POINT_SCALAR = 1e18;
+    uint256 BPS = 10000;
     address public immutable vaUSDC = 0xa8b607Aa09B6A2E306F93e74c282Fb13f6A80452;
 
     mapping(address => uint256) public decimals;
@@ -48,14 +49,13 @@ contract MigrationTool is IMigrationTool, Multicall {
             decimals[collateralAddresses[i]] = TokenUtils.expectDecimals(collateralAddresses[i]);
         }
     }
-
+    
     /// @inheritdoc IMigrationTool
     function migrateVaults(
         address startingYieldToken,
         address targetYieldToken,
         uint256 shares,
-        uint256 minReturnShares,
-        uint256 minReturnUnderlying
+        uint256 slippageBps
     ) external override returns (uint256) {
         // Yield tokens cannot be the same to prevent slippage on current position
         if (startingYieldToken == targetYieldToken) {
@@ -83,29 +83,25 @@ contract MigrationTool is IMigrationTool, Multicall {
         (int256 debt, ) = alchemist.accounts(msg.sender);
 
         // Avoid calculations and repayments if user doesn't need this to migrate
-        uint256 debtTokenValue;
         uint256 mintable;
         if (debt > 0) {
             // Convert shares to amount of debt tokens
-            debtTokenValue = _convertToDebt(shares, startingYieldToken, startingParams.underlyingToken);
-            mintable = debtTokenValue * FIXED_POINT_SCALAR / alchemist.minimumCollateralization();
+            mintable = _convertToDebt(shares, startingYieldToken, startingParams.underlyingToken) * FIXED_POINT_SCALAR / alchemist.minimumCollateralization();
             // Mint tokens to this contract and burn them in the name of the user
             alchemicToken.mint(address(this), mintable);
             TokenUtils.safeApprove(address(alchemicToken), address(alchemist), mintable);
             alchemist.burn(mintable, msg.sender);
         }
 
-        // Withdraw what you can from the old position
+        // Withdraw what you can from the old position. Expected to be within 1 BPS of value calculated by the alchemist.
+        uint256 minReturnUnderlying = alchemist.getUnderlyingTokensPerShare(startingYieldToken) * shares / 10**TokenUtils.expectDecimals(startingYieldToken) * (BPS - slippageBps) / BPS;
         uint256 underlyingWithdrawn = alchemist.withdrawUnderlyingFrom(msg.sender, startingYieldToken, shares, address(this), minReturnUnderlying);
 
-        // Deposit into new position
-        uint256 newPositionShares;
+        // Deposit into new position. Expected to be within 1 BPS of value calculated by the alchemist.
+        uint256 minReturnShares = 10**TokenUtils.expectDecimals(targetYieldToken) * underlyingWithdrawn / alchemist.getUnderlyingTokensPerShare(targetYieldToken) * (BPS - slippageBps) / BPS;
         TokenUtils.safeApprove(targetParams.underlyingToken, address(alchemist), underlyingWithdrawn);
-        if (startingYieldToken == vaUSDC) {
-            newPositionShares = alchemist.depositUnderlying(targetYieldToken, underlyingWithdrawn, msg.sender, minReturnShares / 1e12);
-        } else {
-            newPositionShares = alchemist.depositUnderlying(targetYieldToken, underlyingWithdrawn, msg.sender, minReturnShares);
-        }
+        uint256 newPositionShares = alchemist.depositUnderlying(targetYieldToken, underlyingWithdrawn, msg.sender, minReturnShares);
+
 
         if (debt > 0) {
             (int256 latestDebt, ) = alchemist.accounts(msg.sender);
@@ -117,7 +113,7 @@ contract MigrationTool is IMigrationTool, Multicall {
 	    return newPositionShares;
 	}
 
-    function _convertToDebt(uint256 shares, address yieldToken, address underlyingToken) internal returns(uint256) {
+    function _convertToDebt(uint256 shares, address yieldToken, address underlyingToken) internal view returns(uint256) {
         // Math safety
         if (TokenUtils.expectDecimals(underlyingToken) > 18) {
             revert IllegalState("Underlying token decimals exceeds 18");

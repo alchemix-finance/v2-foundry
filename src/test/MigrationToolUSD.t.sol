@@ -117,20 +117,20 @@ contract MigrationToolTestUSD is DSTestPlus {
 
     function testUnsupportedVaults() external {
         expectIllegalArgumentError("Yield token is not supported");
-        migrationToolUSD.migrateVaults(invalidYieldToken, yvDAI, 100e18, 99e18, 0);
+        migrationToolUSD.migrateVaults(invalidYieldToken, yvDAI, 100e18, 1);
         
         expectIllegalArgumentError("Yield token is not supported");
-        migrationToolUSD.migrateVaults(yvDAI , invalidYieldToken, 100e18, 99e18, 0);
+        migrationToolUSD.migrateVaults(yvDAI , invalidYieldToken, 100e18, 1);
     }
 
     function testMigrationSameVault() external {
         expectIllegalArgumentError("Yield tokens cannot be the same");
-        migrationToolUSD.migrateVaults(yvDAI, yvDAI, 100e18, 99e18, 0);
+        migrationToolUSD.migrateVaults(yvDAI, yvDAI, 100e18, 1);
     }
 
     function testMigrationDifferentUnderlying() external {
         expectIllegalArgumentError("Cannot swap between different collaterals");
-        migrationToolUSD.migrateVaults(yvDAI, yvUSDC, 100e18, 90e18, 0);
+        migrationToolUSD.migrateVaults(yvDAI, yvUSDC, 100e18, 1);
     }
 
     // DAI
@@ -246,7 +246,7 @@ contract MigrationToolTestUSD is DSTestPlus {
         AlchemistUSD.approveMint(address(migrationToolUSD), underlyingValue);
 
         // Verify new position underlying value is within 0.01% of original
-        uint256 newShares = migrationToolUSD.migrateVaults(yvDAI, address(staticATokenDAI), shares, 0, 0);
+        uint256 newShares = migrationToolUSD.migrateVaults(yvDAI, address(staticATokenDAI), shares, 1);
         uint256 newUnderlyingValue = newShares * AlchemistUSD.getUnderlyingTokensPerShare(address(staticATokenDAI)) / 10**18;
         assertGt(newUnderlyingValue, underlyingValue * 9999 / BPS);
 
@@ -280,7 +280,7 @@ contract MigrationToolTestUSD is DSTestPlus {
         AlchemistUSD.approveMint(address(migrationToolUSD), debtValue);
 
         // Verify new position underlying value is within 0.01% of original
-        uint256 newShares = migrationToolUSD.migrateVaults(yearnToken, staticToken, shares, 0, 0);
+        uint256 newShares = migrationToolUSD.migrateVaults(yearnToken, staticToken, shares, 1);
         uint256 newUnderlyingValue = newShares * AlchemistUSD.getUnderlyingTokensPerShare(staticToken) / 10**decimals;
         assertGt(newUnderlyingValue, underlyingValue * 9999 / BPS);
 
@@ -315,7 +315,7 @@ contract MigrationToolTestUSD is DSTestPlus {
 
         // Verify new position underlying value is within 0.1% of original
         (uint256 oldShares, ) = AlchemistUSD.positions(address(this), yearnToken);
-        uint256 newShares = migrationToolUSD.migrateVaults(yearnToken, staticToken, shares / 2, 0, 0);
+        uint256 newShares = migrationToolUSD.migrateVaults(yearnToken, staticToken, shares / 2, 1);
         uint256 newUnderlyingValue = (newShares + oldShares) * AlchemistUSD.getUnderlyingTokensPerShare(staticToken) / 10**decimals;
         assertGt(newUnderlyingValue, underlyingValue * 9999 / BPS);
 
