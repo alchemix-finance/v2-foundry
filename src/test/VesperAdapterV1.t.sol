@@ -211,7 +211,7 @@ contract VesperAdapterV1Test is DSTestPlus {
         harvester.addRewardCollector(vaETH, address(rewardCollectorVesper));
     }
 
-    function testRoundTrip() external {
+    function testRoundTripETH() external {
         deal(address(weth), address(this), 1e18);
 
         SafeERC20.safeApprove(address(weth), address(alchemistETH), 1e18);
@@ -228,6 +228,21 @@ contract VesperAdapterV1Test is DSTestPlus {
         assertEq(vesperPool.balanceOf(address(adapterETH)), 0);
     }
 
+    function testRoundTripUSDC() external {
+        deal(address(USDC), address(this), 100e6);
+
+        SafeERC20.safeApprove(USDC, address(alchemistUSD), 100e6);
+
+        uint256 shares = alchemistUSD.depositUnderlying(vaUSDC, 100e6, address(this), 0);
+
+        uint256 underlyingValue = shares * adapterUSDC.price() / 10**SafeERC20.expectDecimals(vaUSDC);
+        assertGt(underlyingValue, 100e6 * 9900 / BPS);
+        
+        SafeERC20.safeApprove(adapterUSDC.token(), address(adapterUSDC), shares);
+        uint256 unwrapped = alchemistUSD.withdrawUnderlying(vaUSDC, shares, address(this), underlyingValue * 9900 / 10000);   
+        assertGt(unwrapped, 100e6 * 9900 / 10000);
+    }
+
     function testRoundTripFuzz(uint256 amount) external {
         hevm.assume(
             amount >= 10**SafeERC20.expectDecimals(address(weth)) && 
@@ -235,7 +250,6 @@ contract VesperAdapterV1Test is DSTestPlus {
         );
         
         deal(address(weth), address(this), amount);
-
 
         SafeERC20.safeApprove(address(weth), address(alchemistETH), amount);
         uint256 shares = alchemistETH.depositUnderlying(address(vesperPool), amount, address(this), 0);
