@@ -61,7 +61,9 @@ contract RewardCollectorOptimism is IRewardCollector {
         }
 
         // Donate to alchemist depositors
-        IAlchemistV2(alchemist).donate(token, IERC20(debtToken).balanceOf(address(this)));
+        uint256 debtReturned = IERC20(debtToken).balanceOf(address(this));
+        TokenUtils.safeApprove(debtToken, alchemist, debtReturned);
+        IAlchemistV2(alchemist).donate(token, debtReturned);
 
         return claimed;
     }
