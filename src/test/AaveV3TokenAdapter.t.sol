@@ -119,6 +119,10 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         IAlchemicToken(alUSD).setWhitelist(address(alchemistUSD), true);
         hevm.stopPrank();
 
+        hevm.startPrank(address(rewardCollector));
+        TokenUtils.safeApprove(alUSD, address(alchemistUSD), 2**256 - 1);
+        hevm.stopPrank();
+
         staticAToken = new StaticATokenV3(
             address(lendingPool),
             rewardsController,
