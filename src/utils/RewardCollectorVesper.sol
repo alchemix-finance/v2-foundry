@@ -102,7 +102,9 @@ contract RewardCollectorVesper is IRewardCollector {
             revert IllegalState("Reward collector `debtToken` is not supported");
         }
 
-        IAlchemistV2(alchemist).donate(token, IERC20(debtToken).balanceOf(address(this)));
+        uint256 debtReturned = IERC20(debtToken).balanceOf(address(this));
+        TokenUtils.safeApprove(debtToken, alchemist, debtReturned);
+        IAlchemistV2(alchemist).donate(token, debtReturned);
 
         return claimed;
     }
