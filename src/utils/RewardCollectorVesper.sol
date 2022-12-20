@@ -76,8 +76,10 @@ contract RewardCollectorVesper is IRewardCollector {
                     amountOutMinimum: minimumAmountOut
                 });
 
+            TokenUtils.safeApprove(rewardToken, swapRouter, claimed);
             received = ISwapRouter(swapRouter).exactInput(params);
             // Curve 3CRV + alUSD meta pool swap to alUSD
+            TokenUtils.safeApprove(DAI, curveMetaPool, received);
             IStableMetaPool(curveMetaPool).exchange_underlying(1, 0, received, received * 9900 / BPS);
         } else if (debtToken == alETH) {
             // Swap VSP -> WETH
@@ -91,6 +93,7 @@ contract RewardCollectorVesper is IRewardCollector {
                     amountOutMinimum: minimumAmountOut
                 });
 
+            TokenUtils.safeApprove(rewardToken, swapRouter, claimed);
             received = ISwapRouter(swapRouter).exactInput(params);
             IWETH9(WETH).withdraw(received);
             // Curve alETH + ETH factory pool swap to alETH
