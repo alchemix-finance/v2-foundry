@@ -120,7 +120,6 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         hevm.stopPrank();
 
         hevm.startPrank(address(rewardCollector));
-        TokenUtils.safeApprove(rewardToken, velodromeRouter, 2**256 - 1);
         TokenUtils.safeApprove(alUSD, address(alchemistUSD), 2**256 - 1);
         hevm.stopPrank();
 

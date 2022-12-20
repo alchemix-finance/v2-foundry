@@ -48,6 +48,7 @@ contract RewardCollectorOptimism is IRewardCollector {
             IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](2);
             routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x7F5c764cBc14f9669B88837ca1490cCa17c31607, false);
             routes[1] = IVelodromeSwapRouter.route(0x7F5c764cBc14f9669B88837ca1490cCa17c31607, 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A, true);
+            TokenUtils.safeApprove(rewardToken, swapRouter, claimed);
             IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(claimed, minimumAmountOut, routes, address(this), block.timestamp);
         } else if (debtToken == 0x3E29D3A9316dAB217754d13b28646B76607c5f04) {
             // Velodrome Swap Routes: OP -> alETH
