@@ -43,7 +43,7 @@ contract TransferAdapter is IVaultAdapter {
   IAlchemistV2 public alchemistV2;
 
   /// @dev The map of users who have/haven't migrated.
-  mapping(address => bool) public hasMigrated;
+  mapping(address => bool) private _hasMigrated;
 
   /// @dev The array of users who have migrated.
   address[] public migratedUsers;
@@ -134,14 +134,14 @@ contract TransferAdapter is IVaultAdapter {
   }
 
   function _migrate(address account, address recipient) internal {
-    if(_hasMigrated(account)) {
+    if(hasMigrated(account)) {
       revert IllegalState("User has already migrated");
     }
     
     uint256 deposited = alchemistV1.getCdpTotalDeposited(account);
     uint256 debt = alchemistV1.getCdpTotalDebt(account);
     
-    hasMigrated[account] = true;
+    _hasMigrated[account] = true;
     migratedUsers.push(account);
 
     SafeERC20.safeApprove(underlyingToken, address(alchemistV2), deposited);
@@ -158,7 +158,7 @@ contract TransferAdapter is IVaultAdapter {
     }
   }
 
-  function _hasMigrated(address acct) internal view returns (bool) {
-    return hasMigrated[acct] || ITransferAdapter(transferAdapter).hasMigrated(acct);
+  function hasMigrated(address acct) public view returns (bool) {
+    return _hasMigrated[acct] || ITransferAdapter(transferAdapter).hasMigrated(acct);
   }
 }
