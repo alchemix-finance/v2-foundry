@@ -195,7 +195,7 @@ contract MigrationToolTestUSD is DSTestPlus {
             p1 = p1 / 2;
         }
         // Create new position
-         tip(DAI, address(this), p1);
+         deal(DAI, address(this), p1);
         SafeERC20.safeApprove(DAI, alchemistUSD, p1);
         AlchemistUSD.depositUnderlying(yvDAI, p1, address(this), 0);
         (uint256 shares, ) = AlchemistUSD.positions(address(this), yvDAI);
@@ -209,7 +209,7 @@ contract MigrationToolTestUSD is DSTestPlus {
             p2 = p2 / 2;
         }
         // Create new position
-         tip(USDC, address(this), p2);
+         deal(USDC, address(this), p2);
         SafeERC20.safeApprove(USDC, alchemistUSD, p2);
         AlchemistUSD.depositUnderlying(yvUSDC, p2, address(this), 0);
         (shares, ) = AlchemistUSD.positions(address(this), yvUSDC);
@@ -228,7 +228,7 @@ contract MigrationToolTestUSD is DSTestPlus {
     }
 
     function testZap() external {
-        tip(DAI, address(this), 1000e18);
+        deal(DAI, address(this), 1000e18);
 
         // Create new position
         SafeERC20.safeApprove(DAI, alchemistUSD, 1000e18);
@@ -258,7 +258,7 @@ contract MigrationToolTestUSD is DSTestPlus {
     }
 
     function migrationDifferentVaultMaximumShares(uint256 amount, address yearnToken, address underlying, address staticToken, uint256 decimals, uint256 debtBps) public {
-        tip(underlying, address(this), amount);
+        deal(underlying, address(this), amount);
 
         // Create new position
         SafeERC20.safeApprove(underlying, alchemistUSD, amount);
@@ -292,7 +292,7 @@ contract MigrationToolTestUSD is DSTestPlus {
     }
 
     function migrationDifferentVaultPartialShares(uint256 amount, address yearnToken, address underlying, address staticToken, uint256 decimals, uint256 debtBps) public {
-        tip(underlying, address(this), amount);
+        deal(underlying, address(this), amount);
         
         // Create new position
         SafeERC20.safeApprove(underlying, alchemistUSD, amount);

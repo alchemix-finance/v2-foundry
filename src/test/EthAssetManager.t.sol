@@ -128,8 +128,8 @@ contract EthAssetManagerTest is DSTestPlus {
     }
 
     function testMintMetaPoolTokensMultipleAssets() external {
-        tip(address(weth), address(manager), 1e18);
-        tip(address(alETH), address(manager), 1e18);
+        deal(address(weth), address(manager), 1e18);
+        deal(address(alETH), address(manager), 1e18);
 
         uint256[2] memory amounts;
         amounts[uint256(MetaPoolAsset.ETH)]   = 1e18;
@@ -159,7 +159,7 @@ contract EthAssetManagerTest is DSTestPlus {
     }
 
     function testMintMetaPoolTokensMultipleAssetsWETH() external {
-        tip(address(weth), address(manager), 1e18);
+        deal(address(weth), address(manager), 1e18);
 
         uint256[2] memory amounts;
         amounts[uint256(MetaPoolAsset.ETH)] = 1e18;
@@ -181,7 +181,7 @@ contract EthAssetManagerTest is DSTestPlus {
     }
 
     function testMintMetaPoolTokensWETH() external {
-        tip(address(weth), address(manager), 1e18);
+        deal(address(weth), address(manager), 1e18);
 
         uint256 expectedOutput = 1e18 * CURVE_PRECISION / metaPool.get_virtual_price();
         uint256 minted         = manager.mintMetaPoolTokens(MetaPoolAsset.ETH, 1e18);
@@ -209,7 +209,7 @@ contract EthAssetManagerTest is DSTestPlus {
     }
 
     function testBurnMetaPoolTokens() external {
-        tip(address(metaPool), address(manager), 1e18);
+        deal(address(metaPool), address(manager), 1e18);
 
         uint256 expectedOutput = 1e18 * metaPool.get_virtual_price() / CURVE_PRECISION;
         uint256 withdrawn      = manager.burnMetaPoolTokens(MetaPoolAsset.ALETH, 1e18);
@@ -226,7 +226,7 @@ contract EthAssetManagerTest is DSTestPlus {
     }
 
     function testDepositMetaPoolTokens() external {
-        tip(address(metaPool), address(manager), 1e18);
+        deal(address(metaPool), address(manager), 1e18);
 
         assertTrue(manager.depositMetaPoolTokens(1e18));
         assertEq(convexRewards.balanceOf(address(manager)), 1e18);
@@ -239,7 +239,7 @@ contract EthAssetManagerTest is DSTestPlus {
     }
 
     function testWithdrawMetaPoolTokens() external {
-        tip(address(metaPool), address(manager), 1e18);
+        deal(address(metaPool), address(manager), 1e18);
 
         manager.depositMetaPoolTokens(1e18);
 
@@ -256,7 +256,7 @@ contract EthAssetManagerTest is DSTestPlus {
     }
 
     function testClaimRewards() external {
-        tip(address(metaPool), address(manager), 1e18);
+        deal(address(metaPool), address(manager), 1e18);
 
         manager.depositMetaPoolTokens(1e18);
 
@@ -278,8 +278,8 @@ contract EthAssetManagerTest is DSTestPlus {
     function testFlushMultipleAssets() external {
         hevm.deal(address(manager), 1e18);
 
-        tip(address(weth), address(manager), 1e18);
-        tip(address(alETH), address(manager), 1e18);
+        deal(address(weth), address(manager), 1e18);
+        deal(address(alETH), address(manager), 1e18);
 
         uint256[2] memory amounts;
         amounts[uint256(MetaPoolAsset.ETH)]   = 2e18;
@@ -313,7 +313,7 @@ contract EthAssetManagerTest is DSTestPlus {
     }
 
     function testFlushWETH() external {
-        tip(address(weth), address(manager), 1e18);
+        deal(address(weth), address(manager), 1e18);
 
         manager.setMetaPoolSlippage(0);
 
@@ -331,7 +331,7 @@ contract EthAssetManagerTest is DSTestPlus {
     }
 
     function testRecall() external {
-        tip(address(metaPool), address(manager), 1e18);
+        deal(address(metaPool), address(manager), 1e18);
 
         manager.depositMetaPoolTokens(1e18);
 
@@ -352,7 +352,7 @@ contract EthAssetManagerTest is DSTestPlus {
 
     function testReclaimETH() external {
         hevm.deal(address(manager), 1e18);
-        tip(address(weth), address(manager), 1e18);
+        deal(address(weth), address(manager), 1e18);
 
         hevm.prank(transmuterBufferAdmin);
         transmuterBuffer.setSource(address(manager), true);
@@ -370,14 +370,14 @@ contract EthAssetManagerTest is DSTestPlus {
     }
 
     function testFailReclaimETHSenderNotAdmin() external {
-        tip(address(weth), address(manager), 1e18);
+        deal(address(weth), address(manager), 1e18);
 
         hevm.prank(address(0xdead));
         manager.reclaimEth(1e18);
     }
 
     function testSweepToken() external {
-        tip(address(weth), address(manager), 1e18);
+        deal(address(weth), address(manager), 1e18);
 
         manager.sweepToken(address(weth), 1e18);
 
@@ -386,7 +386,7 @@ contract EthAssetManagerTest is DSTestPlus {
     }
 
     function testFailSweepTokenSenderNotAdmin() external {
-        tip(address(weth), address(manager), 1e18);
+        deal(address(weth), address(manager), 1e18);
 
         hevm.prank(address(0xdead));
         manager.sweepToken(address(weth), 1e18);

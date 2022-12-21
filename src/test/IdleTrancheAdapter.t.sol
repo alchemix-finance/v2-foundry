@@ -46,7 +46,7 @@ contract IdleTrancheAdapterTest is DSTestPlus {
     }
 
     function testWrap() external {
-        tip(underlying, address(this), 1e18);
+        deal(underlying, address(this), 1e18);
 
         SafeERC20.safeApprove(underlying, address(adapter), 1e18);
         uint256 wrapped = adapter.wrap(1e18, address(0xbeef));
@@ -56,7 +56,7 @@ contract IdleTrancheAdapterTest is DSTestPlus {
     }
 
     function testUnwrap() external {
-        tip(token, address(this), 1e18);
+        deal(token, address(this), 1e18);
 
         SafeERC20.safeApprove(token, address(adapter), 1e18);
         uint256 unwrapped = adapter.unwrap(1e18, address(0xbeef));
@@ -66,8 +66,8 @@ contract IdleTrancheAdapterTest is DSTestPlus {
     }
 
     function testWrapGrief() external {
-        tip(underlying, address(this), 1e18);
-        tip(token, address(adapter), 1e18);
+        deal(underlying, address(this), 1e18);
+        deal(token, address(adapter), 1e18);
 
         SafeERC20.safeApprove(underlying, address(adapter), 1e18);
         uint256 wrapped = adapter.wrap(1e18, address(0xbeef));
