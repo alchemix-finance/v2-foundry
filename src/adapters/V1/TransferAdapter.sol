@@ -14,13 +14,18 @@ import {IVaultAdapter} from "../../interfaces/IVaultAdapter.sol";
 
 import {SafeCast} from "../../libraries/SafeCast.sol";
 import {SafeERC20} from "../../libraries/SafeERC20.sol";
+import {ITransferAdapter} from "../../interfaces/ITransferAdapter.sol";
 
 /// @title TransferAdapter
 ///
 /// @dev A vault adapter implementation which migrates users to version 2
 contract TransferAdapter is IVaultAdapter {
+  string public constant version = "1.1.0";
   /// @dev The address which has admin control over this contract.
   address public admin;
+
+  /// @dev The address that will have admin control over this contract.
+  address public pendingAdmin;
 
     /// @dev The address of the debt token.
   address public debtToken;
@@ -43,13 +48,17 @@ contract TransferAdapter is IVaultAdapter {
   /// @dev The array of users who have migrated.
   address[] public migratedUsers;
 
+  /// @dev The address of the previous transfer adapter.
+  address public transferAdapter;
+
   constructor(
     address _admin, 
     address _debtToken, 
     address _underlyingToken, 
     address _yieldToken, 
     address _alchemistV1, 
-    address _alchemistV2
+    address _alchemistV2,
+    address _transferAdapter
   ) {
     admin = _admin;
     _debtToken = debtToken;
@@ -57,6 +66,7 @@ contract TransferAdapter is IVaultAdapter {
     yieldToken = _yieldToken;
     alchemistV1 = IAlchemistV1(_alchemistV1);
     alchemistV2 = IAlchemistV2(_alchemistV2);
+    transferAdapter = _transferAdapter;
   }
 
   /// @dev A modifier which reverts if the caller is not the alchemist.
@@ -69,6 +79,15 @@ contract TransferAdapter is IVaultAdapter {
   modifier onlyAdmin() {
     require(admin == msg.sender, "TransferAdapter: only admin");
     _;
+  }
+
+  function setPendingAdmin(address _pendingAdmin) external onlyAdmin {
+    pendingAdmin = _pendingAdmin;
+  }
+
+  function acceptAdmin() external {
+    require(pendingAdmin == msg.sender, "TransferAdapter: only pending admin");
+    admin = pendingAdmin;
   }
 
   /// @dev Gets the token that the vault accepts.
@@ -115,7 +134,7 @@ contract TransferAdapter is IVaultAdapter {
   }
 
   function _migrate(address account, address recipient) internal {
-    if(hasMigrated[account]) {
+    if(_hasMigrated(account)) {
       revert IllegalState("User has already migrated");
     }
     
@@ -137,5 +156,9 @@ contract TransferAdapter is IVaultAdapter {
         alchemistV2.transferDebtV1(recipient, SafeCast.toInt256(debt));
       }
     }
+  }
+
+  function _hasMigrated(address acct) internal view returns (bool) {
+    return hasMigrated[acct] || ITransferAdapter(transferAdapter).hasMigrated(acct);
   }
 }
