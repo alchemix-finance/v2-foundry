@@ -100,7 +100,7 @@ contract AAVETokenAdapterTest is DSTestPlus {
         IAlchemistV2(alchemist).setYieldTokenEnabled(address(newStaticAToken), true);
         hevm.stopPrank();
 
-        tip(underlyingToken, address(this), amount);
+        deal(underlyingToken, address(this), amount);
         uint256 startPrice = IAlchemistV2(alchemist).getUnderlyingTokensPerShare(address(newStaticAToken));
         TokenUtils.safeApprove(underlyingToken, alchemist, amount);
         IAlchemistV2(alchemist).depositUnderlying(address(newStaticAToken), amount, address(this), 0);
@@ -122,7 +122,7 @@ contract AAVETokenAdapterTest is DSTestPlus {
     function testRoundTrip() external {
         uint256 depositAmount = 1e18;
 
-        tip(dai, address(this), depositAmount);
+        deal(dai, address(this), depositAmount);
 
         SafeERC20.safeApprove(dai, address(adapter), depositAmount);
         uint256 wrapped = adapter.wrap(depositAmount, address(this));
@@ -144,7 +144,7 @@ contract AAVETokenAdapterTest is DSTestPlus {
             amount < type(uint96).max
         );
         
-        tip(dai, address(this), amount);
+        deal(dai, address(this), amount);
 
         SafeERC20.safeApprove(dai, address(adapter), amount);
         uint256 wrapped = adapter.wrap(amount, address(this));
@@ -161,7 +161,7 @@ contract AAVETokenAdapterTest is DSTestPlus {
     }
 
     function testAppreciation() external {
-        tip(dai, address(this), 1e18);
+        deal(dai, address(this), 1e18);
 
         SafeERC20.safeApprove(dai, address(adapter), 1e18);
         uint256 wrapped = adapter.wrap(1e18, address(this));

@@ -58,7 +58,7 @@ contract RocketStakedEthereumAdapterV1Test is DSTestPlus {
     }
 
     function testWrap() external {
-        tip(address(weth), address(this), 1e18);
+        deal(address(weth), address(this), 1e18);
 
         SafeERC20.safeApprove(address(weth), address(adapter), 1e18);
 
@@ -68,7 +68,7 @@ contract RocketStakedEthereumAdapterV1Test is DSTestPlus {
     }
 
     function testWithdrawUnderlying() external {
-        tip(address(rETH), address(this), 1e18);
+        deal(address(rETH), address(this), 1e18);
 
         uint256 expectedEth = rETH.getEthValue(1e18);
 
@@ -85,7 +85,7 @@ contract RocketStakedEthereumAdapterV1Test is DSTestPlus {
     }
 
     function testWithdrawUnderlyingViaBurn() external {
-        tip(address(rETH), address(this), 1e18);
+        deal(address(rETH), address(this), 1e18);
 
         uint256 expectedEth = rETH.getEthValue(1e18);
         hevm.deal(address(rETH), expectedEth);
@@ -108,7 +108,7 @@ contract RocketStakedEthereumAdapterV1Test is DSTestPlus {
     }
 
     function testHarvest() external {
-        tip(address(rETH), address(this), 1e18);
+        deal(address(rETH), address(this), 1e18);
 
         uint256 expectedEth = rETH.getEthValue(1e18);
 
@@ -129,7 +129,7 @@ contract RocketStakedEthereumAdapterV1Test is DSTestPlus {
     }
 
     function testLiquidate() external {
-        tip(address(rETH), address(this), 1e18);
+        deal(address(rETH), address(this), 1e18);
 
         uint256 expectedEth = rETH.getEthValue(1e18);
 
@@ -152,7 +152,7 @@ contract RocketStakedEthereumAdapterV1Test is DSTestPlus {
     }
 
     function testLiquidateViaBurn() external {
-        tip(address(rETH), address(this), 1e18);
+        deal(address(rETH), address(this), 1e18);
 
         uint256 expectedEth = rETH.getEthValue(1e18);
         hevm.deal(address(rETH), expectedEth);
