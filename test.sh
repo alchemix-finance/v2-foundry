@@ -15,3 +15,4 @@ make test_file_block FILE=AAVETokenAdapter;
 make test_file_block FILE=ATokenGateway;
 make test_file_block_optimism FILE=AaveV3TokenAdapter BLOCK=19744153;
 make test_file_block FILE=IdleTrancheAdapter BLOCK=15783014;
+make test_file_block FILE=FraxStrategy BLOCK=16378826;
