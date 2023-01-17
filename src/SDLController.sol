@@ -11,14 +11,15 @@ import "./interfaces/snapshot/IDelegateRegistry.sol";
 
 contract SDLController is Initializable, OwnableUpgradeable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
-  address public constant gaugeController = 0x99Cb6c36816dE2131eF2626bb5dEF7E5cc8b9B14;
   address public constant SDL = 0xf1Dc500FdE233A4055e25e5BbF516372BC4F6871;
   address public constant veSDL = 0xD2751CdBED54B87777E805be36670D7aeAe73bb2;
-  string public constant version = "1.1.0";
+  string public constant version = "1.2.0";
 
   address public delegateRegistry;
   address public rewardDistributor;
   address public rewardToken;
+
+  address public constant gaugeController = 0x99Cb6c36816dE2131eF2626bb5dEF7E5cc8b9B14;
 
   constructor() initializer {}
 
