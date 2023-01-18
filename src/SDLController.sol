@@ -18,8 +18,7 @@ contract SDLController is Initializable, OwnableUpgradeable {
   address public delegateRegistry;
   address public rewardDistributor;
   address public rewardToken;
-
-  address public constant gaugeController = 0x99Cb6c36816dE2131eF2626bb5dEF7E5cc8b9B14;
+  address public gaugeController;
 
   constructor() initializer {}
 
@@ -27,6 +26,7 @@ contract SDLController is Initializable, OwnableUpgradeable {
     __Ownable_init();
     delegateRegistry = 0x469788fE6E9E9681C6ebF3bF78e7Fd26Fc015446;
     rewardToken = 0x3cF7b9479a01eeB3bbfC43581fa3bb21cd888e2A;
+    gaugeController = 0x99Cb6c36816dE2131eF2626bb5dEF7E5cc8b9B14;
   }
 
   function createLock(uint256 value, uint256 lockTime) external onlyOwner {
