@@ -67,6 +67,10 @@ contract SDLController is Initializable, OwnableUpgradeable {
     rewardToken = _rewardToken;
   }
 
+  function setGaugeController(address _gaugeController) external onlyOwner {
+    gaugeController = _gaugeController;
+  }
+
   function voteForGaugeWeights(address gaugeAddress, uint256 weight) external onlyOwner {
     IGaugeController(gaugeController).vote_for_gauge_weights(gaugeAddress, weight);
   }
