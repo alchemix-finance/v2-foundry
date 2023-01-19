@@ -62,9 +62,9 @@ contract TwoPoolAssetManagerTest is DSTestPlus {
             transmuterBuffer:       address(transmuterBuffer),
             fraxShareToken:         fxs,
             curveToken:             crv,
-            twoPool:               twoPool,
+            twoPool:                twoPool,
             metaPool:               metaPool,
-            twoPoolSlippage:       SLIPPAGE_PRECISION - 20, // 20 bps, 0.2%
+            twoPoolSlippage:        SLIPPAGE_PRECISION - 20, // 20 bps, 0.2%
             metaPoolSlippage:       SLIPPAGE_PRECISION - 20, // 20 bps, 0.2%
             convexToken:            cvx,
             convexStakingWrapper:   stakingWrapper,
