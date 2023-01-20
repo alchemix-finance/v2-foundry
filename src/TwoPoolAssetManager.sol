@@ -47,6 +47,11 @@ struct InitializationParams {
     uint256 convexPoolId;
 }
 
+struct LockParams {
+    uint256 amount;
+    uint256 timeLocked;
+}
+
 /// @dev The amount of precision that slippage parameters have.
 uint256 constant SLIPPAGE_PRECISION = 1e4;
 
@@ -150,8 +155,9 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     /// @notice Emitted when meta pool tokens are deposited into convex.
     ///
     /// @param amount  The amount of meta pool tokens that were deposited.
+    /// @param id      The ID of the new lock.
     /// @param success If the operation was successful.
-    event DepositMetaPoolTokens(uint256 amount, bool success);
+    event DepositMetaPoolTokens(uint256 amount, bytes32 id, bool success);
 
     /// @notice Emitted when meta pool tokens are withdrawn from convex.
     ///
@@ -191,7 +197,6 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     /// @notice The frax share token.
     IERC20 public immutable fraxShareToken;
 
-
     /// @notice The curve token.
     IERC20 public immutable curveToken;
 
@@ -225,7 +230,7 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     uint256 public immutable convexPoolId;
 
     /// @notice the kek_id of the metapool token deposit.
-    bytes32 private _kekId;
+    mapping (bytes32 => LockParams) public kekId;
 
     /// @dev A cache of the tokens that the stable swap pool supports.
     IERC20[NUM_STABLE_COINS] private _twoPoolAssetCache;
@@ -532,9 +537,10 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     /// @param amount The amount of meta pool tokens to deposit.
     ///
     /// @return success If the tokens were successfully deposited.
+    /// @return id      The ID of the new lock.
     function depositMetaPoolTokens(
         uint256 amount
-    ) external lock onlyOperator returns (bool success) {
+    ) external lock onlyOperator returns (bool success, bytes32 id) {
         return _depositMetaPoolTokens(amount, MINIMUM_LOCK_TIME);
     }
 
@@ -543,22 +549,25 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     /// @param amount The amount of meta pool tokens to deposit.
     ///
     /// @return success If the tokens were successfully deposited.
+    /// @return id      The ID of the new lock.
     function depositMetaPoolTokensCustomLock(
         uint256 amount,
         uint256 lockTime
-    ) external lock onlyOperator returns (bool success) {
+    ) external lock onlyOperator returns (bool success, bytes32 id) {
         return _depositMetaPoolTokens(amount, lockTime);
     }
 
     /// @notice Withdraws and unwraps meta pool tokens from convex.
     ///
-    /// @param amount The amount of meta pool tokens to withdraw.
+    /// @param  amount  The amount of meta pool tokens to withdraw.
+    /// @param  id      The id of the lock to withdraw from.  
     ///
     /// @return success If the tokens were successfully withdrawn.
     function withdrawMetaPoolTokens(
-        uint256 amount
+        uint256 amount,
+        bytes32 id
     ) external lock onlyOperator returns (bool success) {
-        return _withdrawMetaPoolTokens(amount);
+        return _withdrawMetaPoolTokens(amount, id);
     }
 
     /// @notice Claims convex, curve, and auxiliary rewards.
@@ -597,7 +606,9 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
             mintedTwoPoolTokens
         );
 
-        if (!_depositMetaPoolTokens(mintedMetaPoolTokens, MINIMUM_LOCK_TIME)) {
+        (bool success, bytes32 id) = _depositMetaPoolTokens(mintedMetaPoolTokens, MINIMUM_LOCK_TIME);
+
+        if (!success) {
             revert IllegalState("Deposit into convex failed");
         }
 
@@ -625,7 +636,9 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
             mintedTwoPoolTokens
         );
 
-        if (!_depositMetaPoolTokens(mintedMetaPoolTokens, lockTime)) {
+        (bool success, bytes32 id) = _depositMetaPoolTokens(mintedMetaPoolTokens, MINIMUM_LOCK_TIME);
+
+        if (!success) {
             revert IllegalState("Deposit into convex failed");
         }
 
@@ -653,7 +666,9 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
             mintedTwoPoolTokens
         );
 
-        if (!_depositMetaPoolTokens(mintedMetaPoolTokens, MINIMUM_LOCK_TIME)) {
+        (bool success, bytes32 id) = _depositMetaPoolTokens(mintedMetaPoolTokens, MINIMUM_LOCK_TIME);
+
+        if (!success) {
             revert IllegalState("Deposit into convex failed");
         }
 
@@ -683,7 +698,9 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
             mintedTwoPoolTokens
         );
 
-        if (!_depositMetaPoolTokens(mintedMetaPoolTokens, lockTime)) {
+        (bool success, bytes32 id) = _depositMetaPoolTokens(mintedMetaPoolTokens, MINIMUM_LOCK_TIME);
+
+        if (!success) {
             revert IllegalState("Deposit into convex failed");
         }
 
@@ -698,13 +715,16 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     ///
     /// @param asset  The 2pool asset to recall.
     /// @param amount The amount of the meta pool tokens to withdraw from convex and burn.
+    /// @param  id      The id of the lock to withdraw from.  
     ///
     /// @return The amount of the 2pool asset recalled.
     function recall(
         TwoPoolAsset asset,
-        uint256 amount
+        uint256 amount,
+        bytes32 id
     ) external lock onlyOperator returns (uint256) {
-        if (!_withdrawMetaPoolTokens(amount)) {
+
+        if (!_withdrawMetaPoolTokens(amount, id)) {
             revert IllegalState("Withdraw from convex failed");
         }
         uint256 withdrawnTwoPoolTokens = _burnMetaPoolTokens(MetaPoolAsset.TWO_POOL, amount);
@@ -962,35 +982,49 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
 
     /// @dev Deposits and stakes meta pool tokens into convex.
     ///
-    /// @param amount The amount of meta pool tokens to deposit.
+    /// @param amount   The amount of meta pool tokens to deposit.
+    /// @param lockTime The time of the new lock.
     ///
     /// @return success If the tokens were successfully deposited.
-    function _depositMetaPoolTokens(uint256 amount, uint256 lockTime) internal returns (bool success) {
-        SafeERC20.safeApprove(address(metaPool), address(convexFraxVault), amount);
-        _kekId = convexFraxVault.stakeLockedCurveLp(amount, lockTime);
+    /// @return id      The id of the new lock.
+    function _depositMetaPoolTokens(uint256 amount, uint256 lockTime) internal returns (bool success, bytes32 id) {
+        SafeERC20.safeApprove(address(metaPool), address(convexStakingWrapper), amount);
+        SafeERC20.safeApprove(address(convexStakingWrapper), address(convexFraxVault), amount);
+        convexStakingWrapper.deposit(amount, address(this));
+        id = convexFraxVault.stakeLocked(amount, lockTime);
+        kekId[id] = LockParams({amount: amount, timeLocked: lockTime});
+
         success = true;
 
-        emit DepositMetaPoolTokens(amount, success);
+        emit DepositMetaPoolTokens(amount, id, success);
     }
 
     /// @dev Withdraws and unwraps meta pool tokens from convex.
     ///
-    /// @param amount The amount of meta pool tokens to withdraw.
+    /// @param amount   The amount of meta pool tokens to withdraw.
+    /// @param id       The id of the lock you wish to withdraw from.
     ///
     /// @return success If the tokens were successfully withdrawn.
-    function _withdrawMetaPoolTokens(uint256 amount) internal returns (bool) {
-        convexFraxVault.withdrawLockedAndUnwrap(_kekId);
+    function _withdrawMetaPoolTokens(uint256 amount, bytes32 id) internal returns (bool success) {
+        uint256 originalBalance = IERC20(metaPool).balanceOf(address(this));
+
+        convexFraxVault.withdrawLockedAndUnwrap(id);
+
+        uint256 newBalance = IERC20(metaPool).balanceOf(address(this));
 
         // Frax vaults require to withdraw all meta tokens.
         // We must re-stake any remaining tokens.
-        uint256 restakeAmount = IERC20(metaPool).balanceOf(address(this)) - amount;
-        SafeERC20.safeApprove(address(metaPool), address(convexFraxVault), restakeAmount);
-        _kekId = convexFraxVault.stakeLockedCurveLp(IERC20(metaPool).balanceOf(address(this)) - amount, MINIMUM_LOCK_TIME);
+        uint256 restakeAmount = newBalance - originalBalance - amount;
 
-        emit WithdrawMetaPoolTokens(IERC20(metaPool).balanceOf(address(this)), true);
-        emit DepositMetaPoolTokens(amount, true);
+        if (restakeAmount > 1) {
+            SafeERC20.safeApprove(address(metaPool), address(convexFraxVault), restakeAmount);
+            bytes32 newId = convexFraxVault.stakeLockedCurveLp(restakeAmount, MINIMUM_LOCK_TIME);
+            kekId[newId] = LockParams({amount: restakeAmount, timeLocked: MINIMUM_LOCK_TIME});
+            emit DepositMetaPoolTokens(restakeAmount, newId, success);
+        }
 
-        return true;
+        success = true;
+        emit WithdrawMetaPoolTokens(IERC20(metaPool).balanceOf(address(this)), success);
     }
 
     /// @dev Claims convex, curve, and auxiliary rewards.

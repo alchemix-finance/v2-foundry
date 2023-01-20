@@ -75,7 +75,7 @@ contract TwoPoolAssetManagerTest is DSTestPlus {
         frax           = manager.getTokenForTwoPoolAsset(TwoPoolAsset.FRAX);
         usdc           = manager.getTokenForTwoPoolAsset(TwoPoolAsset.USDC);
         alUSD          = manager.getTokenForMetaPoolAsset(MetaPoolAsset.ALUSD);
-        twoPoolToken  = manager.getTokenForMetaPoolAsset(MetaPoolAsset.TWO_POOL);
+        twoPoolToken   = manager.getTokenForMetaPoolAsset(MetaPoolAsset.TWO_POOL);
 
         IAlchemistV2AdminActions.UnderlyingTokenConfig memory underlyingConfig = IAlchemistV2AdminActions.UnderlyingTokenConfig({
 			repayLimitMinimum: 1,
@@ -331,20 +331,49 @@ contract TwoPoolAssetManagerTest is DSTestPlus {
     function testDepositMetaPoolTokens() external {
         deal(address(metaPool), address(manager), 1e18);
 
-        assertTrue(manager.depositMetaPoolTokens(1e18));
+        (bool success, bytes32 id) = manager.depositMetaPoolTokens(1e18);
         assertEq(convexFraxFarm.lockedLiquidityOf(address(manager.convexFraxVault())), 1e18);
     }
 
     function testDepositMetaPoolTokensCustomLock() external {
         deal(address(metaPool), address(manager), 1e18);
 
-        assertTrue(manager.depositMetaPoolTokensCustomLock(1e18, 9 days));
+        (bool success, bytes32 id) = manager.depositMetaPoolTokensCustomLock(1e18, 9 days);
         assertEq(convexFraxFarm.lockedLiquidityOf(address(manager.convexFraxVault())), 1e18);
 
         hevm.warp(block.timestamp + 7 days);
         
         hevm.expectRevert("Stake is still locked!");
-        manager.withdrawMetaPoolTokens(1e18);
+        manager.withdrawMetaPoolTokens(1e18, id);
+    }
+
+    function testDepositMetaPoolTokensMultipleLock() external {
+        deal(address(metaPool), address(manager), 2e18);
+
+        (bool success, bytes32 id) = manager.depositMetaPoolTokensCustomLock(1e18, 9 days);
+
+        assertEq(convexFraxFarm.lockedLiquidityOf(address(manager.convexFraxVault())), 1e18);
+
+        hevm.warp(block.timestamp + 7 days);
+        
+        hevm.expectRevert("Stake is still locked!");
+        manager.withdrawMetaPoolTokens(1e18, id);
+
+        (bool success2, bytes32 id2) = manager.depositMetaPoolTokensCustomLock(1e18, 50 days);
+        assertEq(convexFraxFarm.lockedLiquidityOf(address(manager.convexFraxVault())), 2e18);
+
+        hevm.warp(block.timestamp + 3 days);
+
+        manager.withdrawMetaPoolTokens(1e18, id);
+        assertEq(convexFraxFarm.lockedLiquidityOf(address(manager.convexFraxVault())), 1e18);
+
+        hevm.expectRevert("Stake is still locked!");
+        manager.withdrawMetaPoolTokens(1e18, id2);
+
+        hevm.warp(block.timestamp + 53 days);
+
+        manager.withdrawMetaPoolTokens(1e18, id2);
+        assertEq(convexFraxFarm.lockedLiquidityOf(address(manager.convexFraxVault())), 0);
     }
 
     function testDepositMetaPoolTokensSenderNotOperator() external {
@@ -356,11 +385,11 @@ contract TwoPoolAssetManagerTest is DSTestPlus {
     function testWithdrawMetaPoolTokens() external {
         deal(address(metaPool), address(manager), 1e18);
 
-        manager.depositMetaPoolTokens(1e18);
+        (bool success, bytes32 id) = manager.depositMetaPoolTokens(1e18);
 
-        hevm.warp(block.timestamp + 7 days);
+        hevm.warp(block.timestamp + 8 days);
 
-        assertTrue(manager.withdrawMetaPoolTokens(1e18));
+        assertTrue(manager.withdrawMetaPoolTokens(1e18, id));
 
         assertEq(convexFraxFarm.lockedLiquidityOf(address(manager.convexFraxVault())), 0);
         assertEq(metaPool.balanceOf(address(manager)), 1e18);
@@ -369,7 +398,7 @@ contract TwoPoolAssetManagerTest is DSTestPlus {
     function testWithdrawMetaPoolTokensSenderNotOperator() external {
         hevm.prank(address(0xdead));
         expectUnauthorizedError("Not operator");
-        manager.withdrawMetaPoolTokens(0);
+        manager.withdrawMetaPoolTokens(0, bytes32(0));
     }
 
     function testClaimRewards() external {
@@ -436,14 +465,14 @@ contract TwoPoolAssetManagerTest is DSTestPlus {
     function testRecall() external {
         deal(address(metaPool), address(manager), 1e18);
 
-        manager.depositMetaPoolTokens(1e18);
+        (bool success, bytes32 id) = manager.depositMetaPoolTokens(1e18);
 
         manager.setTwoPoolSlippage(0);
         manager.setMetaPoolSlippage(0);
 
         hevm.warp(block.timestamp + 7 days);
 
-        uint256 withdrawn = manager.recall(TwoPoolAsset.FRAX, 1e18);
+        uint256 withdrawn = manager.recall(TwoPoolAsset.FRAX, 1e18, id);
 
         assertEq(frax.balanceOf(address(manager)), withdrawn);
         assertEq(metaPool.balanceOf(address(manager)), 0);
@@ -453,7 +482,7 @@ contract TwoPoolAssetManagerTest is DSTestPlus {
     function testRecallSenderNotOperator() external {
         hevm.prank(address(0xdead));
         expectUnauthorizedError("Not operator");
-        manager.recall(TwoPoolAsset.FRAX, 1e18);
+        manager.recall(TwoPoolAsset.FRAX, 1e18, bytes32(0));
     }
 
     function testReclaimTwoPoolAsset() external {
