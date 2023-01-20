@@ -606,7 +606,7 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
             mintedTwoPoolTokens
         );
 
-        (bool success, bytes32 id) = _depositMetaPoolTokens(mintedMetaPoolTokens, MINIMUM_LOCK_TIME);
+        (bool success,) = _depositMetaPoolTokens(mintedMetaPoolTokens, MINIMUM_LOCK_TIME);
 
         if (!success) {
             revert IllegalState("Deposit into convex failed");
@@ -636,7 +636,7 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
             mintedTwoPoolTokens
         );
 
-        (bool success, bytes32 id) = _depositMetaPoolTokens(mintedMetaPoolTokens, MINIMUM_LOCK_TIME);
+        (bool success, ) = _depositMetaPoolTokens(mintedMetaPoolTokens, lockTime);
 
         if (!success) {
             revert IllegalState("Deposit into convex failed");
@@ -666,7 +666,7 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
             mintedTwoPoolTokens
         );
 
-        (bool success, bytes32 id) = _depositMetaPoolTokens(mintedMetaPoolTokens, MINIMUM_LOCK_TIME);
+        (bool success,) = _depositMetaPoolTokens(mintedMetaPoolTokens, MINIMUM_LOCK_TIME);
 
         if (!success) {
             revert IllegalState("Deposit into convex failed");
@@ -698,7 +698,7 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
             mintedTwoPoolTokens
         );
 
-        (bool success, bytes32 id) = _depositMetaPoolTokens(mintedMetaPoolTokens, MINIMUM_LOCK_TIME);
+        (bool success, bytes32 id) = _depositMetaPoolTokens(mintedMetaPoolTokens, lockTime);
 
         if (!success) {
             revert IllegalState("Deposit into convex failed");
