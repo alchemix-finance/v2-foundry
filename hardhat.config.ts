@@ -124,6 +124,12 @@ const config = {
       gasPrice: 80000000000,
       baseFee: 1,
     },
+    optimism: {
+      chainId: 10,
+      gasPrice: 2000000,
+      url: `https://rpc.ankr.com/optimism`,
+      accounts: [process.env.OPTIMISM_DEPLOYER_PK || generateRandomHex(64)]
+    },
     mainnet: {
       chainId: 1,
       hardfork: "london",
