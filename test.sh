@@ -20,4 +20,4 @@ make test_file_block FILE=TwoPoolAssetManager BLOCK=16435541;
 make test_file_block FILE=PoolAssetManager BLOCK=18418991;
 make test_file_block_optimism FILE=XTokens BLOCK=118506023;
 make test_file_block FILE=SDT BLOCK=17000429;
-
+make test_file_block_optimism FILE=YearnOptimism BLOCK=70011234;
