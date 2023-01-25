@@ -67,6 +67,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
     HarvestResolver harvestResolver;
     StaticATokenV3 staticAToken;
     RewardCollectorOptimism rewardCollector;
+    RewardCollectorOptimism rewardCollectorETH;
     TransmuterV2 transmuter;
     TransmuterBuffer buffer;
     ILendingPool lendingPool = ILendingPool(0x794a61358D6845594F94dc1DB02A252b5b4814aD);
@@ -124,16 +125,26 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
             swapRouter:         velodromeRouter
         });
 
+        RewardCollectorInitializationParams memory rewardCollectorParamsETH = RewardCollectorInitializationParams({
+            alchemist:          address(alchemistETH),
+            debtToken:          alETH,
+            rewardToken:        rewardToken,
+            swapRouter:         velodromeRouter
+        });
+
         rewardCollector = new RewardCollectorOptimism(rewardCollectorParams);
+        rewardCollectorETH = new RewardCollectorOptimism(rewardCollectorParamsETH);
+
 
         whitelist.add(address(this));
         whitelist.add(address(rewardCollector));
+        whitelist.add(address(rewardCollectorETH));
         hevm.startPrank(alchemistAdmin);
         IAlchemicToken(alUSD).setWhitelist(address(this), true);
         IAlchemicToken(alUSD).setWhitelist(address(rewardCollector), true);
         IAlchemicToken(alUSD).setWhitelist(address(alchemistUSD), true);
         IAlchemicToken(alETH).setWhitelist(address(this), true);
-        IAlchemicToken(alETH).setWhitelist(address(rewardCollector), true);
+        IAlchemicToken(alETH).setWhitelist(address(rewardCollectorETH), true);
         IAlchemicToken(alETH).setWhitelist(address(alchemistETH), true);
         hevm.stopPrank();
 
@@ -395,7 +406,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
             address(lendingPool),
             rewardsController,
             aOptWETH,
-            address(rewardCollector),
+            address(rewardCollectorETH),
             "staticAaveOptimismWeth",
             "saOptWeth"
         );
@@ -428,10 +439,10 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         harvestResolver = new HarvestResolver();
         harvester = new AlchemixHarvester(address(this), 100000e18, address(harvestResolver));
         harvestResolver.setHarvester(address(harvester), true);
-        harvestResolver.addHarvestJob(true, address(alchemistETH), address(rewardCollector), address(staticAToken), 1000, 0, 0);
+        harvestResolver.addHarvestJob(true, address(alchemistETH), address(rewardCollectorETH), address(staticAToken), 1000, 0, 0);
         alchemistETH.setKeeper(address(harvester), true);
 
-        harvester.addRewardCollector(address(staticAToken), address(rewardCollector));
+        harvester.addRewardCollector(address(staticAToken), address(rewardCollectorETH));
 
         deal(weth, address(this), 1000000e18);
         SafeERC20.safeApprove(weth, address(alchemistETH), 1000000e18);
@@ -452,8 +463,8 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         harvester.harvest(alch, yield, minOut, expectedExchange);
         (int256 debtAfter, ) = alchemistETH.accounts(address((this)));
 
-        assertEq(IERC20(rewardToken).balanceOf(address(rewardCollector)), 0);
-        assertEq(IERC20(alETH).balanceOf(address(rewardCollector)), 0);
+        assertEq(IERC20(rewardToken).balanceOf(address(rewardCollectorETH)), 0);
+        assertEq(IERC20(alETH).balanceOf(address(rewardCollectorETH)), 0);
         assertGt(debtBefore, debtAfter);
     }
 
