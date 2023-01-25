@@ -47,6 +47,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
     // address constant alchemistAlETHWhitelist = 0xA3dfCcbad1333DC69997Da28C961FF8B2879e653;
     uint256 constant BPS = 10000;
     address constant alUSD = 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A;
+    address constant alETH = 0x3E29D3A9316dAB217754d13b28646B76607c5f04;
     address constant dai = 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1; // Optimism DAI
     address constant aOptDAI = 0x82E64f49Ed5EC1bC6e43DAD4FC8Af9bb3A2312EE;
     address constant usdc = 0x7F5c764cBc14f9669B88837ca1490cCa17c31607;
@@ -369,6 +370,72 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         assertEq(IERC20(rewardToken).balanceOf(address(rewardCollector)), 0);
         assertEq(IERC20(alUSD).balanceOf(address(rewardCollector)), 0);
         assertEq(IERC20(usdc).balanceOf(address(rewardCollector)), 0);
+        assertGt(debtBefore, debtAfter);
+    }
+
+    function testRewardCollectorWithHarvesterETH() external {
+        staticAToken = new StaticATokenV3(
+            address(lendingPool),
+            rewardsController,
+            aOptWETH,
+            address(rewardCollector),
+            "staticAaveOptimismWeth",
+            "saOptWeth"
+        );
+
+        AAVETokenAdapter rewardCollectorAdapter = new AAVETokenAdapter(AdapterInitializationParams({
+            alchemist:          address(alchemistETH),
+            token:              address(staticAToken),
+            underlyingToken:    weth
+        }));
+
+        IAlchemistV2AdminActions.YieldTokenConfig memory yieldConfig = IAlchemistV2AdminActions.YieldTokenConfig({
+            adapter: address(rewardCollectorAdapter),
+            maximumLoss: 1,
+            maximumExpectedValue: 1000000000 ether,
+            creditUnlockBlocks: 7200
+		});
+
+        adapter = new AAVETokenAdapter(AdapterInitializationParams({
+            alchemist:          address(this),
+            token:              address(staticAToken),
+            underlyingToken:    weth
+        }));
+
+        alchemistETH.addYieldToken(address(staticAToken), yieldConfig);
+        alchemistETH.setYieldTokenEnabled(address(staticAToken), true);
+
+        buffer.setSource(address(alchemistETH), true);
+
+        // Keepers
+        harvestResolver = new HarvestResolver();
+        harvester = new AlchemixHarvester(address(this), 100000e18, address(harvestResolver));
+        harvestResolver.setHarvester(address(harvester), true);
+        harvestResolver.addHarvestJob(true, address(alchemistETH), address(rewardCollector), address(staticAToken), 1000, 0, 0);
+        alchemistETH.setKeeper(address(harvester), true);
+
+        harvester.addRewardCollector(address(staticAToken), address(rewardCollector));
+
+        deal(weth, address(this), 1000000e18);
+        SafeERC20.safeApprove(weth, address(alchemistETH), 1000000e18);
+        alchemistETH.depositUnderlying(address(staticAToken), 1000000e18, address(this), 0);
+
+        alchemistETH.mint(400000e18, address(this));
+
+        hevm.roll(block.number + 10000000);
+        hevm.warp(block.timestamp + 10000000);
+
+        // Keeper check balance of token
+        (bool canExec, bytes memory execPayload) = harvestResolver.checker();
+
+        (address alch, address yield, uint256 minOut, uint256 expectedExchange) = abi.decode(extractCalldata(execPayload), (address, address, uint256, uint256));
+
+        (int256 debtBefore, ) = alchemistETH.accounts(address((this)));
+        harvester.harvest(alch, yield, minOut, expectedExchange);
+        (int256 debtAfter, ) = alchemistETH.accounts(address((this)));
+
+        assertEq(IERC20(rewardToken).balanceOf(address(rewardCollector)), 0);
+        assertEq(IERC20(alETH).balanceOf(address(rewardCollector)), 0);
         assertGt(debtBefore, debtAfter);
     }
 
