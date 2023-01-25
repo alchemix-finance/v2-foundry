@@ -118,6 +118,9 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         IAlchemicToken(alUSD).setWhitelist(address(this), true);
         IAlchemicToken(alUSD).setWhitelist(address(rewardCollector), true);
         IAlchemicToken(alUSD).setWhitelist(address(alchemistUSD), true);
+        IAlchemicToken(alETH).setWhitelist(address(this), true);
+        IAlchemicToken(alETH).setWhitelist(address(rewardCollector), true);
+        IAlchemicToken(alETH).setWhitelist(address(alchemistETH), true);
         hevm.stopPrank();
 
         staticAToken = new StaticATokenV3(
@@ -419,6 +422,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         deal(weth, address(this), 1000000e18);
         SafeERC20.safeApprove(weth, address(alchemistETH), 1000000e18);
         alchemistETH.depositUnderlying(address(staticAToken), 1000000e18, address(this), 0);
+
 
         alchemistETH.mint(400000e18, address(this));
 
