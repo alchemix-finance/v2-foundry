@@ -95,12 +95,26 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
 			whitelist: address(whitelist)
 		});
 
+        IAlchemistV2AdminActions.InitializationParams memory paramsETH = IAlchemistV2AdminActions.InitializationParams({
+			admin: address(this),
+			debtToken: alETH,
+			transmuter: address(this),
+			minimumCollateralization: 2 * 1e18,
+			protocolFee: 1000,
+			protocolFeeReceiver: address(this),
+			mintingLimitMinimum: 1,
+			mintingLimitMaximum: uint256(type(uint160).max),
+			mintingLimitBlocks: 300,
+			whitelist: address(whitelist)
+		});
+
         // Set up proxy to add params
         AlchemistV2 alch = new AlchemistV2();
         bytes memory alchemParams = abi.encodeWithSelector(AlchemistV2.initialize.selector, params);
+        bytes memory alchemParamsETH = abi.encodeWithSelector(AlchemistV2.initialize.selector, paramsETH);
 		TransparentUpgradeableProxy proxyAlchemistUSD = new TransparentUpgradeableProxy(address(alch), alchemistAdmin, alchemParams);
 		alchemistUSD = AlchemistV2(address(proxyAlchemistUSD));
-        TransparentUpgradeableProxy proxyAlchemistETH = new TransparentUpgradeableProxy(address(alch), alchemistAdmin, alchemParams);
+        TransparentUpgradeableProxy proxyAlchemistETH = new TransparentUpgradeableProxy(address(alch), alchemistAdmin, alchemParamsETH);
 		alchemistETH = AlchemistV2(address(proxyAlchemistETH));
 
         RewardCollectorInitializationParams memory rewardCollectorParams = RewardCollectorInitializationParams({
