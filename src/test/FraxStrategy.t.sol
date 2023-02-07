@@ -29,6 +29,7 @@ import {
 
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IAlchemistV2AdminActions} from "../interfaces/alchemist/IAlchemistV2AdminActions.sol";
+import {ILendingPool} from "../interfaces/external/aave/ILendingPool.sol";
 import {IWETH9} from "../interfaces/external/IWETH9.sol";
 import {IProxyAdmin} from "../interfaces/external/IProxyAdmin.sol";
 import {ISwapRouter} from "../interfaces/external/uniswap/ISwapRouter.sol";
@@ -77,13 +78,13 @@ contract FraxStrategyTest is DSTestPlus {
         whitelistUSD = IWhitelist(whitelistUSDAddress);
 
         staticAToken = new StaticAToken(
-            lendingPool,
-            aDai,
-            wrappedTokenName,
-            wrappedTokenSymbol
+            ILendingPool(0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9),
+            0xd4937682df3C8aEF4FE912A96A74121C0829E664,
+            "Static Aave FRAX",
+            "saFRAX"
         );
         
-        adapter = new AAVETokenAdapter(AdapterInitializationParams({
+        adapter = new AAVETokenAdapter(AdapterInitializationParamsAave({
             alchemist:       address(this),
             token:           address(staticAToken),
             underlyingToken: address(frax)
@@ -117,8 +118,17 @@ contract FraxStrategyTest is DSTestPlus {
             creditUnlockBlocks: 7200
         });
 
+        IAlchemistV2.YieldTokenConfig memory ytcAave = IAlchemistV2AdminActions.YieldTokenConfig({
+            adapter: address(adapter),
+            maximumLoss: 1,
+            maximumExpectedValue: 10000000000000000 ether,
+            creditUnlockBlocks: 7200
+        });
+
         alchemistUSD.addYieldToken(vaFrax, ytc);
+        alchemistUSD.addYieldToken(address(staticAToken), ytcAave);
         alchemistUSD.setYieldTokenEnabled(vaFrax, true);
+        alchemistUSD.setYieldTokenEnabled(address(staticAToken), true);
         hevm.stopPrank();
     }
 
@@ -137,30 +147,22 @@ contract FraxStrategyTest is DSTestPlus {
         assertGt(unwrapped, 100e6 * 9900 / 10000);
     }
 
-    // function testRewardsVesperFrax() external {
-    //     deal(frax, address(this), 100e18);
+    function testRoundTripAave() external {
+        uint256 depositAmount = 1e18;
 
-    //     SafeERC20.safeApprove(frax, address(alchemistUSD), 100e18);
-    //     alchemistUSD.depositUnderlying(vaFrax, 100e18, address(this), 0);
+        deal(frax, address(this), depositAmount);
 
-    //     alchemistUSD.mint(40e18, address(this));
+        SafeERC20.safeApprove(frax, address(adapter), depositAmount);
+        uint256 wrapped = adapter.wrap(depositAmount, address(this));
 
-    //     (int256 debtBefore, ) = alchemistUSD.accounts(address((this)));
-
-    //     hevm.warp(block.timestamp + 1000000);
-    //     hevm.roll(block.number + 1000000);
+        uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(address(staticAToken));
+        assertGe(depositAmount, underlyingValue);
         
-    //     (address[] memory tokensDAI, uint256[] memory amountsDAI) = IVesperRewards(0x35864296944119F72AA1B468e13449222f3f0E67).claimable(address(alchemistUSDAddress));
-
-    //     UniswapEstimatedPrice priceEstimator = new UniswapEstimatedPrice();
-
-    //     uint256 rewardsExchange = priceEstimator.getExpectedExchange(uniSwapFactory, vspRewardToken, address(weth), uint24(3000), frax, uint24(3000), amountsDAI[0]);
-
-    //     rewardCollectorVesperUSD.claimAndDistributeRewards(vaFrax, rewardsExchange * 9900 / BPS);
-
-    //     (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
-    //     assertGt(debtBefore, debtAfter);
-    // }
-
-
+        SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
+        uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
+        
+        assertEq(IERC20(frax).balanceOf(address(0xbeef)), unwrapped);
+        assertEq(staticAToken.balanceOf(address(this)), 0);
+        assertEq(staticAToken.balanceOf(address(adapter)), 0);
+    }
 }
