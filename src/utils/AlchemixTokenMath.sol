@@ -14,11 +14,6 @@ import {TokenUtils} from "../libraries/TokenUtils.sol";
 import {IAlchemicToken} from "../interfaces/IAlchemicToken.sol";
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 
-struct InitializationParams {
-    address alchemist;
-    address[] collateralAddresses;
-}
-
 contract AlchemixTokenMath {
     string public version = "1.0.0";
     uint256 FIXED_POINT_SCALAR = 1e18;
