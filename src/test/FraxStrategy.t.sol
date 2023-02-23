@@ -2,12 +2,15 @@
 pragma solidity 0.8.13;
 
 import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import "../../lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 
 import {AlchemistV2} from "../AlchemistV2.sol";
 import {AlchemixHarvester} from "../keepers/AlchemixHarvester.sol";
 import {HarvestResolver} from "../keepers/HarvestResolver.sol";
+import {TransmuterV2} from "../TransmuterV2.sol";
+import {Whitelist} from "../utils/Whitelist.sol";
 
 import {
     AAVETokenAdapter,
@@ -34,6 +37,7 @@ import {IWETH9} from "../interfaces/external/IWETH9.sol";
 import {IProxyAdmin} from "../interfaces/external/IProxyAdmin.sol";
 import {ISwapRouter} from "../interfaces/external/uniswap/ISwapRouter.sol";
 import {StaticAToken} from "../external/aave/StaticAToken.sol";
+import {ITransmuterBuffer} from "../interfaces/transmuter/ITransmuterBuffer.sol";
 import {IUniswapV3Factory} from "../interfaces/external/uniswap/IUniswapV3Factory.sol";
 import {IUniswapV3Pool} from "../interfaces/external/uniswap/IUniswapV3Pool.sol";
 import {IVesperPool} from "../interfaces/external/vesper/IVesperPool.sol";
@@ -129,6 +133,7 @@ contract FraxStrategyTest is DSTestPlus {
         alchemistUSD.addYieldToken(address(staticAToken), ytcAave);
         alchemistUSD.setYieldTokenEnabled(vaFrax, true);
         alchemistUSD.setYieldTokenEnabled(address(staticAToken), true);
+
         hevm.stopPrank();
     }
 
