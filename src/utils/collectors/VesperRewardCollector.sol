@@ -54,7 +54,7 @@ contract VesperRewardCollector is IRewardCollector {
         IVesperRewards(IVesperPool(yieldToken).poolRewards()).claimReward(address(this));
     }
 
-    function claimAndDistributeRewards(address token, uint256 minimumAmountOut) external returns (uint256) {
+    function claimAndDonateRewards(address token, uint256 minimumAmountOut) external returns (uint256) {
         IAlchemistV2(alchemist).sweepRewardTokens(rewardToken, token);
 
         // Tokens claimed from rewards plus any tokens sent to this contract from grants.

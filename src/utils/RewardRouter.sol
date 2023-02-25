@@ -24,19 +24,26 @@ contract RewardRouter is IRewardRouter {
     /// @dev A mapping of the yield tokens to their respective reward collectors
     mapping(address => RewardCollector) public rewardCollectors;
 
-    function claimAndDistributeRewards(address token, uint256 minimumAmountOut) external returns (uint256) {        
+    /// @dev 
+    function distributeRewards(address token, uint256 minimumAmountOut) external returns (uint256) {        
         // If vault is set to receive rewards from OP grant send amount to reward collector to donate
         if (rewardCollectors[token].rewardAmount > 0) {
             TokenUtils.safeTransfer(rewardCollectors[token].rewardToken, rewardCollectors[token].rewardCollectorAddress, rewardCollectors[token].rewardAmount);
         }
 
-        return IRewardCollector(rewardCollectors[token].rewardCollectorAddress).claimAndDistributeRewards(token, minimumAmountOut);
+        return IRewardCollector(rewardCollectors[token].rewardCollectorAddress).claimAndDonateRewards(token, minimumAmountOut);
     }
 
+    function sweepTokens(address token, address recipient) external {
+        TokenUtils.safeTransfer(token, recipient, TokenUtils.safeBalanceOf(token, address(this)));
+    }
+
+    /// @dev Add reward collector params to a map of yield tokens
     function addRewardCollector(address vault, address rewardCollectorAddress, address rewardToken, uint256 rewardAmount) external {
         rewardCollectors[vault] = RewardCollector(rewardCollectorAddress, rewardToken, rewardAmount);
     }
 
+    /// @dev set 
     function setRewardCollectorAddress(address vault, address rewardCollectorAddress) external {
         rewardCollectors[vault].rewardCollectorAddress = rewardCollectorAddress;
     }

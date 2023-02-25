@@ -140,6 +140,8 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
 
         rewardRouter = new RewardRouter();
 
+        deal(rewardToken, address(rewardRouter), 100000000000000e18);
+
         whitelist.add(address(this));
         whitelist.add(address(rewardCollector));
         whitelist.add(address(rewardCollectorETH));
@@ -344,7 +346,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         uint256 rewards = IRewardsController(rewardsController).getUserAccruedRewards(address(staticAToken), rewardToken);
         (int256 debtBefore, ) = alchemistUSD.accounts(address((this)));
 
-        rewardCollector.claimAndDistributeRewards(address(staticAToken), rewards * 9999 / 10000);
+        rewardCollector.claimAndDonateRewards(address(staticAToken), rewards * 9999 / 10000);
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
 
         assertEq(IERC20(rewardToken).balanceOf(address(rewardCollector)), 0);

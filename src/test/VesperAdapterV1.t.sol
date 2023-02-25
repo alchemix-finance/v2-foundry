@@ -293,7 +293,7 @@ contract VesperAdapterV1Test is DSTestPlus {
 
         uint256 wethRewardsExchange = priceEstimator.getExpectedExchange(uniSwapFactory, vspRewardToken, address(weth), uint24(3000), address(0), uint24(0), amountsWETH[0]);
 
-        rewardCollectorVesper.claimAndDistributeRewards(address(vesperPool), wethRewardsExchange * 9900 / BPS);
+        rewardCollectorVesper.claimAndDonateRewards(address(vesperPool), wethRewardsExchange * 9900 / BPS);
 
         (int256 debtAfter, ) = alchemistETH.accounts(address((this)));
         assertGt(debtBefore, debtAfter);
@@ -315,7 +315,7 @@ contract VesperAdapterV1Test is DSTestPlus {
         hevm.warp(block.timestamp + 10000000000);
         hevm.roll(block.number + 10000000000);
         
-        rewardCollectorVesper.claimAndDistributeRewards(address(vesperPool), 0);
+        rewardCollectorVesper.claimAndDonateRewards(address(vesperPool), 0);
 
         (int256 debtAfter, ) = alchemistETH.accounts(address((this)));
         assertGt(debtBefore, debtAfter);
@@ -341,7 +341,7 @@ contract VesperAdapterV1Test is DSTestPlus {
 
         uint256 daiRewardsExchange = priceEstimator.getExpectedExchange(uniSwapFactory, vspRewardToken, address(weth), uint24(3000), DAI, uint24(3000), amountsDAI[0]);
 
-        rewardCollectorVesperUSD.claimAndDistributeRewards(vaDAI, daiRewardsExchange * 9900 / BPS);
+        rewardCollectorVesperUSD.claimAndDonateRewards(vaDAI, daiRewardsExchange * 9900 / BPS);
 
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
         assertGt(debtBefore, debtAfter);
@@ -361,7 +361,7 @@ contract VesperAdapterV1Test is DSTestPlus {
         hevm.warp(block.timestamp + 1000000);
         hevm.roll(block.number + 1000000);
         
-        rewardCollectorVesperUSD.claimAndDistributeRewards(vaUSDC, 0);
+        rewardCollectorVesperUSD.claimAndDonateRewards(vaUSDC, 0);
 
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
         assertGt(debtBefore, debtAfter);
@@ -384,8 +384,8 @@ contract VesperAdapterV1Test is DSTestPlus {
         hevm.warp(block.timestamp + 1000000);
         hevm.roll(block.number + 1000000);
         
-        rewardCollectorVesperUSD.claimAndDistributeRewards(vaDAI, 0);
-        rewardCollectorVesperUSD.claimAndDistributeRewards(vaUSDC, 0);
+        rewardCollectorVesperUSD.claimAndDonateRewards(vaDAI, 0);
+        rewardCollectorVesperUSD.claimAndDonateRewards(vaUSDC, 0);
 
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
         assertGt(debtBefore, debtAfter);
@@ -416,8 +416,8 @@ contract VesperAdapterV1Test is DSTestPlus {
         hevm.warp(block.timestamp + 1000000);
         hevm.roll(block.number + 1000000);
 
-        rewardCollectorVesperUSD.claimAndDistributeRewards(vaDAI, 0);
-        rewardCollectorVesperUSD.claimAndDistributeRewards(vaUSDC, 0);
+        rewardCollectorVesperUSD.claimAndDonateRewards(vaDAI, 0);
+        rewardCollectorVesperUSD.claimAndDonateRewards(vaUSDC, 0);
 
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
         assertGt(debtBefore, debtAfter);

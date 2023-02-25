@@ -53,7 +53,7 @@ contract AlchemixHarvester is IAlchemixHarvester, AlchemixGelatoKeeper {
     (address rewardCollector, , ) = IRewardRouter(rewardRouter).getRewardCollector(yieldToken);
 
     if (rewardCollector != address(0)) {
-      IRewardRouter(rewardRouter).claimAndDistributeRewards(yieldToken, expectedRewardsExchange);
+      IRewardRouter(rewardRouter).distributeRewards(yieldToken, expectedRewardsExchange);
     }
 
     IHarvestResolver(resolver).recordHarvest(yieldToken);

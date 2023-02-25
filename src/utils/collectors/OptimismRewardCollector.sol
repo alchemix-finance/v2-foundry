@@ -37,7 +37,7 @@ contract OptimismRewardCollector is IRewardCollector {
         swapRouter      = params.swapRouter;
     }
 
-    function claimAndDistributeRewards(address token, uint256 minimumAmountOut) external returns (uint256) {
+    function claimAndDonateRewards(address token, uint256 minimumAmountOut) external returns (uint256) {
         IStaticAToken(token).claimRewards();
 
         // Amount of reward token claimed plus any sent to this contract from grants.
