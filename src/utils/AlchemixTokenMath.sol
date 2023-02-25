@@ -35,6 +35,6 @@ contract AlchemixTokenMath {
         }
 
         uint256 underlyingValue = debt / 10**(18 - TokenUtils.expectDecimals(underlyingToken));
-        return underlyingValue / IAlchemistV2(alchemist).getUnderlyingTokensPerShare(yieldToken) * 10**TokenUtils.expectDecimals(yieldToken);
+        return underlyingValue * 10**TokenUtils.expectDecimals(yieldToken) / IAlchemistV2(alchemist).getUnderlyingTokensPerShare(yieldToken);
     }
 }
