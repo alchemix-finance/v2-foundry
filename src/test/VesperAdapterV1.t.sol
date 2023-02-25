@@ -10,9 +10,9 @@ import {AlchemixHarvester} from "../keepers/AlchemixHarvester.sol";
 import {HarvestResolver} from "../keepers/HarvestResolver.sol";
 
 import {
-    RewardCollectorVesper,
+    VesperRewardCollector,
     InitializationParams as RewardcollectorParams
-} from "../utils/RewardCollectorVesper.sol";
+} from "../utils/collectors/VesperRewardCollector.sol";
 
 import {UniswapEstimatedPrice} from "../utils/UniswapEstimatedPrice.sol";
 
@@ -20,6 +20,8 @@ import {
     VesperAdapterV1,
     InitializationParams as AdapterInitializationParams
 } from "../adapters/vesper/VesperAdapterV1.sol";
+
+import {RewardRouter} from "../utils/RewardRouter.sol";
 
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IAlchemistV2AdminActions} from "../interfaces/alchemist/IAlchemistV2AdminActions.sol";
@@ -68,11 +70,12 @@ contract VesperAdapterV1Test is DSTestPlus {
     AlchemixHarvester harvester;
     HarvestResolver resolver;
     AlchemistV2 newAlchemistV2;
-    RewardCollectorVesper rewardCollectorVesper;
-    RewardCollectorVesper rewardCollectorVesperUSD;
+    VesperRewardCollector rewardCollectorVesper;
+    VesperRewardCollector rewardCollectorVesperUSD;
     VesperAdapterV1 adapterETH;
     VesperAdapterV1 adapterDAI;
     VesperAdapterV1 adapterUSDC;
+    RewardRouter rewardRouter;
 
     function setUp() external {
         alchemistETH = IAlchemistV2(alchemistETHAddress);
@@ -135,8 +138,8 @@ contract VesperAdapterV1Test is DSTestPlus {
             swapRouter:         uniswapRouter
         });
 
-        rewardCollectorVesper = new RewardCollectorVesper(rewardCollectorParams);
-        rewardCollectorVesperUSD = new RewardCollectorVesper(rewardCollectorParamsUSD);
+        rewardCollectorVesper = new VesperRewardCollector(rewardCollectorParams);
+        rewardCollectorVesperUSD = new VesperRewardCollector(rewardCollectorParamsUSD);
 
         hevm.startPrank(ADMIN);
         whitelistETH.add(address(this));
@@ -176,6 +179,10 @@ contract VesperAdapterV1Test is DSTestPlus {
         alchemistETH.setKeeper(address(harvester), true);
         hevm.stopPrank();
 
+        rewardRouter = new RewardRouter();
+
+        deal(vspRewardToken, address(rewardRouter), 1000000000000000e18);
+
         resolver.addHarvestJob(
             true,
             alchemistUSDAddress,
@@ -206,9 +213,11 @@ contract VesperAdapterV1Test is DSTestPlus {
             100
         );
 
-        harvester.addRewardCollector(vaDAI, address(rewardCollectorVesperUSD));
-        harvester.addRewardCollector(vaUSDC, address(rewardCollectorVesperUSD));
-        harvester.addRewardCollector(vaETH, address(rewardCollectorVesper));
+        harvester.setRewardRouter(address(rewardRouter));
+
+        rewardRouter.addRewardCollector(vaDAI, address(rewardCollectorVesperUSD), vspRewardToken, 100000e18);
+        rewardRouter.addRewardCollector(vaUSDC, address(rewardCollectorVesperUSD), vspRewardToken, 100000e18);
+        rewardRouter.addRewardCollector(vaETH, address(rewardCollectorVesper), vspRewardToken, 100000e18);
     }
 
     function testRoundTripETH() external {

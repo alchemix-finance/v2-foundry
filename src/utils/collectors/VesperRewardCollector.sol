@@ -1,23 +1,23 @@
 pragma solidity ^0.8.13;
 
-import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
-import {TokenUtils} from "../libraries/TokenUtils.sol";
+import {IERC20} from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {TokenUtils} from "../../libraries/TokenUtils.sol";
 
-import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
-import {IAlchemistV2State} from "../interfaces/alchemist/IAlchemistV2State.sol";
-import {ICurveFactoryethpool} from "../interfaces/ICurveFactoryethpool.sol";
-import {IStableMetaPool} from "../interfaces/external/curve/IStableMetaPool.sol";
-import {ISwapRouter} from "../interfaces/external/uniswap/ISwapRouter.sol";
-import {IVesperPool} from "../interfaces/external/vesper/IVesperPool.sol";
-import {IVesperRewards} from "../interfaces/external/vesper/IVesperRewards.sol";
-import {IWETH9} from "../interfaces/external/IWETH9.sol";
+import {IAlchemistV2} from "../../interfaces/IAlchemistV2.sol";
+import {IAlchemistV2State} from "../../interfaces/alchemist/IAlchemistV2State.sol";
+import {ICurveFactoryethpool} from "../../interfaces/ICurveFactoryethpool.sol";
+import {IStableMetaPool} from "../../interfaces/external/curve/IStableMetaPool.sol";
+import {ISwapRouter} from "../../interfaces/external/uniswap/ISwapRouter.sol";
+import {IVesperPool} from "../../interfaces/external/vesper/IVesperPool.sol";
+import {IVesperRewards} from "../../interfaces/external/vesper/IVesperRewards.sol";
+import {IWETH9} from "../../interfaces/external/IWETH9.sol";
 
 
-import {Unauthorized, IllegalState, IllegalArgument} from "../base/ErrorMessages.sol";
+import {Unauthorized, IllegalState, IllegalArgument} from "../../base/ErrorMessages.sol";
 
-import "../interfaces/IRewardCollector.sol";
-import "../libraries/Sets.sol";
-import "../libraries/TokenUtils.sol";
+import "../../interfaces/IRewardCollector.sol";
+import "../../libraries/Sets.sol";
+import "../../libraries/TokenUtils.sol";
 
 struct InitializationParams {
     address alchemist;
@@ -28,7 +28,7 @@ struct InitializationParams {
 
 /// @title  RewardCollectorVesper
 /// @author Alchemix Finance
-contract RewardCollectorVesper is IRewardCollector {
+contract VesperRewardCollector is IRewardCollector {
     uint256 constant FIXED_POINT_SCALAR = 1e18;
     uint256 constant BPS = 10000;
     string public override version = "1.0.0";
@@ -57,10 +57,11 @@ contract RewardCollectorVesper is IRewardCollector {
     function claimAndDistributeRewards(address token, uint256 minimumAmountOut) external returns (uint256) {
         IAlchemistV2(alchemist).sweepRewardTokens(rewardToken, token);
 
-        uint256 claimed = IERC20(rewardToken).balanceOf(address(this));
+        // Tokens claimed from rewards plus any tokens sent to this contract from grants.
+        uint256 amountRewardTokens = IERC20(rewardToken).balanceOf(address(this));
         uint256 received;
         
-        if (claimed == 0) return 0;
+        if (amountRewardTokens == 0) return 0;
 
         if (debtToken == alUSD) {
             // Swap VSP -> WETH -> DAI
@@ -72,11 +73,11 @@ contract RewardCollectorVesper is IRewardCollector {
                 ISwapRouter.ExactInputParams({
                     path: swapPath,
                     recipient: address(this),
-                    amountIn: claimed,
+                    amountIn: amountRewardTokens,
                     amountOutMinimum: minimumAmountOut
                 });
 
-            TokenUtils.safeApprove(rewardToken, swapRouter, claimed);
+            TokenUtils.safeApprove(rewardToken, swapRouter, amountRewardTokens);
             received = ISwapRouter(swapRouter).exactInput(params);
             // Curve 3CRV + alUSD meta pool swap to alUSD
             TokenUtils.safeApprove(DAI, curveMetaPool, received);
@@ -89,11 +90,11 @@ contract RewardCollectorVesper is IRewardCollector {
                 ISwapRouter.ExactInputParams({
                     path: swapPath,
                     recipient: address(this),
-                    amountIn: claimed,
+                    amountIn: amountRewardTokens,
                     amountOutMinimum: minimumAmountOut
                 });
 
-            TokenUtils.safeApprove(rewardToken, swapRouter, claimed);
+            TokenUtils.safeApprove(rewardToken, swapRouter, amountRewardTokens);
             received = ISwapRouter(swapRouter).exactInput(params);
             IWETH9(WETH).withdraw(received);
             // Curve alETH + ETH factory pool swap to alETH
@@ -106,7 +107,7 @@ contract RewardCollectorVesper is IRewardCollector {
         TokenUtils.safeApprove(debtToken, alchemist, debtReturned);
         IAlchemistV2(alchemist).donate(token, debtReturned);
 
-        return claimed;
+        return amountRewardTokens;
     }
 
     receive() external payable {}

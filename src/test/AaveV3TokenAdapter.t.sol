@@ -15,9 +15,11 @@ import {
 } from "../adapters/aave/AAVETokenAdapter.sol";
 
 import {
-    RewardCollectorOptimism,
+    OptimismRewardCollector,
     InitializationParams as RewardCollectorInitializationParams
-} from "../utils/RewardCollectorOptimism.sol";
+} from "../utils/collectors/OptimismRewardCollector.sol";
+
+import {RewardRouter} from "../utils/RewardRouter.sol";
 
 import {AlchemicTokenV2} from "../AlchemicTokenV2.sol";
 import {AlchemistV2} from "../AlchemistV2.sol";
@@ -66,8 +68,9 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
     AAVETokenAdapter adapter;
     HarvestResolver harvestResolver;
     StaticATokenV3 staticAToken;
-    RewardCollectorOptimism rewardCollector;
-    RewardCollectorOptimism rewardCollectorETH;
+    OptimismRewardCollector rewardCollector;
+    OptimismRewardCollector rewardCollectorETH;
+    RewardRouter rewardRouter;
     TransmuterV2 transmuter;
     TransmuterBuffer buffer;
     ILendingPool lendingPool = ILendingPool(0x794a61358D6845594F94dc1DB02A252b5b4814aD);
@@ -132,9 +135,10 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
             swapRouter:         velodromeRouter
         });
 
-        rewardCollector = new RewardCollectorOptimism(rewardCollectorParams);
-        rewardCollectorETH = new RewardCollectorOptimism(rewardCollectorParamsETH);
+        rewardCollector = new OptimismRewardCollector(rewardCollectorParams);
+        rewardCollectorETH = new OptimismRewardCollector(rewardCollectorParamsETH);
 
+        rewardRouter = new RewardRouter();
 
         whitelist.add(address(this));
         whitelist.add(address(rewardCollector));
@@ -375,7 +379,9 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         harvestResolver.addHarvestJob(true, address(alchemistUSD), address(rewardCollector), address(staticAToken), 1000, 0, 0);
         alchemistUSD.setKeeper(address(harvester), true);
 
-        harvester.addRewardCollector(address(staticAToken), address(rewardCollector));
+        harvester.setRewardRouter(address(rewardRouter));
+
+        rewardRouter.addRewardCollector(address(staticAToken), address(rewardCollector), rewardToken, 10000e18);
 
         deal(dai, address(this), 1000000e18);
         SafeERC20.safeApprove(dai, address(alchemistUSD), 1000000e18);
@@ -442,7 +448,9 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         harvestResolver.addHarvestJob(true, address(alchemistETH), address(rewardCollectorETH), address(staticAToken), 1000, 0, 0);
         alchemistETH.setKeeper(address(harvester), true);
 
-        harvester.addRewardCollector(address(staticAToken), address(rewardCollectorETH));
+        harvester.setRewardRouter(address(rewardRouter));
+
+        rewardRouter.addRewardCollector(address(staticAToken), address(rewardCollectorETH), rewardToken, 100000e18);
 
         deal(weth, address(this), 1000000e18);
         SafeERC20.safeApprove(weth, address(alchemistETH), 1000000e18);

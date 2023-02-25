@@ -5,14 +5,14 @@ import "./AlchemixGelatoKeeper.sol";
 import "../interfaces/IAlchemistV2.sol";
 import "../interfaces/keepers/IHarvestResolver.sol";
 import "../interfaces/keepers/IAlchemixHarvester.sol";
-import "../interfaces/IRewardCollector.sol";
+import "../interfaces/IRewardRouter.sol";
 
 contract AlchemixHarvester is IAlchemixHarvester, AlchemixGelatoKeeper {
   /// @notice The address of the resolver.
   address public resolver;
 
-  /// @notice Mapping of yield tokens to reward collectors
-  mapping(address => address) public rewardCollectors;
+  /// @notice The address of the Reward Router.
+  address public rewardRouter;
 
   constructor(
     address _gelatoPoker,
@@ -26,8 +26,8 @@ contract AlchemixHarvester is IAlchemixHarvester, AlchemixGelatoKeeper {
     resolver = _resolver;
   }
 
-  function addRewardCollector(address _yieldToken, address _rewardcollector) external onlyOwner {
-    rewardCollectors[_yieldToken] = _rewardcollector;
+  function setRewardRouter(address _rewardRouter) external onlyOwner {
+    rewardRouter = _rewardRouter;
   }
 
   /// @notice Runs a the specified harvest job and donates optimism rewards.
@@ -50,8 +50,10 @@ contract AlchemixHarvester is IAlchemixHarvester, AlchemixGelatoKeeper {
     }
     IAlchemistV2(alchemist).harvest(yieldToken, minimumAmountOut);
 
-    if (rewardCollectors[yieldToken] != address(0)) {
-      IRewardCollector(rewardCollectors[yieldToken]).claimAndDistributeRewards(yieldToken, expectedRewardsExchange);
+    (address rewardCollector, , ) = IRewardRouter(rewardRouter).getRewardCollector(yieldToken);
+
+    if (rewardCollector != address(0)) {
+      IRewardRouter(rewardRouter).claimAndDistributeRewards(yieldToken, expectedRewardsExchange);
     }
 
     IHarvestResolver(resolver).recordHarvest(yieldToken);
