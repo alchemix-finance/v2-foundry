@@ -8,6 +8,9 @@ import {IStaticAToken} from "../../interfaces/external/aave/IStaticAToken.sol";
 import {IVelodromeSwapRouter} from "../../interfaces/external/velodrome/IVelodromeSwapRouter.sol";
 import {Unauthorized, IllegalState, IllegalArgument} from "../../base/ErrorMessages.sol";
 
+import "../../interfaces/external/aave/IRewardsController.sol";
+import "../../interfaces/external/chainlink/IChainlinkOracle.sol";
+
 import "../../interfaces/IRewardCollector.sol";
 import "../../libraries/Sets.sol";
 import "../../libraries/TokenUtils.sol";
@@ -21,7 +24,13 @@ struct InitializationParams {
 
 /// @title  RewardCollectorOptimism
 /// @author Alchemix Finance
-contract OptimismRewardCollector is IRewardCollector {
+contract OptimismAaveRewardCollector is IRewardCollector {
+    address constant aaveIncentives = 0x929EC64c34a17401F460460D4B9390518E5B473e;
+    address constant alUsdOptimism = 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A;
+    address constant alEthOptimism = 0x3E29D3A9316dAB217754d13b28646B76607c5f04;
+    address constant opToUsdOracle = 0x0D276FC14719f9292D5C1eA2198673d1f4269246;
+    address constant ethToUsdOracle = 0x13e3Ee699D1909E989722E753853AE30b17e08c5;
+
     uint256 constant FIXED_POINT_SCALAR = 1e18;
     uint256 constant BPS = 10000;
     string public override version = "1.0.0";
@@ -69,5 +78,23 @@ contract OptimismRewardCollector is IRewardCollector {
         IAlchemistV2(alchemist).donate(token, debtReturned);
 
         return amountRewardToken;
+    }
+
+    function getExpectedExchange(address yieldToken) external view returns (uint256) {
+        uint256 expectedExchange;
+        address[] memory token = new address[](1);
+        token[0] = address(IStaticAToken(yieldToken).ATOKEN());
+        uint256 claimable = IRewardsController(aaveIncentives).getUserRewards(token, yieldToken, rewardToken);
+        uint256 totalToSwap = claimable + TokenUtils.safeBalanceOf(rewardToken, address(this));
+        // Find expected amount out before calling harvest
+        if (debtToken == alUsdOptimism) {
+            expectedExchange = totalToSwap * uint(IChainlinkOracle(opToUsdOracle).latestAnswer()) / 1e8;
+        } else if (debtToken == alEthOptimism) {
+            expectedExchange = totalToSwap * uint(IChainlinkOracle(opToUsdOracle).latestAnswer()) / uint(IChainlinkOracle(ethToUsdOracle).latestAnswer());
+        } else {
+            revert IllegalState("Ivalid debt token");
+        }
+
+        return expectedExchange;
     }
 }

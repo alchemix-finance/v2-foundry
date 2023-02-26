@@ -15,9 +15,9 @@ import {
 } from "../adapters/aave/AAVETokenAdapter.sol";
 
 import {
-    OptimismRewardCollector,
+    OptimismAaveRewardCollector,
     InitializationParams as RewardCollectorInitializationParams
-} from "../utils/collectors/OptimismRewardCollector.sol";
+} from "../utils/collectors/OptimismAaveRewardCollector.sol";
 
 import {RewardRouter} from "../utils/RewardRouter.sol";
 
@@ -68,8 +68,8 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
     AAVETokenAdapter adapter;
     HarvestResolver harvestResolver;
     StaticATokenV3 staticAToken;
-    OptimismRewardCollector rewardCollector;
-    OptimismRewardCollector rewardCollectorETH;
+    OptimismAaveRewardCollector rewardCollector;
+    OptimismAaveRewardCollector rewardCollectorETH;
     RewardRouter rewardRouter;
     TransmuterV2 transmuter;
     TransmuterBuffer buffer;
@@ -135,8 +135,8 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
             swapRouter:         velodromeRouter
         });
 
-        rewardCollector = new OptimismRewardCollector(rewardCollectorParams);
-        rewardCollectorETH = new OptimismRewardCollector(rewardCollectorParamsETH);
+        rewardCollector = new OptimismAaveRewardCollector(rewardCollectorParams);
+        rewardCollectorETH = new OptimismAaveRewardCollector(rewardCollectorParamsETH);
 
         rewardRouter = new RewardRouter();
 
@@ -383,7 +383,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
 
         harvester.setRewardRouter(address(rewardRouter));
 
-        rewardRouter.addRewardCollector(address(staticAToken), address(rewardCollector), rewardToken, 1e18);
+        rewardRouter.addRewardCollector(address(staticAToken), address(rewardCollector), rewardToken, 1e18, 50400, block.number);
 
         deal(dai, address(this), 1000000e18);
         SafeERC20.safeApprove(dai, address(alchemistUSD), 1000000e18);
@@ -397,10 +397,10 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         // Keeper check balance of token
         (bool canExec, bytes memory execPayload) = harvestResolver.checker();
 
-        (address alch, address yield, uint256 minOut, uint256 expectedExchange) = abi.decode(extractCalldata(execPayload), (address, address, uint256, uint256));
+        (address alch, address yield, uint256 minOut) = abi.decode(extractCalldata(execPayload), (address, address, uint256));
 
         (int256 debtBefore, ) = alchemistUSD.accounts(address((this)));
-        harvester.harvest(alch, yield, minOut, expectedExchange);
+        harvester.harvest(alch, yield, minOut);
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
 
         assertEq(IERC20(rewardToken).balanceOf(address(rewardCollector)), 0);
@@ -452,7 +452,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
 
         harvester.setRewardRouter(address(rewardRouter));
 
-        rewardRouter.addRewardCollector(address(staticAToken), address(rewardCollectorETH), rewardToken, 1e18);
+        rewardRouter.addRewardCollector(address(staticAToken), address(rewardCollectorETH), rewardToken, 1e18, 50400, block.number);
 
         deal(weth, address(this), 1000000e18);
         SafeERC20.safeApprove(weth, address(alchemistETH), 1000000e18);
@@ -467,10 +467,10 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         // Keeper check balance of token
         (bool canExec, bytes memory execPayload) = harvestResolver.checker();
 
-        (address alch, address yield, uint256 minOut, uint256 expectedExchange) = abi.decode(extractCalldata(execPayload), (address, address, uint256, uint256));
+        (address alch, address yield, uint256 minOut) = abi.decode(extractCalldata(execPayload), (address, address, uint256));
 
         (int256 debtBefore, ) = alchemistETH.accounts(address((this)));
-        harvester.harvest(alch, yield, minOut, expectedExchange);
+        harvester.harvest(alch, yield, minOut);
         (int256 debtAfter, ) = alchemistETH.accounts(address((this)));
 
         assertEq(IERC20(rewardToken).balanceOf(address(rewardCollectorETH)), 0);

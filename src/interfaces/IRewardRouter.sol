@@ -7,13 +7,12 @@ interface IRewardRouter {
     function version() external view returns (string memory);
 
     /// @notice Gets the rewardcollector params.
-    function getRewardCollector(address) external view returns (address, address, uint256);
+    function getRewardCollector(address) external view returns (address, address, uint256, uint256, uint256);
 
     /// @notice Distributes rewards from grants and triggers collectors to claim rewards and donate.
     ///
     /// @param  token                The yield token to claim rewards for.
-    /// @param  minimumAmountOut     The minimum returns to accept.
     ///
     /// @return claimed              The amount of reward tokens claimed.
-    function distributeRewards(address token, uint256 minimumAmountOut) external returns (uint256 claimed);
+    function distributeRewards(address token) external returns (uint256 claimed);
 }

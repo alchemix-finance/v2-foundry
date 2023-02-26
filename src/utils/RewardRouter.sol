@@ -15,6 +15,8 @@ struct RewardCollector {
     address rewardCollectorAddress;
     address rewardToken;
     uint256 rewardAmount;
+    uint256 rewardTimeframe;
+    uint256 lastRewardBlock;
 }
 
 /// @title  Reward Router
@@ -28,13 +30,18 @@ contract RewardRouter is IRewardRouter, Ownable {
     constructor() Ownable() {}
 
     /// @dev Distributes grant rewards and triggers reward collector to claim and donate
-    function distributeRewards(address token, uint256 minimumAmountOut) external returns (uint256) {        
+    function distributeRewards(address token) external returns (uint256) {        
         // If vault is set to receive rewards from OP grant send amount to reward collector to donate
         if (rewardCollectors[token].rewardAmount > 0) {
-            TokenUtils.safeTransfer(rewardCollectors[token].rewardToken, rewardCollectors[token].rewardCollectorAddress, rewardCollectors[token].rewardAmount);
+            // Calculates ratio of timeframe to time since last harvest
+            // Uses this ratio to determine partial reward amount or extra reward amount
+            uint256 blocksSinceLastReward = block.number - rewardCollectors[token].lastRewardBlock;
+            uint256 amountToSend = rewardCollectors[token].rewardAmount * blocksSinceLastReward / rewardCollectors[token].rewardTimeframe;
+            TokenUtils.safeTransfer(rewardCollectors[token].rewardToken, rewardCollectors[token].rewardCollectorAddress, amountToSend);
+            rewardCollectors[token].lastRewardBlock = block.number;
         }
 
-        return IRewardCollector(rewardCollectors[token].rewardCollectorAddress).claimAndDonateRewards(token, minimumAmountOut);
+        return IRewardCollector(rewardCollectors[token].rewardCollectorAddress).claimAndDonateRewards(token, IRewardCollector(rewardCollectors[token].rewardCollectorAddress).getExpectedExchange(token) * 9500 / 10000);
     }
 
     /// @dev Sweeps reward tokens to recipient
@@ -43,8 +50,8 @@ contract RewardRouter is IRewardRouter, Ownable {
     }
 
     /// @dev Add reward collector params to a map of yield tokens
-    function addRewardCollector(address vault, address rewardCollectorAddress, address rewardToken, uint256 rewardAmount) external onlyOwner {
-        rewardCollectors[vault] = RewardCollector(rewardCollectorAddress, rewardToken, rewardAmount);
+    function addRewardCollector(address vault, address rewardCollectorAddress, address rewardToken, uint256 rewardAmount, uint256 rewardTimeframe, uint256 lastRewardBlock) external onlyOwner {
+        rewardCollectors[vault] = RewardCollector(rewardCollectorAddress, rewardToken, rewardAmount, rewardTimeframe, lastRewardBlock);
     }
 
     /// @dev Set the reward collector address for a given vault
@@ -63,7 +70,13 @@ contract RewardRouter is IRewardRouter, Ownable {
     }
 
     /// @dev Get reward collector params for a given vault
-    function getRewardCollector(address vault) external view returns (address, address, uint256) {
-        return (rewardCollectors[vault].rewardCollectorAddress, rewardCollectors[vault].rewardToken, rewardCollectors[vault].rewardAmount);
+    function getRewardCollector(address vault) external view returns (address, address, uint256, uint256, uint256) {
+        return (
+            rewardCollectors[vault].rewardCollectorAddress,
+            rewardCollectors[vault].rewardToken,
+            rewardCollectors[vault].rewardAmount,
+            rewardCollectors[vault].rewardTimeframe,
+            rewardCollectors[vault].lastRewardBlock
+        );
     }
 }

@@ -28,4 +28,7 @@ interface IRewardCollector {
     ///
     /// @return claimed              The amount of reward tokens claimed.
     function claimAndDonateRewards(address token, uint256 minimumAmountOut) external returns (uint256 claimed);
+
+    /// @notice Gets expected exchange for OP to debt token.
+    function getExpectedExchange(address yieldToken) external view returns (uint256);
 }

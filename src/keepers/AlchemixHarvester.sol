@@ -35,12 +35,10 @@ contract AlchemixHarvester is IAlchemixHarvester, AlchemixGelatoKeeper {
   /// @param alchemist                The address of the target alchemist.
   /// @param yieldToken               The address of the target yield token.
   /// @param minimumAmountOut         The minimum amount of tokens expected to be harvested.
-  /// @param expectedRewardsExchange  The minimum VSP to debt tokens.
   function harvest(
     address alchemist,
     address yieldToken,
-    uint256 minimumAmountOut,
-    uint256 expectedRewardsExchange
+    uint256 minimumAmountOut
   ) external override {
     if (msg.sender != gelatoPoker) {
       revert Unauthorized();
@@ -50,10 +48,10 @@ contract AlchemixHarvester is IAlchemixHarvester, AlchemixGelatoKeeper {
     }
     IAlchemistV2(alchemist).harvest(yieldToken, minimumAmountOut);
 
-    (address rewardCollector, , ) = IRewardRouter(rewardRouter).getRewardCollector(yieldToken);
+    (address rewardCollector, , , ,) = IRewardRouter(rewardRouter).getRewardCollector(yieldToken);
 
     if (rewardCollector != address(0)) {
-      IRewardRouter(rewardRouter).distributeRewards(yieldToken, expectedRewardsExchange);
+      IRewardRouter(rewardRouter).distributeRewards(yieldToken);
     }
 
     IHarvestResolver(resolver).recordHarvest(yieldToken);
