@@ -45,13 +45,13 @@ contract Harvester is DSTestPlus, IERC20TokenReceiver {
         // Keeper check balance of token
         (bool canExec, bytes memory execPayload) = IResolver(0x485aF43F7ED4257777A25cAB7eA3C4fa6BAa68BF).checker();
 
-        (address alch, address yield, uint256 minOut, uint256 expectedExchange) = abi.decode(extractCalldata(execPayload), (address, address, uint256, uint256));
+        (address alch, address yield, uint256 minOut) = abi.decode(extractCalldata(execPayload), (address, address, uint256));
 
         hevm.startPrank(0xC224bf25Dcc99236F00843c7D8C4194abE8AA94a);
         alchemist.setKeeper(0x4183C9C22D1ce5F3BE9818e97e779e2897f688f7, true);
         hevm.stopPrank();
         hevm.prank(0x88Ef749aef2CB8266B2A299313881B3541432c84);
-        IAlchemixHarvester(0x4183C9C22D1ce5F3BE9818e97e779e2897f688f7).harvest(alch, yield, minOut, expectedExchange);
+        IAlchemixHarvester(0x4183C9C22D1ce5F3BE9818e97e779e2897f688f7).harvest(alch, yield, minOut);
     }
 
         // For decoding bytes that have selector header
