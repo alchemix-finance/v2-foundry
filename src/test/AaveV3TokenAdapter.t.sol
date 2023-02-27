@@ -455,11 +455,11 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         rewardRouter.addRewardCollector(address(staticAToken), address(rewardCollectorETH), rewardToken, 1e18, 50400, block.number);
 
         deal(weth, address(this), 1000000e18);
-        SafeERC20.safeApprove(weth, address(alchemistETH), 1000000e18);
-        alchemistETH.depositUnderlying(address(staticAToken), 1000000e18, address(this), 0);
+        SafeERC20.safeApprove(weth, address(alchemistETH), 10e18);
+        alchemistETH.depositUnderlying(address(staticAToken), 10e18, address(this), 0);
 
 
-        alchemistETH.mint(400000e18, address(this));
+        alchemistETH.mint(4e18, address(this));
 
         hevm.roll(block.number + 10000000);
         hevm.warp(block.timestamp + 10000000);
