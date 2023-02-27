@@ -62,10 +62,9 @@ contract OptimismAaveRewardCollector is IRewardCollector {
             TokenUtils.safeApprove(rewardToken, swapRouter, amountRewardToken);
             IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(amountRewardToken, minimumAmountOut, routes, address(this), block.timestamp);
         } else if (debtToken == 0x3E29D3A9316dAB217754d13b28646B76607c5f04) {
-            // Velodrome Swap Routes: OP -> WETH -> alETH
+            // Velodrome Swap Routes: OP -> alETH
             IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](2);
-            routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x4200000000000000000000000000000000000006, false);
-            routes[1] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000006, 0x3E29D3A9316dAB217754d13b28646B76607c5f04, false);
+            routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x3E29D3A9316dAB217754d13b28646B76607c5f04, false);
             TokenUtils.safeApprove(rewardToken, swapRouter, amountRewardToken);
             IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(amountRewardToken, minimumAmountOut, routes, address(this), block.timestamp);
         } else {
