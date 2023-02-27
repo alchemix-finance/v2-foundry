@@ -298,16 +298,49 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
     }
 
     function testAppreciation() external {
-        deal(dai, address(this), 1000e18);
+        deal(weth, address(this), 1000e18);
 
-        SafeERC20.safeApprove(dai, address(adapter), 1000e18);
+        staticAToken = new StaticATokenV3(
+            address(lendingPool),
+            rewardsController,
+            aOptWETH,
+            address(rewardCollectorETH),
+            "staticAaveOptimismWeth",
+            "saOptWeth"
+        );
+
+        AAVETokenAdapter rewardCollectorAdapter = new AAVETokenAdapter(AdapterInitializationParams({
+            alchemist:          address(alchemistETH),
+            token:              address(staticAToken),
+            underlyingToken:    weth
+        }));
+
+        IAlchemistV2AdminActions.YieldTokenConfig memory yieldConfig = IAlchemistV2AdminActions.YieldTokenConfig({
+            adapter: address(rewardCollectorAdapter),
+            maximumLoss: 1,
+            maximumExpectedValue: 1000000000 ether,
+            creditUnlockBlocks: 7200
+		});
+
+        adapter = new AAVETokenAdapter(AdapterInitializationParams({
+            alchemist:          address(this),
+            token:              address(staticAToken),
+            underlyingToken:    weth
+        }));
+
+        alchemistETH.addYieldToken(address(staticAToken), yieldConfig);
+        alchemistETH.setYieldTokenEnabled(address(staticAToken), true);
+
+        buffer.setSource(address(alchemistETH), true);
+
+        SafeERC20.safeApprove(weth, address(adapter), 1000e18);
         uint256 wrapped = adapter.wrap(1000e18, address(this));
         
         hevm.roll(block.number + 10000000000);
         hevm.warp(block.timestamp + 1000000000);
 
         address[] memory assets = new address[](1);
-        assets[0] = aOptDAI;
+        assets[0] = aOptWETH;
 
         assertGt(IRewardsController(rewardsController).getUserRewards(assets, address(staticAToken), rewardToken), 0);
         
