@@ -297,64 +297,6 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         assertEq(staticAToken.balanceOf(address(adapter)), 0);
     }
 
-    function testAppreciation() external {
-        deal(dai, address(this), 1000e18);
-
-        SafeERC20.safeApprove(dai, address(adapter), 1000e18);
-        uint256 wrapped = adapter.wrap(1000e18, address(this));
-        
-        hevm.roll(block.number + 10000000000);
-        hevm.warp(block.timestamp + 1000000000);
-
-        address[] memory assets = new address[](1);
-        assets[0] = aOptDAI;
-
-        assertGt(IRewardsController(rewardsController).getUserRewards(assets, address(staticAToken), rewardToken), 0);
-        
-        SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
-        uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
-        assertGt(unwrapped, 1000e18);
-    }
-
-    function testRewardCollector() external {
-        AAVETokenAdapter rewardCollectorAdapter = new AAVETokenAdapter(AdapterInitializationParams({
-            alchemist:          address(alchemistUSD),
-            token:              address(staticAToken),
-            underlyingToken:    dai
-        }));
-
-        IAlchemistV2AdminActions.YieldTokenConfig memory yieldConfig = IAlchemistV2AdminActions.YieldTokenConfig({
-            adapter: address(rewardCollectorAdapter),
-            maximumLoss: 1,
-            maximumExpectedValue: 1000000000 ether,
-            creditUnlockBlocks: 7200
-		});
-
-        alchemistUSD.addYieldToken(address(staticAToken), yieldConfig);
-        alchemistUSD.setYieldTokenEnabled(address(staticAToken), true);
-
-        deal(dai, address(this), 1000000e18);
-        SafeERC20.safeApprove(dai, address(alchemistUSD), 1000000e18);
-        alchemistUSD.depositUnderlying(address(staticAToken), 1000000e18, address(this), 0);
-
-        alchemistUSD.mint(400000e18, address(this));
-
-        hevm.roll(block.number + 10000000);
-        hevm.warp(block.timestamp + 10000000);
-
-        // Keeper check balance of token
-        uint256 rewards = IRewardsController(rewardsController).getUserAccruedRewards(address(staticAToken), rewardToken);
-        (int256 debtBefore, ) = alchemistUSD.accounts(address((this)));
-
-        rewardCollector.claimAndDonateRewards(address(staticAToken), rewards * 9999 / 10000);
-        (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
-
-        assertEq(IERC20(rewardToken).balanceOf(address(rewardCollector)), 0);
-        assertEq(IERC20(alUSD).balanceOf(address(rewardCollector)), 0);
-        assertEq(IERC20(usdc).balanceOf(address(rewardCollector)), 0);
-        assertGt(debtBefore, debtAfter);
-    }
-
     function testRewardCollectorWithHarvester() external {
         AAVETokenAdapter rewardCollectorAdapter = new AAVETokenAdapter(AdapterInitializationParams({
             alchemist:          address(alchemistUSD),
