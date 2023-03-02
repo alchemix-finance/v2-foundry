@@ -23,17 +23,15 @@ contract VesperAdapterV1Test is DSTestPlus {
     address constant vaDAI = 0x0538C8bAc84E95A9dF8aC10Aad17DbE81b9E36ee;
     address constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
     address constant vaUSDC = 0xa8b607Aa09B6A2E306F93e74c282Fb13f6A80452;
+    address constant vaETH = 0xd1C117319B3595fbc39b471AB1fd485629eb05F2;
+    address constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
     function testMathVesperUSDC() external {
         AlchemixTokenMath math = new AlchemixTokenMath();
 
         uint256 debt = math.normalizeSharesToDebtTokens(1e18, vaUSDC, USDC, alchemistUSDAddress);
 
-        console.log(debt);
-
         uint256 shares = math.normalizeDebtTokensToShares(debt, vaUSDC, USDC, alchemistUSDAddress);
-
-        console.log(shares);
 
         assertEq(shares, 1e18);
     }
@@ -43,11 +41,17 @@ contract VesperAdapterV1Test is DSTestPlus {
 
         uint256 debt = math.normalizeSharesToDebtTokens(1e18, vaDAI, DAI, alchemistUSDAddress);
 
-        console.log(debt);
-
         uint256 shares = math.normalizeDebtTokensToShares(debt, vaDAI, DAI, alchemistUSDAddress);
 
-        console.log(shares);
+        assertEq(shares, 1e18);
+    }
+
+    function testMathVesperETH() external {
+        AlchemixTokenMath math = new AlchemixTokenMath();
+
+        uint256 debt = math.normalizeSharesToDebtTokens(1e18, vaETH, WETH, alchemistETHAddress);
+
+        uint256 shares = math.normalizeDebtTokensToShares(debt, vaETH, WETH, alchemistETHAddress);
 
         assertEq(shares, 1e18);
     }

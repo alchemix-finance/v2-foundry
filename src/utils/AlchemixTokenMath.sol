@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.13;
-import {console} from "../../lib/forge-std/src/console.sol";
 
 import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
@@ -36,8 +35,6 @@ contract AlchemixTokenMath {
         }
 
         uint256 underlyingValue = debt / 10**(18 - TokenUtils.expectDecimals(underlyingToken));
-        console.logUint(underlyingValue);
-        console.logUint(IAlchemistV2(alchemist).getUnderlyingTokensPerShare(yieldToken));
         return underlyingValue * 10**TokenUtils.expectDecimals(yieldToken) / IAlchemistV2(alchemist).getUnderlyingTokensPerShare(yieldToken);
     }
 }
