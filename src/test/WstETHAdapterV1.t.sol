@@ -24,8 +24,7 @@ contract WstETHAdapterV1Test is DSTestPlus {
     address constant whitelistETHAddress = 0xA3dfCcbad1333DC69997Da28C961FF8B2879e653;
 
     IAlchemistV2 constant alchemist = IAlchemistV2(0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c);
-    IChainlinkOracle constant oracleStethUsd = IChainlinkOracle(0xCfE54B5cD566aB89272946F602D76Ea879CAb4a8);
-    IChainlinkOracle constant oracleEthUsd = IChainlinkOracle(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
+    IChainlinkOracle constant oracleStethEth = IChainlinkOracle(0x86392dC19c0b719886221c78AB11eb8Cf5c52812);
     IStETH constant stETH = IStETH(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84);
     IWstETH constant wstETH = IWstETH(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0);
     IWETH9 constant weth = IWETH9(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
@@ -40,8 +39,7 @@ contract WstETHAdapterV1Test is DSTestPlus {
             parentToken:     address(stETH),
             underlyingToken: address(weth),
             curvePool:       address(curvePool),
-            oracleStethUsd:  address(oracleStethUsd),
-            oracleEthUsd:    address(oracleEthUsd),
+            oracleStethEth:  address(oracleStethEth),
             ethPoolIndex:    0,
             stEthPoolIndex:  1,
             referral:        address(0)
