@@ -20,12 +20,12 @@ contract HarvestResolver is IResolver, Ownable {
   event SetHarvestJob(
     bool active,
     address alchemist,
-    address reward,
     address yieldToken,
     uint256 minimumHarvestAmount,
     uint256 minimumDelay,
     uint256 slippageBps
   );
+
   /// @notice Emitted when a harvester status is updated.
   event SetHarvester(address harvester, bool status);
 
@@ -38,7 +38,6 @@ contract HarvestResolver is IResolver, Ownable {
   struct HarvestJob {
     bool active;
     address alchemist;
-    address reward;
     address yieldToken;
     uint256 lastHarvest;
     uint256 minimumHarvestAmount;
@@ -96,14 +95,12 @@ contract HarvestResolver is IResolver, Ownable {
   ///
   /// @param active               A flag for whether or not the harvest job is active.
   /// @param alchemist            The address of the alchemist to be harvested.
-  /// @param reward               Address of the reward token. 0 for none.
   /// @param yieldToken           The address of the yield token to be harvested.
   /// @param minimumHarvestAmount The minimum amount of harvestable funds required in order to run the harvest job.
   /// @param minimumDelay         The minimum delay (in seconds) needed between successive runs of the job.
   function addHarvestJob(
     bool active,
     address alchemist,
-    address reward,
     address yieldToken,
     uint256 minimumHarvestAmount,
     uint256 minimumDelay,
@@ -121,7 +118,6 @@ contract HarvestResolver is IResolver, Ownable {
     harvestJobs[yieldToken] = HarvestJob(
       active,
       alchemist,
-      reward,
       yieldToken,
       block.timestamp,
       minimumHarvestAmount,
@@ -129,7 +125,7 @@ contract HarvestResolver is IResolver, Ownable {
       slippageBps
     );
 
-    emit SetHarvestJob(active, alchemist, reward, yieldToken, minimumHarvestAmount, minimumDelay, slippageBps);
+    emit SetHarvestJob(active, alchemist, yieldToken, minimumHarvestAmount, minimumDelay, slippageBps);
 
     // Only add the yield token to the list if it doesnt exist yet.
     for (uint256 i = 0; i < yieldTokens.length; i++) {

@@ -4,7 +4,6 @@ import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IER
 import {TokenUtils} from "../libraries/TokenUtils.sol";
 import "../../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 
-import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IRewardCollector} from "../interfaces/IRewardCollector.sol";
 import {IRewardRouter} from "../interfaces/IRewardRouter.sol";
 import {IStaticAToken} from "../interfaces/external/aave/IStaticAToken.sol";
@@ -23,6 +22,9 @@ struct RewardCollector {
 /// @author Alchemix Finance
 contract RewardRouter is IRewardRouter, Ownable {
     string public override version = "1.0.0";
+    uint256 public constant BPS = 10000;
+
+    uint256 public slippageBPS = 9500;
 
     /// @dev A mapping of the yield tokens to their respective reward collectors
     mapping(address => RewardCollector) public rewardCollectors;
@@ -30,8 +32,8 @@ contract RewardRouter is IRewardRouter, Ownable {
     constructor() Ownable() {}
 
     /// @dev Distributes grant rewards and triggers reward collector to claim and donate
-    function distributeRewards(address token) external returns (uint256) {        
-        // If vault is set to receive rewards from OP grant send amount to reward collector to donate
+    function distributeRewards(address token) external returns (uint256) {
+        // If vault is set to receive rewards from grants, send amount to reward collector to donate
         if (rewardCollectors[token].rewardAmount > 0) {
             // Calculates ratio of timeframe to time since last harvest
             // Uses this ratio to determine partial reward amount or extra reward amount
@@ -41,16 +43,25 @@ contract RewardRouter is IRewardRouter, Ownable {
             rewardCollectors[token].lastRewardBlock = block.number;
         }
 
-        return IRewardCollector(rewardCollectors[token].rewardCollectorAddress).claimAndDonateRewards(token, IRewardCollector(rewardCollectors[token].rewardCollectorAddress).getExpectedExchange(token) * 9500 / 10000);
+        return IRewardCollector(rewardCollectors[token].rewardCollectorAddress).claimAndDonateRewards(token, IRewardCollector(rewardCollectors[token].rewardCollectorAddress).getExpectedExchange(token) * slippageBPS / BPS);
     }
 
     /// @dev Sweeps reward tokens to recipient
-    function sweepTokens(address token, address recipient) external onlyOwner{
+    ///
+    /// @notice This contract is stocked with reward tokens from grants. This function is to retract excess tokens.
+    function sweepTokens(address token, address recipient) external onlyOwner {
         TokenUtils.safeTransfer(token, recipient, TokenUtils.safeBalanceOf(token, address(this)));
     }
 
     /// @dev Add reward collector params to a map of yield tokens
-    function addRewardCollector(address vault, address rewardCollectorAddress, address rewardToken, uint256 rewardAmount, uint256 rewardTimeframe, uint256 lastRewardBlock) external onlyOwner {
+    function addRewardCollector(
+        address vault,
+        address rewardCollectorAddress,
+        address rewardToken,
+        uint256 rewardAmount,
+        uint256 rewardTimeframe,
+        uint256 lastRewardBlock
+    ) external onlyOwner {
         rewardCollectors[vault] = RewardCollector(rewardCollectorAddress, rewardToken, rewardAmount, rewardTimeframe, lastRewardBlock);
     }
 
@@ -67,6 +78,16 @@ contract RewardRouter is IRewardRouter, Ownable {
     /// @dev Set the reward token amount for a given vault
     function setRewardAmount(address vault, uint256 rewardAmount) external onlyOwner {
         rewardCollectors[vault].rewardAmount = rewardAmount;
+    }
+
+    /// @dev Set the reward token timeframe for a given vault
+    function setRewardTimeframe(address vault, uint256 timeframe) external onlyOwner {
+        rewardCollectors[vault].rewardTimeframe = timeframe;
+    }
+
+    /// @dev Set the allowed slippage
+    function setSlippage(uint256 slippage) external onlyOwner {
+        slippageBPS = slippage;
     }
 
     /// @dev Get reward collector params for a given vault

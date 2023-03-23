@@ -43,9 +43,11 @@ contract AlchemixHarvester is IAlchemixHarvester, AlchemixGelatoKeeper {
     if (msg.sender != gelatoPoker) {
       revert Unauthorized();
     }
+    
     if (tx.gasprice > maxGasPrice) {
       revert TheGasIsTooDamnHigh();
     }
+
     IAlchemistV2(alchemist).harvest(yieldToken, minimumAmountOut);
 
     (address rewardCollector, , , ,) = IRewardRouter(rewardRouter).getRewardCollector(yieldToken);

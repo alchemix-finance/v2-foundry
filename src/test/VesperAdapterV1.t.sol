@@ -186,7 +186,6 @@ contract VesperAdapterV1Test is DSTestPlus {
         resolver.addHarvestJob(
             true,
             alchemistUSDAddress,
-            address(vspRewardToken),
             vaDAI,
             0,
             0,
@@ -196,7 +195,6 @@ contract VesperAdapterV1Test is DSTestPlus {
         resolver.addHarvestJob(
             true,
             alchemistUSDAddress,
-            address(vspRewardToken),
             vaUSDC,
             0,
             0,
@@ -206,7 +204,6 @@ contract VesperAdapterV1Test is DSTestPlus {
         resolver.addHarvestJob(
             true,
             alchemistETHAddress,
-            address(vspRewardToken),
             vaETH,
             0,
             0,
@@ -496,6 +493,8 @@ contract VesperAdapterV1Test is DSTestPlus {
 
         if (canExec == true) {
             harvester.harvest(alch, yield, minOut);
+        } else {
+            assertFalse(true);
         }
 
         (int256 debtAfter, ) = alchemistETH.accounts(address((this)));

@@ -320,7 +320,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         harvestResolver = new HarvestResolver();
         harvester = new AlchemixHarvester(address(this), 100000e18, address(harvestResolver));
         harvestResolver.setHarvester(address(harvester), true);
-        harvestResolver.addHarvestJob(true, address(alchemistUSD), address(rewardCollector), address(staticAToken), 1000, 0, 0);
+        harvestResolver.addHarvestJob(true, address(alchemistUSD), address(staticAToken), 1000, 0, 0);
         alchemistUSD.setKeeper(address(harvester), true);
 
         harvester.setRewardRouter(address(rewardRouter));
@@ -389,7 +389,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         harvestResolver = new HarvestResolver();
         harvester = new AlchemixHarvester(address(this), 100000e18, address(harvestResolver));
         harvestResolver.setHarvester(address(harvester), true);
-        harvestResolver.addHarvestJob(true, address(alchemistETH), address(rewardCollectorETH), address(staticAToken), 1000, 0, 0);
+        harvestResolver.addHarvestJob(true, address(alchemistETH), address(staticAToken), 1000, 0, 0);
         alchemistETH.setKeeper(address(harvester), true);
 
         harvester.setRewardRouter(address(rewardRouter));
