@@ -12,7 +12,6 @@ import {Unauthorized, IllegalState, IllegalArgument} from "../base/ErrorMessages
 
 struct RewardCollector {
     address rewardCollectorAddress;
-    address rewardToken;
     uint256 rewardAmount;
     uint256 rewardTimeframe;
     uint256 lastRewardBlock;
@@ -32,18 +31,18 @@ contract RewardRouter is IRewardRouter, Ownable {
     constructor() Ownable() {}
 
     /// @dev Distributes grant rewards and triggers reward collector to claim and donate
-    function distributeRewards(address token) external returns (uint256) {
+    function distributeRewards(address vault) external returns (uint256) {
         // If vault is set to receive rewards from grants, send amount to reward collector to donate
-        if (rewardCollectors[token].rewardAmount > 0) {
+        if (rewardCollectors[vault].rewardAmount > 0) {
             // Calculates ratio of timeframe to time since last harvest
             // Uses this ratio to determine partial reward amount or extra reward amount
-            uint256 blocksSinceLastReward = block.number - rewardCollectors[token].lastRewardBlock;
-            uint256 amountToSend = rewardCollectors[token].rewardAmount * blocksSinceLastReward / rewardCollectors[token].rewardTimeframe;
-            TokenUtils.safeTransfer(rewardCollectors[token].rewardToken, rewardCollectors[token].rewardCollectorAddress, amountToSend);
-            rewardCollectors[token].lastRewardBlock = block.number;
+            uint256 blocksSinceLastReward = block.number - rewardCollectors[vault].lastRewardBlock;
+            uint256 amountToSend = rewardCollectors[vault].rewardAmount * blocksSinceLastReward / rewardCollectors[vault].rewardTimeframe;
+            TokenUtils.safeTransfer(IRewardCollector(rewardCollectors[vault].rewardCollectorAddress).rewardToken(), rewardCollectors[vault].rewardCollectorAddress, amountToSend);
+            rewardCollectors[vault].lastRewardBlock = block.number;
         }
 
-        return IRewardCollector(rewardCollectors[token].rewardCollectorAddress).claimAndDonateRewards(token, IRewardCollector(rewardCollectors[token].rewardCollectorAddress).getExpectedExchange(token) * slippageBPS / BPS);
+        return IRewardCollector(rewardCollectors[vault].rewardCollectorAddress).claimAndDonateRewards(vault, IRewardCollector(rewardCollectors[vault].rewardCollectorAddress).getExpectedExchange(vault) * slippageBPS / BPS);
     }
 
     /// @dev Sweeps reward tokens to recipient
@@ -54,25 +53,19 @@ contract RewardRouter is IRewardRouter, Ownable {
     }
 
     /// @dev Add reward collector params to a map of yield tokens
-    function addRewardCollector(
+    function addVault(
         address vault,
         address rewardCollectorAddress,
-        address rewardToken,
         uint256 rewardAmount,
         uint256 rewardTimeframe,
         uint256 lastRewardBlock
     ) external onlyOwner {
-        rewardCollectors[vault] = RewardCollector(rewardCollectorAddress, rewardToken, rewardAmount, rewardTimeframe, lastRewardBlock);
+        rewardCollectors[vault] = RewardCollector(rewardCollectorAddress, rewardAmount, rewardTimeframe, lastRewardBlock);
     }
 
     /// @dev Set the reward collector address for a given vault
     function setRewardCollectorAddress(address vault, address rewardCollectorAddress) external onlyOwner {
         rewardCollectors[vault].rewardCollectorAddress = rewardCollectorAddress;
-    }
-
-    /// @dev Set the reward token address for a given vault
-    function setRewardToken(address vault, address rewardToken) external onlyOwner {
-        rewardCollectors[vault].rewardToken = rewardToken;
     }
 
     /// @dev Set the reward token amount for a given vault
@@ -94,7 +87,7 @@ contract RewardRouter is IRewardRouter, Ownable {
     function getRewardCollector(address vault) external view returns (address, address, uint256, uint256, uint256) {
         return (
             rewardCollectors[vault].rewardCollectorAddress,
-            rewardCollectors[vault].rewardToken,
+            IRewardCollector(rewardCollectors[vault].rewardCollectorAddress).rewardToken(),
             rewardCollectors[vault].rewardAmount,
             rewardCollectors[vault].rewardTimeframe,
             rewardCollectors[vault].lastRewardBlock
