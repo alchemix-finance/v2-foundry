@@ -91,7 +91,7 @@ contract OptimismAaveRewardCollector is IRewardCollector {
         } else if (debtToken == alEthOptimism) {
             expectedExchange = totalToSwap * uint(IChainlinkOracle(opToUsdOracle).latestAnswer()) / uint(IChainlinkOracle(ethToUsdOracle).latestAnswer());
         } else {
-            revert IllegalState("Ivalid debt token");
+            revert IllegalState("Invalid debt token");
         }
 
         return expectedExchange;
