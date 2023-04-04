@@ -15,6 +15,7 @@ import {MutexLock} from "../../base/MutexLock.sol";
 import {SafeERC20} from "../../libraries/SafeERC20.sol";
 import {RocketPool} from "../../libraries/RocketPool.sol";
 
+import {IChainlinkOracle} from "../../interfaces/external/chainlink/IChainlinkOracle.sol";
 import {ITokenAdapter} from "../../interfaces/ITokenAdapter.sol";
 import {IWETH9} from "../../interfaces/external/IWETH9.sol";
 import {IRETH} from "../../interfaces/external/rocket/IRETH.sol";
@@ -30,9 +31,10 @@ struct InitializationParams {
 contract RETHAdapterV1 is ITokenAdapter, MutexLock {
     using RocketPool for IRocketStorage;
 
+    address constant chainlinkOracle = 0x536218f9E9Eb48863970252233c8F271f554C2d0;
     address constant uniswapRouterV3 = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
 
-    string public override version = "1.1.0";
+    string public override version = "1.2.0";
 
     address public immutable alchemist;
     address public immutable override token;
@@ -60,7 +62,23 @@ contract RETHAdapterV1 is ITokenAdapter, MutexLock {
 
     /// @inheritdoc ITokenAdapter
     function price() external view returns (uint256) {
-        return IRETH(token).getEthValue(10**SafeERC20.expectDecimals(token));
+        // Ensure that round is complete, otherwise price is stale.
+        (
+            uint80 roundID,
+            int256 rethToEth,
+            ,
+            uint256 updateTime,
+            uint80 answeredInRound
+        ) = IChainlinkOracle(chainlinkOracle).latestRoundData();
+        require(
+            answeredInRound >= roundID,
+            "Chainlink Price Stale"
+        );
+
+        require(rethToEth > 0, "Chainlink Malfunction");
+        require(updateTime != 0, "Incomplete round");
+
+        return uint256(rethToEth);
     }
 
     /// @inheritdoc ITokenAdapter
@@ -90,34 +108,21 @@ contract RETHAdapterV1 is ITokenAdapter, MutexLock {
         // Transfer the rETH from the message sender.
         SafeERC20.safeTransferFrom(token, msg.sender, address(this), amount);
 
-        uint256 receivedEth = 0;
+        // Set up and execute uniswap exchange
+        SafeERC20.safeApprove(token, uniswapRouterV3, amount);
+        ISwapRouter.ExactInputSingleParams memory params =
+            ISwapRouter.ExactInputSingleParams({
+                tokenIn: token,
+                tokenOut: underlyingToken,
+                fee: 3000,
+                recipient: address(this),
+                deadline: block.timestamp,
+                amountIn: amount,
+                amountOutMinimum: 0,
+                sqrtPriceLimitX96: 0
+            });
 
-        uint256 ethValue = IRETH(token).getEthValue(amount);
-        if (IRETH(token).getTotalCollateral() >= ethValue) {
-            // Burn the rETH to receive ETH.
-            uint256 startingEthBalance = address(this).balance;
-            IRETH(token).burn(amount);
-            receivedEth = address(this).balance - startingEthBalance;
-
-            // Wrap the ETH that we received from the burn.
-            IWETH9(underlyingToken).deposit{value: receivedEth}();
-        } else {
-            // Set up and execute uniswap exchange
-            SafeERC20.safeApprove(token, uniswapRouterV3, amount);
-            ISwapRouter.ExactInputSingleParams memory params =
-                ISwapRouter.ExactInputSingleParams({
-                    tokenIn: token,
-                    tokenOut: underlyingToken,
-                    fee: 3000,
-                    recipient: address(this),
-                    deadline: block.timestamp,
-                    amountIn: amount,
-                    amountOutMinimum: 0,
-                    sqrtPriceLimitX96: 0
-                });
-
-            receivedEth = ISwapRouter(uniswapRouterV3).exactInputSingle(params);
-        }
+        uint256 receivedEth = ISwapRouter(uniswapRouterV3).exactInputSingle(params);
 
         // Transfer the tokens to the recipient.
         SafeERC20.safeTransfer(underlyingToken, recipient, receivedEth);
