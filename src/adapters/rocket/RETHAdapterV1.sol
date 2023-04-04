@@ -114,7 +114,7 @@ contract RETHAdapterV1 is ITokenAdapter, MutexLock {
             ISwapRouter.ExactInputSingleParams({
                 tokenIn: token,
                 tokenOut: underlyingToken,
-                fee: 3000,
+                fee: 500,
                 recipient: address(this),
                 deadline: block.timestamp,
                 amountIn: amount,
