@@ -15,12 +15,12 @@ import {MutexLock} from "../../base/MutexLock.sol";
 import {SafeERC20} from "../../libraries/SafeERC20.sol";
 import {RocketPool} from "../../libraries/RocketPool.sol";
 
+import {IAsset} from "../../interfaces/external/balancer/IAsset.sol";
 import {IChainlinkOracle} from "../../interfaces/external/chainlink/IChainlinkOracle.sol";
 import {ITokenAdapter} from "../../interfaces/ITokenAdapter.sol";
 import {IWETH9} from "../../interfaces/external/IWETH9.sol";
-import {IRETH} from "../../interfaces/external/rocket/IRETH.sol";
 import {IRocketStorage} from "../../interfaces/external/rocket/IRocketStorage.sol";
-import {ISwapRouter} from "../../interfaces/external/uniswap/ISwapRouter.sol";
+import {IVault} from "../../interfaces/external/balancer/IVault.sol";
 
 struct InitializationParams {
     address alchemist;
@@ -32,7 +32,8 @@ contract RETHAdapterV1 is ITokenAdapter, MutexLock {
     using RocketPool for IRocketStorage;
 
     address constant chainlinkOracle = 0x536218f9E9Eb48863970252233c8F271f554C2d0;
-    address constant uniswapRouterV3 = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
+    address constant balancerVault = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
+    bytes32 constant balancerPoolId = 0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112;
 
     string public override version = "1.2.0";
 
@@ -108,25 +109,30 @@ contract RETHAdapterV1 is ITokenAdapter, MutexLock {
         // Transfer the rETH from the message sender.
         SafeERC20.safeTransferFrom(token, msg.sender, address(this), amount);
 
-        // Set up and execute uniswap exchange
-        SafeERC20.safeApprove(token, uniswapRouterV3, amount);
-        ISwapRouter.ExactInputSingleParams memory params =
-            ISwapRouter.ExactInputSingleParams({
-                tokenIn: token,
-                tokenOut: underlyingToken,
-                fee: 500,
-                recipient: address(this),
-                deadline: block.timestamp,
-                amountIn: amount,
-                amountOutMinimum: 0,
-                sqrtPriceLimitX96: 0
+        IVault.SingleSwap memory singleSwap =
+            IVault.SingleSwap({
+                poolId: balancerPoolId,
+                kind: IVault.SwapKind.GIVEN_IN,
+                assetIn: IAsset(token),
+                assetOut: IAsset(underlyingToken),
+                amount: amount,
+                userData: bytes("")
             });
 
-        uint256 receivedEth = ISwapRouter(uniswapRouterV3).exactInputSingle(params);
+        IVault.FundManagement memory funds = 
+            IVault.FundManagement({
+                sender: address(this),
+                fromInternalBalance: false,
+                recipient: payable(address(this)),
+                toInternalBalance: false
+            });
+
+        SafeERC20.safeApprove(token, balancerVault, amount);
+        uint256 receivedWeth = IVault(balancerVault).swap(singleSwap, funds, 0, 1680739409);
 
         // Transfer the tokens to the recipient.
-        SafeERC20.safeTransfer(underlyingToken, recipient, receivedEth);
+        SafeERC20.safeTransfer(underlyingToken, recipient, receivedWeth);
 
-        return receivedEth;
+        return receivedWeth;
     }
 }

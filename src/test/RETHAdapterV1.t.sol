@@ -69,7 +69,13 @@ contract RocketStakedEthereumAdapterV1Test is DSTestPlus {
     function testWithdrawUnderlying() external {
         deal(address(rETH), address(this), 1e18);
 
-        uint256 expectedEth = rETH.getEthValue(1e18);
+        (
+            uint80 roundID,
+            int256 expectedEth,
+            ,
+            uint256 updateTime,
+            uint80 answeredInRound
+        ) = IChainlinkOracle(chainlinkOracle).latestRoundData();
 
         // Deposit into position
         SafeERC20.safeApprove(address(rETH), alchemistETH, 1e18);
@@ -80,13 +86,11 @@ contract RocketStakedEthereumAdapterV1Test is DSTestPlus {
 
         assertEq(rETH.allowance(address(this), address(adapter)), 0);
         assertEq(weth.balanceOf(address(this)), unwrapped);
-        assertApproxEq(weth.balanceOf(address(this)), expectedEth, expectedEth * 970 / 1000);
+        assertApproxEq(weth.balanceOf(address(this)), uint256(expectedEth), uint256(expectedEth) * 970 / 1000);
     }
 
     function testHarvest() external {
         deal(address(rETH), address(this), 1e18);
-
-        uint256 expectedEth = rETH.getEthValue(1e18);
 
         // New position
         SafeERC20.safeApprove(address(rETH), alchemistETH, 1e18);
@@ -107,8 +111,6 @@ contract RocketStakedEthereumAdapterV1Test is DSTestPlus {
     function testLiquidate() external {
         deal(address(rETH), address(this), 1e18);
 
-        uint256 expectedEth = rETH.getEthValue(1e18);
-
         SafeERC20.safeApprove(address(rETH), alchemistETH, 1e18);
         uint256 shares = IAlchemistV2(alchemistETH).deposit(address(rETH), 1e18, address(this));
         uint256 pps = IAlchemistV2(alchemistETH).getUnderlyingTokensPerShare(address(rETH));
@@ -117,7 +119,7 @@ contract RocketStakedEthereumAdapterV1Test is DSTestPlus {
 
         (int256 debtBefore, ) = IAlchemistV2(alchemistETH).accounts(address(this));
 
-        uint256 sharesLiquidated = IAlchemistV2(alchemistETH).liquidate(address(rETH), shares / 4, mintAmt * 97 / 100);
+        uint256 sharesLiquidated = IAlchemistV2(alchemistETH).liquidate(address(rETH), shares * 1e18 / pps / 4, mintAmt * 97 / 100);
 
         (int256 debtAfter, ) = IAlchemistV2(alchemistETH).accounts(address(this));
 
