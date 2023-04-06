@@ -6,17 +6,16 @@ import "../../lib/openzeppelin-contracts/contracts/proxy/transparent/Transparent
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 
-import {AlchemixHarvester} from "../keepers/AlchemixHarvester.sol";
 import {HarvestResolver} from "../keepers/HarvestResolver.sol";
 
-import {
-    YearnTokenAdapterOptimism
-} from "../adapters/yearn/YearnTokenAdapterOptimism.sol";
+import {YearnTokenAdapterOptimism} from "../adapters/yearn/YearnTokenAdapterOptimism.sol";
 
 import {
-    RewardCollectorOptimism,
+    OptimismYearnRewardCollector,
     InitializationParams as RewardCollectorInitializationParams
-} from "../utils/RewardCollectorOptimism.sol";
+} from "../utils/collectors/OptimismYearnRewardCollector.sol";
+
+import {RewardRouter} from "../utils/RewardRouter.sol";
 
 import {AlchemicTokenV2} from "../AlchemicTokenV2.sol";
 import {AlchemistV2} from "../AlchemistV2.sol";
@@ -27,6 +26,7 @@ import {YearnStakingToken} from "../external/yearn/YearnStakingToken.sol";
 
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IAlchemicToken} from "../interfaces/IAlchemicToken.sol";
+import {IAlchemixHarvester} from "../interfaces/keepers/IAlchemixHarvester.sol";
 import {IAlchemistV2AdminActions} from "../interfaces/alchemist/IAlchemistV2AdminActions.sol";
 import "../interfaces/IERC20TokenReceiver.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
@@ -35,36 +35,32 @@ import {SafeERC20} from "../libraries/SafeERC20.sol";
 import {TokenUtils} from "../libraries/TokenUtils.sol";
 import {console} from "../../lib/forge-std/src/console.sol";
 
-contract YearnOptimismTest is DSTestPlus {
-    // These are for mainnet change once deployed on optimism
+contract YearnOptimismTest is DSTestPlus {    
+    uint256 constant BPS = 10000;
     address constant alchemistAlUSD = 0x10294d57A419C8eb78C648372c5bAA27fD1484af;
     address constant alchemistAlETH = 0xe04Bb5B4de60FA2fBa69a93adE13A8B3B569d5B4;
     address constant alchemistAdmin = 0xC224bf25Dcc99236F00843c7D8C4194abE8AA94a;
     address constant alchemistAlUSDWhitelist = 0xc3365984110dB9b84c7e3Fc1cffb370C6Df6380F;
     address constant alchemistAlETHWhitelist = 0xc5fE32e46fD226364BFf7A035e8Ca2aBE390a68f;
-    uint256 constant BPS = 10000;
+    address constant alchemixHarvester = 0x99e7D40750682fF6b5b8c362dAAd265b9B21e1a0;
     address constant alUSD = 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A;
-    address constant dai = 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1; // Optimism DAI
+    address constant dai = 0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1;
     address constant usdc = 0x7F5c764cBc14f9669B88837ca1490cCa17c31607;
     address constant usdt = 0x94b008aA00579c1307B0EF2c499aD98a8ce58e58;
+    address constant stakingRewardsDai = 0xf8126EF025651E1B313a6893Fcf4034F4F4bD2aA;
     address constant weth = 0x4200000000000000000000000000000000000006;
     address constant yvDAI = 0x65343F414FFD6c97b0f6add33d16F6845Ac22BAc;
-    // address constant yUSDC = ;
-    address constant rewardsController = 0x929EC64c34a17401F460460D4B9390518E5B473e;
     address constant rewardToken = 0x4200000000000000000000000000000000000042;
-<<<<<<< HEAD
     address constant rewardVault = 0x7D2382b1f8Af621229d33464340541Db362B4907;
-=======
->>>>>>> 1e3943d (Yearn wrapper)
     address constant velodromeRouter = 0x9c12939390052919aF3155f41Bf4160Fd3666A6f;
 
     IAlchemistV2 alchemistUSD;
     IAlchemistV2 alchemistETH;
-    AlchemixHarvester harvester;
+    OptimismYearnRewardCollector rewardCollector;
+    RewardRouter rewardRouter;
     YearnTokenAdapterOptimism adapter;
     HarvestResolver harvestResolver;
     YearnStakingToken stakingToken;
-    RewardCollectorOptimism rewardCollector;
     TransmuterV2 transmuter;
     TransmuterBuffer buffer;
     IWhitelist whitelist;
@@ -82,10 +78,6 @@ contract YearnOptimismTest is DSTestPlus {
             swapRouter:         velodromeRouter
         });
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-        rewardCollector = new RewardCollectorOptimism(rewardCollectorParams);
-=======
         stakingToken = new YearnStakingToken(
             stakingRewardsDai,
             yvDAI,
@@ -96,23 +88,19 @@ contract YearnOptimismTest is DSTestPlus {
             "yearnStakingDai",
             "ySDai"
         );
->>>>>>> 96fd20e (YToken Gateway added and tested)
-=======
-        rewardCollector = new RewardCollectorOptimism(rewardCollectorParams);
->>>>>>> 1e3943d (Yearn wrapper)
 
-        hevm.startPrank(0x7a6468F8161ef39d7639c67DfA5637BA1b7ba74B);
+        rewardCollector = new OptimismYearnRewardCollector(rewardCollectorParams);
+
+        rewardRouter = new RewardRouter();
+
+        rewardRouter.addVault(address(stakingToken), address(rewardCollector), 0, 0, 0);
+
+        hevm.startPrank(alchemistAdmin);
         whitelist.add(address(this));
         whitelist.add(address(rewardCollector));
         hevm.stopPrank();
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 
->>>>>>> 96fd20e (YToken Gateway added and tested)
-=======
->>>>>>> 1e3943d (Yearn wrapper)
         hevm.startPrank(alchemistAdmin);
         IAlchemicToken(alUSD).setWhitelist(address(this), true);
         IAlchemicToken(alUSD).setWhitelist(address(rewardCollector), true);
@@ -124,24 +112,7 @@ contract YearnOptimismTest is DSTestPlus {
         TokenUtils.safeApprove(alUSD, address(alchemistUSD), 2**256 - 1);
         hevm.stopPrank();
 
-        stakingToken = new YearnStakingToken(
-            0x1eC8BaAB7DBd6f5a02EfcAb711e765bF796d091c,
-            yvDAI,
-            dai,
-<<<<<<< HEAD
-            rewardToken,
-=======
-            // Change below to OP once they are in production
-            // Dev chose dai as a test token until they are ready
-            dai,
->>>>>>> 1e3943d (Yearn wrapper)
-            address(this),
-            "yearnStakingDai",
-            "ySDai"
-        );
-
         adapter = new YearnTokenAdapterOptimism(address(stakingToken), dai);
-<<<<<<< HEAD
 
         IAlchemistV2AdminActions.YieldTokenConfig memory yieldConfig = IAlchemistV2AdminActions.YieldTokenConfig({
             adapter: address(adapter),
@@ -155,8 +126,6 @@ contract YearnOptimismTest is DSTestPlus {
         alchemistUSD.addYieldToken(address(stakingToken), yieldConfig);
         alchemistUSD.setYieldTokenEnabled(address(stakingToken), true);
         hevm.stopPrank();
-=======
->>>>>>> 1e3943d (Yearn wrapper)
     }
 
     function testRoundTrip() external {
@@ -181,11 +150,7 @@ contract YearnOptimismTest is DSTestPlus {
     function testRoundTripFuzz(uint256 amount) external {
         hevm.assume(
             amount >= 10**SafeERC20.expectDecimals(dai) && 
-<<<<<<< HEAD
             amount < 1000000e18
-=======
-            amount < 10000000e18
->>>>>>> 1e3943d (Yearn wrapper)
         );
         
         deal(dai, address(this), amount);
@@ -215,7 +180,6 @@ contract YearnOptimismTest is DSTestPlus {
         hevm.warp(block.timestamp + 10000 days);
 
         assertGt(stakingToken.claimRewards(), 0);
-<<<<<<< HEAD
         assertGt(IERC20(0x4200000000000000000000000000000000000042).balanceOf(address(this)), 0);
     }
 
@@ -233,13 +197,4 @@ contract YearnOptimismTest is DSTestPlus {
         uint256 underlyingWithdrawn = alchemistUSD.withdrawUnderlying(address(stakingToken), shares, address(this), 0);
         assertApproxEq(underlyingWithdrawn, amount, 10);
     }
-=======
-        
-        SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
-        uint256 unwrapped = adapter.unwrap(wrapped, address(this));
-        // assertGt(unwrapped, 1000e18);
-    }
-
-    // TODO: Add integration tests and reward collector tests after upgrading the collector and harvester
->>>>>>> 1e3943d (Yearn wrapper)
 }
