@@ -88,7 +88,7 @@ contract YearnStakingToken is ERC20 {
         return _withdraw(msg.sender, recipient, amount, maxSlippage);
     }
 
-    /// @dev Burns `amount` of wrappet Token, with recipient receiving the corresponding amount of `ASSET`
+    /// @dev Burns `amount` of wrapper token, with recipient receiving the corresponding amount of `ASSET`
     ///
     /// @return claimed  Amount of rewards claimed
     function claimRewards() external returns (uint256) {

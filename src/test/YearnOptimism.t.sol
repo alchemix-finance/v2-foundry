@@ -100,9 +100,7 @@ contract YearnOptimismTest is DSTestPlus {
             0x1eC8BaAB7DBd6f5a02EfcAb711e765bF796d091c,
             yvDAI,
             dai,
-            // Change below to OP once they are in production
-            // Dev chose dai as a test token until they are ready
-            dai,
+            rewardToken,
             address(this),
             "yearnStakingDai",
             "ySDai"
