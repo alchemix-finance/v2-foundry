@@ -34,6 +34,7 @@ contract RETHAdapterV1 is ITokenAdapter, MutexLock {
     address constant chainlinkOracle = 0x536218f9E9Eb48863970252233c8F271f554C2d0;
     address constant balancerVault = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
     bytes32 constant balancerPoolId = 0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112;
+    uint256 constant deadline = 2000000000;
 
     string public override version = "1.2.0";
 
@@ -109,6 +110,7 @@ contract RETHAdapterV1 is ITokenAdapter, MutexLock {
         // Transfer the rETH from the message sender.
         SafeERC20.safeTransferFrom(token, msg.sender, address(this), amount);
 
+        // Swap for WETH on balancer
         IVault.SingleSwap memory singleSwap =
             IVault.SingleSwap({
                 poolId: balancerPoolId,
@@ -128,7 +130,7 @@ contract RETHAdapterV1 is ITokenAdapter, MutexLock {
             });
 
         SafeERC20.safeApprove(token, balancerVault, amount);
-        uint256 receivedWeth = IVault(balancerVault).swap(singleSwap, funds, 0, 1680739409);
+        uint256 receivedWeth = IVault(balancerVault).swap(singleSwap, funds, 0, deadline);
 
         // Transfer the tokens to the recipient.
         SafeERC20.safeTransfer(underlyingToken, recipient, receivedWeth);
