@@ -13,6 +13,6 @@ contract STDTest is DSTestPlus {
 
     function testGaugeWeight() external {
         hevm.prank(admin);
-        ISDTController(gaugeController).voteForGaugeWeights(gauge, 1000);
+        ISDTController(gaugeController).voteForGaugeWeight(gauge, 1000);
     }
 }
