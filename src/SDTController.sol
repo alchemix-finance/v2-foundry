@@ -80,8 +80,8 @@ contract SDTController is Initializable, OwnableUpgradeable {
     IERC20Upgradeable(rewardToken).safeTransfer(owner(), amountClaimed);
   }
 
-  function voteForGaugeWeights(address gaugeAddress, uint256 weight) external onlyOwner {
-    IGaugeController(gaugeController).vote_for_gauge_weights(gaugeAddress, weight);
+  function voteForGaugeWeight(address gaugeAddress, uint256 weight) external onlyOwner {
+    IGaugeController(gaugeController).vote_for_gauge_weight(gaugeAddress, weight);
   }
 
   function setCrvRewardDistributor(address _crvRewardDistributor) external onlyOwner {
