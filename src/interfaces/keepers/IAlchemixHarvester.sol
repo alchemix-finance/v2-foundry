@@ -4,7 +4,8 @@ interface IAlchemixHarvester {
   function harvest(
     address alchemist,
     address yieldToken,
-    uint256 minimumAmountOut,
-    uint256 expectedExchange
+    uint256 minimumAmountOut
   ) external;
+
+   function setRewardRouter(address _rewardRouter) external;
 }

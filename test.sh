@@ -13,6 +13,6 @@ make test_file_block FILE=WstETHAdapterV1 BLOCK=16035819;
 # make test_file_block FILE=InvariantsTests;
 make test_file_block FILE=AAVETokenAdapter;
 make test_file_block FILE=ATokenGateway;
-make test_file_block_optimism FILE=AaveV3TokenAdapter BLOCK=19744153;
 make test_file_block FILE=IdleTrancheAdapter BLOCK=15783014;
 make test_file_block_optimism FILE=YearnOptimism BLOCK=86604465;
+make test_file_block_optimism FILE=AaveV3TokenAdapter BLOCK=81332054;
