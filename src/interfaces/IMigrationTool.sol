@@ -10,6 +10,22 @@ interface IMigrationTool {
     /// @return The version.
     function version() external view returns (string memory);
 
+    /// @notice Determines if a migration will be succesful before allowing a user to migrate.
+    ///
+    /// @param account                  The account to migrate.
+    /// @param startingYieldToken       The starting vault.
+    /// @param targetYieldToken         The target vault.
+    /// @param shares                   The shares to migrate.
+    ///
+    /// @return canMigrate              If the migration will be succesful.
+    /// @return state                   The specific reason the migration will fail, represented as a number.
+    function previewMigration(      
+        address account,  
+        address startingYieldToken,
+        address targetYieldToken,
+        uint256 shares
+    ) external view returns (bool canMigrate, uint256 state);
+
     /// @notice Migrates 'shares' from 'startingVault' to 'targetVault'.
     ///
     /// @param startingYieldToken   The yield token from which the user wants to withdraw.
@@ -18,7 +34,7 @@ interface IMigrationTool {
     /// @param minReturnShares      The maximum shares of slippage that the user will accept on new position.
     /// @param minReturnUnderlying  The minimum underlying value when withdrawing from old position.
     ///
-    /// @return finalShares The underlying Value of the new position.
+    /// @return finalShares         The underlying Value of the new position.
     function migrateVaults(
         address startingYieldToken,
         address targetYieldToken,
