@@ -216,6 +216,11 @@ contract MigrationToolTestETH is DSTestPlus {
 
         assertEq(canMigrate, false);
         assertEq(2, flag);
+
+        (canMigrate, flag) = migrationToolETH.previewMigration(0x15962221e0E7A41dE9Da1615f9cb64cBfFF83408, 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0, 0xa258C4606Ca8206D8aA700cE2143D7db854D168c, 1000000e18);
+
+        assertEq(canMigrate, false);
+        assertEq(1, flag);
     }
 
     function addAdapter(address alchemist, address aToken, address underlyingToken, string memory symbol, string memory name) public {
