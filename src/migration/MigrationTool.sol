@@ -28,12 +28,13 @@ struct InitializationParams {
 
 contract MigrationTool is IMigrationTool, Multicall {
     string public override version = "1.0.1";
-    uint256 FIXED_POINT_SCALAR = 1e18;
+    uint256 public immutable FIXED_POINT_SCALAR = 1e18;
 
     mapping(address => uint256) public decimals;
 
     IAlchemistV2 public immutable alchemist;
     IAlchemicToken public immutable alchemicToken;
+
     address[] public collateralAddresses;
 
     constructor(InitializationParams memory params) {
@@ -48,6 +49,35 @@ contract MigrationTool is IMigrationTool, Multicall {
         }
     }
 
+    /// @inheritdoc IMigrationTool
+    function previewMigration(      
+        address account,
+        address startingYieldToken,
+        address targetYieldToken,
+        uint256 shares
+    ) external view returns (bool, uint256) {
+        IAlchemistV2State.YieldTokenParams memory startingParams = alchemist.getYieldTokenParameters(startingYieldToken);
+        IAlchemistV2State.YieldTokenParams memory targetParams = alchemist.getYieldTokenParameters(targetYieldToken);
+
+        // Calculate the amount of shares a user will receive in the new vault and the debt token value of both positions
+        uint256 underlyingValue = shares * alchemist.getUnderlyingTokensPerShare(startingYieldToken) / 10**TokenUtils.expectDecimals(startingYieldToken);
+        uint256 newShares = underlyingValue * 10**TokenUtils.expectDecimals(targetYieldToken) / alchemist.getUnderlyingTokensPerShare(targetYieldToken);
+        uint256 debtTokenValue = _convertToDebt(shares, startingYieldToken, startingParams.underlyingToken);
+        uint256 newDebtTokenValue = _convertToDebt(newShares, targetYieldToken, targetParams.underlyingToken);
+
+        // If attempting to move more shares than then new vault can accept
+        if ( targetParams.activeBalance + newShares  > targetParams.maximumExpectedValue) {
+            return (false, 1);
+        }
+
+        // If debt new debt value is less than previous, check that the user has the mint allowance to cover the difference
+        if (newDebtTokenValue < debtTokenValue && alchemist.mintAllowance(account, account) < debtTokenValue - newDebtTokenValue) {
+            return (false, 2);
+        }
+
+        return (true, 0);
+    }
+    
     /// @inheritdoc IMigrationTool
     function migrateVaults(
         address startingYieldToken,
@@ -111,7 +141,7 @@ contract MigrationTool is IMigrationTool, Multicall {
 	    return newPositionShares;
 	}
 
-    function _convertToDebt(uint256 shares, address yieldToken, address underlyingToken) internal returns(uint256) {
+    function _convertToDebt(uint256 shares, address yieldToken, address underlyingToken) internal view returns(uint256) {
         // Math safety
         if (TokenUtils.expectDecimals(underlyingToken) > 18) {
             revert IllegalState("Underlying token decimals exceeds 18");

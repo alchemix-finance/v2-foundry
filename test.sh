@@ -1,7 +1,7 @@
 make test_file_block FILE=Autoleverage;
 make test_file_block FILE=EthAssetManager;
 make test_file_block FILE=FuseTokenAdapterV1;
-make test_file_block FILE=MigrationToolETH BLOCK=14677441;
+make test_file_block FILE=MigrationToolETH BLOCK=17116420;
 make test_file_block FILE=MigrationToolUSD BLOCK=14668199;
 make test_file_block FILE=RETHAdapterV1 BLOCK=15234464;
 make test_file_block FILE=ThreePoolAssetManager;
