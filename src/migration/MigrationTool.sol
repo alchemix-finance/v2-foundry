@@ -26,9 +26,20 @@ struct InitializationParams {
     address[] collateralAddresses;
 }
 
+// Define a struct to group related variables
+struct PreviewParams {
+    IAlchemistV2State.YieldTokenParams startingParams;
+    IAlchemistV2State.YieldTokenParams targetParams;
+    uint256 underlyingValue;
+    uint256 newShares;
+    uint256 debtTokenValue;
+    uint256 newDebtTokenValue;
+}
+
 contract MigrationTool is IMigrationTool, Multicall {
     string public override version = "1.0.1";
     uint256 public immutable FIXED_POINT_SCALAR = 1e18;
+    uint256 public immutable BPS = 10000;
 
     mapping(address => uint256) public decimals;
 
@@ -55,27 +66,47 @@ contract MigrationTool is IMigrationTool, Multicall {
         address startingYieldToken,
         address targetYieldToken,
         uint256 shares
-    ) external view returns (bool, uint256) {
-        IAlchemistV2State.YieldTokenParams memory startingParams = alchemist.getYieldTokenParameters(startingYieldToken);
-        IAlchemistV2State.YieldTokenParams memory targetParams = alchemist.getYieldTokenParameters(targetYieldToken);
+    ) external view returns (bool, string memory, uint256, uint256, uint256) {
+        PreviewParams memory params;
+
+        params.startingParams = alchemist.getYieldTokenParameters(startingYieldToken);
+        params.targetParams = alchemist.getYieldTokenParameters(targetYieldToken);
 
         // Calculate the amount of shares a user will receive in the new vault and the debt token value of both positions
-        uint256 underlyingValue = shares * alchemist.getUnderlyingTokensPerShare(startingYieldToken) / 10**TokenUtils.expectDecimals(startingYieldToken);
-        uint256 newShares = underlyingValue * 10**TokenUtils.expectDecimals(targetYieldToken) / alchemist.getUnderlyingTokensPerShare(targetYieldToken);
-        uint256 debtTokenValue = _convertToDebt(shares, startingYieldToken, startingParams.underlyingToken);
-        uint256 newDebtTokenValue = _convertToDebt(newShares, targetYieldToken, targetParams.underlyingToken);
+        params.underlyingValue = shares * alchemist.getUnderlyingTokensPerShare(startingYieldToken) / 10**TokenUtils.expectDecimals(startingYieldToken);
+        params.newShares = params.underlyingValue * 10**TokenUtils.expectDecimals(targetYieldToken) / alchemist.getUnderlyingTokensPerShare(targetYieldToken);
+        params.debtTokenValue = _convertToDebt(shares, startingYieldToken, params.startingParams.underlyingToken);
+        params.newDebtTokenValue = _convertToDebt(params.newShares, targetYieldToken, params.targetParams.underlyingToken);
 
         // If attempting to move more shares than then new vault can accept
-        if ( targetParams.activeBalance + newShares  > targetParams.maximumExpectedValue) {
-            return (false, 1);
+        if ( params.targetParams.activeBalance + params.newShares  > params.targetParams.maximumExpectedValue) {
+            return (
+                false, 
+                "Migrated amount exceeds new vault capacity! Reduce migration amount.", 
+                params.targetParams.activeBalance + params.newShares - params.targetParams.maximumExpectedValue,
+                0,
+                0
+            );
         }
 
         // If debt new debt value is less than previous, check that the user has the mint allowance to cover the difference
-        if (newDebtTokenValue < debtTokenValue && alchemist.mintAllowance(account, account) < debtTokenValue - newDebtTokenValue) {
-            return (false, 2);
+        if (params.newDebtTokenValue < params.debtTokenValue && alchemist.mintAllowance(account, account) < params.debtTokenValue - params.newDebtTokenValue) {
+            return (
+                false, 
+                "Slippage exceeded! New position exceeds mint allowance.",
+                params.debtTokenValue - params.newDebtTokenValue - alchemist.mintAllowance(account, account),
+                0,
+                0
+            );
         }
 
-        return (true, 0);
+        return (
+            true,
+            "Migration is ready!",
+            0,
+            params.newShares * 1500 / BPS,
+            params.underlyingValue * 1500 / BPS
+        );
     }
     
     /// @inheritdoc IMigrationTool
