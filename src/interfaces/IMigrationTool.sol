@@ -18,13 +18,16 @@ interface IMigrationTool {
     /// @param shares                   The shares to migrate.
     ///
     /// @return canMigrate              If the migration will be succesful.
-    /// @return state                   The specific reason the migration will fail, represented as a number.
+    /// @return state                   The specific reason the migration will fail.
+    /// @return amountToAdjust          This is the amount a user is exceeding the vault by, or how much debt value the user must cover.
+    /// @return minReturnShares         Minimum shares for the migrate function.
+    /// @return minReturnUnderlying     Minimum underlying for the migrate function.
     function previewMigration(      
         address account,  
         address startingYieldToken,
         address targetYieldToken,
         uint256 shares
-    ) external view returns (bool canMigrate, uint256 state);
+    ) external view returns (bool canMigrate, string memory state, uint256 amountToAdjust, uint256 minReturnShares, uint256 minReturnUnderlying);
 
     /// @notice Migrates 'shares' from 'startingVault' to 'targetVault'.
     ///
