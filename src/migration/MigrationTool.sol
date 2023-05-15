@@ -26,7 +26,6 @@ struct InitializationParams {
     address[] collateralAddresses;
 }
 
-// Define a struct to group related variables
 struct PreviewParams {
     IAlchemistV2State.YieldTokenParams startingParams;
     IAlchemistV2State.YieldTokenParams targetParams;
@@ -104,8 +103,8 @@ contract MigrationTool is IMigrationTool, Multicall {
             true,
             "Migration is ready!",
             0,
-            params.newShares * 1500 / BPS,
-            params.underlyingValue * 1500 / BPS
+            params.newShares * 8500 / BPS,
+            params.underlyingValue * 8500 / BPS
         );
     }
     
