@@ -24,7 +24,8 @@ contract YearnStakingToken is ERC20 {
     IStakingRewards public immutable STAKNG_REWARDS;
     IYearnVaultV2 public immutable YEARN_VAULT;
     IERC20 public immutable ASSET;
-    IERC20 public immutable REWARD;
+    IERC20 public immutable REWARD_TOKEN;
+    IERC20 public immutable REWARD_VAULT;
 
     address public admin;
     address public pendingAdmin;
@@ -37,7 +38,8 @@ contract YearnStakingToken is ERC20 {
         address yToken,
         address underlyingToken,
         address rewardToken,
-        address _rewardCollector,
+        address rewardVault,
+        address rewardCollectorAddress,
         string memory wrappedTokenName,
         string memory wrappedTokenSymbol
     ) ERC20(wrappedTokenName, wrappedTokenSymbol) {
@@ -46,9 +48,10 @@ contract YearnStakingToken is ERC20 {
         YEARN_VAULT = IYearnVaultV2(yToken);
 
         ASSET = IERC20(underlyingToken);
-        REWARD = IERC20(rewardToken);
+        REWARD_VAULT = IERC20(rewardVault);
+        REWARD_TOKEN = IERC20(rewardToken);
 
-        rewardCollector = _rewardCollector;
+        rewardCollector = rewardCollectorAddress;
 
         TokenUtils.safeApprove(underlyingToken, yToken, type(uint256).max);
         TokenUtils.safeApprove(yToken, address(stakingRewards), type(uint256).max);
@@ -61,19 +64,21 @@ contract YearnStakingToken is ERC20 {
 
     /// @dev Deposits `ASSET` in the Yearn protocol and mints wrapper tokens to msg.sender
     ///
-    /// @param  recipient The address that will receive the wrapper tokens
-    /// @param  amount    The amount of underlying `ASSET` to deposit (e.g. deposit of 100 USDC)
+    /// @param  recipient       The address that will receive the wrapper tokens
+    /// @param  amount          The amount of underlying `ASSET` to deposit (e.g. deposit of 100 USDC)
+    /// @param  fromUnderlying  If the user is 
     ///
     /// @return uint256   The amount of wrapper tokens minted
     function deposit(
         address recipient,
-        uint256 amount
+        uint256 amount,
+        bool fromUnderlying
     ) external returns (uint256) {
-        return _deposit(msg.sender, recipient, amount);
+        return _deposit(msg.sender, recipient, amount, fromUnderlying);
     }
 
 
-    /// @dev Burns `amount` of wrappet Token, with recipient receiving the corresponding amount of `ASSET`
+    /// @dev Burns `amount` of wrapper Token, with recipient receiving the corresponding amount of `ASSET`
     ///
     /// @param  recipient         The address that will receive the amount of `ASSET` withdrawn from the Yearn protocol
     /// @param  amount            The amount to withdraw in shares
@@ -83,9 +88,9 @@ contract YearnStakingToken is ERC20 {
     function withdraw(
         address recipient,
         uint256 amount,
-        uint256 maxSlippage
+        bool toUnderlying
     ) external returns (uint256, uint256) {
-        return _withdraw(msg.sender, recipient, amount, maxSlippage);
+        return _withdraw(msg.sender, recipient, amount, 0, toUnderlying);
     }
 
     /// @dev Burns `amount` of wrapper token, with recipient receiving the corresponding amount of `ASSET`
@@ -115,15 +120,21 @@ contract YearnStakingToken is ERC20 {
     function _deposit(
         address depositor,
         address recipient,
-        uint256 amount
+        uint256 amount,
+        bool fromUnderlying
     ) internal returns (uint256) {
         require(recipient != address(0), 'INVALID_RECIPIENT');
+
+        uint256 receivedShares;
+
+        if (fromUnderlying) {
+            ASSET.safeTransferFrom(depositor, address(this), amount);
+            receivedShares = YEARN_VAULT.deposit(amount, address(this));
+        } else {
+            receivedShares = amount;
+            IERC20(YEARN_VAULT).safeTransferFrom(depositor, address(this), amount);
+        }
         
-        ASSET.safeTransferFrom(depositor, address(this), amount);
-
-        // Deposit into yearn vault.
-        uint256 receivedShares = YEARN_VAULT.deposit(amount, address(this));
-
         // Stake yTokens to start earning OP.
         STAKNG_REWARDS.stake(receivedShares);
 
@@ -135,7 +146,8 @@ contract YearnStakingToken is ERC20 {
         address owner,
         address recipient,
         uint256 amount,
-        uint256 maxSlippage
+        uint256 maxSlippage,
+        bool toUnderlying
     ) internal returns (uint256, uint256) {
         require(recipient != address(0), 'INVALID_RECIPIENT');
 
@@ -143,9 +155,14 @@ contract YearnStakingToken is ERC20 {
 
         // Withdraw staked yTokens.
         STAKNG_REWARDS.withdraw(amount);
-        
-        // Withdraw collateral.
-        uint256 received = YEARN_VAULT.withdraw(amount, recipient, maxSlippage);
+
+        uint256 received;
+        if (toUnderlying) {
+            received = YEARN_VAULT.withdraw(amount, recipient, maxSlippage);
+        } else {
+            received = amount;
+            IERC20(YEARN_VAULT).safeTransfer(recipient, amount);
+        }
 
         return (amount, received);
     }
@@ -153,11 +170,13 @@ contract YearnStakingToken is ERC20 {
     function _claimRewards() internal returns (uint256) {
         STAKNG_REWARDS.getReward();
 
-        uint256 claimed = IERC20(REWARD).balanceOf(address(this));
+        uint256 claimed = IERC20(REWARD_VAULT).balanceOf(address(this));
 
-        SafeERC20.safeTransfer(REWARD, msg.sender, claimed);
+        uint256 totalRewards = IYearnVaultV2(address(REWARD_VAULT)).withdraw(claimed);
 
-        return claimed;
+        SafeERC20.safeTransfer(REWARD_TOKEN, msg.sender, totalRewards);
+
+        return totalRewards;
     }
 
     /// @dev Checks that the `msg.sender` is the administrator.

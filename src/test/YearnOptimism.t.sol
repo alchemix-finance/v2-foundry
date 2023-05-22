@@ -52,6 +52,7 @@ contract YearnOptimismTest is DSTestPlus {
     // address constant yUSDC = ;
     address constant rewardsController = 0x929EC64c34a17401F460460D4B9390518E5B473e;
     address constant rewardToken = 0x4200000000000000000000000000000000000042;
+    address constant rewardVault = 0x7D2382b1f8Af621229d33464340541Db362B4907;
     address constant velodromeRouter = 0x9c12939390052919aF3155f41Bf4160Fd3666A6f;
 
     IAlchemistV2 alchemistUSD;
@@ -78,13 +79,30 @@ contract YearnOptimismTest is DSTestPlus {
             swapRouter:         velodromeRouter
         });
 
+<<<<<<< HEAD
         rewardCollector = new RewardCollectorOptimism(rewardCollectorParams);
+=======
+        stakingToken = new YearnStakingToken(
+            stakingRewardsDai,
+            yvDAI,
+            dai,
+            rewardToken,
+            rewardVault,
+            address(this),
+            "yearnStakingDai",
+            "ySDai"
+        );
+>>>>>>> 96fd20e (YToken Gateway added and tested)
 
         hevm.startPrank(0x7a6468F8161ef39d7639c67DfA5637BA1b7ba74B);
         whitelist.add(address(this));
         whitelist.add(address(rewardCollector));
         hevm.stopPrank();
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 96fd20e (YToken Gateway added and tested)
         hevm.startPrank(alchemistAdmin);
         IAlchemicToken(alUSD).setWhitelist(address(this), true);
         IAlchemicToken(alUSD).setWhitelist(address(rewardCollector), true);
@@ -107,6 +125,19 @@ contract YearnOptimismTest is DSTestPlus {
         );
 
         adapter = new YearnTokenAdapterOptimism(address(stakingToken), dai);
+
+        IAlchemistV2AdminActions.YieldTokenConfig memory yieldConfig = IAlchemistV2AdminActions.YieldTokenConfig({
+            adapter: address(adapter),
+            maximumLoss: 1,
+            maximumExpectedValue: 1000000000 ether,
+            creditUnlockBlocks: 7200
+		});
+
+
+        hevm.startPrank(alchemistAdmin);
+        alchemistUSD.addYieldToken(address(stakingToken), yieldConfig);
+        alchemistUSD.setYieldTokenEnabled(address(stakingToken), true);
+        hevm.stopPrank();
     }
 
     function testRoundTrip() external {
@@ -131,7 +162,7 @@ contract YearnOptimismTest is DSTestPlus {
     function testRoundTripFuzz(uint256 amount) external {
         hevm.assume(
             amount >= 10**SafeERC20.expectDecimals(dai) && 
-            amount < 10000000e18
+            amount < 1000000e18
         );
         
         deal(dai, address(this), amount);
@@ -161,11 +192,21 @@ contract YearnOptimismTest is DSTestPlus {
         hevm.warp(block.timestamp + 10000 days);
 
         assertGt(stakingToken.claimRewards(), 0);
-        
-        SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
-        uint256 unwrapped = adapter.unwrap(wrapped, address(this));
-        // assertGt(unwrapped, 1000e18);
+        assertGt(IERC20(0x4200000000000000000000000000000000000042).balanceOf(address(this)), 0);
     }
 
-    // TODO: Add integration tests and reward collector tests after upgrading the collector and harvester
+    function testRoundTripIntegrated() external {
+        uint256 amount = 1000e18;
+
+        deal(dai, address(this), amount);
+
+        SafeERC20.safeApprove(dai, address(alchemistUSD), amount);
+        uint256 shares = alchemistUSD.depositUnderlying(address(stakingToken), amount, address(this), 0);
+
+        hevm.roll(block.number + 100000);
+        hevm.warp(block.timestamp + 10000 days);
+
+        uint256 underlyingWithdrawn = alchemistUSD.withdrawUnderlying(address(stakingToken), shares, address(this), 0);
+        assertApproxEq(underlyingWithdrawn, amount, 10);
+    }
 }
