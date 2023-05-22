@@ -34,11 +34,7 @@ contract YearnTokenAdapterOptimism is ITokenAdapter {
         TokenUtils.safeApprove(underlyingToken, token, 0);
         TokenUtils.safeApprove(underlyingToken, token, amount);
 
-<<<<<<< HEAD
         return IYearnStakingToken(token).deposit(recipient, amount, true);
-=======
-        return IYearnStakingToken(token).deposit(recipient, amount);
->>>>>>> 1e3943d (Yearn wrapper)
     }
 
     /// @inheritdoc ITokenAdapter
@@ -47,11 +43,7 @@ contract YearnTokenAdapterOptimism is ITokenAdapter {
 
         uint256 balanceBefore = TokenUtils.safeBalanceOf(token, address(this));
 
-<<<<<<< HEAD
         (, uint256 amountWithdrawn) = IYearnStakingToken(token).withdraw(recipient, amount, MAXIMUM_SLIPPAGE, true);
-=======
-        (uint256 amountBurned, uint256 amountWithdrawn) = IYearnStakingToken(token).withdraw(recipient, amount, MAXIMUM_SLIPPAGE);
->>>>>>> 1e3943d (Yearn wrapper)
 
         uint256 balanceAfter = TokenUtils.safeBalanceOf(token, address(this));
 
