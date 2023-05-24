@@ -31,6 +31,7 @@ make test_file_block_optimism FILE=YearnOptimism BLOCK=86604465;
 >>>>>>> 8ab47cb (Variable change)
 =======
 make test_file_block_optimism FILE=YearnOptimism BLOCK=99207058;
+make test_file_block_optimism FILE=YTokenGateway BLOCK=99207058;
 make test_file_block_optimism FILE=AaveV3TokenAdapter BLOCK=81332054;
 make test_file_block_optimism FILE=ATokenGateway BLOCK=99207058;
 >>>>>>> 96fd20e (YToken Gateway added and tested)
