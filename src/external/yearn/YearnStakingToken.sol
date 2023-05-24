@@ -21,17 +21,16 @@ import {Unauthorized, IllegalState, IllegalArgument} from "../../base/Errors.sol
 contract YearnStakingToken is ERC20 {
     using SafeERC20 for IERC20;
 
-    IStakingRewards public immutable STAKNG_REWARDS;
+    IStakingRewards public immutable STAKING_REWARDS;
     IYearnVaultV2 public immutable YEARN_VAULT;
     IERC20 public immutable ASSET;
     IERC20 public immutable REWARD_TOKEN;
     IERC20 public immutable REWARD_VAULT;
+    uint8 public immutable _decimals;
 
     address public admin;
     address public pendingAdmin;
     address public rewardCollector;
-
-    uint8 private _decimals;
 
     constructor(
         address stakingRewards,
@@ -44,7 +43,7 @@ contract YearnStakingToken is ERC20 {
         string memory wrappedTokenSymbol
     ) ERC20(wrappedTokenName, wrappedTokenSymbol) {
         admin = msg.sender;
-        STAKNG_REWARDS = IStakingRewards(stakingRewards);
+        STAKING_REWARDS = IStakingRewards(stakingRewards);
         YEARN_VAULT = IYearnVaultV2(yToken);
 
         ASSET = IERC20(underlyingToken);
@@ -88,9 +87,10 @@ contract YearnStakingToken is ERC20 {
     function withdraw(
         address recipient,
         uint256 amount,
+        uint256 maxSlippage,
         bool toUnderlying
     ) external returns (uint256, uint256) {
-        return _withdraw(msg.sender, recipient, amount, 0, toUnderlying);
+        return _withdraw(msg.sender, recipient, amount, maxSlippage, toUnderlying);
     }
 
     /// @dev Burns `amount` of wrapper token, with recipient receiving the corresponding amount of `ASSET`
@@ -108,7 +108,6 @@ contract YearnStakingToken is ERC20 {
 
     function setPendingAdmin(address newAdmin) external {
         _onlyAdmin();
-        require(newAdmin != address(0), "0 address");
         pendingAdmin = newAdmin;
     }
 
@@ -136,7 +135,7 @@ contract YearnStakingToken is ERC20 {
         }
         
         // Stake yTokens to start earning OP.
-        STAKNG_REWARDS.stake(receivedShares);
+        STAKING_REWARDS.stake(receivedShares);
 
         _mint(recipient, receivedShares);
         return receivedShares;
@@ -154,7 +153,7 @@ contract YearnStakingToken is ERC20 {
         _burn(owner, amount);
 
         // Withdraw staked yTokens.
-        STAKNG_REWARDS.withdraw(amount);
+        STAKING_REWARDS.withdraw(amount);
 
         uint256 received;
         if (toUnderlying) {
@@ -168,7 +167,7 @@ contract YearnStakingToken is ERC20 {
     }
 
     function _claimRewards() internal returns (uint256) {
-        STAKNG_REWARDS.getReward();
+        STAKING_REWARDS.getReward();
 
         uint256 claimed = IERC20(REWARD_VAULT).balanceOf(address(this));
 
