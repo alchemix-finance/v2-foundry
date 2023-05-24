@@ -21,7 +21,6 @@ struct InitializationParams {
     address underlyingToken;
     address velodromeRouter;
     address oracleWstethEth;
-    address referral;
 }
 
 contract WstETHAdapterOptimism is ITokenAdapter, MutexLock {
@@ -32,7 +31,6 @@ contract WstETHAdapterOptimism is ITokenAdapter, MutexLock {
     address public immutable override underlyingToken;
     address public immutable velodromeRouter;
     address public immutable oracleWstethEth;
-    address public immutable referral;
 
     constructor(InitializationParams memory params) {
         alchemist       = params.alchemist;
@@ -40,7 +38,6 @@ contract WstETHAdapterOptimism is ITokenAdapter, MutexLock {
         underlyingToken = params.underlyingToken;
         velodromeRouter = params.velodromeRouter;
         oracleWstethEth = params.oracleWstethEth;
-        referral        = params.referral;
     }
 
     /// @dev Checks that the message sender is the alchemist that the adapter is bound to.

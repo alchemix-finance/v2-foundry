@@ -38,8 +38,7 @@ contract WstETHAdapterOptimismTest is DSTestPlus {
             token:           address(wstETH),
             underlyingToken: address(weth),
             velodromeRouter: 0x9c12939390052919aF3155f41Bf4160Fd3666A6f,
-            oracleWstethEth:  address(oracleStethEth),
-            referral:        address(0)
+            oracleWstethEth:  address(oracleStethEth)
         }));
 
         IAlchemistV2.YieldTokenConfig memory ytc = IAlchemistV2AdminActions.YieldTokenConfig({
