@@ -43,12 +43,7 @@ contract YearnTokenAdapterOptimism is ITokenAdapter {
 
         uint256 balanceBefore = TokenUtils.safeBalanceOf(token, address(this));
 
-        (uint256 amountBurned, uint256 amountWithdrawn) = IYearnStakingToken(token).withdraw(recipient, amount, true);
-
-        // Check if all tokens were burned
-        if (amountBurned != amount) {
-           revert IllegalState();
-        }
+        (, uint256 amountWithdrawn) = IYearnStakingToken(token).withdraw(recipient, amount, 0, true);
 
         uint256 balanceAfter = TokenUtils.safeBalanceOf(token, address(this));
 

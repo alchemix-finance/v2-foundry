@@ -16,10 +16,10 @@ contract YTokenGateway is ITokenGateway, Ownable {
     string public constant version = "1.0.1";
 
     /// @notice The address of the whitelist contract.
-    address public override whitelist;
+    address public override immutable whitelist;
 
     /// @notice The address of the alchemist.
-    address public override alchemist;
+    address public override immutable alchemist;
 
     constructor(address _whitelist, address _alchemist) {
         whitelist = _whitelist;
@@ -52,7 +52,7 @@ contract YTokenGateway is ITokenGateway, Ownable {
         _onlyWhitelisted();
         uint256 staticYTokensWithdrawn = IAlchemistV2(alchemist).withdrawFrom(msg.sender, yieldToken, shares, address(this));
         // false - "from underlying", we are depositing the staking token, not the underlying token.
-        (uint256 amountBurnt, uint256 amountWithdrawn) = IYearnStakingToken(yieldToken).withdraw(recipient, staticYTokensWithdrawn, false);
+        (uint256 amountBurnt, uint256 amountWithdrawn) = IYearnStakingToken(yieldToken).withdraw(recipient, staticYTokensWithdrawn, 0, false); // Slippage handled upstream
         if (amountBurnt != staticYTokensWithdrawn) {
             revert IllegalState("not enough burnt");
         }
