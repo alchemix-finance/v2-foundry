@@ -13,11 +13,8 @@ make test_file_block_optimism FILE=WstETHAdapterOptimism BLOCK=100678479;
 # run invariants locally and include test results on PR
 # make test_file_block FILE=InvariantsTests;
 make test_file_block FILE=AAVETokenAdapter;
-make test_file_block FILE=ATokenGateway;
 make test_file_block_optimism FILE=AaveV3TokenAdapter BLOCK=19744153;
 make test_file_block FILE=IdleTrancheAdapter BLOCK=15783014;
-<<<<<<< HEAD
-<<<<<<< HEAD
 make test_file_block FILE=TwoPoolAssetManager BLOCK=16435541;
 make test_file_block FILE=PoolAssetManager BLOCK=18418991;
 make test_file_block_optimism FILE=XTokens BLOCK=118506023;
@@ -26,12 +23,4 @@ make test_file_block_optimism FILE=YearnOptimism BLOCK=99207058;
 make test_file_block_optimism FILE=YTokenGateway BLOCK=99207058;
 make test_file_block_optimism FILE=OptimismGrantDistribution BLOCK=119793126;
 make test_file_block_arbitrum FILE=ArbitrumGrantDistribution BLOCK=210802008;
-=======
-make test_file_block_optimism FILE=YearnOptimism BLOCK=86604465;
->>>>>>> 8ab47cb (Variable change)
-=======
-make test_file_block_optimism FILE=YearnOptimism BLOCK=99207058;
-make test_file_block_optimism FILE=YTokenGateway BLOCK=99207058;
-make test_file_block_optimism FILE=AaveV3TokenAdapter BLOCK=81332054;
 make test_file_block_optimism FILE=ATokenGateway BLOCK=99207058;
->>>>>>> 96fd20e (YToken Gateway added and tested)
