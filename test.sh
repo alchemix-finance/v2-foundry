@@ -15,5 +15,6 @@ make test_file_block FILE=AAVETokenAdapter;
 make test_file_block FILE=ATokenGateway;
 make test_file_block FILE=IdleTrancheAdapter BLOCK=15783014;
 make test_file_block_optimism FILE=YearnOptimism BLOCK=99207058;
+make test_file_block_optimism FILE=YTokenGateway BLOCK=99207058;
 make test_file_block_optimism FILE=AaveV3TokenAdapter BLOCK=81332054;
 make test_file_block_optimism FILE=ATokenGateway BLOCK=99207058;
