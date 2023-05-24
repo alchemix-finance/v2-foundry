@@ -9,6 +9,7 @@ make test_file_block FILE=TransmuterConduit;
 make test_file_block FILE=V2Migration BLOCK=15627050;
 make test_file_block FILE=VesperAdapterV1;
 make test_file_block FILE=WstETHAdapterV1 BLOCK=16839048;
+make test_file_block_optimism FILE=WstETHAdapterOptimism BLOCK=100678479;
 # run invariants locally and include test results on PR
 # make test_file_block FILE=InvariantsTests;
 make test_file_block FILE=AAVETokenAdapter;
