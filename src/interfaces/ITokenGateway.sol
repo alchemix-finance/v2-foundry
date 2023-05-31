@@ -1,18 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.13;
 
-interface IATokenGateway {
-    /// @dev Returns the address of the whitelist used by the IATokenGateway
+/// This interface is for yield tokens that cannot be deposited into the Alchemist in their current state.
+interface ITokenGateway {
+    /// @dev Returns the address of the whitelist used by the ITokenGateway
     ///
     /// @return The address of the whitelist.
     function whitelist() external returns (address);
 
-    /// @dev Returns the address of the alchemist used by the IATokenGateway
+    /// @dev Returns the address of the alchemist used by the ITokenGateway
     ///
     /// @return The address of the alchemist.
     function alchemist() external returns (address);
 
-    /// @dev Wraps aTokens in a StaticAToken wrapper a deposits the resulting tokens into the Alchemist.
+    /// @dev Wraps tokens and deposits the resulting tokens into the Alchemist.
     ///
     /// @param yieldToken       The address of the static aToken wrapper.
     /// @param amount           The amount of aTokens to wrap.
