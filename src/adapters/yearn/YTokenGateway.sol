@@ -13,7 +13,7 @@ import "../../libraries/TokenUtils.sol";
 /// @author Alchemix Finance
 contract YTokenGateway is ITokenGateway, Ownable {
     /// @notice The version.
-    string public constant version = "1.0.1";
+    string public constant version = "1.0.0";
 
     /// @notice The address of the whitelist contract.
     address public override immutable whitelist;
