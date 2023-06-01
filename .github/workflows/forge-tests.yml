@@ -42,8 +42,8 @@ jobs:
     name: Runs lite profile of foundry tests 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
         with:
           node-version: 16
 
@@ -69,8 +69,8 @@ jobs:
     name: Runs hardhat tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
         with:
           node-version: 16
 
