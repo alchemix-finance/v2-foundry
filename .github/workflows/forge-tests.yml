@@ -42,7 +42,10 @@ jobs:
     name: Runs lite profile of foundry tests 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
 
       - name: Install Foundry
         uses: onbjerg/foundry-toolchain@v1
@@ -66,7 +69,10 @@ jobs:
     name: Runs hardhat tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
 
       - name: Install submodules
         run: git submodule update --init --recursive
