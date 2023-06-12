@@ -43,6 +43,8 @@ contract AlchemicTokenV2Upgradeable is ERC20PermitUpgradeable, AccessControlUpgr
   /// @notice Max flash mint amount
   uint256 public maxFlashLoanAmount;
 
+  constructor() initializer {}
+
   /// @notice An event which is emitted when a minter is paused from minting.
   ///
   /// @param minter The address of the minter which was paused.
