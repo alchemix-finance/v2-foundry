@@ -11,6 +11,11 @@ import {IllegalArgument, IllegalState, Unauthorized} from "./base/Errors.sol";
 import {IERC3156FlashLender} from "../lib/openzeppelin-contracts/contracts/interfaces/IERC3156FlashLender.sol";
 import {IERC3156FlashBorrower} from "../lib/openzeppelin-contracts/contracts/interfaces/IERC3156FlashBorrower.sol";
 
+struct InitializationParams {
+  string name;
+  string symbol;
+  uint256 flashFee;
+}
 /// @title  AlchemicTokenV2
 /// @author Alchemix Finance
 ///
@@ -61,23 +66,19 @@ contract AlchemicTokenV2Upgradeable is ERC20PermitUpgradeable, AccessControlUpgr
   /// @param maxFlashLoan The new max flash loan.
   event SetMaxFlashLoan(uint256 maxFlashLoan);
 
-  function initialize(
-      string memory _name, 
-      string memory _symbol, 
-      uint256 _flashFee
-  ) public initializer {
+  function initialize(InitializationParams memory params) public initializer {
     _setupRole(ADMIN_ROLE, msg.sender);
     _setupRole(SENTINEL_ROLE, msg.sender);
     _setRoleAdmin(SENTINEL_ROLE, ADMIN_ROLE);
     _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
 
-    flashMintFee = _flashFee;
-    emit SetFlashMintFee(_flashFee);
+    flashMintFee = params.flashFee;
+    emit SetFlashMintFee(params.flashFee);
 
     __Context_init_unchained();
     __Ownable_init_unchained();
-    __ERC20_init_unchained(_name, _symbol);
-    __ERC20Permit_init_unchained(_name);
+    __ERC20_init_unchained(params.name, params.symbol);
+    __ERC20Permit_init_unchained(params.name);
     __ReentrancyGuard_init_unchained();
   }
 
