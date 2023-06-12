@@ -61,7 +61,11 @@ contract AlchemicTokenV2Upgradeable is ERC20PermitUpgradeable, AccessControlUpgr
   /// @param maxFlashLoan The new max flash loan.
   event SetMaxFlashLoan(uint256 maxFlashLoan);
 
-  function __AlchemicTokenV2Base_init(string memory _name, string memory _symbol, uint256 _flashFee) internal {
+  function initialize(
+      string memory _name, 
+      string memory _symbol, 
+      uint256 _flashFee
+  ) public initializer {
     _setupRole(ADMIN_ROLE, msg.sender);
     _setupRole(SENTINEL_ROLE, msg.sender);
     _setRoleAdmin(SENTINEL_ROLE, ADMIN_ROLE);
