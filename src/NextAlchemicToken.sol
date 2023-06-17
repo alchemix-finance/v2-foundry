@@ -113,10 +113,7 @@ contract NextAlchemicToken is ERC20PermitUpgradeable, AccessControlUpgradeable, 
     }
 
     // Mint next token to al Asset.
-    _mint(alAsset, amount);
-
-    // Mint alAsset to user. 
-    IAlchemicToken(alAsset).mint(recipient, amount);
+    _mint(recipient, amount);
   }
 
   /// @notice Sets `alAsset` to a new asset.
@@ -163,9 +160,6 @@ contract NextAlchemicToken is ERC20PermitUpgradeable, AccessControlUpgradeable, 
   /// @param amount The amount of tokens to be burned.
   function burn(address from, uint256 amount) external {
     // Burn next tokens from alAsset.
-    _burn(alAsset, amount);
-
-    // Burn alAsset from user.
-    IAlchemicToken(alAsset).burnFrom(from, amount);
+    _burn(from, amount);
   }
 }
