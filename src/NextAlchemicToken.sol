@@ -112,7 +112,7 @@ contract NextAlchemicToken is ERC20PermitUpgradeable, AccessControlUpgradeable, 
       revert IllegalState();
     }
 
-    // Mint next token as receipt.
+    // Mint next token to al Asset.
     _mint(alAsset, amount);
 
     // Mint alAsset to user. 
