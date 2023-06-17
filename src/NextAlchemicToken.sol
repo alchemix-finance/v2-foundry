@@ -11,8 +11,6 @@ import {IllegalArgument, IllegalState, Unauthorized} from "./base/Errors.sol";
 import {IERC3156FlashLender} from "../lib/openzeppelin-contracts/contracts/interfaces/IERC3156FlashLender.sol";
 import {IERC3156FlashBorrower} from "../lib/openzeppelin-contracts/contracts/interfaces/IERC3156FlashBorrower.sol";
 
-import {IAlchemicToken} from "./interfaces/IAlchemicToken.sol";
-
 import "./libraries/TokenUtils.sol";
 
 struct InitializationParams {
@@ -112,11 +110,8 @@ contract NextAlchemicToken is ERC20PermitUpgradeable, AccessControlUpgradeable, 
       revert IllegalState();
     }
 
-    // Mint next token to al Asset.
-    _mint(alAsset, amount);
-
-    // Mint alAsset to user. 
-    IAlchemicToken(alAsset).mint(recipient, amount);
+    // Mint next token to recipient.
+    _mint(recipient, amount);
   }
 
   /// @notice Sets `alAsset` to a new asset.
@@ -162,10 +157,7 @@ contract NextAlchemicToken is ERC20PermitUpgradeable, AccessControlUpgradeable, 
   ///
   /// @param amount The amount of tokens to be burned.
   function burn(address from, uint256 amount) external {
-    // Burn next tokens from alAsset.
-    _burn(alAsset, amount);
-
-    // Burn alAsset from user.
-    IAlchemicToken(alAsset).burnFrom(from, amount);
+    // Burn next tokens from `from`.
+    _burn(from, amount);
   }
 }
