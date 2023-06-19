@@ -18,8 +18,8 @@ import "./libraries/TokenUtils.sol";
 struct InitializationParams {
   string name;
   string symbol;
-  address alAsset;
 }
+
 /// @title  NextAlchemicToken
 /// @author Alchemix Finance
 ///
@@ -40,9 +40,6 @@ contract NextAlchemicToken is ERC20PermitUpgradeable, AccessControlUpgradeable, 
   /// @notice A set of addresses which are paused from minting new tokens.
   mapping(address => bool) public paused;
 
-  /// @notice This is the debt token that will be minted to the user.
-  address public alAsset;
-
   constructor() initializer {}
 
   /// @notice An event which is emitted when a minter is paused from minting.
@@ -50,11 +47,6 @@ contract NextAlchemicToken is ERC20PermitUpgradeable, AccessControlUpgradeable, 
   /// @param minter The address of the minter which was paused.
   /// @param state  A flag indicating if the alchemist is paused or unpaused.
   event Paused(address minter, bool state);
-
-  /// @notice An event which is emitted when the flash mint fee is updated.
-  ///
-  /// @param fee The new flash mint fee.
-  event SetFlashMintFee(uint256 fee);
 
   /// @notice An event which is emitted when the max flash loan is updated.
   ///
@@ -66,8 +58,6 @@ contract NextAlchemicToken is ERC20PermitUpgradeable, AccessControlUpgradeable, 
     _setupRole(SENTINEL_ROLE, msg.sender);
     _setRoleAdmin(SENTINEL_ROLE, ADMIN_ROLE);
     _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
-
-    alAsset = params.alAsset;
 
     __Context_init_unchained();
     __Ownable_init_unchained();
@@ -112,20 +102,8 @@ contract NextAlchemicToken is ERC20PermitUpgradeable, AccessControlUpgradeable, 
       revert IllegalState();
     }
 
-    // Mint next token to al Asset.
-    _mint(alAsset, amount);
-
-    // Mint alAsset to user. 
-    IAlchemicToken(alAsset).mint(recipient, amount);
-  }
-
-  /// @notice Sets `alAsset` to a new asset.
-  ///
-  /// @notice This function reverts if `msg.sender` is not an admin.
-  ///
-  /// @param asset The new asset to swap to.
-  function setAlAsset(address asset) external onlyAdmin {
-    alAsset = asset;
+    // Mint next token to receipient.
+    _mint(recipient, amount);
   }
 
   /// @notice Sets `minter` as whitelisted to mint.
@@ -163,9 +141,6 @@ contract NextAlchemicToken is ERC20PermitUpgradeable, AccessControlUpgradeable, 
   /// @param amount The amount of tokens to be burned.
   function burn(address from, uint256 amount) external {
     // Burn next tokens from alAsset.
-    _burn(alAsset, amount);
-
-    // Burn alAsset from user.
-    IAlchemicToken(alAsset).burnFrom(from, amount);
+    _burn(from, amount);
   }
 }
