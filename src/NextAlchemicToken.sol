@@ -31,9 +31,6 @@ contract NextAlchemicToken is ERC20PermitUpgradeable, AccessControlUpgradeable, 
   /// @notice The identifier of the role which allows accounts to mint tokens.
   bytes32 public constant SENTINEL_ROLE = keccak256("SENTINEL");
 
-  /// @notice The maximum number of basis points needed to represent 100%.
-  uint256 public constant BPS = 10_000;
-
   /// @notice A set of addresses which are whitelisted for minting new tokens.
   mapping(address => bool) public whitelisted;
 
@@ -47,11 +44,6 @@ contract NextAlchemicToken is ERC20PermitUpgradeable, AccessControlUpgradeable, 
   /// @param minter The address of the minter which was paused.
   /// @param state  A flag indicating if the alchemist is paused or unpaused.
   event Paused(address minter, bool state);
-
-  /// @notice An event which is emitted when the max flash loan is updated.
-  ///
-  /// @param maxFlashLoan The new max flash loan.
-  event SetMaxFlashLoan(uint256 maxFlashLoan);
 
   function initialize(InitializationParams memory params) public initializer {
     _setupRole(ADMIN_ROLE, msg.sender);
