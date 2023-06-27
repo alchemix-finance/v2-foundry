@@ -102,7 +102,6 @@ contract NextAlchemicToken is ERC20PermitUpgradeable, AccessControlUpgradeable, 
       revert IllegalState();
     }
 
-    // Mint next token to receipient.
     _mint(recipient, amount);
   }
 
@@ -136,11 +135,14 @@ contract NextAlchemicToken is ERC20PermitUpgradeable, AccessControlUpgradeable, 
     emit Paused(minter, state);
   }
 
-  /// @notice Burns `amount` tokens from `msg.sender`.
+  /// @notice Burns `amount` tokens from `account`.
   ///
-  /// @param amount The amount of tokens to be burned.
-  function burn(address from, uint256 amount) external {
-    // Burn next tokens from alAsset.
-    _burn(from, amount);
+  /// @param amount  The amount of tokens to be burned.
+  /// @param account The address to burn from.
+  function burn(address account, uint256 amount) external {
+    uint256 newAllowance = allowance(account, msg.sender) - amount;
+
+    _approve(account, msg.sender, newAllowance);
+    _burn(account, amount);
   }
 }
