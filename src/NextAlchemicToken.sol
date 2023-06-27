@@ -45,10 +45,11 @@ contract NextAlchemicToken is ERC20PermitUpgradeable, AccessControlUpgradeable, 
   /// @param state  A flag indicating if the alchemist is paused or unpaused.
   event Paused(address minter, bool state);
 
-  /// @notice An event which is emmited when a sentinel is added.
-  ///
-  /// @param sentinel The address that is given sentinel role.
-  event SentinelSet(address sentinel);
+  /// @notice An event which is emitted when a minter is updated in the whitelist.
+  /// 
+  /// @param minter   The address of the minter.
+  /// @param state    Whether or not the minter is actively able to mint.
+  event WhitelistSet(address minter, bool state);
 
   function initialize(InitializationParams memory params) public initializer {
     _setupRole(ADMIN_ROLE, msg.sender);
@@ -110,6 +111,8 @@ contract NextAlchemicToken is ERC20PermitUpgradeable, AccessControlUpgradeable, 
   /// @param state  A flag indicating if the minter should be able to mint.
   function setWhitelist(address minter, bool state) external onlyAdmin {
     whitelisted[minter] = state;
+
+    emit WhitelistSet(minter, state);
   }
 
   /// @notice Pauses `minter` from minting tokens.
