@@ -128,7 +128,9 @@ contract NextAlchemicToken is ERC20PermitUpgradeable, AccessControlUpgradeable, 
   /// @param amount  The amount of tokens to be burned.
   /// @param account The address to burn from.
   function burn(address account, uint256 amount) external {
-    decreaseAllowance(msg.sender, amount);
+    uint256 newAllowance = allowance(account, msg.sender) - amount;
+
+    _approve(account, msg.sender, newAllowance);
     _burn(account, amount);
   }
 }
