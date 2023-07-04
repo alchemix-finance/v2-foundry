@@ -257,4 +257,6 @@ interface IAlchemistV2State {
             uint256 rate,
             uint256 maximum
         );
+
+    function totalValue(address account) external view returns (uint256);
 }
