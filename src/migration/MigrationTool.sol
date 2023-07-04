@@ -29,10 +29,12 @@ struct InitializationParams {
 struct PreviewParams {
     IAlchemistV2State.YieldTokenParams startingParams;
     IAlchemistV2State.YieldTokenParams targetParams;
+    int256 currentDebt;
     uint256 underlyingValue;
     uint256 newShares;
     uint256 debtTokenValue;
     uint256 newDebtTokenValue;
+    uint256 remainingDebt;
 }
 
 contract MigrationTool is IMigrationTool, Multicall {
@@ -88,15 +90,19 @@ contract MigrationTool is IMigrationTool, Multicall {
             );
         }
 
-        // If debt new debt value is less than previous, check that the user has the mint allowance to cover the difference
-        if (params.newDebtTokenValue < params.debtTokenValue && alchemist.mintAllowance(account, account) < params.debtTokenValue - params.newDebtTokenValue) {
-            return (
-                false, 
-                "Slippage exceeded! New position exceeds mint allowance.",
-                params.debtTokenValue - params.newDebtTokenValue - alchemist.mintAllowance(account, account),
-                0,
-                0
-            );
+        // If debt new debt value is less than previous, check that the user has the ability to cover the difference
+        (params.currentDebt, ) = alchemist.accounts(account);
+        if (params.currentDebt > 0) {
+            params.remainingDebt = (alchemist.totalValue(account) * FIXED_POINT_SCALAR / alchemist.minimumCollateralization()) - uint256(params.currentDebt);
+            if (params.newDebtTokenValue < params.debtTokenValue && params.remainingDebt < params.debtTokenValue - params.newDebtTokenValue) {
+                return (
+                    false, 
+                    "Slippage exceeded! New position exceeds mint allowance.",
+                    params.debtTokenValue - params.newDebtTokenValue - params.remainingDebt,
+                    0,
+                    0
+                );
+            }
         }
 
         return (
