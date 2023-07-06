@@ -26,7 +26,7 @@ contract AlchemixConnextGateway is IXReceiver {
   /** @notice A modifier for authenticated calls.
    * This is an important security consideration. msg.sender must be the connext contract.
    */
-  modifier onlySource(address _originSender, uint32 _origin) {
+  modifier onlySource() {
     require(
         msg.sender == connext,
       "Expected original caller to be Connext contract"
@@ -95,7 +95,7 @@ contract AlchemixConnextGateway is IXReceiver {
     address _originSender,
     uint32 _origin,
     bytes memory _callData
-  ) external onlySource(_originSender, _origin) returns (bytes memory) {
+  ) external onlySource() returns (bytes memory) {
     // Mint alAssets 1:1 to user.
     IAlchemicToken(assets[_asset]).mint(abi.decode(_callData, (address)), _amount);    
   }
