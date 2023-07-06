@@ -10,8 +10,7 @@ import {IXReceiver} from "../../interfaces/external/connext/IXReceiver.sol";
 import "../../libraries/TokenUtils.sol";
 
 /**
- * @title DestinationGreeterAuthenticated
- * @notice Example destination contract that stores a greeting and only allows source to update it.
+ * @title AlchemixConnextGateway
  */
 contract AlchemixConnextGateway is IXReceiver {
   /// @notice The admin.
