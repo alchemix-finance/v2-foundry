@@ -20,28 +20,16 @@ contract AlchemixConnextGateway is IXReceiver {
   // The Connext contract on this domain
   address public immutable connext;
 
-  // The domain ID where the source contract is deployed
-  mapping (uint32 => bool) public originDomains;
-
-  // The address of the source contract
-  mapping (address => bool) public sources;
-
   // The next tokens mapped to their respective alAssets. 
   mapping (address => address) public assets;
 
   /** @notice A modifier for authenticated calls.
-   * This is an important security consideration. If the target contract
-   * function should be authenticated, it must check three things:
-   *    1) The originating call comes from the expected origin domain.
-   *    2) The originating call comes from the expected source contract.
-   *    3) The call to this contract comes from Connext.
+   * This is an important security consideration. msg.sender must be the connext contract.
    */
   modifier onlySource(address _originSender, uint32 _origin) {
     require(
-      originDomains[_origin] &&
-        sources[_originSender] &&
         msg.sender == connext,
-      "Expected original caller to be source contract on origin domain and this to be called by Connext"
+      "Expected original caller to be Connext contract"
     );
     _;
   }
@@ -69,14 +57,6 @@ contract AlchemixConnextGateway is IXReceiver {
     assets[nextAsset] = alAsset;
   }
 
-  function registerDomain(uint32 domain, bool active) external onlyAdmin {
-    originDomains[domain] = active;
-  }
-
-  function registerSource(address source, bool active) external onlyAdmin {
-    sources[source] = active;
-  }
-
   function bridgeAssets (
     address target,
     address asset,
@@ -85,9 +65,7 @@ contract AlchemixConnextGateway is IXReceiver {
     uint32 destinationDomain,
     uint256 relayerFee
   ) external payable {
-    // Transfer next tokens from alAsset contract and approve for spending.
-    // Users can only bridge back the amount that was bridged over from mainnet.
-    TokenUtils.safeTransferFrom(asset, assets[asset], address(this), amount);
+    // Approve next assets for connext burning.
     TokenUtils.safeApprove(asset, connext, amount);
 
     // Burn alAssets from user.
@@ -120,8 +98,5 @@ contract AlchemixConnextGateway is IXReceiver {
   ) external onlySource(_originSender, _origin) returns (bytes memory) {
     // Mint alAssets 1:1 to user.
     IAlchemicToken(assets[_asset]).mint(abi.decode(_callData, (address)), _amount);    
-
-    // Store nextAssets in alAsset as receipt for bridging back.
-    TokenUtils.safeTransfer(_asset, assets[_asset], _amount);
   }
 }
