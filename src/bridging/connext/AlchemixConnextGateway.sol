@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import {IERC20} from "../../../lib/openzeppelin-contracts/contracts/interfaces/IERC20.sol";
 
-import {IAlchemicToken} from "../../interfaces/IAlchemicToken.sol";
+import {ICrossChainToken} from "../../interfaces/ICrossChainToken.sol";
 import {IConnext} from "../../interfaces/external/connext/IConnext.sol";
 import {IXReceiver} from "../../interfaces/external/connext/IXReceiver.sol";
 
@@ -59,19 +59,12 @@ contract AlchemixConnextGateway is IXReceiver {
   function bridgeAssets (
     address target,
     address asset,
-    address recipient,
     uint256 amount,
     uint32 destinationDomain,
     uint256 relayerFee
   ) external payable {
-    // Approve next assets for connext burning.
-    TokenUtils.safeApprove(asset, connext, amount);
-
-    // Burn alAssets from user.
-    IAlchemicToken(assets[asset]).burnFrom(msg.sender, amount);
-
-    // Encode the data needed for the target contract call.
-    bytes memory callData = abi.encode(recipient);
+    TokenUtils.safeTransferFrom(assets[asset], target, address(this), amount);
+    ICrossChainToken(assets[asset]).exchangeCanonicalForOld(asset, amount);
 
     IConnext(connext).xcall{value: relayerFee}(
       destinationDomain, // _destination
@@ -80,7 +73,7 @@ contract AlchemixConnextGateway is IXReceiver {
       msg.sender,        // _delegate
       amount,            // _amount
       0,                 // _slippage
-      callData           // _callData
+      ""                // _callData
     );
   }
 
@@ -95,7 +88,8 @@ contract AlchemixConnextGateway is IXReceiver {
     uint32 _origin,
     bytes memory _callData
   ) external onlySource() returns (bytes memory) {
-    // Mint alAssets 1:1 to user.
-    IAlchemicToken(assets[_asset]).mint(abi.decode(_callData, (address)), _amount);    
+    ICrossChainToken(assets[_asset]).exchangeOldForCanonical(_asset, _amount);
+    
+    TokenUtils.safeTransfer(assets[_asset], abi.decode(_callData, (address)), _amount);
   }
 }
