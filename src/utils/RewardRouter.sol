@@ -20,7 +20,7 @@ struct RewardCollector {
 /// @title  Reward Router
 /// @author Alchemix Finance
 contract RewardRouter is IRewardRouter, Ownable {
-    string public override version = "1.0.0";
+    string public override version = "1.1.0";
     uint256 public constant BPS = 10000;
 
     uint256 public slippageBPS = 9500;
