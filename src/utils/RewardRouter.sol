@@ -13,6 +13,7 @@ import {Unauthorized, IllegalState, IllegalArgument} from "../base/ErrorMessages
 struct RewardCollector {
     address rewardCollectorAddress;
     uint256 rewardAmount;
+    uint256 rewardPaid;
     uint256 rewardTimeframe;
     uint256 lastRewardBlock;
 }
@@ -37,11 +38,19 @@ contract RewardRouter is IRewardRouter, Ownable {
             // Calculates ratio of timeframe to time since last harvest
             // Uses this ratio to determine partial reward amount or extra reward amount
             uint256 blocksSinceLastReward = block.number - rewardCollectors[vault].lastRewardBlock;
-            uint256 amountToSend = rewardCollectors[vault].rewardAmount * blocksSinceLastReward / rewardCollectors[vault].rewardTimeframe;
+            uint256 maxReward = rewardCollectors[vault].rewardAmount - rewardCollectors[vault].rewardPaid;
+            uint256 currentReward = rewardCollectors[vault].rewardAmount * blocksSinceLastReward / rewardCollectors[vault].rewardTimeframe;
+            uint256 amountToSend = currentReward > maxReward ? maxReward : currentReward;
+
             TokenUtils.safeTransfer(IRewardCollector(rewardCollectors[vault].rewardCollectorAddress).rewardToken(), rewardCollectors[vault].rewardCollectorAddress, amountToSend);
             rewardCollectors[vault].lastRewardBlock = block.number;
-        }
+            rewardCollectors[vault].rewardPaid += amountToSend;
 
+            if (rewardCollectors[vault].rewardPaid == rewardCollectors[vault].rewardAmount) {
+                rewardCollectors[vault].rewardAmount = 0;
+                rewardCollectors[vault].rewardPaid = 0;
+            }
+        }
         return IRewardCollector(rewardCollectors[vault].rewardCollectorAddress).claimAndDonateRewards(vault, IRewardCollector(rewardCollectors[vault].rewardCollectorAddress).getExpectedExchange(vault) * slippageBPS / BPS);
     }
 
@@ -60,7 +69,7 @@ contract RewardRouter is IRewardRouter, Ownable {
         uint256 rewardTimeframe,
         uint256 lastRewardBlock
     ) external onlyOwner {
-        rewardCollectors[vault] = RewardCollector(rewardCollectorAddress, rewardAmount, rewardTimeframe, lastRewardBlock);
+        rewardCollectors[vault] = RewardCollector(rewardCollectorAddress, rewardAmount, 0, rewardTimeframe, lastRewardBlock);
     }
 
     /// @dev Set the reward collector address for a given vault
