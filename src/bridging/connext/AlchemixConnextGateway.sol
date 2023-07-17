@@ -57,21 +57,22 @@ contract AlchemixConnextGateway is IXReceiver {
   }
 
   function bridgeAssets (
-    address target,
-    address asset,
-    uint256 amount,
-    uint32 destinationDomain,
-    uint256 relayerFee
+    address _target,
+    address _asset,
+    uint256 _amount,
+    uint32 _destinationDomain,
+    uint256 _relayerFee
   ) external payable {
-    TokenUtils.safeTransferFrom(assets[asset], target, address(this), amount);
-    ICrossChainToken(assets[asset]).exchangeCanonicalForOld(asset, amount);
+    TokenUtils.safeTransferFrom(assets[_asset], _target, address(this), _amount);
+    ICrossChainToken(assets[_asset]).exchangeCanonicalForOld(_asset, _amount);
 
-    IConnext(connext).xcall{value: relayerFee}(
-      destinationDomain, // _destination
-      target,            // _to
-      asset,             // _asset
+    TokenUtils.safeApprove(_asset, connext, _amount);
+    IConnext(connext).xcall{value: _relayerFee}(
+      _destinationDomain, // _destination
+      _target,            // _to
+      _asset,             // _asset
       msg.sender,        // _delegate
-      amount,            // _amount
+      _amount,            // _amount
       0,                 // _slippage
       ""                // _callData
     );
@@ -88,6 +89,7 @@ contract AlchemixConnextGateway is IXReceiver {
     uint32 _origin,
     bytes memory _callData
   ) external onlySource() returns (bytes memory) {
+    TokenUtils.safeApprove(_asset, assets[_asset], _amount);
     ICrossChainToken(assets[_asset]).exchangeOldForCanonical(_asset, _amount);
     
     TokenUtils.safeTransfer(assets[_asset], abi.decode(_callData, (address)), _amount);
