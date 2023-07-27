@@ -34,5 +34,6 @@ contract ConnextGateway is DSTestPlus {
     function testReceive() external {
         hevm.prank(0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA);
         gateway.xReceive(bytes32("0"), 1e18, 0x49000f5e208349D2fA678263418e21365208E498, 0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA, 0, abi.encode(address(this)));
+        assertEq(11e18, IERC20(0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A).balanceOf(address(this)));
     }
 }

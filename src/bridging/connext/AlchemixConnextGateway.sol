@@ -62,12 +62,12 @@ contract AlchemixConnextGateway is IXReceiver {
     uint256 _amount,
     uint32 _destinationDomain,
     uint256 _relayerFee
-  ) external payable {
+  ) external payable returns (bytes32) {
     TokenUtils.safeTransferFrom(assets[_asset], _target, address(this), _amount);
     ICrossChainToken(assets[_asset]).exchangeCanonicalForOld(_asset, _amount);
 
     TokenUtils.safeApprove(_asset, connext, _amount);
-    IConnext(connext).xcall{value: _relayerFee}(
+    return IConnext(connext).xcall{value: _relayerFee}(
       _destinationDomain, // _destination
       _target,            // _to
       _asset,             // _asset
