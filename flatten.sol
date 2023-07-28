@@ -2,6 +2,7 @@
 
 // File lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol
 
+// SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/IERC20.sol)
 
 pragma solidity ^0.8.0;
@@ -87,6 +88,7 @@ interface IERC20 {
 
 // File lib/openzeppelin-contracts/contracts/interfaces/IERC20.sol
 
+// SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts v4.4.1 (interfaces/IERC20.sol)
 
 pragma solidity ^0.8.0;
@@ -94,6 +96,7 @@ pragma solidity ^0.8.0;
 
 // File src/interfaces/ICrossChainToken.sol
 
+// SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.5.0;
 
 /// @title  ICrossChainToken
@@ -143,6 +146,7 @@ interface ICrossChainToken is IERC20 {
 
 // File src/libraries/connext/LibConnextStorage.sol
 
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
 /**
@@ -216,6 +220,7 @@ struct ExecuteArgs {
 
 // File src/libraries/connext/TokenId.sol
 
+// SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity ^0.8.13;
 
 // ============= Structs =============
@@ -231,6 +236,7 @@ struct TokenId {
 
 // File src/interfaces/external/connext/IConnext.sol
 
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
 
@@ -331,6 +337,7 @@ interface IConnext {
 
 // File src/interfaces/external/connext/IXReceiver.sol
 
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
 interface IXReceiver {
@@ -347,6 +354,7 @@ interface IXReceiver {
 
 // File lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol
 
+// SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts v4.4.1 (token/ERC20/extensions/IERC20Metadata.sol)
 
 pragma solidity ^0.8.0;
@@ -576,6 +584,7 @@ library TokenUtils {
 
 // File src/bridging/connext/AlchemixConnextGateway.sol
 
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
 
@@ -631,7 +640,6 @@ contract AlchemixConnextGateway is IXReceiver {
     address _target,
     address _asset,
     uint256 _amount,
-    uint256 slippage,
     uint32 _destinationDomain,
     uint256 _relayerFee
   ) external payable returns (bytes32) {
@@ -645,8 +653,8 @@ contract AlchemixConnextGateway is IXReceiver {
       _asset,             // _asset
       msg.sender,         // _delegate
       _amount,            // _amount
-      slippage,            // _slippage BPS
-      msg.data            // _callData
+      10000,              // _slippage
+      ""                  // _callData
     );
   }
 

@@ -74,7 +74,7 @@ contract AlchemixConnextGateway is IXReceiver {
       msg.sender,         // _delegate
       _amount,            // _amount
       10000,              // _slippage
-      ""                  // _callData
+      bytes("")           // _callData
     );
   }
 
