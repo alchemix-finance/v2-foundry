@@ -71,10 +71,10 @@ contract AlchemixConnextGateway is IXReceiver {
       _destinationDomain, // _destination
       _target,            // _to
       _asset,             // _asset
-      msg.sender,        // _delegate
+      msg.sender,         // _delegate
       _amount,            // _amount
-      0,                 // _slippage
-      ""                // _callData
+      0,                  // _slippage
+      msg.data            // _callData
     );
   }
 
