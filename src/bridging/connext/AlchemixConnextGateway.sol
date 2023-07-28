@@ -60,7 +60,6 @@ contract AlchemixConnextGateway is IXReceiver {
     address _target,
     address _asset,
     uint256 _amount,
-    uint256 slippage,
     uint32 _destinationDomain,
     uint256 _relayerFee
   ) external payable returns (bytes32) {
@@ -74,8 +73,8 @@ contract AlchemixConnextGateway is IXReceiver {
       _asset,             // _asset
       msg.sender,         // _delegate
       _amount,            // _amount
-      slippage,            // _slippage BPS
-      msg.data            // _callData
+      10000,              // _slippage
+      ""                  // _callData
     );
   }
 
