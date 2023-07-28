@@ -28,7 +28,7 @@ contract ConnextGateway is DSTestPlus {
 
     function testBridge() external {
         TokenUtils.safeApprove(0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A, address(gateway), 100e18);
-        gateway.bridgeAssets(address(this), 0x49000f5e208349D2fA678263418e21365208E498, 1e18, 6648936, 0);
+        gateway.bridgeAssets(address(this), 0x49000f5e208349D2fA678263418e21365208E498, 1e18, 6648936, 10, 0);
     }
 
     function testReceive() external {
