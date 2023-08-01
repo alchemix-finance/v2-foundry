@@ -471,6 +471,8 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         _onlyAdmin();
         _checkArgument(blocks > 0);
         _checkSupportedYieldToken(yieldToken);
+
+        _distributeCredit(yieldToken, 0);
         _yieldTokens[yieldToken].creditUnlockRate = FIXED_POINT_SCALAR / blocks;
         emit CreditUnlockRateUpdated(yieldToken, blocks);
     }
@@ -1622,7 +1624,6 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         uint256 lastDistributionBlock = yieldTokenParams.lastDistributionBlock;
 
         uint256 percentUnlocked = (block.number - lastDistributionBlock) * creditUnlockRate;
-
         return percentUnlocked < FIXED_POINT_SCALAR
             ? (pendingCredit * percentUnlocked / FIXED_POINT_SCALAR) - distributedCredit
             : pendingCredit - distributedCredit;
@@ -1634,6 +1635,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     /// @param amount     The amount of yield tokens.
     ///
     /// @return The number of shares.
+    
     function convertYieldTokensToShares(address yieldToken, uint256 amount) public view returns (uint256) {
         if (_yieldTokens[yieldToken].totalShares == 0) {
             return amount;
