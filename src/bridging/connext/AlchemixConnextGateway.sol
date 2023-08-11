@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
+import {AccessControlUpgradeable} from "../../../lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol";
 import {IERC20} from "../../../lib/openzeppelin-contracts/contracts/interfaces/IERC20.sol";
+import {OwnableUpgradeable} from "../../../lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
 
 import {ICrossChainToken} from "../../interfaces/ICrossChainToken.sol";
 import {IConnext} from "../../interfaces/external/connext/IConnext.sol";
@@ -9,19 +11,55 @@ import {IXReceiver} from "../../interfaces/external/connext/IXReceiver.sol";
 
 import "../../libraries/TokenUtils.sol";
 
+import {IllegalArgument, IllegalState, Unauthorized} from "./../../base/Errors.sol";
+
+struct InitializationParams {
+  address connext;
+}
+
 /**
  * @title AlchemixConnextGateway
  */
-contract AlchemixConnextGateway is IXReceiver {
-  /// @notice The admin.
-  address public admin;
+contract AlchemixConnextGateway is IXReceiver, AccessControlUpgradeable, OwnableUpgradeable {
+  /// @notice The identifier of the role which maintains other roles.
+  bytes32 public constant ADMIN_ROLE = keccak256("ADMIN");
+
+  /// @notice The identifier of the role which allows accounts to mint tokens.
+  bytes32 public constant SENTINEL_ROLE = keccak256("SENTINEL");
+
+  /// @notice A set of addresses which are whitelisted for minting new tokens.
+  mapping(address => bool) public whitelisted;
 
   // The Connext contract on this domain
-  address public immutable connext;
+  address public connext;
 
   // The next tokens mapped to their respective alAssets. 
   mapping (address => address) public assets;
 
+  // @notice Emitted when tokens are bridged to layer 2
+  event TokensReceived(bytes32 transferId, address originSender, uint32 origin, address token, address receiver, uint256 amount);
+
+  constructor() initializer {}
+
+  function initialize(InitializationParams memory params) public initializer {
+    _setupRole(ADMIN_ROLE, msg.sender);
+    _setupRole(SENTINEL_ROLE, msg.sender);
+    _setRoleAdmin(SENTINEL_ROLE, ADMIN_ROLE);
+    _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
+
+    __Context_init_unchained();
+    __Ownable_init_unchained();
+
+    connext = params.connext;
+  }
+
+  /// @dev A modifier which checks that the caller has the admin role.
+  modifier onlyAdmin() {
+    if (!hasRole(ADMIN_ROLE, msg.sender)) {
+      revert Unauthorized();
+    }
+    _;
+  }
   /** @notice A modifier for authenticated calls.
    * This is an important security consideration. msg.sender must be the connext contract.
    */
@@ -32,26 +70,7 @@ contract AlchemixConnextGateway is IXReceiver {
     );
     _;
   }
-
-  /// @dev A modifier which reverts if the message sender is not the admin.
-  modifier onlyAdmin() {
-      if (msg.sender != admin) {
-          revert ("Not admin");
-      }
-      _;
-  }
-
-  constructor(
-    address _connext
-  ) {
-    connext = _connext;
-    admin = msg.sender;
-  }
-
-  function setAdmin(address newAdmin) external onlyAdmin {
-    admin = newAdmin;
-  }
-
+  
   function registerAsset(address nextAsset, address alAsset) external onlyAdmin {
     assets[nextAsset] = alAsset;
   }
@@ -91,8 +110,15 @@ contract AlchemixConnextGateway is IXReceiver {
     bytes memory _callData
   ) external onlySource() returns (bytes memory) {
     TokenUtils.safeApprove(_asset, assets[_asset], _amount);
-    ICrossChainToken(assets[_asset]).exchangeOldForCanonical(_asset, _amount);
-    
-    TokenUtils.safeTransfer(assets[_asset], abi.decode(_callData, (address)), _amount);
+
+    try ICrossChainToken(assets[_asset]).exchangeOldForCanonical(_asset, _amount) {
+      TokenUtils.safeTransfer(assets[_asset], abi.decode(_callData, (address)), _amount);
+
+      emit TokensReceived(_transferId, _originSender, _origin, assets[_asset], abi.decode(_callData, (address)), _amount);
+    } catch {
+      TokenUtils.safeTransfer(_asset, abi.decode(_callData, (address)), _amount);
+      
+      emit TokensReceived(_transferId, _originSender, _origin, _asset, abi.decode(_callData, (address)), _amount);
+    }    
   }
 }

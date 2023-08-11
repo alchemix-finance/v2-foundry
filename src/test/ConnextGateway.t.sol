@@ -1,10 +1,12 @@
 pragma solidity ^0.8.13;
 
 import {console} from "../../lib/forge-std/src/console.sol";
+import "../../lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 
 import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
+import {ICrossChainToken} from "../interfaces/ICrossChainToken.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
@@ -17,9 +19,14 @@ import "../libraries/TokenUtils.sol";
 
 contract ConnextGateway is DSTestPlus {
 
+    AlchemixConnextGateway proxy;
     AlchemixConnextGateway gateway;
     function setUp() public {
-        gateway = new AlchemixConnextGateway(0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA);
+        proxy = new AlchemixConnextGateway();
+        bytes memory params = abi.encodeWithSelector(AlchemixConnextGateway.initialize.selector, 0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA);
+        TransparentUpgradeableProxy proxyBuffer = new TransparentUpgradeableProxy(address(proxy), address(address(0xbeef)), params);
+        gateway = AlchemixConnextGateway(address(proxyBuffer));
+
         gateway.registerAsset(0x49000f5e208349D2fA678263418e21365208E498, 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A);
         deal(0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A, address(this), 10e18);
         deal(0x49000f5e208349D2fA678263418e21365208E498, address(gateway), 100e18);
@@ -35,5 +42,13 @@ contract ConnextGateway is DSTestPlus {
         hevm.prank(0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA);
         gateway.xReceive(bytes32("0"), 1e18, 0x49000f5e208349D2fA678263418e21365208E498, 0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA, 0, abi.encode(address(this)));
         assertEq(11e18, IERC20(0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A).balanceOf(address(this)));
+    }
+
+        function testReceiveNext() external {
+        hevm.prank(0xC224bf25Dcc99236F00843c7D8C4194abE8AA94a);
+        ICrossChainToken(0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A).toggleExchanges();
+        hevm.prank(0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA);
+        gateway.xReceive(bytes32("0"), 1e18, 0x49000f5e208349D2fA678263418e21365208E498, 0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA, 0, abi.encode(address(this)));
+        assertEq(1e18, IERC20(0x49000f5e208349D2fA678263418e21365208E498).balanceOf(address(this)));
     }
 }

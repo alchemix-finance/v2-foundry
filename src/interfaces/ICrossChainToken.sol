@@ -45,4 +45,6 @@ interface ICrossChainToken is IERC20 {
   function exchangeOldForCanonical(address bridgeTokenAddress, uint256 tokenAmount) external returns (uint256 canonicalTokensOut);
 
   function exchangeCanonicalForOld(address bridgeTokenAddress, uint256 tokenAmount) external returns (uint256 bridgeTokensOut);
+
+  function toggleExchanges() external;
 }
