@@ -17,3 +17,6 @@
 [submodule "lib/xTokens"]
 	path = lib/xTokens
 	url = https://github.com/defi-wonderland/xTokens.git
+[submodule "lib/xERC20"]
+	path = lib/xERC20
+	url = https://github.com/defi-wonderland/xERC20.git
