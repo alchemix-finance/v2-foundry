@@ -861,6 +861,9 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         // unwrapping the yield tokens was zero because the amount of yield tokens to unwrap was too small.
         _checkState(amountUnderlyingTokens > 0);
 
+        // In the case that slippage allowed by minimumAmountOut would create an undercollateralized position
+        _validate(msg.sender);
+
         Limiters.LinearGrowthLimiter storage limiter = _liquidationLimiters[underlyingToken];
 
         // Check to make sure that the underlying token liquidation limit has not been breached.
