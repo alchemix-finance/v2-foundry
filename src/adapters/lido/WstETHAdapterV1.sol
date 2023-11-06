@@ -21,8 +21,7 @@ struct InitializationParams {
     address parentToken;
     address underlyingToken;
     address curvePool;
-    address oracleStethUsd;
-    address oracleEthUsd;
+    address oracleStethEth;
     uint256 ethPoolIndex;
     uint256 stEthPoolIndex;
     address referral;
@@ -36,8 +35,7 @@ contract WstETHAdapterV1 is ITokenAdapter, MutexLock {
     address public immutable parentToken;
     address public immutable override underlyingToken;
     address public immutable curvePool;
-    address public immutable oracleStethUsd;
-    address public immutable oracleEthUsd;
+    address public immutable oracleStethEth;
     uint256 public immutable ethPoolIndex;
     uint256 public immutable stEthPoolIndex;
     address public immutable referral;
@@ -48,8 +46,7 @@ contract WstETHAdapterV1 is ITokenAdapter, MutexLock {
         parentToken     = params.parentToken;
         underlyingToken = params.underlyingToken;
         curvePool       = params.curvePool;
-        oracleStethUsd  = params.oracleStethUsd;
-        oracleEthUsd    = params.oracleEthUsd;
+        oracleStethEth  = params.oracleStethEth;
         ethPoolIndex    = params.ethPoolIndex;
         stEthPoolIndex  = params.stEthPoolIndex;
         referral        = params.referral;
@@ -87,12 +84,37 @@ contract WstETHAdapterV1 is ITokenAdapter, MutexLock {
 
     /// @inheritdoc ITokenAdapter
     function price() external view returns (uint256) {
-        uint256 stethToEth = uint256(IChainlinkOracle(oracleStethUsd).latestAnswer()) * 1e18 / uint256(IChainlinkOracle(oracleEthUsd).latestAnswer());
+        // Ensure that round is complete, otherwise price is stale.
+        (
+            uint80 roundID,
+            int256 stethToEth,
+            ,
+            uint256 updateTime,
+            uint80 answeredInRound
+        ) = IChainlinkOracle(oracleStethEth).latestRoundData();
+        require(
+            answeredInRound >= roundID,
+            "Chainlink Price Stale"
+        );
+        require(
+            stethToEth > 0, 
+            "Chainlink Malfunction"
+        );
+        require(
+            updateTime != 0, 
+            "Incomplete round"
+        );
 
-        // stETH is capped at 1 ETH
+        if( updateTime < block.timestamp - 86400 seconds ) {
+            revert("Stale Price");
+        }
+
+        // Note that an oracle attack could push the price of stETH over 1 ETH, which could lead to alETH minted at a LTV ratio > 50%. 
+        // Additionally, if stETH price is pushed > 2 ETH, then unbacked alETH could be minted. 
+        // We cap the steth oracel price at 1 for this reason.
         if (stethToEth > 1e18) stethToEth = 1e18;
 
-        return IWstETH(token).getStETHByWstETH(10**SafeERC20.expectDecimals(token)) * stethToEth / 1e18;
+        return IWstETH(token).getStETHByWstETH(10**SafeERC20.expectDecimals(token)) * uint256(stethToEth) / 1e18;
     }
 
     /// @inheritdoc ITokenAdapter

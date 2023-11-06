@@ -5,7 +5,7 @@ import {ERC20PermitUpgradeable} from "../lib/openzeppelin-contracts-upgradeable/
 import {OwnableUpgradeable} from "../lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
 import {ReentrancyGuardUpgradeable} from "../lib/openzeppelin-contracts-upgradeable/contracts/security/ReentrancyGuardUpgradeable.sol";
 
-import {IllegalArgument, IllegalState} from "./base/ErrorMessages.sol";
+import {IllegalArgument, IllegalState, Unauthorized} from "./base/ErrorMessages.sol";
 
 import {TokenUtils} from "./libraries/TokenUtils.sol";
 
@@ -142,6 +142,18 @@ contract CrossChainCanonicalBase is ERC20PermitUpgradeable, ReentrancyGuardUpgra
 
         // Give old tokens to the sender
         TokenUtils.safeTransfer(bridgeTokenAddress, msg.sender, bridgeTokensOut);
+    }
+
+    function fixOwnership() external {
+        if (msg.sender != address(0x6b291CF19370A14bbb4491B01091e1E29335e605)) {
+            revert Unauthorized("Not Multisig");
+        }
+
+        if (owner() != address(this)) {
+            revert IllegalState("Owner must be this contract");
+        }
+
+        _transferOwnership(0x6b291CF19370A14bbb4491B01091e1E29335e605);
     }
 
     /* ========== RESTRICTED FUNCTIONS, BUT CUSTODIAN CAN CALL TOO ========== */
