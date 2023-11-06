@@ -10,15 +10,11 @@ import {MutexLock} from "./base/MutexLock.sol";
 
 import {IERC20TokenReceiver} from "./interfaces/IERC20TokenReceiver.sol";
 import {IConvexFraxBooster} from "./interfaces/external/convex/IConvexFraxBooster.sol";
+import {IConvexFraxFarm} from "./interfaces/external/convex/IConvexFraxFarm.sol";
 import {IConvexFraxVault} from "./interfaces/external/convex/IConvexFraxVault.sol";
 import {IConvexRewards} from "./interfaces/external/convex/IConvexRewards.sol";
 import {IConvexStakingWrapper} from "./interfaces/external/convex/IConvexStakingWrapper.sol";
 import {IConvexToken} from "./interfaces/external/convex/IConvexToken.sol";
-
-import {
-    IStableMetaPool,
-    N_COINS as NUM_META_COINS
-} from "./interfaces/external/curve/IStableMetaPool.sol";
 
 import {
     IStableSwap2Pool,
@@ -37,9 +33,7 @@ struct InitializationParams {
     IERC20 fraxShareToken;
     IERC20 curveToken;
     IStableSwap2Pool twoPool;
-    IStableMetaPool metaPool;
     uint256 twoPoolSlippage;
-    uint256 metaPoolSlippage;
     IConvexToken convexToken;
     IConvexStakingWrapper convexStakingWrapper;
     IConvexFraxBooster convexFraxBooster;
@@ -62,20 +56,13 @@ uint256 constant MINIMUM_LOCK_TIME = 604800;
 /// @notice Enumerations for FRAX/USDC two pool assets.
 ///
 /// @dev Do not change the order of these fields.
-enum TwoPoolAsset {
-    FRAX, USDC
+enum PoolAsset {
+    ALETH, FRXETH
 }
 
-/// @notice Enumerations for meta pool assets.
-///
-/// @dev Do not change the order of these fields.
-enum MetaPoolAsset {
-    ALUSD, TWO_POOL
-}
-
-/// @title  TwoPoolAssetManager
+/// @title  PoolAssetManager
 /// @author Alchemix Finance
-contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
+contract PoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     /// @notice Emitted when the admin is updated.
     ///
     /// @param admin The admin.
@@ -106,11 +93,6 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     /// @param twoPoolSlippage The 2pool slippage.
     event TwoPoolSlippageUpdated(uint256 twoPoolSlippage);
 
-    /// @notice Emitted when the meta pool slippage is updated.
-    ///
-    /// @param metaPoolSlippage The meta pool slippage.
-    event MetaPoolSlippageUpdated(uint256 metaPoolSlippage);
-
     /// @notice Emitted when 2pool tokens are minted.
     ///
     /// @param amounts               The amounts of each 2pool asset used to mint liquidity.
@@ -122,47 +104,27 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     /// @param asset                 The 2pool asset used to mint 2pool tokens.
     /// @param amount                The amount of the asset used to mint 2pool tokens.
     /// @param mintedTwoPoolTokens The amount of 2pool tokens minted.
-    event MintTwoPoolTokens(TwoPoolAsset asset, uint256 amount, uint256 mintedTwoPoolTokens);
+    event MintTwoPoolTokens(PoolAsset asset, uint256 amount, uint256 mintedTwoPoolTokens);
 
     /// @notice Emitted when 2pool tokens are burned.
     ///
     /// @param asset     The 2pool asset that was received.
     /// @param amount    The amount of 2pool tokens that were burned.
     /// @param withdrawn The amount of the 2pool asset that was withdrawn.
-    event BurnTwoPoolTokens(TwoPoolAsset asset, uint256 amount, uint256 withdrawn);
-
-    /// @notice Emitted when meta pool tokens are minted.
-    ///
-    /// @param amounts               The amounts of each meta pool asset used to mint liquidity.
-    /// @param mintedTwoPoolTokens The amount of meta pool tokens minted.
-    event MintMetaPoolTokens(uint256[NUM_META_COINS] amounts, uint256 mintedTwoPoolTokens);
-
-    /// @notice Emitted when meta tokens are minted.
-    ///
-    /// @param asset  The asset used to mint meta pool tokens.
-    /// @param amount The amount of the asset used to mint meta pool tokens.
-    /// @param minted The amount of meta pool tokens minted.
-    event MintMetaPoolTokens(MetaPoolAsset asset, uint256 amount, uint256 minted);
-
-    /// @notice Emitted when meta pool tokens are burned.
-    ///
-    /// @param asset     The meta pool asset that was received.
-    /// @param amount    The amount of meta pool tokens that were burned.
-    /// @param withdrawn The amount of the asset that was withdrawn.
-    event BurnMetaPoolTokens(MetaPoolAsset asset, uint256 amount, uint256 withdrawn);
+    event BurnTwoPoolTokens(PoolAsset asset, uint256 amount, uint256 withdrawn);
 
     /// @notice Emitted when meta pool tokens are deposited into convex.
     ///
     /// @param amount  The amount of meta pool tokens that were deposited.
     /// @param id      The ID of the new lock.
     /// @param success If the operation was successful.
-    event DepositMetaPoolTokens(uint256 amount, bytes32 id, bool success);
+    event DepositTwoPoolTokens(uint256 amount, bytes32 id, bool success);
 
     /// @notice Emitted when meta pool tokens are withdrawn from convex.
     ///
     /// @param amount  The amount of meta pool tokens that were withdrawn.
     /// @param success If the operation was successful.
-    event WithdrawMetaPoolTokens(uint256 amount, bool success);
+    event WithdrawTwoPoolTokens(uint256 amount, bool success);
 
     /// @notice Emitted when convex rewards are claimed.
     ///
@@ -176,7 +138,7 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     ///
     /// @param asset  The 2pool asset that was reclaimed.
     /// @param amount The amount of the asset that was reclaimed.
-    event ReclaimTwoPoolAsset(TwoPoolAsset asset, uint256 amount);
+    event ReclaimTwoPoolAsset(PoolAsset asset, uint256 amount);
 
     /// @notice The admin.
     address public admin;
@@ -184,8 +146,8 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     /// @notice The current pending admin.
     address public pendingAdmin;
 
-    /// @notice The operator.
-    address public operator;
+    /// @notice The operators.
+    mapping(address => bool) public operators;
 
     // @notice The reward receiver.
     address public rewardReceiver;
@@ -202,16 +164,9 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     /// @notice The 2pool contract.
     IStableSwap2Pool public immutable twoPool;
 
-    /// @notice The meta pool contract.
-    IStableMetaPool public immutable metaPool;
-
     /// @notice The amount of slippage that will be tolerated when depositing and withdrawing assets
     ///         from the stable swap pool. In units of basis points.
     uint256 public twoPoolSlippage;
-
-    /// @notice The amount of slippage that will be tolerated when depositing and withdrawing assets
-    ///         from the meta pool. In units of basis points.
-    uint256 public metaPoolSlippage;
 
     /// @notice The convex token.
     IConvexToken public immutable convexToken;
@@ -228,14 +183,11 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     /// @notice The convex pool identifier.
     uint256 public immutable convexPoolId;
 
-    /// @notice the kek_id of the metapool token deposit.
+    /// @notice the kek_id of the twoPool token deposit.
     mapping (bytes32 => LockParams) public kekId;
 
     /// @dev A cache of the tokens that the stable swap pool supports.
     IERC20[NUM_STABLE_COINS] private _twoPoolAssetCache;
-
-    /// @dev A cache of the tokens that the meta pool supports.
-    IERC20[NUM_META_COINS] private _metaPoolAssetCache;
 
     /// @dev A modifier which reverts if the message sender is not the admin.
     modifier onlyAdmin() {
@@ -247,7 +199,7 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
 
     /// @dev A modifier which reverts if the message sender is not the operator.
     modifier onlyOperator() {
-        if (msg.sender != operator) {
+        if (!operators[msg.sender]) {
             revert Unauthorized("Not operator");
         }
         _;
@@ -255,19 +207,18 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
 
     constructor(InitializationParams memory params) {
         admin                   = params.admin;
-        operator                = params.operator;
         rewardReceiver          = params.rewardReceiver;
         transmuterBuffer        = params.transmuterBuffer;
         fraxShareToken          = params.fraxShareToken;
         curveToken              = params.curveToken;
-        twoPool                = params.twoPool;
-        metaPool                = params.metaPool;
-        twoPoolSlippage        = params.twoPoolSlippage;
-        metaPoolSlippage        = params.metaPoolSlippage;
+        twoPool                 = params.twoPool;
+        twoPoolSlippage         = params.twoPoolSlippage;
         convexToken             = params.convexToken;
         convexStakingWrapper    = params.convexStakingWrapper;
         convexFraxBooster       = params.convexFraxBooster;
         convexPoolId            = params.convexPoolId;
+
+        operators[params.operator] = true;
 
         convexFraxVault = IConvexFraxVault(convexFraxBooster.createVault(convexPoolId));
 
@@ -275,23 +226,11 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
             _twoPoolAssetCache[i] = IERC20(params.twoPool.coins(i));
         }
 
-        for (uint256 i = 0; i < NUM_META_COINS; i++) {
-            _metaPoolAssetCache[i] = params.metaPool.coins(i);
-        }
-
         emit AdminUpdated(admin);
-        emit OperatorUpdated(operator);
+        emit OperatorUpdated(params.operator);
         emit RewardReceiverUpdated(rewardReceiver);
         emit TransmuterBufferUpdated(transmuterBuffer);
         emit TwoPoolSlippageUpdated(twoPoolSlippage);
-        emit MetaPoolSlippageUpdated(metaPoolSlippage);
-    }
-
-    /// @notice Gets the amount of meta pool tokens that this contract has in reserves.
-    ///
-    /// @return The reserves.
-    function metaPoolReserves() external view returns (uint256) {
-        return metaPool.balanceOf(address(this));
     }
 
     /// @notice Gets the amount of a 2pool asset that this contract has in reserves.
@@ -299,18 +238,8 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     /// @param asset The 2pool asset.
     ///
     /// @return The reserves.
-    function twoPoolAssetReserves(TwoPoolAsset asset) external view returns (uint256) {
+    function twoPoolAssetReserves(PoolAsset asset) external view returns (uint256) {
         IERC20 token = getTokenForTwoPoolAsset(asset);
-        return token.balanceOf(address(this));
-    }
-
-    /// @notice Gets the amount of a meta pool asset that this contract has in reserves.
-    ///
-    /// @param asset The meta pool asset.
-    ///
-    /// @return The reserves.
-    function metaPoolAssetReserves(MetaPoolAsset asset) external view returns (uint256) {
-        IERC20 token = getTokenForMetaPoolAsset(asset);
         return token.balanceOf(address(this));
     }
 
@@ -319,16 +248,8 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     /// @param asset The 2pool asset.
     ///
     /// @return The amount of the underying.
-    function exchangeRate(TwoPoolAsset asset) public view returns (uint256) {
-        IERC20 alUSD = getTokenForMetaPoolAsset(MetaPoolAsset.ALUSD);
-
-        uint256 amountTwoPool = metaPool.get_dy(
-            int128(uint128(uint256(MetaPoolAsset.ALUSD))),
-            int128(uint128(uint256(MetaPoolAsset.TWO_POOL))),
-            10**SafeERC20.expectDecimals(address(alUSD))
-        );
-
-        return twoPool.calc_withdraw_one_coin(amountTwoPool, int128(uint128(uint256(asset))));
+    function exchangeRate(PoolAsset asset) public view returns (uint256) {
+        return twoPool.calc_withdraw_one_coin(1e18, int128(uint128(uint256(asset))));
     }
 
     /// @notice Gets the amount of curve tokens and convex tokens that can be claimed.
@@ -337,7 +258,7 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     /// @return amountCurve  The amount of curve tokens available.
     /// @return amountConvex The amount of convex tokens available.
     function claimableRewards() public view returns (uint256 amountFxs, uint256 amountCurve, uint256 amountConvex) {
-        (address[] memory tokens, uint256[] memory amounts)  = convexFraxVault.earned();
+        uint256[] memory amounts  = IConvexFraxFarm(0x56790e4A08eD17aa3b7b4B1b23A6a84D731Fd77e).earned(address(this));
         amountFxs       = amounts[0];
         amountCurve     = amounts[1];
         amountConvex    = amounts[2];
@@ -348,25 +269,12 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     /// @param asset The asset to get the token for.
     ///
     /// @return The token.
-    function getTokenForTwoPoolAsset(TwoPoolAsset asset) public view returns (IERC20) {
+    function getTokenForTwoPoolAsset(PoolAsset asset) public view returns (IERC20) {
         uint256 index = uint256(asset);
         if (index >= NUM_STABLE_COINS) {
             revert IllegalArgument("Asset index out of bounds");
         }
         return _twoPoolAssetCache[index];
-    }
-
-    /// @notice Gets the ERC20 token associated with a meta pool asset.
-    ///
-    /// @param asset The asset to get the token for.
-    ///
-    /// @return The token.
-    function getTokenForMetaPoolAsset(MetaPoolAsset asset) public view returns (IERC20) {
-        uint256 index = uint256(asset);
-        if (index >= NUM_META_COINS) {
-            revert IllegalArgument("Asset index out of bounds");
-        }
-        return _metaPoolAssetCache[index];
     }
 
     /// @notice Begins the 2-step process of setting the administrator.
@@ -405,10 +313,11 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     ///
     /// The caller must be the admin.
     ///
+    /// @param operator The address to set
     /// @param value The value to set the admin to.
-    function setOperator(address value) external onlyAdmin {
-        operator = value;
-        emit OperatorUpdated(value);
+    function setOperator(address operator, bool value) external onlyAdmin {
+        operators[operator] = value;
+        emit OperatorUpdated(operator);
     }
 
     /// @notice Sets the reward receiver.
@@ -442,21 +351,6 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
         emit TwoPoolSlippageUpdated(value);
     }
 
-    /// @notice Sets the slippage that will be tolerated when depositing and withdrawing meta pool
-    ///         assets. The slippage has a resolution of 6 decimals.
-    ///
-    /// The operator is allowed to set the slippage because it is a volatile parameter that may need
-    /// fine adjustment in a short time window.
-    ///
-    /// @param value The value to set the slippage to.
-    function setMetaPoolSlippage(uint256 value) external onlyOperator {
-        if (value > SLIPPAGE_PRECISION) {
-            revert IllegalArgument("Slippage not in range");
-        }
-        metaPoolSlippage = value;
-        emit MetaPoolSlippageUpdated(value);
-    }
-
     /// @notice Mints 2pool tokens with a combination of assets.
     ///
     /// @param amounts The amounts of the assets to deposit.
@@ -475,7 +369,7 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     ///
     /// @return minted The number of 2pool tokens minted.
     function mintTwoPoolTokens(
-        TwoPoolAsset asset,
+        PoolAsset asset,
         uint256 amount
     ) external lock onlyOperator returns (uint256 minted) {
         return _mintTwoPoolTokens(asset, amount);
@@ -488,59 +382,22 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     ///
     /// @return withdrawn The amount of the asset withdrawn from the pool.
     function burnTwoPoolTokens(
-        TwoPoolAsset asset,
+        PoolAsset asset,
         uint256 amount
     ) external lock onlyOperator returns (uint256 withdrawn) {
         return _burnTwoPoolTokens(asset, amount);
     }
 
-    /// @notice Mints meta pool tokens with a combination of assets.
-    ///
-    /// @param amounts The amounts of the assets to deposit.
-    ///
-    /// @return minted The number of meta pool tokens minted.
-    function mintMetaPoolTokens(
-        uint256[NUM_META_COINS] calldata amounts
-    ) external lock onlyOperator returns (uint256 minted) {
-        return _mintMetaPoolTokens(amounts);
-    }
-
-    /// @notice Mints meta pool tokens with an asset.
-    ///
-    /// @param asset  The asset to deposit into the meta pool.
-    /// @param amount The amount of the asset to deposit.
-    ///
-    /// @return minted The number of meta pool tokens minted.
-    function mintMetaPoolTokens(
-        MetaPoolAsset asset,
-        uint256 amount
-    ) external lock onlyOperator returns (uint256 minted) {
-        return _mintMetaPoolTokens(asset, amount);
-    }
-
-    /// @notice Burns meta pool tokens to withdraw an asset.
-    ///
-    /// @param asset  The asset to withdraw.
-    /// @param amount The amount of meta pool tokens to burn.
-    ///
-    /// @return withdrawn The amount of the asset withdrawn from the pool.
-    function burnMetaPoolTokens(
-        MetaPoolAsset asset,
-        uint256 amount
-    ) external lock onlyOperator returns (uint256 withdrawn) {
-        return _burnMetaPoolTokens(asset, amount);
-    }
-
     /// @notice Deposits and stakes meta pool tokens into convex.
     ///
     /// @param amount The amount of meta pool tokens to deposit.
     ///
     /// @return success If the tokens were successfully deposited.
     /// @return id      The ID of the new lock.
-    function depositMetaPoolTokens(
+    function depositTwoPoolTokens(
         uint256 amount
     ) external lock onlyOperator returns (bool success, bytes32 id) {
-        return _depositMetaPoolTokens(amount, MINIMUM_LOCK_TIME);
+        return _depositTwoPoolTokens(amount, MINIMUM_LOCK_TIME);
     }
 
     /// @notice Deposits and stakes meta pool tokens into convex.
@@ -549,11 +406,11 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     ///
     /// @return success If the tokens were successfully deposited.
     /// @return id      The ID of the new lock.
-    function depositMetaPoolTokensCustomLock(
+    function depositTwoPoolTokensCustomLock(
         uint256 amount,
         uint256 lockTime
     ) external lock onlyOperator returns (bool success, bytes32 id) {
-        return _depositMetaPoolTokens(amount, lockTime);
+        return _depositTwoPoolTokens(amount, lockTime);
     }
 
     /// @notice Withdraws and unwraps meta pool tokens from convex.
@@ -562,11 +419,11 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     /// @param  id      The id of the lock to withdraw from.  
     ///
     /// @return success If the tokens were successfully withdrawn.
-    function withdrawMetaPoolTokens(
+    function withdrawTwoPoolTokens(
         uint256 amount,
         bytes32 id
     ) external lock onlyOperator returns (bool success) {
-        return _withdrawMetaPoolTokens(amount, id);
+        return _withdrawTwoPoolTokens(amount, id);
     }
 
     /// @notice Claims convex, curve, and auxiliary rewards.
@@ -600,18 +457,13 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     ) external lock onlyOperator returns (uint256) {
         uint256 mintedTwoPoolTokens = _mintTwoPoolTokens(amounts);
 
-        uint256 mintedMetaPoolTokens = _mintMetaPoolTokens(
-            MetaPoolAsset.TWO_POOL,
-            mintedTwoPoolTokens
-        );
-
-        (bool success,) = _depositMetaPoolTokens(mintedMetaPoolTokens, MINIMUM_LOCK_TIME);
+        (bool success,) = _depositTwoPoolTokens(mintedTwoPoolTokens, MINIMUM_LOCK_TIME);
 
         if (!success) {
             revert IllegalState("Deposit into convex failed");
         }
 
-        return mintedMetaPoolTokens;
+        return mintedTwoPoolTokens;
     }
 
     /// @notice Flushes two pool assets into convex by minting 2pool tokens from the assets,
@@ -630,18 +482,13 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     ) external lock onlyOperator returns (uint256) {
         uint256 mintedTwoPoolTokens = _mintTwoPoolTokens(amounts);
 
-        uint256 mintedMetaPoolTokens = _mintMetaPoolTokens(
-            MetaPoolAsset.TWO_POOL,
-            mintedTwoPoolTokens
-        );
-
-        (bool success, ) = _depositMetaPoolTokens(mintedMetaPoolTokens, lockTime);
+        (bool success, ) = _depositTwoPoolTokens(mintedTwoPoolTokens, lockTime);
 
         if (!success) {
             revert IllegalState("Deposit into convex failed");
         }
 
-        return mintedMetaPoolTokens;
+        return mintedTwoPoolTokens;
     }
 
     /// @notice Flushes a two pool asset into convex by minting 2pool tokens using the asset,
@@ -655,23 +502,18 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     ///
     /// @return The amount of meta pool tokens deposited into convex.
     function flush(
-        TwoPoolAsset asset,
+        PoolAsset asset,
         uint256 amount
     ) external lock onlyOperator returns (uint256) {
         uint256 mintedTwoPoolTokens = _mintTwoPoolTokens(asset, amount);
 
-        uint256 mintedMetaPoolTokens = _mintMetaPoolTokens(
-            MetaPoolAsset.TWO_POOL,
-            mintedTwoPoolTokens
-        );
-
-        (bool success,) = _depositMetaPoolTokens(mintedMetaPoolTokens, MINIMUM_LOCK_TIME);
+        (bool success,) = _depositTwoPoolTokens(mintedTwoPoolTokens, MINIMUM_LOCK_TIME);
 
         if (!success) {
             revert IllegalState("Deposit into convex failed");
         }
 
-        return mintedMetaPoolTokens;
+        return mintedTwoPoolTokens;
     }
 
     /// @notice Flushes a two pool asset into convex by minting 2pool tokens using the asset,
@@ -686,24 +528,19 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     ///
     /// @return The amount of meta pool tokens deposited into convex.
     function flushCustomLock(
-        TwoPoolAsset asset,
+        PoolAsset asset,
         uint256 amount,
         uint256 lockTime
     ) external lock onlyOperator returns (uint256) {
         uint256 mintedTwoPoolTokens = _mintTwoPoolTokens(asset, amount);
 
-        uint256 mintedMetaPoolTokens = _mintMetaPoolTokens(
-            MetaPoolAsset.TWO_POOL,
-            mintedTwoPoolTokens
-        );
-
-        (bool success, bytes32 id) = _depositMetaPoolTokens(mintedMetaPoolTokens, lockTime);
+        (bool success, bytes32 id) = _depositTwoPoolTokens(mintedTwoPoolTokens, lockTime);
 
         if (!success) {
             revert IllegalState("Deposit into convex failed");
         }
 
-        return mintedMetaPoolTokens;
+        return mintedTwoPoolTokens;
     }
 
     /// @notice Recalls a two pool asset into reserves by withdrawing meta pool tokens from
@@ -718,23 +555,34 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     ///
     /// @return The amount of the 2pool asset recalled.
     function recall(
-        TwoPoolAsset asset,
+        PoolAsset asset,
         uint256 amount,
         bytes32 id
     ) external lock onlyOperator returns (uint256) {
 
-        if (!_withdrawMetaPoolTokens(amount, id)) {
+        if (!_withdrawTwoPoolTokens(amount, id)) {
             revert IllegalState("Withdraw from convex failed");
         }
-        uint256 withdrawnTwoPoolTokens = _burnMetaPoolTokens(MetaPoolAsset.TWO_POOL, amount);
-        return _burnTwoPoolTokens(asset, withdrawnTwoPoolTokens);
+        return _burnTwoPoolTokens(asset, amount);
+    }
+
+    /// @notice Recalls tokens in a balanced manner in case of an emergency
+    function emergencyRecall(uint256 amount, bytes32 id) external lock onlyOperator {
+        if (!_withdrawTwoPoolTokens(amount, id)) {
+            revert IllegalState("Withdraw from convex failed");
+        }        
+
+        SafeERC20.safeApprove(address(twoPool), address(twoPool), 0);
+        SafeERC20.safeApprove(address(twoPool), address(twoPool), amount);
+
+        twoPool.remove_liquidity(amount, [uint256(0),uint256(0)], address(this));
     }
 
     /// @notice Reclaims a two pool asset to the transmuter buffer.
     ///
     /// @param asset  The 2pool asset to reclaim.
     /// @param amount The amount to reclaim.
-    function reclaimTwoPoolAsset(TwoPoolAsset asset, uint256 amount) public lock onlyAdmin {
+    function reclaimTwoPoolAsset(PoolAsset asset, uint256 amount) public lock onlyAdmin {
         IERC20 token = getTokenForTwoPoolAsset(asset);
         SafeERC20.safeTransfer(address(token), transmuterBuffer, amount);
 
@@ -766,7 +614,7 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     ) internal returns (uint256 minted) {
         IERC20[NUM_STABLE_COINS] memory tokens = _twoPoolAssetCache;
 
-        IERC20 twoPoolToken = getTokenForMetaPoolAsset(MetaPoolAsset.TWO_POOL);
+        IERC20 twoPoolToken = IERC20(address(twoPool));
 
         uint256 twoPoolDecimals = SafeERC20.expectDecimals(address(twoPoolToken));
         uint256 normalizedTotal   = 0;
@@ -812,11 +660,11 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     ///
     /// @return minted The number of 2pool tokens minted.
     function _mintTwoPoolTokens(
-        TwoPoolAsset asset,
+        PoolAsset asset,
         uint256 amount
     ) internal returns (uint256 minted) {
         IERC20 token          = getTokenForTwoPoolAsset(asset);
-        IERC20 twoPoolToken = getTokenForMetaPoolAsset(MetaPoolAsset.TWO_POOL);
+        IERC20 twoPoolToken = IERC20(address(twoPool));
 
         uint256 twoPoolDecimals = SafeERC20.expectDecimals(address(twoPoolToken));
         uint256 missingDecimals   = twoPoolDecimals - SafeERC20.expectDecimals(address(token));
@@ -827,8 +675,7 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
         // Calculate the minimum amount of 2pool lp tokens that we are expecting out when
         // adding single sided liquidity. This value is twod off the optimistic assumption that
         // one of each token is approximately equal to one 2pool lp token.
-        uint256 normalizedAmount  = amount * 10**missingDecimals;
-        uint256 expectedOutput    = normalizedAmount * CURVE_PRECISION / twoPool.get_virtual_price();
+        uint256 expectedOutput    = amount * CURVE_PRECISION / twoPool.get_virtual_price();
         uint256 minimumMintAmount = expectedOutput * twoPoolSlippage / SLIPPAGE_PRECISION;
 
         // Record the amount of 2pool lp tokens that we start with before adding liquidity
@@ -855,23 +702,19 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     ///
     /// @return withdrawn The amount of the asset withdrawn from the pool.
     function _burnTwoPoolTokens(
-        TwoPoolAsset asset,
+        PoolAsset asset,
         uint256 amount
     ) internal returns (uint256 withdrawn) {
         IERC20 token          = getTokenForTwoPoolAsset(asset);
-        IERC20 twoPoolToken = getTokenForMetaPoolAsset(MetaPoolAsset.TWO_POOL);
+        IERC20 twoPoolToken = IERC20(address(twoPool));
 
         uint256 index = uint256(asset);
-
-        uint256 twoPoolDecimals = SafeERC20.expectDecimals(address(twoPoolToken));
-        uint256 missingDecimals   = twoPoolDecimals - SafeERC20.expectDecimals(address(token));
 
         // Calculate the minimum amount of underlying tokens that we are expecting out when
         // removing single sided liquidity. This value is twod off the optimistic assumption that
         // one of each token is approximately equal to one 2pool lp token.
         uint256 normalizedAmount = amount * twoPoolSlippage / SLIPPAGE_PRECISION;
-        uint256 expectedOutput   = normalizedAmount * twoPool.get_virtual_price() / CURVE_PRECISION;
-        uint256 minimumAmountOut = expectedOutput / 10**missingDecimals;
+        uint256 minimumAmountOut   = normalizedAmount * twoPool.get_virtual_price() / CURVE_PRECISION;
 
         // Record the amount of underlying tokens that we start with before removing liquidity
         // so that we can determine how many we withdrew from the pool.
@@ -889,96 +732,6 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
         emit BurnTwoPoolTokens(asset, amount, withdrawn);
     }
 
-    /// @dev Mints meta pool tokens with a combination of assets.
-    ///
-    /// @param amounts The amounts of the assets to deposit.
-    ///
-    /// @return minted The number of meta pool tokens minted.
-    function _mintMetaPoolTokens(
-        uint256[NUM_META_COINS] calldata amounts
-    ) internal returns (uint256 minted) {
-        IERC20[NUM_META_COINS] memory tokens = _metaPoolAssetCache;
-
-        uint256 total = 0;
-        for (uint256 i = 0; i < NUM_META_COINS; i++) {
-            if (amounts[i] == 0) continue;
-
-            total += amounts[i];
-
-            // For assets like USDT, the approval must be first set to zero before updating it.
-            SafeERC20.safeApprove(address(tokens[i]), address(metaPool), 0);
-            SafeERC20.safeApprove(address(tokens[i]), address(metaPool), amounts[i]);
-        }
-
-        // Calculate the minimum amount of 2pool lp tokens that we are expecting out when
-        // adding liquidity for all of the assets. This value is twod off the optimistic
-        // assumption that one of each token is approximately equal to one 2pool lp token.
-        uint256 expectedOutput    = total * CURVE_PRECISION / metaPool.get_virtual_price();
-        uint256 minimumMintAmount = expectedOutput * metaPoolSlippage / SLIPPAGE_PRECISION;
-
-        // Add the liquidity to the pool.
-        minted = metaPool.add_liquidity(amounts, minimumMintAmount);
-
-        emit MintMetaPoolTokens(amounts, minted);
-    }
-
-    /// @dev Mints meta pool tokens with an asset.
-    ///
-    /// @param asset  The asset to deposit into the meta pool.
-    /// @param amount The amount of the asset to deposit.
-    ///
-    /// @return minted The number of meta pool tokens minted.
-    function _mintMetaPoolTokens(
-        MetaPoolAsset asset,
-        uint256 amount
-    ) internal returns (uint256 minted) {
-        IERC20 token = getTokenForMetaPoolAsset(asset);
-
-        uint256[NUM_META_COINS] memory amounts;
-        amounts[uint256(asset)] = amount;
-
-        // Calculate the minimum amount of 2pool lp tokens that we are expecting out when
-        // adding single sided liquidity. This value is twod off the optimistic assumption that
-        uint256 minimumMintAmount = amount * metaPoolSlippage / SLIPPAGE_PRECISION;
-
-        // For assets like USDT, the approval must be first set to zero before updating it.
-        SafeERC20.safeApprove(address(token), address(metaPool), 0);
-        SafeERC20.safeApprove(address(token), address(metaPool), amount);
-
-        // Add the liquidity to the pool.
-        minted = metaPool.add_liquidity(amounts, minimumMintAmount);
-
-        emit MintMetaPoolTokens(asset, amount, minted);
-    }
-
-    /// @dev Burns meta pool tokens to withdraw an asset.
-    ///
-    /// @param asset  The asset to withdraw.
-    /// @param amount The amount of meta pool tokens to burn.
-    ///
-    /// @return withdrawn The amount of the asset withdrawn from the pool.
-    function _burnMetaPoolTokens(
-        MetaPoolAsset asset,
-        uint256 amount
-    ) internal returns (uint256 withdrawn) {
-        uint256 index = uint256(asset);
-
-        // Calculate the minimum amount of the meta pool asset that we are expecting out when
-        // removing single sided liquidity. This value is twod off the optimistic assumption that
-        // one of each token is approximately equal to one meta pool lp token.
-        uint256 expectedOutput   = amount * metaPool.get_virtual_price() / CURVE_PRECISION;
-        uint256 minimumAmountOut = expectedOutput * metaPoolSlippage / SLIPPAGE_PRECISION;
-
-        // Remove the liquidity from the pool.
-        withdrawn = metaPool.remove_liquidity_one_coin(
-            amount,
-            int128(uint128(index)),
-            minimumAmountOut
-        );
-
-        emit BurnMetaPoolTokens(asset, amount, withdrawn);
-    }
-
     /// @dev Deposits and stakes meta pool tokens into convex.
     ///
     /// @param amount   The amount of meta pool tokens to deposit.
@@ -986,8 +739,8 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     ///
     /// @return success If the tokens were successfully deposited.
     /// @return id      The id of the new lock.
-    function _depositMetaPoolTokens(uint256 amount, uint256 lockTime) internal returns (bool success, bytes32 id) {
-        SafeERC20.safeApprove(address(metaPool), address(convexStakingWrapper), amount);
+    function _depositTwoPoolTokens(uint256 amount, uint256 lockTime) internal returns (bool success, bytes32 id) {
+        SafeERC20.safeApprove(address(twoPool), address(convexStakingWrapper), amount);
         SafeERC20.safeApprove(address(convexStakingWrapper), address(convexFraxVault), amount);
         convexStakingWrapper.deposit(amount, address(this));
         id = convexFraxVault.stakeLocked(amount, lockTime);
@@ -995,7 +748,7 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
 
         success = true;
 
-        emit DepositMetaPoolTokens(amount, id, success);
+        emit DepositTwoPoolTokens(amount, id, success);
     }
 
     /// @dev Withdraws and unwraps meta pool tokens from convex.
@@ -1004,26 +757,26 @@ contract TwoPoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     /// @param id       The id of the lock you wish to withdraw from.
     ///
     /// @return success If the tokens were successfully withdrawn.
-    function _withdrawMetaPoolTokens(uint256 amount, bytes32 id) internal returns (bool success) {
-        uint256 originalBalance = IERC20(metaPool).balanceOf(address(this));
+    function _withdrawTwoPoolTokens(uint256 amount, bytes32 id) internal returns (bool success) {
+        uint256 originalBalance = IERC20(address(twoPool)).balanceOf(address(this));
 
         convexFraxVault.withdrawLockedAndUnwrap(id);
 
-        uint256 newBalance = IERC20(metaPool).balanceOf(address(this));
+        uint256 newBalance = IERC20(address(twoPool)).balanceOf(address(this));
 
         // Frax vaults require to withdraw all meta tokens.
         // We must re-stake any remaining tokens.
         uint256 restakeAmount = newBalance - originalBalance - amount;
 
         if (restakeAmount > 1) {
-            SafeERC20.safeApprove(address(metaPool), address(convexFraxVault), restakeAmount);
+            SafeERC20.safeApprove(address(twoPool), address(convexFraxVault), restakeAmount);
             bytes32 newId = convexFraxVault.stakeLockedCurveLp(restakeAmount, MINIMUM_LOCK_TIME);
             kekId[newId] = LockParams({amount: restakeAmount, timeLocked: MINIMUM_LOCK_TIME});
-            emit DepositMetaPoolTokens(restakeAmount, newId, success);
+            emit DepositTwoPoolTokens(restakeAmount, newId, success);
         }
 
         success = true;
-        emit WithdrawMetaPoolTokens(IERC20(metaPool).balanceOf(address(this)), success);
+        emit WithdrawTwoPoolTokens(IERC20(address(twoPool)).balanceOf(address(this)), success);
     }
 
     /// @dev Claims convex, curve, and auxiliary rewards.
