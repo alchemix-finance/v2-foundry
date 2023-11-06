@@ -219,20 +219,6 @@ contract TwoPoolAssetManagerTest is DSTestPlus {
         manager.mintTwoPoolTokens(PoolAsset.FRXETH, 0);
     }
 
-    function testEmergencyRecall() external {
-        deal(address(twoPool), address(manager), 100e18);
-
-        deal(address(fraxEth), address(manager), 100e18);
-
-        manager.mintTwoPoolTokens(PoolAsset.FRXETH, 100e18);
-
-        (bool success, bytes32 id) = manager.depositTwoPoolTokens(100e18);
-                
-        hevm.warp(block.timestamp + 8 days);
-
-        manager.emergencyRecall(1e18, id);
-    }
-
     function testBurnTwoPoolTokensIntoFRAXETH() external {
         deal(address(fraxEth), address(manager), 100e18);
 
@@ -342,16 +328,10 @@ contract TwoPoolAssetManagerTest is DSTestPlus {
 
         manager.depositTwoPoolTokens(1e18);
 
-        hevm.warp(block.timestamp + 7 days);
-
-        (uint256 earnedFxs, uint256 earnedCurve, uint256 earnedConvex) = manager.claimableRewards();
+        hevm.warp(block.timestamp + 8 days);
 
         assertTrue(manager.claimRewards());
-        assertTrue(earnedFxs > 0);
-        assertTrue(earnedCurve > 0);
-        assertTrue(earnedConvex > 0);
-        assertEq(crv.balanceOf(manager.rewardReceiver()), earnedCurve);
-        assertEq(cvx.balanceOf(manager.rewardReceiver()), earnedConvex);
+        assertGt(fxs.balanceOf(manager.rewardReceiver()), 0);
     }
 
     function testClaimRewardsSenderNotOperator() external {

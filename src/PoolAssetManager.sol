@@ -3,7 +3,6 @@ pragma solidity 0.8.13;
 
 import {IERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
-
 import {IllegalArgument, IllegalState, Unauthorized} from "./base/ErrorMessages.sol";
 import {Multicall} from "./base/Multicall.sol";
 import {MutexLock} from "./base/MutexLock.sol";
@@ -252,18 +251,6 @@ contract PoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
         return twoPool.calc_withdraw_one_coin(1e18, int128(uint128(uint256(asset))));
     }
 
-    /// @notice Gets the amount of curve tokens and convex tokens that can be claimed.
-    ///
-    /// @return amountFxs    The amount of FXS tokens available.
-    /// @return amountCurve  The amount of curve tokens available.
-    /// @return amountConvex The amount of convex tokens available.
-    function claimableRewards() public view returns (uint256 amountFxs, uint256 amountCurve, uint256 amountConvex) {
-        uint256[] memory amounts  = IConvexFraxFarm(0x56790e4A08eD17aa3b7b4B1b23A6a84D731Fd77e).earned(address(this));
-        amountFxs       = amounts[0];
-        amountCurve     = amounts[1];
-        amountConvex    = amounts[2];
-    }
-
     /// @notice Gets the ERC20 token associated with a 2pool asset.
     ///
     /// @param asset The asset to get the token for.
@@ -439,6 +426,7 @@ contract PoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
 
         SafeERC20.safeTransfer(address(curveToken), rewardReceiver, curveBalance);
         SafeERC20.safeTransfer(address(convexToken), rewardReceiver, convexBalance);
+        SafeERC20.safeTransfer(address(fraxShareToken), rewardReceiver, fxsBalance);
 
         emit ClaimRewards(success, fxsBalance, curveBalance, convexBalance);
     }
@@ -564,18 +552,6 @@ contract PoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
             revert IllegalState("Withdraw from convex failed");
         }
         return _burnTwoPoolTokens(asset, amount);
-    }
-
-    /// @notice Recalls tokens in a balanced manner in case of an emergency
-    function emergencyRecall(uint256 amount, bytes32 id) external lock onlyOperator {
-        if (!_withdrawTwoPoolTokens(amount, id)) {
-            revert IllegalState("Withdraw from convex failed");
-        }        
-
-        SafeERC20.safeApprove(address(twoPool), address(twoPool), 0);
-        SafeERC20.safeApprove(address(twoPool), address(twoPool), amount);
-
-        twoPool.remove_liquidity(amount, [uint256(0),uint256(0)], address(this));
     }
 
     /// @notice Reclaims a two pool asset to the transmuter buffer.
@@ -740,10 +716,8 @@ contract PoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
     /// @return success If the tokens were successfully deposited.
     /// @return id      The id of the new lock.
     function _depositTwoPoolTokens(uint256 amount, uint256 lockTime) internal returns (bool success, bytes32 id) {
-        SafeERC20.safeApprove(address(twoPool), address(convexStakingWrapper), amount);
-        SafeERC20.safeApprove(address(convexStakingWrapper), address(convexFraxVault), amount);
-        convexStakingWrapper.deposit(amount, address(this));
-        id = convexFraxVault.stakeLocked(amount, lockTime);
+        SafeERC20.safeApprove(address(twoPool), address(convexFraxVault), amount);
+        id = convexFraxVault.stakeLockedCurveLp(amount, lockTime);
         kekId[id] = LockParams({amount: amount, timeLocked: lockTime});
 
         success = true;
