@@ -92,6 +92,7 @@ contract WstETHAdapterV1 is ITokenAdapter, MutexLock {
             uint256 updateTime,
             uint80 answeredInRound
         ) = IChainlinkOracle(oracleStethEth).latestRoundData();
+        
         require(
             stethToEth > 0, 
             "Chainlink Malfunction"
