@@ -100,9 +100,9 @@ contract OptimismAaveRewardCollector is IRewardCollector {
             "Chainlink Malfunction"
         );
 
-        // if( updateTime < block.timestamp - 1200 seconds ) {
-        //     revert("Chainlink Malfunction");
-        // }
+        if( updateTime < block.timestamp - 1200 seconds ) {
+            revert("Chainlink Malfunction");
+        }
 
         // Ensure that round is complete, otherwise price is stale.
         (
@@ -118,9 +118,9 @@ contract OptimismAaveRewardCollector is IRewardCollector {
             "Chainlink Malfunction"
         );
 
-        // if( updateTimeEth < block.timestamp - 1200 seconds ) {
-        //     revert("Chainlink Malfunction");
-        // }
+        if( updateTimeEth < block.timestamp - 1200 seconds ) {
+            revert("Chainlink Malfunction");
+        }
 
         // Find expected amount out before calling harvest
         if (debtToken == alUsdOptimism) {
