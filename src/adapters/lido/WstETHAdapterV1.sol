@@ -93,20 +93,12 @@ contract WstETHAdapterV1 is ITokenAdapter, MutexLock {
             uint80 answeredInRound
         ) = IChainlinkOracle(oracleStethEth).latestRoundData();
         require(
-            answeredInRound >= roundID,
-            "Chainlink Price Stale"
-        );
-        require(
             stethToEth > 0, 
             "Chainlink Malfunction"
         );
-        require(
-            updateTime != 0, 
-            "Incomplete round"
-        );
 
         if( updateTime < block.timestamp - 86400 seconds ) {
-            revert("Stale Price");
+            revert("Chainlink Malfunction");
         }
 
         // Note that an oracle attack could push the price of stETH over 1 ETH, which could lead to alETH minted at a LTV ratio > 50%. 

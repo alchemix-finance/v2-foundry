@@ -64,10 +64,6 @@ contract WstETHAdapterOptimism is ITokenAdapter, MutexLock {
             uint256 updateTime,
             uint80 answeredInRound
         ) = IChainlinkOracle(oracleWstethEth).latestRoundData();
-        require(
-            answeredInRound >= roundID,
-            "Chainlink Price Stale"
-        );
 
         require(wstethToEth > 0, "Chainlink Malfunction");
         require(updateTime != 0, "Incomplete round");
