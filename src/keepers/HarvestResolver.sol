@@ -235,7 +235,7 @@ contract HarvestResolver is IResolver, Ownable {
 
             return (
               true,
-              abi.encodeWithSelector(IAlchemixHarvester.harvest.selector, h.alchemist, yieldToken, minimumAmountOut)
+              abi.encodeWithSelector(IAlchemixHarvester.harvest.selector, h.alchemist, yieldToken)
             );
           }
         }

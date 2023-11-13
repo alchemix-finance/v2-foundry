@@ -6,8 +6,13 @@ import "../interfaces/IAlchemistV2.sol";
 import "../interfaces/keepers/IHarvestResolver.sol";
 import "../interfaces/keepers/IAlchemixHarvester.sol";
 import "../interfaces/IRewardRouter.sol";
+import "../interfaces/ITokenAdapter.sol";
+import "../keepers/HarvestResolver.sol";
 
 contract AlchemixHarvester is IAlchemixHarvester, AlchemixGelatoKeeper {
+
+  uint256 public constant SLIPPAGE_PRECISION = 10000;
+
   /// @notice The address of the resolver.
   address public resolver;
 
@@ -34,11 +39,9 @@ contract AlchemixHarvester is IAlchemixHarvester, AlchemixGelatoKeeper {
   ///
   /// @param alchemist                The address of the target alchemist.
   /// @param yieldToken               The address of the target yield token.
-  /// @param minimumAmountOut         The minimum amount of tokens expected to be harvested.
   function harvest(
     address alchemist,
-    address yieldToken,
-    uint256 minimumAmountOut
+    address yieldToken
   ) external override {
     if (msg.sender != gelatoPoker) {
       revert Unauthorized();
@@ -47,6 +50,16 @@ contract AlchemixHarvester is IAlchemixHarvester, AlchemixGelatoKeeper {
     if (tx.gasprice > maxGasPrice) {
       revert TheGasIsTooDamnHigh();
     }
+
+    HarvestResolver.HarvestJob memory h = IHarvestResolver(resolver).harvestJobs(yieldToken);
+
+    IAlchemistV2.YieldTokenParams memory ytp = IAlchemistV2(h.alchemist).getYieldTokenParameters(yieldToken);
+    
+    uint256 pps = ITokenAdapter(ytp.adapter).price();
+    uint256 currentValue = ((ytp.activeBalance + ytp.harvestableBalance) * pps) / 10**ytp.decimals;
+
+    uint256 minimumAmountOut = currentValue - ytp.expectedValue;
+    minimumAmountOut = minimumAmountOut - (minimumAmountOut * h.slippageBps) / SLIPPAGE_PRECISION;
 
     IAlchemistV2(alchemist).harvest(yieldToken, minimumAmountOut);
 

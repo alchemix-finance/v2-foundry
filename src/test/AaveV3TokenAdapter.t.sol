@@ -339,10 +339,10 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         // Keeper check balance of token
         (bool canExec, bytes memory execPayload) = harvestResolver.checker();
 
-        (address alch, address yield, uint256 minOut) = abi.decode(extractCalldata(execPayload), (address, address, uint256));
+        (address alch, address yield) = abi.decode(extractCalldata(execPayload), (address, address));
 
         (int256 debtBefore, ) = alchemistUSD.accounts(address((this)));
-        harvester.harvest(alch, yield, minOut);
+        harvester.harvest(alch, yield);
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
 
         assertEq(IERC20(rewardToken).balanceOf(address(rewardCollector)), 0);
@@ -409,10 +409,10 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
         // Keeper check balance of token
         (bool canExec, bytes memory execPayload) = harvestResolver.checker();
 
-        (address alch, address yield, uint256 minOut) = abi.decode(extractCalldata(execPayload), (address, address, uint256));
+        (address alch, address yield) = abi.decode(extractCalldata(execPayload), (address, address));
 
         (int256 debtBefore, ) = alchemistETH.accounts(address((this)));
-        harvester.harvest(alch, yield, minOut);
+        harvester.harvest(alch, yield);
         (int256 debtAfter, ) = alchemistETH.accounts(address((this)));
 
         assertEq(IERC20(rewardToken).balanceOf(address(rewardCollectorETH)), 0);

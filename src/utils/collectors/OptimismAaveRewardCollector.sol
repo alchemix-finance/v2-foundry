@@ -85,11 +85,48 @@ contract OptimismAaveRewardCollector is IRewardCollector {
         token[0] = address(IStaticAToken(yieldToken).ATOKEN());
         uint256 claimable = IRewardsController(aaveIncentives).getUserRewards(token, yieldToken, rewardToken);
         uint256 totalToSwap = claimable + TokenUtils.safeBalanceOf(rewardToken, address(this));
+
+        // Ensure that round is complete, otherwise price is stale.
+        (
+            uint80 roundID,
+            int256 opToUsd,
+            ,
+            uint256 updateTime,
+            uint80 answeredInRound
+        ) = IChainlinkOracle(opToUsdOracle).latestRoundData();
+        
+        require(
+            opToUsd > 0, 
+            "Chainlink Malfunction"
+        );
+
+        // if( updateTime < block.timestamp - 1200 seconds ) {
+        //     revert("Chainlink Malfunction");
+        // }
+
+        // Ensure that round is complete, otherwise price is stale.
+        (
+            uint80 roundIDEth,
+            int256 ethToUsd,
+            ,
+            uint256 updateTimeEth,
+            uint80 answeredInRoundEth
+        ) = IChainlinkOracle(ethToUsdOracle).latestRoundData();
+        
+        require(
+            ethToUsd > 0, 
+            "Chainlink Malfunction"
+        );
+
+        // if( updateTimeEth < block.timestamp - 1200 seconds ) {
+        //     revert("Chainlink Malfunction");
+        // }
+
         // Find expected amount out before calling harvest
         if (debtToken == alUsdOptimism) {
-            expectedExchange = totalToSwap * uint(IChainlinkOracle(opToUsdOracle).latestAnswer()) / 1e8;
+            expectedExchange = totalToSwap * uint(opToUsd) / 1e8;
         } else if (debtToken == alEthOptimism) {
-            expectedExchange = totalToSwap * uint(IChainlinkOracle(opToUsdOracle).latestAnswer()) / uint(IChainlinkOracle(ethToUsdOracle).latestAnswer());
+            expectedExchange = totalToSwap * uint(uint(opToUsd)) / uint(ethToUsd);
         } else {
             revert IllegalState("Invalid debt token");
         }
