@@ -328,7 +328,7 @@ contract TwoPoolAssetManagerTest is DSTestPlus {
 
         manager.depositTwoPoolTokens(1e18);
 
-        hevm.warp(block.timestamp + 8 days);
+        hevm.warp(block.timestamp + 7 days);
 
         assertTrue(manager.claimRewards());
         assertGt(fxs.balanceOf(manager.rewardReceiver()), 0);
@@ -387,6 +387,21 @@ contract TwoPoolAssetManagerTest is DSTestPlus {
         uint256 withdrawn = manager.recall(PoolAsset.FRXETH, 1e18, id);
 
         assertEq(fraxEth.balanceOf(address(manager)), withdrawn);
+        assertEq(convexFraxFarm.lockedLiquidityOf(address(manager.convexFraxVault())), 0);
+    }
+
+    function testRecallEmergency() external {
+        deal(address(twoPool), address(manager), 1e18);
+
+        (bool success, bytes32 id) = manager.depositTwoPoolTokens(1e18);
+
+        manager.setTwoPoolSlippage(0);
+
+        hevm.warp(block.timestamp + 7 days);
+
+        manager.emergencyRecall(1e18, id);
+
+        assertEq(fraxEth.balanceOf(address(manager)), uint256(0));
         assertEq(convexFraxFarm.lockedLiquidityOf(address(manager.convexFraxVault())), 0);
     }
 

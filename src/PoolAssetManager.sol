@@ -554,6 +554,22 @@ contract PoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
         return _burnTwoPoolTokens(asset, amount);
     }
 
+    /// @notice Recalls tokens in a balanced manner in case of an emergency
+    function emergencyRecall(uint256 amount, bytes32 id) external lock onlyOperator {
+        if (!_withdrawTwoPoolTokens(amount, id)) {
+            revert IllegalState("Withdraw from convex failed");
+        }        
+
+        IERC20 twoPoolToken = IERC20(address(twoPool));
+
+        SafeERC20.safeApprove(address(twoPoolToken), address(twoPool), 0);
+        SafeERC20.safeApprove(address(twoPoolToken), address(twoPool), amount);
+
+        // Remove the liquidity from the pool.
+        uint256[2] memory minAmounts = [uint256(0), uint256(0)];
+        twoPool.remove_liquidity(amount, minAmounts, address(this));
+    }
+
     /// @notice Reclaims a two pool asset to the transmuter buffer.
     ///
     /// @param asset  The 2pool asset to reclaim.
@@ -707,6 +723,22 @@ contract PoolAssetManager is Multicall, MutexLock, IERC20TokenReceiver {
 
         emit BurnTwoPoolTokens(asset, amount, withdrawn);
     }
+
+    // /// @dev Burns 2pool tokens to withdraw an asset.
+    // ///
+    // /// @param amount The amount of 2pool tokens to burn.
+    // function _burnTwoPoolTokensBalanced(
+    //     uint256 amount,
+    //     uint256[2] calldata minAmounts
+    // ) internal {
+    //     IERC20 twoPoolToken = IERC20(address(twoPool));
+
+    //     SafeERC20.safeApprove(address(twoPoolToken), address(twoPool), 0);
+    //     SafeERC20.safeApprove(address(twoPoolToken), address(twoPool), amount);
+
+    //     // Remove the liquidity from the pool.
+    //     twoPool.remove_liquidity(amount, minAmounts, address(this));
+    // }
 
     /// @dev Deposits and stakes meta pool tokens into convex.
     ///
