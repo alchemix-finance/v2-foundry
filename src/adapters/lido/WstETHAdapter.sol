@@ -27,7 +27,7 @@ struct InitializationParams {
     address referral;
 }
 
-contract WstETHAdapterV1 is ITokenAdapter, MutexLock {
+contract WstETHAdapter is ITokenAdapter, MutexLock {
     string public override version = "1.1.0";
 
     address public immutable alchemist;
