@@ -10,6 +10,7 @@ import "./interfaces/stakedao/IRewardDistributor.sol";
 import "./interfaces/snapshot/IDelegateRegistry.sol";
 import "./interfaces/stakedao/ILiquidityGauge.sol";
 import "./interfaces/stakedao/IGaugeController.sol";
+import "./interfaces/stakedao/IGauge.sol";
 
 contract SDTController is Initializable, OwnableUpgradeable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -90,5 +91,9 @@ contract SDTController is Initializable, OwnableUpgradeable {
 
   function claimRewards() external onlyOwner {
     ILiquidityGauge(crvRewardDistributor).claim_rewards(address(this), owner());
+  }
+
+  function userCheckpoint(address gaugeAddress, address user) external onlyOwner returns (bool) {
+   return IGauge(gaugeAddress).user_checkpoint(user);
   }
 }
