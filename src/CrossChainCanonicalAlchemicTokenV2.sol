@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import {CrossChainCanonicalBase} from "./CrossChainCanonicalBase.sol";
 import {AlchemicTokenV2Base} from "./AlchemicTokenV2Base.sol";
+import {XERC20} from "../lib/xERC20/solidity/contracts/XERC20.sol";
 
 contract CrossChainCanonicalAlchemicTokenV2 is CrossChainCanonicalBase, AlchemicTokenV2Base {
 
