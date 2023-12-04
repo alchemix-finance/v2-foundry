@@ -93,7 +93,7 @@ contract SDTController is Initializable, OwnableUpgradeable {
     ILiquidityGauge(crvRewardDistributor).claim_rewards(address(this), owner());
   }
 
-  function userCheckpoint(address gaugeAddress, address user) external onlyOwner returns (bool) {
-   return IGauge(gaugeAddress).user_checkpoint(user);
+  function userCheckpoint(address gaugeAddress) external onlyOwner returns (bool) {
+   return IGauge(gaugeAddress).user_checkpoint(address(this));
   }
 }
