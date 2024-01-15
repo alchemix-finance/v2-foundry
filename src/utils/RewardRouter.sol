@@ -94,6 +94,9 @@ contract RewardRouter is IRewardRouter, Ownable {
 
     /// @dev Get reward collector params for a given vault
     function getRewardCollector(address vault) external view returns (address, address, uint256, uint256, uint256) {
+        if (rewardCollectors[vault].rewardCollectorAddress == address(0)) {
+            return (address(0), address(0), 0, 0, 0);
+        }
         return (
             rewardCollectors[vault].rewardCollectorAddress,
             IRewardCollector(rewardCollectors[vault].rewardCollectorAddress).rewardToken(),
