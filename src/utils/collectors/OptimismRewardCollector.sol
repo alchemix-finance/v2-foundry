@@ -23,7 +23,7 @@ struct InitializationParams {
 
 /// @title  RewardCollectorOptimism
 /// @author Alchemix Finance
-contract OptimismAaveRewardCollector is IRewardCollector {
+contract OptimismRewardCollector is IRewardCollector {
     address constant aaveIncentives = 0x929EC64c34a17401F460460D4B9390518E5B473e;
     address constant alUsdOptimism = 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A;
     address constant alEthOptimism = 0x3E29D3A9316dAB217754d13b28646B76607c5f04;
