@@ -212,9 +212,9 @@ contract VesperAdapterV1Test is DSTestPlus {
 
         harvester.setRewardRouter(address(rewardRouter));
 
-        rewardRouter.addVault(vaDAI, address(rewardCollectorVesperUSD), 10e18, 50400, block.number);
-        rewardRouter.addVault(vaUSDC, address(rewardCollectorVesperUSD), 10e18, 50400, block.number);
-        rewardRouter.addVault(vaETH, address(rewardCollectorVesper), 10e18, 50400, block.number);
+        rewardRouter.addVault(vaDAI, address(rewardCollectorVesperUSD), 10e18, 50400);
+        rewardRouter.addVault(vaUSDC, address(rewardCollectorVesperUSD), 10e18, 50400);
+        rewardRouter.addVault(vaETH, address(rewardCollectorVesper), 10e18, 50400);
     }
 
     function testRoundTripETH() external {
