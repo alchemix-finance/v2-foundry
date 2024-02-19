@@ -325,7 +325,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
 
         harvester.setRewardRouter(address(rewardRouter));
 
-        rewardRouter.addVault(address(staticAToken), address(rewardCollector), 1e18, 50400, block.number);
+        rewardRouter.addVault(address(staticAToken), address(rewardCollector), 1e18, 50400);
 
         deal(dai, address(this), 1000000e18);
         SafeERC20.safeApprove(dai, address(alchemistUSD), 1000000e18);
@@ -394,7 +394,7 @@ contract AaveV3TokenAdapterTest is DSTestPlus, IERC20TokenReceiver {
 
         harvester.setRewardRouter(address(rewardRouter));
 
-        rewardRouter.addVault(address(staticAToken), address(rewardCollectorETH), 1e18, 50400, block.number);
+        rewardRouter.addVault(address(staticAToken), address(rewardCollectorETH), 1e18, 50400);
 
         deal(weth, address(this), 1000000e18);
         SafeERC20.safeApprove(weth, address(alchemistETH), 100e18);
