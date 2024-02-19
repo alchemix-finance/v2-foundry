@@ -7,7 +7,6 @@ import {IAlchemistV2} from "../../interfaces/IAlchemistV2.sol";
 import {IVelodromeSwapRouter} from "../../interfaces/external/velodrome/IVelodromeSwapRouter.sol";
 import {Unauthorized, IllegalState, IllegalArgument} from "../../base/ErrorMessages.sol";
 
-import "../../interfaces/external/aave/IRewardsController.sol";
 import "../../interfaces/external/chainlink/IChainlinkOracle.sol";
 
 import "../../interfaces/IRewardCollector.sol";
@@ -79,8 +78,7 @@ contract OptimismRewardCollector is IRewardCollector {
     function getExpectedExchange(address yieldToken) external view returns (uint256) {
         uint256 expectedExchange;
         address[] memory token = new address[](1);
-        uint256 claimable = IRewardsController(aaveIncentives).getUserRewards(token, yieldToken, rewardToken);
-        uint256 totalToSwap = claimable + TokenUtils.safeBalanceOf(rewardToken, address(this));
+        uint256 totalToSwap = TokenUtils.safeBalanceOf(rewardToken, address(this));
 
         // Ensure that round is complete, otherwise price is stale.
         (
