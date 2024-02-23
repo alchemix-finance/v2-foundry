@@ -9,7 +9,8 @@ import {IllegalArgument, IllegalState, Unauthorized} from "./base/Errors.sol";
 
 import {IERC3156FlashLender} from "../lib/openzeppelin-contracts/contracts/interfaces/IERC3156FlashLender.sol";
 import {IERC3156FlashBorrower} from "../lib/openzeppelin-contracts/contracts/interfaces/IERC3156FlashBorrower.sol";
-import {IXERC20} from "../lib/xERC20/solidity/interfaces/IXERC20.sol";
+
+import {IXERC20} from "./interfaces/external/connext/IXERC20.sol";
 
 /// @title  AlchemicTokenV2
 /// @author Alchemix Finance
@@ -43,6 +44,7 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
   /// @notice Max flash mint amount
   uint256 public maxFlashLoanAmount;
 
+  // Duration used for xERC20 rate limits
   uint256 private constant _DURATION = 1 days;
   
   ///@notice Maps bridge address to bridge configurations. Used for xERC20 compatability.
