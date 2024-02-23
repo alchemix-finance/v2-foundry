@@ -20,6 +20,6 @@ contract XTokensTest is DSTestPlus {
     function testPoop() external {
         CrossChainCanonicalAlchemicTokenV2 xToken = new CrossChainCanonicalAlchemicTokenV2();
         vm.prank(0xC224bf25Dcc99236F00843c7D8C4194abE8AA94a);
-        IProxyAdmin(0xd4bd68Da9bF9112CF2137D500c37bd9B842eAe85).upgrade(0x3E29D3A9316dAB217754d13b28646B76607c5f04, address(xToken));
+        IProxyAdmin(0xa44f69aeAC480E23C0ABFA9A55D99c9F098bEac6).upgrade(0x3E29D3A9316dAB217754d13b28646B76607c5f04, address(xToken));
     }
 }
