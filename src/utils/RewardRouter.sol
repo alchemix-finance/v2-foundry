@@ -105,8 +105,4 @@ contract RewardRouter is IRewardRouter, Ownable {
             rewards[vault].lastRewardBlock
         );
     }
-
-    function _velodromeSwap() internal returns (uint256) {
-
-    }
 }
