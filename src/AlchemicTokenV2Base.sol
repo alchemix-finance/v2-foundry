@@ -132,7 +132,7 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
     // If bridge is registered check limits and adjust them accordingly.
     if (xBridges[msg.sender].minterParams.maxLimit > 0) {
       uint256 currentLimit = mintingCurrentLimitOf(msg.sender);
-      if (currentLimit < amount) revert IXERC20.IXERC20_NotHighEnoughLimits();
+      if (amount > currentLimit) revert IXERC20.IXERC20_NotHighEnoughLimits();
       _useMinterLimits(msg.sender, amount);
     }
 
@@ -176,7 +176,7 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
     // If bridge is registered check limits and update accordingly.
     if (xBridges[msg.sender].burnerParams.maxLimit > 0) {
       uint256 currentLimit = burningCurrentLimitOf(msg.sender);
-      if (currentLimit < amount) revert IXERC20.IXERC20_NotHighEnoughLimits();
+      if (amount > currentLimit) revert IXERC20.IXERC20_NotHighEnoughLimits();
       _useBurnerLimits(msg.sender, amount);
     }
 
