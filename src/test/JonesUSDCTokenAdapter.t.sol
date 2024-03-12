@@ -81,23 +81,6 @@ contract JonesUSDCAdapterTest is DSTestPlus {
         uint256 unwrapped = IAlchemistV2(alchemistUSD).withdrawUnderlying(address(jUSDC), shares, address(this), 0);
     }
 
-    // function testWithdrawUnderlying() external {
-    //     deal(address(rETH), address(this), 10e6);
-
-    //     uint256 expectedEth = rETH.getEthValue(1e18);
-
-    //     // Deposit into position
-    //     SafeERC20.safeApprove(address(rETH), alchemistETH, 1e18);
-    //     uint256 shares = IAlchemistV2(alchemistETH).deposit(address(rETH), 1e18, address(this));
-
-    //     // Withdraw and unwrap
-    //     uint256 unwrapped = IAlchemistV2(alchemistETH).withdrawUnderlying(address(rETH), shares, address(this), 0);
-
-    //     assertEq(rETH.allowance(address(this), address(adapter)), 0);
-    //     assertEq(weth.balanceOf(address(this)), unwrapped);
-    //     assertApproxEq(weth.balanceOf(address(this)), expectedEth, expectedEth * 970 / 1000);
-    // }
-
     // function testWithdrawUnderlyingViaBurn() external {
     //     deal(address(rETH), address(this), 1e18);
 
