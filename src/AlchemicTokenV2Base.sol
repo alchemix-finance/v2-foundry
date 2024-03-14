@@ -193,7 +193,7 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
     // If bridge is registered check limits and update accordingly.
     if (xBridges[msg.sender].burnerParams.maxLimit > 0) {
       uint256 currentLimit = burningCurrentLimitOf(msg.sender);
-      if (amount < currentLimit) revert IXERC20.IXERC20_NotHighEnoughLimits();
+      if (amount > currentLimit) revert IXERC20.IXERC20_NotHighEnoughLimits();
       _useBurnerLimits(msg.sender, amount);
     }
 
