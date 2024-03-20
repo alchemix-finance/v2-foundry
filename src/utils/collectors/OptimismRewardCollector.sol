@@ -34,7 +34,6 @@ contract OptimismRewardCollector is IRewardCollector {
     string public override version = "1.1.0";
     address public alchemist;
     address public debtToken;
-    address public veloFactory;
     address public override rewardToken;
     address public override swapRouter;
 
