@@ -15,4 +15,7 @@ interface IRewardRouter {
     ///
     /// @return claimed              The amount of reward tokens claimed.
     function distributeRewards(address token) external returns (uint256 claimed);
+
+        /// @dev Set the reward collector address for a given vault
+    function setRewardCollectorAddress(address vault, address rewardCollectorAddress) external;
 }
