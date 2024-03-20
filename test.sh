@@ -22,3 +22,4 @@ make test_file_block_optimism FILE=XTokens BLOCK=118506023;
 make test_file_block FILE=SDT BLOCK=17000429;
 make test_file_block_optimism FILE=YearnOptimism BLOCK=99207058;
 make test_file_block_optimism FILE=YTokenGateway BLOCK=99207058;
+make test_file_block_optimism FILE=OptimismGrantDistribution BLOCK=117679033;
