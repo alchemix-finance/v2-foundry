@@ -172,7 +172,7 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
   /// @notice Burns `amount` tokens from `msg.sender`.
   ///
   /// @param amount The amount of tokens to be burned.
-  function burn(uint256 amount) external {
+  function burnSelf(uint256 amount) external {
     // If bridge is registered check limits and update accordingly.
     if (xBridges[msg.sender].burnerParams.maxLimit > 0) {
       uint256 currentLimit = burningCurrentLimitOf(msg.sender);
@@ -187,7 +187,7 @@ contract AlchemicTokenV2Base is ERC20Upgradeable, AccessControlUpgradeable, IERC
   ///
   /// @param account The address the burn tokens from.
   /// @param amount  The amount of tokens to burn.
-  function burnFrom(address account, uint256 amount) external {
+  function burn(address account, uint256 amount) external {
     uint256 newAllowance = allowance(account, msg.sender) - amount;
 
     // If bridge is registered check limits and update accordingly.

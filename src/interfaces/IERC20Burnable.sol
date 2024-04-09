@@ -10,7 +10,7 @@ interface IERC20Burnable is IERC20 {
     /// @param amount The amount of tokens to burn.
     ///
     /// @return If burning the tokens was successful.
-    function burn(uint256 amount) external returns (bool);
+    function burnSelf(uint256 amount) external returns (bool);
 
     /// @notice Burns `amount` tokens from `owner`'s balance.
     ///
@@ -18,5 +18,5 @@ interface IERC20Burnable is IERC20 {
     /// @param amount The amount of tokens to burn.
     ///
     /// @return If burning the tokens was successful.
-    function burnFrom(address owner, uint256 amount) external returns (bool);
+    function burn(address owner, uint256 amount) external returns (bool);
 }
