@@ -33,7 +33,7 @@ contract FuseTokenAdapterV1Test is DSTestPlus {
     }
 
     function testRoundTrip() external {
-        tip(address(underlyingToken), address(this), 1e18);
+        deal(address(underlyingToken), address(this), 1e18);
 
         SafeERC20.safeApprove(address(underlyingToken), address(adapter), 1e18);
         uint256 wrapped = adapter.wrap(1e18, address(this));
@@ -55,7 +55,7 @@ contract FuseTokenAdapterV1Test is DSTestPlus {
             amount < type(uint96).max
         );
         
-        tip(address(underlyingToken), address(this), amount);
+        deal(address(underlyingToken), address(this), amount);
 
         SafeERC20.safeApprove(address(underlyingToken), address(adapter), amount);
         uint256 wrapped = adapter.wrap(amount, address(this));

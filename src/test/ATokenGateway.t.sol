@@ -70,7 +70,7 @@ contract ATokenGatewayTest is DSTestPlus {
 
     function testDepositWithdraw() external {
         uint256 amount = 1000 ether;
-        tip(dai, address(this), amount);
+        deal(dai, address(this), amount);
         IERC20(dai).approve(address(lendingPool), amount);
         lendingPool.deposit(dai, amount, address(this), 0);
         uint256 startBal = IERC20(aToken).balanceOf(address(this));

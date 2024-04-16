@@ -9,6 +9,8 @@ uint256 constant N_COINS = 2;
 interface IStableMetaPool is IERC20 {
     function get_balances() external view returns (uint256[N_COINS] memory);
 
+    function balances(uint256 index) external view returns(uint256);
+
     function coins(uint256 index) external view returns (IERC20);
 
     function A() external view returns (uint256);

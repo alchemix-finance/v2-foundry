@@ -58,8 +58,8 @@ contract AlEthPoolTest is DSTestPlus {
 
 		// Make sure elixir can make necessary amount of deposits or withdrawals
 		// to get a final liquidity calculation
-		tip(address(metaPool), address(elixir), elixirPoolTokenBalance);
-		tip(address(alETH), address(elixir), metaPoolBalances[1]);
+		deal(address(metaPool), address(elixir), elixirPoolTokenBalance);
+		deal(address(alETH), address(elixir), metaPoolBalances[1]);
 		hevm.deal(address(elixir), elixirWethAccountBalance);
 		hevm.deal(address(elixir), metaPoolBalances[0]);
 	}

@@ -34,6 +34,7 @@ contract V2MigrationTest is DSTestPlus {
     address constant treasury = 0x8392F6669292fA56123F71949B52d883aE57e225;
     address constant whitelistV2Address = 0x78537a6CeBa16f412E123a90472C6E0e9A8F1132;
     address constant yvDAI = 0xdA816459F1AB5631232FE5e97a05BBBb94970c95;
+    address constant prevAdapter = 0x72A7cb4d5daB8E9Ba23f30DBE8E72Bc854a9945A;
 
     IAlchemicToken alchemicToken = IAlchemicToken(alUSD);
     IAlchemistV1 alchemistV1USD = IAlchemistV1(alchemistV1USDAddress);
@@ -48,7 +49,7 @@ contract V2MigrationTest is DSTestPlus {
     function setUp() external {
         newAlchemistV2 = new AlchemistV2();
         pausableTransmuterConduit = new PausableTransmuterConduit(governance, DAI, alchemistV1USDAddress, transmuterV1Address);
-        transferAdapter = new TransferAdapter(governance, alUSD, DAI, yvDAI, alchemistV1USDAddress, alchemistV2USDAddress);
+        transferAdapter = new TransferAdapter(governance, alUSD, DAI, yvDAI, alchemistV1USDAddress, alchemistV2USDAddress, prevAdapter);
 
         // Allow adapter to deposit underlying tokens into V2
         // & Set adapter address in the alchemist V2
