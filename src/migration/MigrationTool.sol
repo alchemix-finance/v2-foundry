@@ -14,7 +14,7 @@ import {Mutex} from "../base/Mutex.sol";
 
 import {TokenUtils} from "../libraries/TokenUtils.sol";
 
-import {IAlchemicToken} from "../interfaces/IAlchemicToken.sol";
+import {IAlchemicTokenV2} from "../interfaces/IAlchemicTokenV2.sol";
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IAlchemistV2State} from "../interfaces/alchemist/IAlchemistV2State.sol";
 import {IMigrationTool} from "../interfaces/IMigrationTool.sol";
@@ -45,7 +45,7 @@ contract MigrationTool is IMigrationTool, Multicall {
     mapping(address => uint256) public decimals;
 
     IAlchemistV2 public immutable alchemist;
-    IAlchemicToken public immutable alchemicToken;
+    IAlchemicTokenV2 public immutable alchemicToken;
 
     address[] public collateralAddresses;
 
@@ -53,7 +53,7 @@ contract MigrationTool is IMigrationTool, Multicall {
         uint size = params.collateralAddresses.length;
 
         alchemist       = IAlchemistV2(params.alchemist);
-        alchemicToken   = IAlchemicToken(alchemist.debtToken());
+        alchemicToken   = IAlchemicTokenV2(alchemist.debtToken());
         collateralAddresses = params.collateralAddresses;
 
         for(uint i = 0; i < size; i++){
@@ -171,7 +171,7 @@ contract MigrationTool is IMigrationTool, Multicall {
             (int256 latestDebt, ) = alchemist.accounts(msg.sender);
             // Mint al token which will be burned to fulfill flash loan requirements
             alchemist.mintFrom(msg.sender, SafeCast.toUint256(debt - latestDebt), address(this));
-            alchemicToken.burn(alchemicToken.balanceOf(address(this)));
+            alchemicToken.burnSelf(alchemicToken.balanceOf(address(this)));
         }
 
 	    return newPositionShares;
