@@ -15,7 +15,7 @@ struct Reward {
     uint256 rewardAmount;
     uint256 rewardPaid;
     uint256 rewardTimeframe;
-    uint256 lastRewardBlock;
+    uint256 lastRewardTimestamp;
 }
 
 /// @title  Reward Router
@@ -29,21 +29,26 @@ contract RewardRouter is IRewardRouter, Ownable {
     /// @dev A mapping of the yield tokens to their respective reward collectors
     mapping(address => Reward) public rewards;
 
+    ///@dev Address of the approved harvester
+    address harvester;
+
     constructor() Ownable() {}
 
     /// @dev Distributes grant rewards and triggers reward collector to claim and donate
     function distributeRewards(address vault) external returns (uint256) {
+        require(msg.sender == harvester, "Caller not harvester");
+
         // If vault is set to receive rewards from grants, send amount to reward collector to donate
         if (rewards[vault].rewardAmount > 0) {
             // Calculates ratio of timeframe to time since last harvest
             // Uses this ratio to determine partial reward amount or extra reward amount
-            uint256 blocksSinceLastReward = block.number - rewards[vault].lastRewardBlock;
+            uint256 blocksSinceLastReward = block.timestamp - rewards[vault].lastRewardTimestamp;
             uint256 maxReward = rewards[vault].rewardAmount - rewards[vault].rewardPaid;
             uint256 currentReward = rewards[vault].rewardAmount * blocksSinceLastReward / rewards[vault].rewardTimeframe;
             uint256 amountToSend = currentReward > maxReward ? maxReward : currentReward;
 
             TokenUtils.safeTransfer(IRewardCollector(rewards[vault].rewardCollectorAddress).rewardToken(), rewards[vault].rewardCollectorAddress, amountToSend);
-            rewards[vault].lastRewardBlock = block.number;
+            rewards[vault].lastRewardTimestamp = block.timestamp;
             rewards[vault].rewardPaid += amountToSend;
 
             if (rewards[vault].rewardPaid == rewards[vault].rewardAmount) {
@@ -52,7 +57,7 @@ contract RewardRouter is IRewardRouter, Ownable {
             }
         }
 
-        return IRewardCollector(rewards[vault].rewardCollectorAddress).claimAndDonateRewards(vault, IRewardCollector(rewards[vault].rewardCollectorAddress).getExpectedExchange(vault) * slippageBPS / BPS);
+        return IRewardCollector(rewards[vault].rewardCollectorAddress).claimAndDonateRewards(vault, IRewardCollector(rewards[vault].rewardCollectorAddress).getExpectedExchange() * slippageBPS / BPS);
     }
 
     /// @dev Sweeps reward tokens to recipient
@@ -69,7 +74,7 @@ contract RewardRouter is IRewardRouter, Ownable {
         uint256 rewardAmount,
         uint256 rewardTimeframe
     ) external onlyOwner {
-        rewards[vault] = Reward(rewardCollectorAddress, rewardAmount, 0, rewardTimeframe, block.number);
+        rewards[vault] = Reward(rewardCollectorAddress, rewardAmount, 0, rewardTimeframe, block.timestamp);
     }
 
     /// @dev Set the reward collector address for a given vault
@@ -92,6 +97,11 @@ contract RewardRouter is IRewardRouter, Ownable {
         slippageBPS = slippage;
     }
 
+    /// @dev Set the harvester address
+    function setHarvester(address harvesterAddress) external onlyOwner {
+        harvester = harvesterAddress;
+    }
+
     /// @dev Get reward collector params for a given vault
     function getRewardCollector(address vault) external view returns (address, address, uint256, uint256, uint256) {
         if (rewards[vault].rewardCollectorAddress == address(0)) {
@@ -102,7 +112,7 @@ contract RewardRouter is IRewardRouter, Ownable {
             IRewardCollector(rewards[vault].rewardCollectorAddress).rewardToken(),
             rewards[vault].rewardAmount,
             rewards[vault].rewardTimeframe,
-            rewards[vault].lastRewardBlock
+            rewards[vault].lastRewardTimestamp
         );
     }
 }
