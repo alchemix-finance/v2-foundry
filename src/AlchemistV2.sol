@@ -894,6 +894,9 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
         // Inform the transmuter that it has received tokens.
         IERC20TokenReceiver(transmuter).onERC20Received(underlyingToken, amountUnderlyingTokens);
 
+        // In the case that slippage allowed by minimumAmountOut would create an undercollateralized position
+        _validate(msg.sender);
+
         emit Liquidate(msg.sender, yieldToken, underlyingToken, actualShares, credit);
 
         return actualShares;

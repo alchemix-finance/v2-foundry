@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.11;
 
 import {ERC20PermitUpgradeable} from "../lib/openzeppelin-contracts-upgradeable/contracts/token/ERC20/extensions/draft-ERC20PermitUpgradeable.sol";
 import {OwnableUpgradeable} from "../lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
 import {ReentrancyGuardUpgradeable} from "../lib/openzeppelin-contracts-upgradeable/contracts/security/ReentrancyGuardUpgradeable.sol";
 
-import {IllegalArgument, IllegalState} from "./base/ErrorMessages.sol";
+import {IllegalArgument, IllegalState} from "./base/Errors.sol";
 
 import {TokenUtils} from "./libraries/TokenUtils.sol";
 
@@ -37,7 +37,7 @@ contract CrossChainCanonicalBase is ERC20PermitUpgradeable, ReentrancyGuardUpgra
 
     modifier validBridgeToken(address tokenAddress) {
         if (!bridgeTokenEnabled[tokenAddress]) {
-            revert IllegalState("Bridge token not enabled");
+            revert IllegalState();
         }
         _;
     }
@@ -60,7 +60,7 @@ contract CrossChainCanonicalBase is ERC20PermitUpgradeable, ReentrancyGuardUpgra
         _transferOwnership(_creatorAddress);
 
         // Initialize the starting old tokens
-        for (uint256 i = 0; i < _bridgeTokens.length; ++i){
+        for (uint256 i = 0; i < _bridgeTokens.length; ++i){ 
             // Add to the array
             bridgeTokensArray.push(_bridgeTokens[i]);
 
@@ -91,17 +91,17 @@ contract CrossChainCanonicalBase is ERC20PermitUpgradeable, ReentrancyGuardUpgra
     // Exchange old tokens for these canonical tokens
     function exchangeOldForCanonical(address bridgeTokenAddress, uint256 tokenAmount) external nonReentrant validBridgeToken(bridgeTokenAddress) returns (uint256 canonicalTokensOut) {
         if (exchangesPaused) {
-            revert IllegalState("Exchanges paused");
+            revert IllegalState();
         }
 
         if (!bridgeTokenEnabled[bridgeTokenAddress]) {
-            revert IllegalState("Bridge token not enabled");
+            revert IllegalState();
         }
 
         // Check mint caps and adjust mint count
         uint256 total = tokenAmount + totalMinted[bridgeTokenAddress];
         if (total > mintCeiling[bridgeTokenAddress]) {
-            revert IllegalState("Exceeds mint ceiling");
+            revert IllegalState();
         }
         totalMinted[bridgeTokenAddress] = total;
 
@@ -121,11 +121,11 @@ contract CrossChainCanonicalBase is ERC20PermitUpgradeable, ReentrancyGuardUpgra
     // Exchange canonical tokens for old tokens
     function exchangeCanonicalForOld(address bridgeTokenAddress, uint256 tokenAmount) external nonReentrant validBridgeToken(bridgeTokenAddress) returns (uint256 bridgeTokensOut) {
         if (exchangesPaused) {
-            revert IllegalState("Exchanges paused");
+            revert IllegalState();
         }
 
         if (!bridgeTokenEnabled[bridgeTokenAddress]) {
-            revert IllegalState("Bridge token not enabled");
+            revert IllegalState();
         }
 
         // Burn the canonical tokens
@@ -156,7 +156,7 @@ contract CrossChainCanonicalBase is ERC20PermitUpgradeable, ReentrancyGuardUpgra
         // Make sure the token is not already present
         for (uint256 i = 0; i < bridgeTokensArray.length; ++i){ 
             if (bridgeTokensArray[i] == bridgeTokenAddress) {
-                revert IllegalState("Token already added");
+                revert IllegalState();
             }
         }
 
@@ -178,7 +178,7 @@ contract CrossChainCanonicalBase is ERC20PermitUpgradeable, ReentrancyGuardUpgra
 
     function setSwapFees(address bridgeTokenAddress, uint256 _bridgeToCanonical, uint256 _canonicalToOld) external onlyOwner {
         if(_bridgeToCanonical >= FEE_PRECISION || _canonicalToOld >= FEE_PRECISION) {
-            revert IllegalArgument("Invalid swap fees");
+            revert IllegalArgument();
         }
         swapFees[bridgeTokenAddress] = [_bridgeToCanonical, _canonicalToOld];
 
@@ -201,11 +201,11 @@ contract CrossChainCanonicalBase is ERC20PermitUpgradeable, ReentrancyGuardUpgra
 
     function recoverERC20(address tokenAddress, uint256 tokenAmount) external onlyOwner {
         if (tokenAddress == address(this)) {
-            revert IllegalArgument("Illegal token passed");
+            revert IllegalArgument();
         }
 
         if (bridgeTokenEnabled[tokenAddress]) {
-            revert IllegalState("Bridge token not enabled");
+            revert IllegalState();
         }
 
         TokenUtils.safeTransfer(address(tokenAddress), msg.sender, tokenAmount);

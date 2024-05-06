@@ -132,7 +132,7 @@ library TokenUtils {
     /// @param amount The amount of tokens to burn.
     function safeBurn(address token, uint256 amount) internal {
         (bool success, bytes memory data) = token.call(
-            abi.encodeWithSelector(IERC20Burnable.burn.selector, amount)
+            abi.encodeWithSelector(IERC20Burnable.burnSelf.selector, amount)
         );
 
         if (token.code.length == 0 || !success || (data.length != 0 && !abi.decode(data, (bool)))) {
@@ -149,7 +149,7 @@ library TokenUtils {
     /// @param amount The amount of tokens to burn.
     function safeBurnFrom(address token, address owner, uint256 amount) internal {
         (bool success, bytes memory data) = token.call(
-            abi.encodeWithSelector(IERC20Burnable.burnFrom.selector, owner, amount)
+            abi.encodeWithSelector(IERC20Burnable.burn.selector, owner, amount)
         );
 
         if (token.code.length == 0 || !success || (data.length != 0 && !abi.decode(data, (bool)))) {

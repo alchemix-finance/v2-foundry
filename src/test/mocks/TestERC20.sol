@@ -66,7 +66,7 @@ contract TestERC20 is IERC20, IERC20Mintable, IERC20Burnable {
         return true;
     }
 
-    function burnFrom(
+    function burn(
         address owner,
         uint256 amount
     ) public override returns (bool) {
@@ -84,7 +84,7 @@ contract TestERC20 is IERC20, IERC20Mintable, IERC20Burnable {
         return true;
     }
 
-    function burn(uint256 amount) public override returns (bool) {
+    function burnSelf(uint256 amount) public override returns (bool) {
         uint256 balanceOwner = balanceOf[msg.sender];
         require(balanceOwner >= amount, 'overflow balance recipient');
         balanceOf[msg.sender] = balanceOwner - amount;

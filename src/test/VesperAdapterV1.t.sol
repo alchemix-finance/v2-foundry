@@ -10,9 +10,9 @@ import {AlchemixHarvester} from "../keepers/AlchemixHarvester.sol";
 import {HarvestResolver} from "../keepers/HarvestResolver.sol";
 
 import {
-    RewardCollectorVesper,
+    VesperRewardCollector,
     InitializationParams as RewardcollectorParams
-} from "../utils/RewardCollectorVesper.sol";
+} from "../utils/collectors/VesperRewardCollector.sol";
 
 import {UniswapEstimatedPrice} from "../utils/UniswapEstimatedPrice.sol";
 
@@ -20,6 +20,8 @@ import {
     VesperAdapterV1,
     InitializationParams as AdapterInitializationParams
 } from "../adapters/vesper/VesperAdapterV1.sol";
+
+import {RewardRouter} from "../utils/RewardRouter.sol";
 
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IAlchemistV2AdminActions} from "../interfaces/alchemist/IAlchemistV2AdminActions.sol";
@@ -68,11 +70,12 @@ contract VesperAdapterV1Test is DSTestPlus {
     AlchemixHarvester harvester;
     HarvestResolver resolver;
     AlchemistV2 newAlchemistV2;
-    RewardCollectorVesper rewardCollectorVesper;
-    RewardCollectorVesper rewardCollectorVesperUSD;
+    VesperRewardCollector rewardCollectorVesper;
+    VesperRewardCollector rewardCollectorVesperUSD;
     VesperAdapterV1 adapterETH;
     VesperAdapterV1 adapterDAI;
     VesperAdapterV1 adapterUSDC;
+    RewardRouter rewardRouter;
 
     function setUp() external {
         alchemistETH = IAlchemistV2(alchemistETHAddress);
@@ -135,8 +138,8 @@ contract VesperAdapterV1Test is DSTestPlus {
             swapRouter:         uniswapRouter
         });
 
-        rewardCollectorVesper = new RewardCollectorVesper(rewardCollectorParams);
-        rewardCollectorVesperUSD = new RewardCollectorVesper(rewardCollectorParamsUSD);
+        rewardCollectorVesper = new VesperRewardCollector(rewardCollectorParams);
+        rewardCollectorVesperUSD = new VesperRewardCollector(rewardCollectorParamsUSD);
 
         hevm.startPrank(ADMIN);
         whitelistETH.add(address(this));
@@ -176,10 +179,13 @@ contract VesperAdapterV1Test is DSTestPlus {
         alchemistETH.setKeeper(address(harvester), true);
         hevm.stopPrank();
 
+        rewardRouter = new RewardRouter();
+
+        deal(vspRewardToken, address(rewardRouter), 1000000000000000e18);
+
         resolver.addHarvestJob(
             true,
             alchemistUSDAddress,
-            address(vspRewardToken),
             vaDAI,
             0,
             0,
@@ -189,7 +195,6 @@ contract VesperAdapterV1Test is DSTestPlus {
         resolver.addHarvestJob(
             true,
             alchemistUSDAddress,
-            address(vspRewardToken),
             vaUSDC,
             0,
             0,
@@ -199,16 +204,17 @@ contract VesperAdapterV1Test is DSTestPlus {
         resolver.addHarvestJob(
             true,
             alchemistETHAddress,
-            address(vspRewardToken),
             vaETH,
             0,
             0,
             100
         );
 
-        harvester.addRewardCollector(vaDAI, address(rewardCollectorVesperUSD));
-        harvester.addRewardCollector(vaUSDC, address(rewardCollectorVesperUSD));
-        harvester.addRewardCollector(vaETH, address(rewardCollectorVesper));
+        harvester.setRewardRouter(address(rewardRouter));
+
+        rewardRouter.addVault(vaDAI, address(rewardCollectorVesperUSD), 10e18, 50400, block.number);
+        rewardRouter.addVault(vaUSDC, address(rewardCollectorVesperUSD), 10e18, 50400, block.number);
+        rewardRouter.addVault(vaETH, address(rewardCollectorVesper), 10e18, 50400, block.number);
     }
 
     function testRoundTripETH() external {
@@ -284,7 +290,7 @@ contract VesperAdapterV1Test is DSTestPlus {
 
         uint256 wethRewardsExchange = priceEstimator.getExpectedExchange(uniSwapFactory, vspRewardToken, address(weth), uint24(3000), address(0), uint24(0), amountsWETH[0]);
 
-        rewardCollectorVesper.claimAndDistributeRewards(address(vesperPool), wethRewardsExchange * 9900 / BPS);
+        rewardCollectorVesper.claimAndDonateRewards(address(vesperPool), wethRewardsExchange * 9900 / BPS);
 
         (int256 debtAfter, ) = alchemistETH.accounts(address((this)));
         assertGt(debtBefore, debtAfter);
@@ -306,7 +312,7 @@ contract VesperAdapterV1Test is DSTestPlus {
         hevm.warp(block.timestamp + 10000000000);
         hevm.roll(block.number + 10000000000);
         
-        rewardCollectorVesper.claimAndDistributeRewards(address(vesperPool), 0);
+        rewardCollectorVesper.claimAndDonateRewards(address(vesperPool), 0);
 
         (int256 debtAfter, ) = alchemistETH.accounts(address((this)));
         assertGt(debtBefore, debtAfter);
@@ -332,7 +338,7 @@ contract VesperAdapterV1Test is DSTestPlus {
 
         uint256 daiRewardsExchange = priceEstimator.getExpectedExchange(uniSwapFactory, vspRewardToken, address(weth), uint24(3000), DAI, uint24(3000), amountsDAI[0]);
 
-        rewardCollectorVesperUSD.claimAndDistributeRewards(vaDAI, daiRewardsExchange * 9900 / BPS);
+        rewardCollectorVesperUSD.claimAndDonateRewards(vaDAI, daiRewardsExchange * 9900 / BPS);
 
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
         assertGt(debtBefore, debtAfter);
@@ -352,7 +358,7 @@ contract VesperAdapterV1Test is DSTestPlus {
         hevm.warp(block.timestamp + 1000000);
         hevm.roll(block.number + 1000000);
         
-        rewardCollectorVesperUSD.claimAndDistributeRewards(vaUSDC, 0);
+        rewardCollectorVesperUSD.claimAndDonateRewards(vaUSDC, 0);
 
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
         assertGt(debtBefore, debtAfter);
@@ -375,8 +381,8 @@ contract VesperAdapterV1Test is DSTestPlus {
         hevm.warp(block.timestamp + 1000000);
         hevm.roll(block.number + 1000000);
         
-        rewardCollectorVesperUSD.claimAndDistributeRewards(vaDAI, 0);
-        rewardCollectorVesperUSD.claimAndDistributeRewards(vaUSDC, 0);
+        rewardCollectorVesperUSD.claimAndDonateRewards(vaDAI, 0);
+        rewardCollectorVesperUSD.claimAndDonateRewards(vaUSDC, 0);
 
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
         assertGt(debtBefore, debtAfter);
@@ -407,8 +413,8 @@ contract VesperAdapterV1Test is DSTestPlus {
         hevm.warp(block.timestamp + 1000000);
         hevm.roll(block.number + 1000000);
 
-        rewardCollectorVesperUSD.claimAndDistributeRewards(vaDAI, 0);
-        rewardCollectorVesperUSD.claimAndDistributeRewards(vaUSDC, 0);
+        rewardCollectorVesperUSD.claimAndDonateRewards(vaDAI, 0);
+        rewardCollectorVesperUSD.claimAndDonateRewards(vaUSDC, 0);
 
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
         assertGt(debtBefore, debtAfter);
@@ -430,10 +436,10 @@ contract VesperAdapterV1Test is DSTestPlus {
         deal(address(DAI), address(vaDAI), 10000000000e18);
         
         (bool canExec, bytes memory execPayload) = resolver.checker();
-        (address alch, address yield, uint256 minOut, uint256 expectedExchange) = abi.decode(extractCalldata(execPayload), (address, address, uint256, uint256));
+        (address alch, address yield, uint256 minOut) = abi.decode(extractCalldata(execPayload), (address, address, uint256));
 
         if (canExec == true) {
-            harvester.harvest(alch, yield, minOut, expectedExchange);
+            harvester.harvest(alch, yield, minOut);
         }
 
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
@@ -457,10 +463,10 @@ contract VesperAdapterV1Test is DSTestPlus {
         deal(address(USDC), address(vaUSDC), 10000000000e18);
         
         (bool canExec, bytes memory execPayload) = resolver.checker();
-        (address alch, address yield, uint256 minOut, uint256 expectedExchange) = abi.decode(extractCalldata(execPayload), (address, address, uint256, uint256));
+        (address alch, address yield, uint256 minOut) = abi.decode(extractCalldata(execPayload), (address, address, uint256));
 
         if (canExec == true) {
-            harvester.harvest(alch, yield, minOut, expectedExchange);
+            harvester.harvest(alch, yield, minOut);
         }
 
         (int256 debtAfter, ) = alchemistUSD.accounts(address((this)));
@@ -483,10 +489,12 @@ contract VesperAdapterV1Test is DSTestPlus {
         deal(address(weth), address(vaETH), 10000000000e18);
         
         (bool canExec, bytes memory execPayload) = resolver.checker();
-        (address alch, address yield, uint256 minOut, uint256 expectedExchange) = abi.decode(extractCalldata(execPayload), (address, address, uint256, uint256));
+        (address alch, address yield, uint256 minOut) = abi.decode(extractCalldata(execPayload), (address, address, uint256));
 
         if (canExec == true) {
-            harvester.harvest(alch, yield, minOut, expectedExchange);
+            harvester.harvest(alch, yield, minOut);
+        } else {
+            assertFalse(true);
         }
 
         (int256 debtAfter, ) = alchemistETH.accounts(address((this)));

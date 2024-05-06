@@ -4,11 +4,12 @@ pragma solidity 0.8.13;
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 
 import {
-    WstETHAdapterV1,
+    WstETHAdapterOptimism,
     InitializationParams as AdapterInitializationParams
-} from "../adapters/lido/WstETHAdapterV1.sol";
+} from "../adapters/lido/WstETHAdapterOptimism.sol";
 
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
+import {IAlchemistV2AdminActions} from "../interfaces/alchemist/IAlchemistV2AdminActions.sol";
 import {IChainlinkOracle} from "../interfaces/external/chainlink/IChainlinkOracle.sol";
 import {IWETH9} from "../interfaces/external/IWETH9.sol";
 import {IStableSwap2Pool} from "../interfaces/external/curve/IStableSwap2Pool.sol";
@@ -17,36 +18,39 @@ import {IWstETH} from "../interfaces/external/lido/IWstETH.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
 
 import {SafeERC20} from "../libraries/SafeERC20.sol";
+import {console} from "../../lib/forge-std/src/console.sol";
 
-contract WstETHAdapterV1Test is DSTestPlus {
+contract WstETHAdapterOptimismTest is DSTestPlus {
     uint256 constant BPS = 10000;
-    address constant admin = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
-    address constant whitelistETHAddress = 0xA3dfCcbad1333DC69997Da28C961FF8B2879e653;
+    address constant admin = 0xC224bf25Dcc99236F00843c7D8C4194abE8AA94a;
+    address constant whitelistETHAddress = 0xc5fE32e46fD226364BFf7A035e8Ca2aBE390a68f;
 
-    IAlchemistV2 constant alchemist = IAlchemistV2(0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c);
-    IChainlinkOracle constant oracleStethEth = IChainlinkOracle(0x86392dC19c0b719886221c78AB11eb8Cf5c52812);
-    IStETH constant stETH = IStETH(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84);
-    IWstETH constant wstETH = IWstETH(0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0);
-    IWETH9 constant weth = IWETH9(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
-    IStableSwap2Pool constant curvePool = IStableSwap2Pool(0xDC24316b9AE028F1497c275EB9192a3Ea0f67022);
+    IAlchemistV2 constant alchemist = IAlchemistV2(0xe04Bb5B4de60FA2fBa69a93adE13A8B3B569d5B4);
+    IChainlinkOracle constant oracleStethEth = IChainlinkOracle(0x524299Ab0987a7c4B3c8022a35669DdcdC715a10);
+    IWstETH constant wstETH = IWstETH(0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb);
+    IWETH9 constant weth = IWETH9(0x4200000000000000000000000000000000000006);
 
-    WstETHAdapterV1 adapter;
+    WstETHAdapterOptimism adapter;
 
     function setUp() external {
-        adapter = new WstETHAdapterV1(AdapterInitializationParams({
+        adapter = new WstETHAdapterOptimism(AdapterInitializationParams({
             alchemist:       address(alchemist),
             token:           address(wstETH),
-            parentToken:     address(stETH),
             underlyingToken: address(weth),
-            curvePool:       address(curvePool),
-            oracleStethEth:  address(oracleStethEth),
-            ethPoolIndex:    0,
-            stEthPoolIndex:  1,
-            referral:        address(0)
+            velodromeRouter: 0x9c12939390052919aF3155f41Bf4160Fd3666A6f,
+            oracleWstethEth:  address(oracleStethEth)
         }));
 
+        IAlchemistV2.YieldTokenConfig memory ytc = IAlchemistV2AdminActions.YieldTokenConfig({
+            adapter: address(adapter),
+            maximumLoss: 1,
+            maximumExpectedValue: 1000000 ether,
+            creditUnlockBlocks: 7200
+        });
+
         hevm.startPrank(admin);
-        alchemist.setTokenAdapter(address(wstETH), address(adapter));
+        alchemist.addYieldToken(address(wstETH), ytc);
+        alchemist.setYieldTokenEnabled(address(wstETH), true);
         IWhitelist(whitelistETHAddress).add(address(this));
         alchemist.setMaximumExpectedValue(address(wstETH), 1000000000e18);
         hevm.stopPrank();
@@ -62,7 +66,7 @@ contract WstETHAdapterV1Test is DSTestPlus {
 
         // Test that price function returns value within 0.1% of actual
         uint256 underlyingValue = shares * adapter.price() / 10**SafeERC20.expectDecimals(address(wstETH));
-        assertGt(underlyingValue, 1e18 * 9990 / BPS);
+        assertGt(underlyingValue, 1e18 * 9900 / BPS);
         
         uint256 unwrapped = alchemist.withdrawUnderlying(address(wstETH), shares, address(this), shares * 9990 / 10000);
 

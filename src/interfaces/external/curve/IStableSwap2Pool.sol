@@ -28,7 +28,7 @@ interface IStableSwap2Pool {
         uint256 minimumDy
     ) external payable returns (uint256);
 
-    function remove_liquidity(uint256 amount, uint256[N_COINS] calldata minimumAmounts) external;
+    function remove_liquidity(uint256 amount, uint256[N_COINS] calldata minimumAmounts, address receiver) external returns (uint256[] memory);
 
     function remove_liquidity_imbalance(
         uint256[N_COINS] calldata amounts,
