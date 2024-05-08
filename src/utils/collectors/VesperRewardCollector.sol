@@ -30,14 +30,14 @@ struct InitializationParams {
 
 /// @title  RewardCollectorVesper
 /// @author Alchemix Finance
-contract VesperRewardCollector is IRewardCollector {
+contract VesperRewardCollector {
     uint256 constant FIXED_POINT_SCALAR = 1e18;
     uint256 constant BPS = 10000;
-    string public override version = "1.0.0";
+    string public version = "1.0.0";
     address public alchemist;
     address public debtToken;
-    address public override rewardToken;
-    address public override swapRouter;
+    address public rewardToken;
+    address public swapRouter;
     address constant alUSD = 0xBC6DA0FE9aD5f3b0d58160288917AA56653660E9;
     address constant alETH = 0x0100546F2cD4C9D97f798fFC9755E47865FF7Ee6;
     address constant curveFactoryPool = 0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e;
