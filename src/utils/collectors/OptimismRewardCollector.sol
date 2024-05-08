@@ -95,15 +95,15 @@ contract OptimismRewardCollector is IRewardCollector, Ownable {
         if (debtToken == alUsdOptimism) {
             IERC20[] memory connectors = new IERC20[](3);
             connectors[0] = IERC20(0x4200000000000000000000000000000000000042);
-            connectors[0] = IERC20(0x7F5c764cBc14f9669B88837ca1490cCa17c31607);
-            connectors[0] = IERC20(0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A);
+            connectors[1] = IERC20(0x7F5c764cBc14f9669B88837ca1490cCa17c31607);
+            connectors[2] = IERC20(0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A);
             uint256[] memory opToAlusd = IVeloOracle(0x395942C2049604a314d39F370Dfb8D87AAC89e16).getManyRatesWithConnectors(1, connectors);
             expectedExchange = totalToSwap * opToAlusd[0] / 1e18;
         } else if (debtToken == alEthOptimism) {
             IERC20[] memory connectors = new IERC20[](3);
             connectors[0] = IERC20(0x4200000000000000000000000000000000000042);
-            connectors[0] = IERC20(0x4200000000000000000000000000000000000006);
-            connectors[0] = IERC20(0x3E29D3A9316dAB217754d13b28646B76607c5f04);
+            connectors[1] = IERC20(0x4200000000000000000000000000000000000006);
+            connectors[2] = IERC20(0x3E29D3A9316dAB217754d13b28646B76607c5f04);
             uint256[] memory opToAleth = IVeloOracle(0x395942C2049604a314d39F370Dfb8D87AAC89e16).getManyRatesWithConnectors(1, connectors);
             expectedExchange = totalToSwap * opToAleth[0] / 1e18;
         } else {

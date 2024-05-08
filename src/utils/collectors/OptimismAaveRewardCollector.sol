@@ -24,7 +24,7 @@ struct InitializationParams {
 
 /// @title  RewardCollectorOptimism
 /// @author Alchemix Finance
-contract OptimismAaveRewardCollector is IRewardCollector {
+contract OptimismAaveRewardCollector {
     address constant aaveIncentives = 0x929EC64c34a17401F460460D4B9390518E5B473e;
     address constant alUsdOptimism = 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A;
     address constant alEthOptimism = 0x3E29D3A9316dAB217754d13b28646B76607c5f04;
@@ -33,11 +33,11 @@ contract OptimismAaveRewardCollector is IRewardCollector {
 
     uint256 constant FIXED_POINT_SCALAR = 1e18;
     uint256 constant BPS = 10000;
-    string public override version = "1.1.0";
+    string public version = "1.1.0";
     address public alchemist;
     address public debtToken;
-    address public override rewardToken;
-    address public override swapRouter;
+    address public rewardToken;
+    address public swapRouter;
 
     constructor(InitializationParams memory params) {
         alchemist       = params.alchemist;

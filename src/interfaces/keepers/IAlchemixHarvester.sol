@@ -5,4 +5,6 @@ interface IAlchemixHarvester {
     address alchemist,
     address yieldToken
   ) external;
+
+  function setRewardRouter(address router) external;
 }
