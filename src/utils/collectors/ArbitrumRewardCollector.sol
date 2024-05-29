@@ -4,7 +4,7 @@ import {IERC20} from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/
 import {TokenUtils} from "../../libraries/TokenUtils.sol";
 
 import {IAlchemistV2} from "../../interfaces/IAlchemistV2.sol";
-import {ISwapRouter} from "../../interfaces/external/uniswap/ISwapRouter.sol";
+import {ISwapRouter} from "../../interfaces/external/ramses/ISwapRouter.sol";
 import {Unauthorized, IllegalState, IllegalArgument} from "../../base/ErrorMessages.sol";
 
 import "../../interfaces/external/chainlink/IChainlinkOracle.sol";
@@ -22,16 +22,17 @@ struct InitializationParams {
     address rewardRouter;
     address rewardToken;
     address swapRouter;
-    bytes pathETH;
-    bytes pathUSD;
 }
 
 /// @title  ArbitrumRewardCollector
 /// @author Alchemix Finance
 contract ArbitrumRewardCollector is IRewardCollector, Ownable {
-    address constant aaveIncentives = 0x929EC64c34a17401F460460D4B9390518E5B473e;
-    address constant alUsdOptimism = 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A;
-    address constant alEthOptimism = 0x3E29D3A9316dAB217754d13b28646B76607c5f04;
+    address constant AAVE_INCENTIVES = 0x929EC64c34a17401F460460D4B9390518E5B473e;
+    address constant ALUSD = 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A;
+    address constant ALETH = 0x3E29D3A9316dAB217754d13b28646B76607c5f04;
+    address constant ARB = 0x912CE59144191C1204E64559FE8253a0e49E6548;
+    address constant FRAX = 0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F;
+    address constant USDC = 0xaf88d065e77c8cC2239327C5EDb3A432268e5831;
 
     uint256 constant FIXED_POINT_SCALAR = 1e18;
     string public override version = "1.0.0";
@@ -40,8 +41,6 @@ contract ArbitrumRewardCollector is IRewardCollector, Ownable {
     address public rewardRouter;
     address public override rewardToken;
     address public override swapRouter;
-    bytes public pathETH;
-    bytes public pathUSD;
 
     constructor(InitializationParams memory params) {
         alchemist       = params.alchemist;
@@ -49,8 +48,6 @@ contract ArbitrumRewardCollector is IRewardCollector, Ownable {
         rewardToken     = params.rewardToken;
         rewardRouter    = params.rewardRouter;
         swapRouter      = params.swapRouter;
-        pathETH         = params.pathETH;
-        pathUSD         = params.pathUSD;
     }
 
     function setRewardRouter(address _rewardRouter) external onlyOwner {
@@ -66,31 +63,23 @@ contract ArbitrumRewardCollector is IRewardCollector, Ownable {
         if (amountRewardToken == 0) return 0;
 
         if (debtToken == 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A) {
-            ISwapRouter(swapRouter).exactInput(ISwapRouter.ExactInputParams({
-                path: pathUSD,
-                recipient: address(this),
-                amountIn: amountRewardToken,
-                amountOutMinimum: minimumAmountOut
-            }));
-            // Ramses Swap Routes: ARB -> USDC -> alUSD
-            // IVelodromeSwapRouter.Route[] memory routes = new IVelodromeSwapRouter.Route[](2);
-            // routes[0] = IVelodromeSwapRouter.Route(0x4200000000000000000000000000000000000042, 0x7F5c764cBc14f9669B88837ca1490cCa17c31607, false, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
-            // routes[1] = IVelodromeSwapRouter.Route(0x7F5c764cBc14f9669B88837ca1490cCa17c31607, 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A, true, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
-            // TokenUtils.safeApprove(rewardToken, swapRouter, amountRewardToken);
-            // IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(amountRewardToken, minimumAmountOut, routes, address(this), block.timestamp);
+            TokenUtils.safeApprove(rewardToken, swapRouter, amountRewardToken);
+
+            bytes[] memory inputs =  new bytes[](1);
+            inputs[0] = abi.encode(address(this), uint256(2000000000000000000), uint256(0), abi.encodePacked(ARB, uint24(500), USDC), true);
+            ISwapRouter(swapRouter).execute(abi.encodePacked(uint8(0)), inputs);
+
+            inputs[0] = abi.encode(address(this), IERC20(USDC).balanceOf(address(this)), uint256(0), [USDC,ALUSD], true);
+            ISwapRouter(swapRouter).execute(abi.encodePacked(uint8(8)), inputs);
         } else if (debtToken == 0x17573150d67d820542EFb24210371545a4868B03) {
-            ISwapRouter(swapRouter).exactInput(ISwapRouter.ExactInputParams({
-                path: pathETH,
-                recipient: address(this),
-                amountIn: amountRewardToken,
-                amountOutMinimum: minimumAmountOut
-            }));
-            // Ramses Swap Routes: ARB -> alETH
-            // IVelodromeSwapRouter.Route[] memory routes = new IVelodromeSwapRouter.Route[](2);
-            // routes[0] = IVelodromeSwapRouter.Route(0x4200000000000000000000000000000000000042, 0x4200000000000000000000000000000000000006, false, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
-            // routes[1] = IVelodromeSwapRouter.Route(0x4200000000000000000000000000000000000006, 0x17573150d67d820542EFb24210371545a4868B03, true, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
-            // TokenUtils.safeApprove(rewardToken, swapRouter, amountRewardToken);
-            // IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(amountRewardToken, minimumAmountOut, routes, address(this), block.timestamp);
+            TokenUtils.safeApprove(rewardToken, swapRouter, amountRewardToken);
+
+            bytes[] memory inputs =  new bytes[](1);
+            inputs[0] = abi.encode(address(this), uint256(2000000000000000000), uint256(0), abi.encodePacked(ARB, uint24(500), USDC), true);
+            ISwapRouter(swapRouter).execute(abi.encodePacked(uint8(0)), inputs);
+
+            inputs[0] = abi.encode(address(this), IERC20(USDC).balanceOf(address(this)), uint256(0), [USDC,ALUSD], true);
+            ISwapRouter(swapRouter).execute(abi.encodePacked(uint8(8)), inputs);
         } else {
             revert IllegalState("Reward collector `debtToken` is not supported");
         }
@@ -108,9 +97,9 @@ contract ArbitrumRewardCollector is IRewardCollector, Ownable {
         uint256 totalToSwap = TokenUtils.safeBalanceOf(rewardToken, address(this));
 
         // Find expected amount out before calling harvest
-        if (debtToken == alUsdOptimism) {
+        if (debtToken == ALUSD) {
 
-        } else if (debtToken == alEthOptimism) {
+        } else if (debtToken == ALETH) {
 
         } else {
             revert IllegalState("Invalid debt token");

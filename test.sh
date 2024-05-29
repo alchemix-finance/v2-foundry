@@ -23,4 +23,4 @@ make test_file_block FILE=SDT BLOCK=17000429;
 make test_file_block_optimism FILE=YearnOptimism BLOCK=99207058;
 make test_file_block_optimism FILE=YTokenGateway BLOCK=99207058;
 make test_file_block_optimism FILE=OptimismGrantDistribution BLOCK=119793126;
-make test_file_block_arbitrum FILE=ArbitrumGrantDistribution BLOCK=210795223;
+make test_file_block_arbitrum FILE=ArbitrumGrantDistribution BLOCK=210802008;
