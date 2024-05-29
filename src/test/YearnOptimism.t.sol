@@ -7,6 +7,7 @@ import "../../lib/openzeppelin-contracts/contracts/proxy/transparent/Transparent
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 
 import {HarvestResolver} from "../keepers/HarvestResolver.sol";
+import {IRewardRouter} from "../interfaces/IRewardRouter.sol";
 
 import {YearnTokenAdapterOptimism} from "../adapters/yearn/YearnTokenAdapterOptimism.sol";
 
@@ -70,10 +71,12 @@ contract YearnOptimismTest is DSTestPlus {
         
 		alchemistUSD = IAlchemistV2(alchemistAlUSD);
 		alchemistETH = AlchemistV2(alchemistAlETH);
+        RewardRouter router = new RewardRouter();
 
         RewardCollectorInitializationParams memory rewardCollectorParams = RewardCollectorInitializationParams({
             alchemist:          address(alchemistUSD),
             debtToken:          alUSD,
+            rewardRouter:       address(router),
             rewardToken:        rewardToken,
             swapRouter:         velodromeRouter
         });
@@ -93,7 +96,7 @@ contract YearnOptimismTest is DSTestPlus {
 
         rewardRouter = new RewardRouter();
 
-        rewardRouter.addVault(address(stakingToken), address(rewardCollector), 0, 0, 0);
+        rewardRouter.addVault(address(stakingToken), address(rewardCollector), 1000e18, 604800);
 
         hevm.startPrank(alchemistAdmin);
         whitelist.add(address(this));
