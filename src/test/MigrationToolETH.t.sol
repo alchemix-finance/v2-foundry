@@ -98,7 +98,7 @@ contract MigrationToolTestETH is DSTestPlus {
     }
 
     function testMigrationDifferentVaultMaximumShares() external {
-        tip(wETH, address(this), 10e18);
+        deal(wETH, address(this), 10e18);
 
         // Create new position
         SafeERC20.safeApprove(wETH, alchemistETH, 10e18);
@@ -135,7 +135,7 @@ contract MigrationToolTestETH is DSTestPlus {
     }
 
     function testMigrationDifferentVaultPartialShares() external {
-        tip(wETH, address(this), 10e18);
+        deal(wETH, address(this), 10e18);
         
         // Create new position
         SafeERC20.safeApprove(wETH, alchemistETH, 10e18);
@@ -173,7 +173,7 @@ contract MigrationToolTestETH is DSTestPlus {
     }
 
     function testMigrationDifferentVaultMaximumSharesAAVE() external {
-        tip(wETH, address(this), 10e18);
+        deal(wETH, address(this), 10e18);
 
         // Create new position
         SafeERC20.safeApprove(wETH, alchemistETH, 10e18);

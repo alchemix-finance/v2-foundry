@@ -6,20 +6,20 @@ import "../..//base/ErrorMessages.sol";
 import "../../interfaces/IAlchemistV2.sol";
 import "../../interfaces/ITokenGateway.sol";
 import "../../interfaces/IWhitelist.sol";
-import "../../interfaces/external/aave/IStaticAToken.sol";
+import "../../interfaces/external/yearn/IYearnStakingToken.sol";
 import "../../libraries/TokenUtils.sol";
 
-/// @title  ATokenGateway
+/// @title  YTokenGateway
 /// @author Alchemix Finance
-contract ATokenGateway is ITokenGateway, Ownable {
+contract YTokenGateway is ITokenGateway, Ownable {
     /// @notice The version.
     string public constant version = "1.0.1";
 
     /// @notice The address of the whitelist contract.
-    address public override whitelist;
+    address public override immutable whitelist;
 
     /// @notice The address of the alchemist.
-    address public override alchemist;
+    address public override immutable alchemist;
 
     constructor(address _whitelist, address _alchemist) {
         whitelist = _whitelist;
@@ -33,14 +33,14 @@ contract ATokenGateway is ITokenGateway, Ownable {
         address recipient
     ) external override returns (uint256 sharesIssued) {
         _onlyWhitelisted();
-        address aToken = address(IStaticAToken(yieldToken).ATOKEN());
-        TokenUtils.safeTransferFrom(aToken, msg.sender, address(this), amount);
-        TokenUtils.safeApprove(aToken, yieldToken, amount);
+        address yToken = address(IYearnStakingToken(yieldToken).YEARN_VAULT());
+        TokenUtils.safeTransferFrom(yToken, msg.sender, address(this), amount);
+        TokenUtils.safeApprove(yToken, yieldToken, amount);
         // 0 - referral code (deprecated).
-        // false - "from underlying", we are depositing the aToken, not the underlying token.
-        uint256 staticATokensReceived = IStaticAToken(yieldToken).deposit(address(this), amount, 0, false);
-        TokenUtils.safeApprove(yieldToken, alchemist, staticATokensReceived);
-        return IAlchemistV2(alchemist).deposit(yieldToken, staticATokensReceived, recipient);
+        // false - "from underlying", we are depositing the staking token, not the underlying token.
+        uint256 staticYTokensReceived = IYearnStakingToken(yieldToken).deposit(address(this), amount, false);
+        TokenUtils.safeApprove(yieldToken, alchemist, staticYTokensReceived);
+        return IAlchemistV2(alchemist).deposit(yieldToken, staticYTokensReceived, recipient);
     }
 
     /// @inheritdoc ITokenGateway
@@ -50,10 +50,10 @@ contract ATokenGateway is ITokenGateway, Ownable {
         address recipient
     ) external override returns (uint256) {
         _onlyWhitelisted();
-        uint256 staticATokensWithdrawn = IAlchemistV2(alchemist).withdrawFrom(msg.sender, yieldToken, shares, address(this));
-        // false - "from underlying", we are depositing the aToken, not the underlying token.
-        (uint256 amountBurnt, uint256 amountWithdrawn) = IStaticAToken(yieldToken).withdraw(recipient, staticATokensWithdrawn, false);
-        if (amountBurnt != staticATokensWithdrawn) {
+        uint256 staticYTokensWithdrawn = IAlchemistV2(alchemist).withdrawFrom(msg.sender, yieldToken, shares, address(this));
+        // false - "from underlying", we are depositing the staking token, not the underlying token.
+        (uint256 amountBurnt, uint256 amountWithdrawn) = IYearnStakingToken(yieldToken).withdraw(recipient, staticYTokensWithdrawn, 0, false); // Slippage handled upstream
+        if (amountBurnt != staticYTokensWithdrawn) {
             revert IllegalState("not enough burnt");
         }
         return amountWithdrawn;

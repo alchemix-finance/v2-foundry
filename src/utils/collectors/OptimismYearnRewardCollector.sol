@@ -4,7 +4,8 @@ import {IERC20} from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/
 import {TokenUtils} from "../../libraries/TokenUtils.sol";
 
 import {IAlchemistV2} from "../../interfaces/IAlchemistV2.sol";
-import {IStaticAToken} from "../../interfaces/external/aave/IStaticAToken.sol";
+import {IStakingRewards} from "../../interfaces/external/yearn/IStakingRewards.sol";
+import {IYearnStakingToken} from "../../interfaces/external/yearn/IYearnStakingToken.sol";
 import {IVelodromeSwapRouter} from "../../interfaces/external/velodrome/IVelodromeSwapRouter.sol";
 import {Unauthorized, IllegalState, IllegalArgument} from "../../base/ErrorMessages.sol";
 
@@ -22,10 +23,9 @@ struct InitializationParams {
     address swapRouter;
 }
 
-/// @title  OptimismAaveRewardCollector
+/// @title  OptimismYearnRewardCollector
 /// @author Alchemix Finance
-contract OptimismAaveRewardCollector {
-    address constant aaveIncentives = 0x929EC64c34a17401F460460D4B9390518E5B473e;
+contract OptimismYearnRewardCollector is IRewardCollector {
     address constant alUsdOptimism = 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A;
     address constant alEthOptimism = 0x3E29D3A9316dAB217754d13b28646B76607c5f04;
     address constant opToUsdOracle = 0x0D276FC14719f9292D5C1eA2198673d1f4269246;
@@ -33,17 +33,18 @@ contract OptimismAaveRewardCollector {
 
     uint256 constant FIXED_POINT_SCALAR = 1e18;
     uint256 constant BPS = 10000;
-    string public version = "1.1.0";
+    string public override version = "1.0.0";
     address public alchemist;
     address public debtToken;
-    address public rewardToken;
-    address public swapRouter;
+    address public override rewardToken;
+    address public override swapRouter;
 
     /// @notice Emitted when a donation occurs.
     ///
     /// @param token The yield token that received a donation.
     /// @param amount The amount of debt tokens donated.
     event RewardsDonated(address token, uint256 amount);
+
 
     constructor(InitializationParams memory params) {
         alchemist       = params.alchemist;
@@ -53,7 +54,7 @@ contract OptimismAaveRewardCollector {
     }
 
     function claimAndDonateRewards(address token, uint256 minimumAmountOut) external {
-        IStaticAToken(token).claimRewards();
+        IYearnStakingToken(token).claimRewards();
 
         // Amount of reward token claimed plus any sent to this contract from grants.
         uint256 amountRewardToken = IERC20(rewardToken).balanceOf(address(this));
@@ -62,15 +63,15 @@ contract OptimismAaveRewardCollector {
 
         if (debtToken == 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A) {
             // Velodrome Swap Routes: OP -> USDC -> alUSD
-            IVelodromeSwapRouter.Route[] memory routes = new IVelodromeSwapRouter.Route[](2);
-            routes[0] = IVelodromeSwapRouter.Route(0x4200000000000000000000000000000000000042, 0x7F5c764cBc14f9669B88837ca1490cCa17c31607, false, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
-            routes[1] = IVelodromeSwapRouter.Route(0x7F5c764cBc14f9669B88837ca1490cCa17c31607, 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A, true, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
+            IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](2);
+            routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x7F5c764cBc14f9669B88837ca1490cCa17c31607, false);
+            routes[1] = IVelodromeSwapRouter.route(0x7F5c764cBc14f9669B88837ca1490cCa17c31607, 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A, true);
             TokenUtils.safeApprove(rewardToken, swapRouter, amountRewardToken);
             IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(amountRewardToken, minimumAmountOut, routes, address(this), block.timestamp);
         } else if (debtToken == 0x3E29D3A9316dAB217754d13b28646B76607c5f04) {
             // Velodrome Swap Routes: OP -> alETH
-            IVelodromeSwapRouter.Route[] memory routes = new IVelodromeSwapRouter.Route[](1);
-            routes[0] = IVelodromeSwapRouter.Route(0x4200000000000000000000000000000000000042, 0x3E29D3A9316dAB217754d13b28646B76607c5f04, false, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
+            IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](1);
+            routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x3E29D3A9316dAB217754d13b28646B76607c5f04, false);
             TokenUtils.safeApprove(rewardToken, swapRouter, amountRewardToken);
             IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(amountRewardToken, minimumAmountOut, routes, address(this), block.timestamp);
         } else {
@@ -87,12 +88,11 @@ contract OptimismAaveRewardCollector {
 
     function getExpectedExchange(address yieldToken) external view returns (uint256) {
         uint256 expectedExchange;
-        address[] memory token = new address[](1);
-        token[0] = address(IStaticAToken(yieldToken).ATOKEN());
-        uint256 claimable = IRewardsController(aaveIncentives).getUserRewards(token, yieldToken, rewardToken);
+        uint256 claimable = IStakingRewards(IYearnStakingToken(yieldToken).STAKNG_REWARDS()).earned(yieldToken);
         uint256 totalToSwap = claimable + TokenUtils.safeBalanceOf(rewardToken, address(this));
 
         // Ensure that round is complete, otherwise price is stale.
+        // OP to USD
         (
             uint80 roundID,
             int256 opToUsd,
@@ -100,39 +100,34 @@ contract OptimismAaveRewardCollector {
             uint256 updateTime,
             uint80 answeredInRound
         ) = IChainlinkOracle(opToUsdOracle).latestRoundData();
-        
         require(
-            opToUsd > 0, 
-            "Chainlink Malfunction"
+            answeredInRound >= roundID,
+            "Chainlink Price Stale"
         );
 
-        if( updateTime < block.timestamp - 1200 seconds ) {
-            revert("Chainlink Malfunction");
-        }
+        require(opToUsd > 0, "Chainlink Malfunction");
+        require(updateTime != 0, "Incomplete round");
 
-        // Ensure that round is complete, otherwise price is stale.
+        // OP to ETH
         (
-            uint80 roundIDEth,
+            uint80 roundID2,
             int256 ethToUsd,
             ,
-            uint256 updateTimeEth,
-            uint80 answeredInRoundEth
+            uint256 updateTime2,
+            uint80 answeredInRound2
         ) = IChainlinkOracle(ethToUsdOracle).latestRoundData();
-        
         require(
-            ethToUsd > 0, 
-            "Chainlink Malfunction"
+            answeredInRound2 >= roundID2,
+            "Chainlink Price Stale"
         );
 
-        if( updateTimeEth < block.timestamp - 1200 seconds ) {
-            revert("Chainlink Malfunction");
-        }
+        require(ethToUsd > 0, "Chainlink Malfunction");
+        require(updateTime2 != 0, "Incomplete round");
 
-        // Find expected amount out before calling harvest
         if (debtToken == alUsdOptimism) {
-            expectedExchange = totalToSwap * uint(opToUsd) / 1e8;
+            expectedExchange = totalToSwap * uint256(opToUsd) / 1e8;
         } else if (debtToken == alEthOptimism) {
-            expectedExchange = totalToSwap * uint(uint(opToUsd)) / uint(ethToUsd);
+            expectedExchange = totalToSwap * uint256(opToUsd) / uint256(ethToUsd);
         } else {
             revert IllegalState("Invalid debt token");
         }

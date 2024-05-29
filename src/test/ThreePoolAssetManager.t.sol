@@ -66,8 +66,8 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testCalculateRebalanceAlUSD() external {
-        tip(address(alUSD), address(manager), type(uint96).max);
-        tip(address(metaPool), address(manager), type(uint96).max);
+        deal(address(alUSD), address(manager), type(uint96).max);
+        deal(address(metaPool), address(manager), type(uint96).max);
 
         (uint256 delta, bool add) = manager.calculateRebalance(
             MetaPoolAsset.ALUSD,
@@ -89,8 +89,8 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testCalculateRebalance3Pool() external {
-        tip(address(threePoolToken), address(manager), type(uint96).max);
-        tip(address(metaPool), address(manager), type(uint96).max);
+        deal(address(threePoolToken), address(manager), type(uint96).max);
+        deal(address(metaPool), address(manager), type(uint96).max);
 
         (uint256 delta, bool add) = manager.calculateRebalance(
             MetaPoolAsset.THREE_POOL,
@@ -199,8 +199,8 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testMintThreePoolTokensMultipleAssets() external {
-        tip(address(dai), address(manager), 1e18);
-        tip(address(usdc), address(manager), 1e6);
+        deal(address(dai), address(manager), 1e18);
+        deal(address(usdc), address(manager), 1e6);
 
         uint256[3] memory amounts;
         amounts[uint256(ThreePoolAsset.DAI)]  = 1e18;
@@ -224,7 +224,7 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testMintThreePoolTokensWithDAI() external {
-        tip(address(dai), address(manager), 1e18);
+        deal(address(dai), address(manager), 1e18);
 
         uint256 expectedOutput = 1e18 * CURVE_PRECISION / threePool.get_virtual_price();
         uint256 minted         = manager.mintThreePoolTokens(ThreePoolAsset.DAI, 1e18);
@@ -235,7 +235,7 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testMintThreePoolTokensWithUSDC() external {
-        tip(address(usdc), address(manager), 1e6);
+        deal(address(usdc), address(manager), 1e6);
 
         uint256 expectedOutput = 1e18 * CURVE_PRECISION / threePool.get_virtual_price();
         uint256 minted         = manager.mintThreePoolTokens(ThreePoolAsset.USDC, 1e6);
@@ -246,7 +246,7 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testMintThreePoolTokensWithUSDT() external {
-        tip(address(usdt), address(manager), 1e6);
+        deal(address(usdt), address(manager), 1e6);
 
         uint256 expectedOutput = 1e18 * CURVE_PRECISION / threePool.get_virtual_price();
         uint256 minted         = manager.mintThreePoolTokens(ThreePoolAsset.USDT, 1e6);
@@ -263,7 +263,7 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testBurnThreePoolTokensIntoDAI() external {
-        tip(address(threePoolToken), address(manager), 1e18);
+        deal(address(threePoolToken), address(manager), 1e18);
 
         uint256 expectedOutput = 1e18 * threePool.get_virtual_price() / CURVE_PRECISION;
         uint256 withdrawn      = manager.burnThreePoolTokens(ThreePoolAsset.DAI, 1e18);
@@ -274,7 +274,7 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testBurnThreePoolTokensIntoUSDC() external {
-        tip(address(threePoolToken), address(manager), 1e18);
+        deal(address(threePoolToken), address(manager), 1e18);
 
         uint256 expectedOutput = 1e6 * threePool.get_virtual_price() / CURVE_PRECISION;
         uint256 withdrawn      = manager.burnThreePoolTokens(ThreePoolAsset.USDC, 1e18);
@@ -285,7 +285,7 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testBurnThreePoolTokensIntoUSDT() external {
-        tip(address(threePoolToken), address(manager), 1e18);
+        deal(address(threePoolToken), address(manager), 1e18);
 
         uint256 expectedOutput = 1e6 * threePool.get_virtual_price() / CURVE_PRECISION;
         uint256 withdrawn      = manager.burnThreePoolTokens(ThreePoolAsset.USDT, 1e18);
@@ -302,8 +302,8 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testMintMetaPoolTokensMultipleAssets() external {
-        tip(address(alUSD), address(manager), 1e18);
-        tip(address(threePoolToken), address(manager), 1e18);
+        deal(address(alUSD), address(manager), 1e18);
+        deal(address(threePoolToken), address(manager), 1e18);
 
         uint256[2] memory amounts;
         amounts[uint256(MetaPoolAsset.ALUSD)]      = 1e18;
@@ -326,7 +326,7 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testMintMetaPoolTokensSingleAsset() external {
-        tip(address(threePoolToken), address(manager), 1e18);
+        deal(address(threePoolToken), address(manager), 1e18);
 
         uint256 expectedOutput = 1e18 * CURVE_PRECISION / metaPool.get_virtual_price();
         uint256 minted         = manager.mintMetaPoolTokens(MetaPoolAsset.THREE_POOL, 1e18);
@@ -343,7 +343,7 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testBurnMetaPoolTokens() external {
-        tip(address(metaPool), address(manager), 1e18);
+        deal(address(metaPool), address(manager), 1e18);
 
         uint256 expectedOutput = 1e18 * metaPool.get_virtual_price() / CURVE_PRECISION;
         uint256 withdrawn      = manager.burnMetaPoolTokens(MetaPoolAsset.ALUSD, 1e18);
@@ -360,7 +360,7 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testDepositMetaPoolTokens() external {
-        tip(address(metaPool), address(manager), 1e18);
+        deal(address(metaPool), address(manager), 1e18);
 
         assertTrue(manager.depositMetaPoolTokens(1e18));
         assertEq(convexRewards.balanceOf(address(manager)), 1e18);
@@ -373,7 +373,7 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testWithdrawMetaPoolTokens() external {
-        tip(address(metaPool), address(manager), 1e18);
+        deal(address(metaPool), address(manager), 1e18);
 
         manager.depositMetaPoolTokens(1e18);
 
@@ -390,7 +390,7 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testClaimRewards() external {
-        tip(address(metaPool), address(manager), 1e18);
+        deal(address(metaPool), address(manager), 1e18);
 
         manager.depositMetaPoolTokens(1e18);
 
@@ -410,7 +410,7 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testFlushMultipleAssets() external {
-        tip(address(dai), address(manager), 1e18);
+        deal(address(dai), address(manager), 1e18);
 
         uint256[3] memory amounts;
         amounts[uint256(ThreePoolAsset.DAI)] = 1e18;
@@ -429,7 +429,7 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testFlushSingleAsset() external {
-        tip(address(dai), address(manager), 1e18);
+        deal(address(dai), address(manager), 1e18);
 
         manager.setThreePoolSlippage(0);
         manager.setMetaPoolSlippage(0);
@@ -448,7 +448,7 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testRecall() external {
-        tip(address(metaPool), address(manager), 1e18);
+        deal(address(metaPool), address(manager), 1e18);
 
         manager.depositMetaPoolTokens(1e18);
 
@@ -469,7 +469,7 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testReclaimThreePoolAsset() external {
-        tip(address(dai), address(manager), 1e18);
+        deal(address(dai), address(manager), 1e18);
 
         hevm.prank(transmuterBufferAdmin);
         transmuterBuffer.setSource(address(manager), true);
@@ -487,14 +487,14 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testFailReclaimThreePoolAssetSenderNotAdmin() external {
-        tip(address(dai), address(manager), 1e18);
+        deal(address(dai), address(manager), 1e18);
 
         hevm.prank(address(0xdead));
         manager.reclaimThreePoolAsset(ThreePoolAsset.DAI, 1e18);
     }
 
     function testSweep() external {
-        tip(address(dai), address(manager), 1e18);
+        deal(address(dai), address(manager), 1e18);
 
         manager.sweep(address(dai), 1e18);
 
@@ -503,7 +503,7 @@ contract ThreePoolAssetManagerTest is DSTestPlus {
     }
 
     function testFailSweepSenderNotAdmin() external {
-        tip(address(dai), address(manager), 1e18);
+        deal(address(dai), address(manager), 1e18);
 
         hevm.prank(address(0xdead));
         manager.sweep(address(dai), 1e18);

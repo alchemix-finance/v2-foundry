@@ -16,7 +16,7 @@ import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IAlchemistV2AdminActions} from "../interfaces/alchemist/IAlchemistV2AdminActions.sol";
 import {Whitelist} from "../utils/Whitelist.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
-import {IATokenGateway} from "../interfaces/IATokenGateway.sol";
+import {ITokenGateway} from "../interfaces/ITokenGateway.sol";
 import {ATokenGateway} from "../adapters/aave/ATokenGateway.sol";
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 import {console} from "../../lib/forge-std/src/console.sol";
@@ -30,7 +30,7 @@ contract ATokenGatewayTest is DSTestPlus {
     string wrappedTokenSymbol = "saDAI";
     StaticAToken staticAToken;
     AAVETokenAdapter adapter;
-    IATokenGateway gateway;
+    ITokenGateway gateway;
     IWhitelist whitelist;
     address alchemist = 0x5C6374a2ac4EBC38DeA0Fc1F8716e5Ea1AdD94dd;
     address alchemistAdmin = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
@@ -70,7 +70,7 @@ contract ATokenGatewayTest is DSTestPlus {
 
     function testDepositWithdraw() external {
         uint256 amount = 1000 ether;
-        tip(dai, address(this), amount);
+        deal(dai, address(this), amount);
         IERC20(dai).approve(address(lendingPool), amount);
         lendingPool.deposit(dai, amount, address(this), 0);
         uint256 startBal = IERC20(aToken).balanceOf(address(this));

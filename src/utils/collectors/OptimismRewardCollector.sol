@@ -31,6 +31,8 @@ contract OptimismRewardCollector is IRewardCollector, Ownable {
     address constant aaveIncentives = 0x929EC64c34a17401F460460D4B9390518E5B473e;
     address constant alUsdOptimism = 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A;
     address constant alEthOptimism = 0x3E29D3A9316dAB217754d13b28646B76607c5f04;
+    address constant opToUsdOracle = 0x0D276FC14719f9292D5C1eA2198673d1f4269246;
+    address constant ethToUsdOracle = 0x13e3Ee699D1909E989722E753853AE30b17e08c5;
 
     uint256 constant FIXED_POINT_SCALAR = 1e18;
     uint256 constant BPS = 10000;
@@ -91,21 +93,47 @@ contract OptimismRewardCollector is IRewardCollector, Ownable {
         uint256 expectedExchange;
         uint256 totalToSwap = TokenUtils.safeBalanceOf(rewardToken, address(this));
 
+        // Ensure that round is complete, otherwise price is stale.
+        (
+            uint80 roundID,
+            int256 opToUsd,
+            ,
+            uint256 updateTime,
+            uint80 answeredInRound
+        ) = IChainlinkOracle(opToUsdOracle).latestRoundData();
+        
+        require(
+            opToUsd > 0, 
+            "Chainlink Malfunction"
+        );
+
+        if( updateTime < block.timestamp - 1200 seconds ) {
+            revert("Chainlink Malfunction");
+        }
+
+        // Ensure that round is complete, otherwise price is stale.
+        (
+            uint80 roundIDEth,
+            int256 ethToUsd,
+            ,
+            uint256 updateTimeEth,
+            uint80 answeredInRoundEth
+        ) = IChainlinkOracle(ethToUsdOracle).latestRoundData();
+        
+        require(
+            ethToUsd > 0, 
+            "Chainlink Malfunction"
+        );
+
+        if( updateTimeEth < block.timestamp - 1200 seconds ) {
+            revert("Chainlink Malfunction");
+        }
+
         // Find expected amount out before calling harvest
         if (debtToken == alUsdOptimism) {
-            IERC20[] memory connectors = new IERC20[](3);
-            connectors[0] = IERC20(0x4200000000000000000000000000000000000042);
-            connectors[1] = IERC20(0x7F5c764cBc14f9669B88837ca1490cCa17c31607);
-            connectors[2] = IERC20(0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A);
-            uint256[] memory opToAlusd = IVeloOracle(0x395942C2049604a314d39F370Dfb8D87AAC89e16).getManyRatesWithConnectors(1, connectors);
-            expectedExchange = totalToSwap * opToAlusd[0] / 1e18;
+            expectedExchange = totalToSwap * uint(opToUsd) / 1e8;
         } else if (debtToken == alEthOptimism) {
-            IERC20[] memory connectors = new IERC20[](3);
-            connectors[0] = IERC20(0x4200000000000000000000000000000000000042);
-            connectors[1] = IERC20(0x4200000000000000000000000000000000000006);
-            connectors[2] = IERC20(0x3E29D3A9316dAB217754d13b28646B76607c5f04);
-            uint256[] memory opToAleth = IVeloOracle(0x395942C2049604a314d39F370Dfb8D87AAC89e16).getManyRatesWithConnectors(1, connectors);
-            expectedExchange = totalToSwap * opToAleth[0] / 1e18;
+            expectedExchange = totalToSwap * uint(uint(opToUsd)) / uint(ethToUsd);
         } else {
             revert IllegalState("Invalid debt token");
         }

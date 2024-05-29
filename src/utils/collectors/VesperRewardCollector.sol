@@ -54,6 +54,13 @@ contract VesperRewardCollector {
     address constant vesperRewardsUsdc = 0x2F59B0F98A08E733C66dFB42Bd8E366dC2cfedA6;
     address constant vesperRewardsEth = 0x2F59B0F98A08E733C66dFB42Bd8E366dC2cfedA6;
     address constant vspRewardToken = 0x1b40183EFB4Dd766f11bDa7A7c3AD8982e998421;
+        
+    /// @notice Emitted when a donation occurs.
+    ///
+    /// @param token The yield token that received a donation.
+    /// @param amount The amount of debt tokens donated.
+    event RewardsDonated(address token, uint256 amount);
+
 
     constructor(InitializationParams memory params) {
         alchemist       = params.alchemist;
@@ -66,14 +73,14 @@ contract VesperRewardCollector {
         IVesperRewards(IVesperPool(yieldToken).poolRewards()).claimReward(address(this));
     }
 
-    function claimAndDonateRewards(address token, uint256 minimumAmountOut) external returns (uint256) {
+    function claimAndDonateRewards(address token, uint256 minimumAmountOut) external {
         IAlchemistV2(alchemist).sweepRewardTokens(rewardToken, token);
 
         // Tokens claimed from rewards plus any tokens sent to this contract from grants.
         uint256 amountRewardTokens = IERC20(rewardToken).balanceOf(address(this));
         uint256 received;
         
-        if (amountRewardTokens == 0) return 0;
+        if (amountRewardTokens == 0) return;
 
         if (debtToken == alUSD) {
             // Swap VSP -> WETH -> DAI
@@ -119,7 +126,7 @@ contract VesperRewardCollector {
         TokenUtils.safeApprove(debtToken, alchemist, debtReturned);
         IAlchemistV2(alchemist).donate(token, debtReturned);
 
-        return amountRewardTokens;
+        emit RewardsDonated(token, debtReturned);
     }
 
     function getExpectedExchange(address yieldToken) external view returns (uint256) {
