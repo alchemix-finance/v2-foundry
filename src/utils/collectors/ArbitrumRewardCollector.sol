@@ -27,7 +27,6 @@ struct InitializationParams {
 /// @title  ArbitrumRewardCollector
 /// @author Alchemix Finance
 contract ArbitrumRewardCollector is IRewardCollector, Ownable {
-    address constant AAVE_INCENTIVES = 0x929EC64c34a17401F460460D4B9390518E5B473e;
     address constant ALUSD = 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A;
     address constant ALETH = 0x3E29D3A9316dAB217754d13b28646B76607c5f04;
     address constant ARB = 0x912CE59144191C1204E64559FE8253a0e49E6548;
@@ -66,10 +65,10 @@ contract ArbitrumRewardCollector is IRewardCollector, Ownable {
             TokenUtils.safeApprove(rewardToken, swapRouter, amountRewardToken);
 
             bytes[] memory inputs =  new bytes[](1);
-            inputs[0] = abi.encode(address(this), uint256(2000000000000000000), uint256(0), abi.encodePacked(ARB, uint24(500), USDC), true);
+            inputs[0] = abi.encode(address(this), amountRewardToken, uint256(0), abi.encodePacked(ARB, uint24(500), USDC), true);
             ISwapRouter(swapRouter).execute(abi.encodePacked(uint8(0)), inputs);
 
-            inputs[0] = abi.encode(address(this), IERC20(USDC).balanceOf(address(this)), uint256(0), [USDC,ALUSD], true);
+            inputs[0] = abi.encode(address(this), IERC20(USDC).balanceOf(address(this)), minimumAmountOut, [USDC,ALUSD], true);
             ISwapRouter(swapRouter).execute(abi.encodePacked(uint8(8)), inputs);
         } else if (debtToken == 0x17573150d67d820542EFb24210371545a4868B03) {
             TokenUtils.safeApprove(rewardToken, swapRouter, amountRewardToken);

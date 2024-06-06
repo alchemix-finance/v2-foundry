@@ -31,7 +31,8 @@ contract OptimismRewardCollector is IRewardCollector, Ownable {
     address constant aaveIncentives = 0x929EC64c34a17401F460460D4B9390518E5B473e;
     address constant alUsdOptimism = 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A;
     address constant alEthOptimism = 0x3E29D3A9316dAB217754d13b28646B76607c5f04;
-
+    address constant opToUsdOracle = 0x0D276FC14719f9292D5C1eA2198673d1f4269246;
+    address constant ethToUsdOracle = 0x13e3Ee699D1909E989722E753853AE30b17e08c5;
     uint256 constant FIXED_POINT_SCALAR = 1e18;
     uint256 constant BPS = 10000;
     string public override version = "1.1.0";
@@ -64,8 +65,8 @@ contract OptimismRewardCollector is IRewardCollector, Ownable {
         if (debtToken == 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A) {
             // Velodrome Swap Routes: OP -> USDC -> alUSD
             IVelodromeSwapRouter.Route[] memory routes = new IVelodromeSwapRouter.Route[](2);
-            routes[0] = IVelodromeSwapRouter.Route(0x4200000000000000000000000000000000000042, 0x7F5c764cBc14f9669B88837ca1490cCa17c31607, false, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
-            routes[1] = IVelodromeSwapRouter.Route(0x7F5c764cBc14f9669B88837ca1490cCa17c31607, 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A, true, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
+            routes[0] = IVelodromeSwapRouter.Route(0x4200000000000000000000000000000000000042, 0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85, false, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
+            routes[1] = IVelodromeSwapRouter.Route(0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85, 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A, true, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
             TokenUtils.safeApprove(rewardToken, swapRouter, amountRewardToken);
             IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(amountRewardToken, minimumAmountOut, routes, address(this), block.timestamp);
         } else if (debtToken == 0x3E29D3A9316dAB217754d13b28646B76607c5f04) {
@@ -95,7 +96,7 @@ contract OptimismRewardCollector is IRewardCollector, Ownable {
         if (debtToken == alUsdOptimism) {
             IERC20[] memory connectors = new IERC20[](3);
             connectors[0] = IERC20(0x4200000000000000000000000000000000000042);
-            connectors[1] = IERC20(0x7F5c764cBc14f9669B88837ca1490cCa17c31607);
+            connectors[1] = IERC20(0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85);
             connectors[2] = IERC20(0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A);
             uint256[] memory opToAlusd = IVeloOracle(0x395942C2049604a314d39F370Dfb8D87AAC89e16).getManyRatesWithConnectors(1, connectors);
             expectedExchange = totalToSwap * opToAlusd[0] / 1e18;
