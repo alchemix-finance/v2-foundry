@@ -7,6 +7,7 @@ import {IAlchemistV2} from "../../interfaces/IAlchemistV2.sol";
 import {IStakingRewards} from "../../interfaces/external/yearn/IStakingRewards.sol";
 import {IYearnStakingToken} from "../../interfaces/external/yearn/IYearnStakingToken.sol";
 import {IVelodromeSwapRouter} from "../../interfaces/external/velodrome/IVelodromeSwapRouter.sol";
+import {IVeloOracle} from "../../interfaces/external/velodrome/IVeloOracle.sol";
 import {Unauthorized, IllegalState, IllegalArgument} from "../../base/ErrorMessages.sol";
 
 import "../../interfaces/external/aave/IRewardsController.sol";
@@ -91,52 +92,26 @@ contract OptimismYearnRewardCollector is IRewardCollector {
 
         return amountRewardToken;
     }
-
+    
     function getExpectedExchange() external view returns (uint256) {
         uint256 expectedExchange;
         uint256 totalToSwap = TokenUtils.safeBalanceOf(rewardToken, address(this));
 
-        // Ensure that round is complete, otherwise price is stale.
-        (
-            uint80 roundID,
-            int256 opToUsd,
-            ,
-            uint256 updateTime,
-            uint80 answeredInRound
-        ) = IChainlinkOracle(opToUsdOracle).latestRoundData();
-        
-        require(
-            opToUsd > 0, 
-            "Chainlink Malfunction"
-        );
-
-        if( updateTime < block.timestamp - 1200 seconds ) {
-            revert("Chainlink Malfunction");
-        }
-
-        // Ensure that round is complete, otherwise price is stale.
-        (
-            uint80 roundIDEth,
-            int256 ethToUsd,
-            ,
-            uint256 updateTimeEth,
-            uint80 answeredInRoundEth
-        ) = IChainlinkOracle(ethToUsdOracle).latestRoundData();
-        
-        require(
-            ethToUsd > 0, 
-            "Chainlink Malfunction"
-        );
-
-        if( updateTimeEth < block.timestamp - 1200 seconds ) {
-            revert("Chainlink Malfunction");
-        }
-
         // Find expected amount out before calling harvest
         if (debtToken == alUsdOptimism) {
-            expectedExchange = totalToSwap * uint(opToUsd) / 1e8;
+            IERC20[] memory connectors = new IERC20[](3);
+            connectors[0] = IERC20(0x4200000000000000000000000000000000000042);
+            connectors[1] = IERC20(0x7F5c764cBc14f9669B88837ca1490cCa17c31607);
+            connectors[2] = IERC20(0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A);
+            uint256[] memory opToAlusd = IVeloOracle(0x395942C2049604a314d39F370Dfb8D87AAC89e16).getManyRatesWithConnectors(1, connectors);
+            expectedExchange = totalToSwap * opToAlusd[0] / 1e18;
         } else if (debtToken == alEthOptimism) {
-            expectedExchange = totalToSwap * uint(uint(opToUsd)) / uint(ethToUsd);
+            IERC20[] memory connectors = new IERC20[](3);
+            connectors[0] = IERC20(0x4200000000000000000000000000000000000042);
+            connectors[1] = IERC20(0x4200000000000000000000000000000000000006);
+            connectors[2] = IERC20(0x3E29D3A9316dAB217754d13b28646B76607c5f04);
+            uint256[] memory opToAleth = IVeloOracle(0x395942C2049604a314d39F370Dfb8D87AAC89e16).getManyRatesWithConnectors(1, connectors);
+            expectedExchange = totalToSwap * opToAleth[0] / 1e18;
         } else {
             revert IllegalState("Invalid debt token");
         }
