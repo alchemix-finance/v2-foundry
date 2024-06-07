@@ -60,4 +60,49 @@ contract WstETHAdapterV1Test is DSTestPlus {
 		assertEq(sDAI.balanceOf(address(adapter)), 0);
 		assertApproxEq(endBalance - startingBalance, 0, 10);
 	}
+
+    function testHarvest() external {
+        deal(address(sDAI), address(this), 1e18);
+
+
+        // New position
+        SafeERC20.safeApprove(address(sDAI), address(alchemist), 1e18);
+        uint256 shares = alchemist.deposit(address(sDAI), 1e18, address(this));
+        (int256 debtBefore, ) = alchemist.accounts(address(this));
+
+        // Roll ahead then harvest
+        hevm.roll(block.number + 100000);
+        hevm.warp(block.timestamp + 165321);
+        hevm.prank(admin);
+        alchemist.harvest(address(sDAI), 0);
+
+        // Roll ahead one block then check credited amount
+        hevm.roll(block.number + 1);
+        (int256 debtAfter, ) = alchemist.accounts(address(this));
+        assertGt(debtBefore, debtAfter);
+    }
+
+    function testLiquidate() external {
+        deal(address(sDAI), address(this), 1e18);
+
+
+        SafeERC20.safeApprove(address(sDAI), address(alchemist), 1e18);
+        uint256 shares = alchemist.deposit(address(sDAI), 1e18, address(this));
+        uint256 pps = alchemist.getUnderlyingTokensPerShare(address(sDAI));
+        uint256 mintAmt = shares * pps / 1e18 / 4;
+        alchemist.mint(mintAmt, address(this));
+
+        (int256 debtBefore, ) = alchemist.accounts(address(this));
+
+        uint256 sharesLiquidated = alchemist.liquidate(address(sDAI), shares / 4, mintAmt * 97 / 100);
+
+        (int256 debtAfter, ) = alchemist.accounts(address(this));
+
+        (uint256 sharesLeft, ) =  alchemist.positions(address(this), address(sDAI));
+
+        assertApproxEq(0, uint256(debtAfter), mintAmt - mintAmt * 97 / 100);
+        assertEq(shares - sharesLiquidated, sharesLeft);
+    }
+
 }
+
