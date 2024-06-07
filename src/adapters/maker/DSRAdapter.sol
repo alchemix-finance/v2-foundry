@@ -4,12 +4,12 @@ import {IllegalState} from "../../base/Errors.sol";
 
 import "../../interfaces/ITokenAdapter.sol";
 //import some stuff for maker dai savings rate
-import "../../interfaces/IERC4626.sol";
+import {IERC4626} from "../../../lib/openzeppelin-contracts/contracts/interfaces/IERC4626.sol";
 import "../../libraries/TokenUtils.sol";
 
 /// @title  YearnTokenAdapter
 /// @author Alchemix Finance
-contract DaiSavingsRateAdapter is ITokenAdapter {
+contract DSRAdapter is ITokenAdapter {
     uint256 private constant MAXIMUM_SLIPPAGE = 10000;
     //update for every new deployment
     string public constant override version = "1.0.0";
@@ -17,7 +17,6 @@ contract DaiSavingsRateAdapter is ITokenAdapter {
     address public immutable override token;
     //(DSR)
     address public immutable override underlyingToken;
-
     constructor(address _token, address _underlyingToken) {
         token = _token;
         underlyingToken = _underlyingToken;
@@ -26,7 +25,7 @@ contract DaiSavingsRateAdapter is ITokenAdapter {
     /// @inheritdoc ITokenAdapter
     function price() external view override returns (uint256) {
       //get the price of DSR in DAI
-        return IYearnVaultV2(token).pricePerShare();
+        return IERC4626(token).convertToAssets(1e18);
     }
 
     /// @inheritdoc ITokenAdapter
@@ -46,9 +45,9 @@ contract DaiSavingsRateAdapter is ITokenAdapter {
         //Withdraw yield tokens from alchemist and place in this contract
         TokenUtils.safeTransferFrom(token, msg.sender, address(this), amount);
         //check the balance of the tokens in this contract
-        uint256 balanceBefore = TokenUtils.safeBalanceOf(token, address(this));
+        // uint256 balanceBefore = TokenUtils.safeBalanceOf(token, address(this));
         //withdraw and get the return value of underlying tokens
-        uint256 amountWithdrawn = IERC4626(token).redeem(amount, recipient, recipient);
+        uint256 amountWithdrawn = IERC4626(token).redeem(amount, recipient, address(this));
 /* not needed unless there is a bug that might return the wrong value
         uint256 balanceAfter = TokenUtils.safeBalanceOf(token, address(this));
 */
