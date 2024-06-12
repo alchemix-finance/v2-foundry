@@ -44,25 +44,8 @@ contract DSRAdapter is ITokenAdapter {
     function unwrap(uint256 amount, address recipient) external override returns (uint256) {
         //Withdraw yield tokens from alchemist and place in this contract
         TokenUtils.safeTransferFrom(token, msg.sender, address(this), amount);
-        //check the balance of the tokens in this contract
-        // uint256 balanceBefore = TokenUtils.safeBalanceOf(token, address(this));
         //withdraw and get the return value of underlying tokens
         uint256 amountWithdrawn = IERC4626(token).redeem(amount, recipient, address(this));
-/* not needed unless there is a bug that might return the wrong value
-        uint256 balanceAfter = TokenUtils.safeBalanceOf(token, address(this));
-*/
-        // If the Yearn vault did not burn all of the shares then revert. This is critical in mathematical operations
-        // performed by the system because the system always expects that all of the tokens were unwrapped. In Yearn,
-        // this sometimes does not happen in cases where strategies cannot withdraw all of the requested tokens (an
-        // example strategy where this can occur is with Compound and AAVE where funds may not be accessible because
-        // they were lent out).
-
-
-        //double checks that the amount withdrawn is correct
-
-        // if (balanceBefore - balanceAfter != amount) {
-        //     revert IllegalState();
-        // }
 
         return amountWithdrawn;
     }
