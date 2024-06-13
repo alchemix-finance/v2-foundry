@@ -10,16 +10,12 @@ contract CrossChainCanonicalGALCX is CrossChainCanonicalBase {
 
   function initialize(
       string memory name, 
-      string memory symbol, 
-      address[] memory _bridgeTokens,
-      uint256[] memory _mintCeilings
+      string memory symbol
   ) external initializer {
     __CrossChainCanonicalBase_init(
       name,
       symbol,
-      msg.sender,
-      _bridgeTokens,
-      _mintCeilings
+      msg.sender
     );
   }
 }
