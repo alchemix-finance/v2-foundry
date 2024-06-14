@@ -73,19 +73,25 @@ contract GearboxWETHAdaptorTest is DSTestPlus {
         SafeERC20.safeApprove(address(dWETH), address(alchemist), 1e18);
         uint256 shares = alchemist.deposit(address(dWETH), 1e18, address(this));
         (int256 debtBefore, ) = alchemist.accounts(address(this));
+				uint256 priceBefore = adapter.price();
 
         // Roll ahead then harvest
-        hevm.roll(block.number + 100000);
-        hevm.warp(block.timestamp + 165321);
+        hevm.roll(block.number + 1000);
+        hevm.warp(block.timestamp + 16532);
         hevm.prank(admin);
         alchemist.harvest(address(dWETH), 0);
-
         // Roll ahead one block then check credited amount
         hevm.roll(block.number + 1);
         (int256 debtAfter, ) = alchemist.accounts(address(this));
+				uint256 priceAfter = adapter.price();
+
         assertGt(debtBefore, debtAfter);
 				console2.log("debtBefore", debtBefore);
 				console2.log("debtAfter", debtAfter);
+				console2.log("price before", priceBefore);
+				console2.log("price after", priceAfter);
+				console2.log("price difference", priceAfter - priceBefore);
+
     }
 
     function testLiquidate() external {
