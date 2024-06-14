@@ -33,7 +33,7 @@ contract GearboxWETHAdaptorTest is DSTestPlus {
 		});
 		hevm.startPrank(admin);
 		alchemist.addYieldToken(address(dWETH), ytc);
-        alchemist.setYieldTokenEnabled(address(dWETH), true);
+    alchemist.setYieldTokenEnabled(address(dWETH), true);
 		alchemist.setTokenAdapter(address(dWETH), address(adapter));
 		IWhitelist(whitelistWETHAddress).add(address(this));
 		alchemist.setMaximumExpectedValue(address(dWETH), 1000000000e18);
