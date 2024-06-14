@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.13;
-
+import "forge-std/Test.sol";
 import { DSTestPlus } from "./utils/DSTestPlus.sol";
 
 import { GearboxWETHAdaptor } from "../adapters/gearbox/GearboxWETHAdaptor.sol";
@@ -13,7 +13,7 @@ import { IERC20 } from "../../../lib/openzeppelin-contracts/contracts/interfaces
 import { IAlchemistV2AdminActions } from "../interfaces/alchemist/IAlchemistV2AdminActions.sol";
 contract GearboxWETHAdaptorTest is DSTestPlus {
 	uint256 constant BPS = 10000;
-	address constant admin = 0x7e108711771DfdB10743F016D46d75A9379cA043;
+	address constant admin = 0x886FF7a2d46dcc2276e2fD631957969441130847;
   //todo
 	address constant whitelistWETHAddress = 0x6996b41c369D3175F18D16ba14952F8C89665710;
 
@@ -60,6 +60,9 @@ contract GearboxWETHAdaptorTest is DSTestPlus {
 		assertEq(dWETH.balanceOf(address(this)), 0);
 		assertEq(dWETH.balanceOf(address(adapter)), 0);
 		assertApproxEq(endBalance - startingBalance, 0, 10);
+		console2.log("startingBalance", startingBalance);
+		console2.log("endBalance", endBalance);
+
 	}
 
     function testHarvest() external {
@@ -81,6 +84,8 @@ contract GearboxWETHAdaptorTest is DSTestPlus {
         hevm.roll(block.number + 1);
         (int256 debtAfter, ) = alchemist.accounts(address(this));
         assertGt(debtBefore, debtAfter);
+				console2.log("debtBefore", debtBefore);
+				console2.log("debtAfter", debtAfter);
     }
 
     function testLiquidate() external {
@@ -103,6 +108,9 @@ contract GearboxWETHAdaptorTest is DSTestPlus {
 
         assertApproxEq(0, uint256(debtAfter), mintAmt - mintAmt * 97 / 100);
         assertEq(shares - sharesLiquidated, sharesLeft);
+				console2.log("shares", shares);
+				console2.log("sharesLiquidated", sharesLiquidated);
+				console2.log("sharesLeft", sharesLeft);
     }
 
 }
