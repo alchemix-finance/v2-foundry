@@ -25,9 +25,9 @@ contract ArbitrumGrantDistribution is DSTestPlus {
     ArbitrumRewardCollector collectorETH = new ArbitrumRewardCollector(InitializationParams(alchemistETH, 0x17573150d67d820542EFb24210371545a4868B03, address(router), 0x912CE59144191C1204E64559FE8253a0e49E6548, 0x5C23A419436F6D65c506Bbc329A783ADB3335e3C));
 
     function setUp() external {
-        deal(0x912CE59144191C1204E64559FE8253a0e49E6548, address(router), 10e18);
-        router.addVault(0x248a431116c6f6FCD5Fe1097d16d0597E24100f5, address(collector), 10e18, 604800);
-        router.addVault(0x5979D7b546E38E414F7E9822514be443A4800529, address(collectorETH), 10e18, 604800);
+        deal(0x912CE59144191C1204E64559FE8253a0e49E6548, address(router), 1000e18);
+        router.addVault(0x248a431116c6f6FCD5Fe1097d16d0597E24100f5, address(collector), 1000e18, 604800);
+        router.addVault(0x5979D7b546E38E414F7E9822514be443A4800529, address(collectorETH), 1000e18, 604800);
         router.setHarvester(0x52E4C31933B466CD8A7cb0aAb819abAF7BE7Fc0e);
 
         collector.setRewardRouter(address(router));
@@ -59,6 +59,6 @@ contract ArbitrumGrantDistribution is DSTestPlus {
         vm.warp(block.timestamp + 302400);
         vm.prank(0x10388c006a356eF584d32A314e70D0E62CfCABeE);
         IAlchemixHarvester(0x52E4C31933B466CD8A7cb0aAb819abAF7BE7Fc0e).harvest(0xb46eE2E4165F629b4aBCE04B7Eb4237f951AC66F, 0x248a431116c6f6FCD5Fe1097d16d0597E24100f5);
-        assertEq(IERC20(0x912CE59144191C1204E64559FE8253a0e49E6548).balanceOf(address(router)) , 5e18);
+        assertEq(IERC20(0x912CE59144191C1204E64559FE8253a0e49E6548).balanceOf(address(router)) , 500e18);
     }
 }

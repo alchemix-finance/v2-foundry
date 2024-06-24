@@ -114,20 +114,24 @@ contract ArbitrumRewardCollector is IRewardCollector, Ownable {
 
         // Find expected amount out before calling harvest
         if (debtToken == ALUSD) {
-            QuoteExactInputSingleV3Params memory params = QuoteExactInputSingleV3Params(rewardToken, USDC, totalToSwap, uint24(500), uint160(0));
-            (uint256 arbToUsdc, , , ) = RamsesQuote(0xAA29F3218E72974FE7Ce81b0826273FEA12cbF3C).quoteExactInputSingleV3(params);
+            // QuoteExactInputSingleV3Params memory params = QuoteExactInputSingleV3Params(rewardToken, USDC, totalToSwap, uint24(500), uint160(0));
+            // (uint256 arbToUsdc, , , ) = RamsesQuote(0xAA29F3218E72974FE7Ce81b0826273FEA12cbF3C).quoteExactInputSingleV3(params);
             
-            params = QuoteExactInputSingleV3Params(USDC, FRAX, arbToUsdc, uint24(100), uint160(0));
-            (uint256 usdcToFrax, , , ) = RamsesQuote(0xAA29F3218E72974FE7Ce81b0826273FEA12cbF3C).quoteExactInputSingleV3(params);
+            // params = QuoteExactInputSingleV3Params(USDC, FRAX, arbToUsdc, uint24(100), uint160(0));
+            // (uint256 usdcToFrax, , , ) = RamsesQuote(0xAA29F3218E72974FE7Ce81b0826273FEA12cbF3C).quoteExactInputSingleV3(params);
 
-            return(V2Pool(0xfd599DB360Cd9713657C95dF66650A427d213010).getAmountOut(usdcToFrax, FRAX));
+            // return(V2Pool(0xfd599DB360Cd9713657C95dF66650A427d213010).getAmountOut(usdcToFrax, FRAX));
+
+            return 0;
         } else if (debtToken == ALETH) {
-            QuoteExactInputSingleV3Params memory params = QuoteExactInputSingleV3Params(rewardToken, WETH, totalToSwap, uint24(500), uint160(0));
-            (uint256 arbToWETH, , , ) = RamsesQuote(0xAA29F3218E72974FE7Ce81b0826273FEA12cbF3C).quoteExactInputSingleV3(params);
+            // QuoteExactInputSingleV3Params memory params = QuoteExactInputSingleV3Params(rewardToken, WETH, totalToSwap, uint24(500), uint160(0));
+            // (uint256 arbToWETH, , , ) = RamsesQuote(0xAA29F3218E72974FE7Ce81b0826273FEA12cbF3C).quoteExactInputSingleV3(params);
             
-            uint256 wethToFraxeth =  V2Pool(0x3932192dE4f17DFB94Be031a8458E215A44BF560).getAmountOut(arbToWETH, WETH);
+            // uint256 wethToFraxeth =  V2Pool(0x3932192dE4f17DFB94Be031a8458E215A44BF560).getAmountOut(arbToWETH, WETH);
 
-            return(V2Pool(0xfB4fE921F724f3C7B610a826c827F9F6eCEf6886).getAmountOut(wethToFraxeth, FRAXETH));
+            // return(V2Pool(0xfB4fE921F724f3C7B610a826c827F9F6eCEf6886).getAmountOut(wethToFraxeth, FRAXETH));
+
+            return 0;
         } else {
             revert IllegalState("Invalid debt token");
         }
