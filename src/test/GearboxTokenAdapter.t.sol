@@ -1,17 +1,18 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity 0.8.13;
+pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 import { DSTestPlus } from "./utils/DSTestPlus.sol";
 
-import { GearboxWETHAdaptor } from "../adapters/gearbox/GearboxWETHAdaptor.sol";
+// Correct the import path or contract name as necessary
+import { GearboxTokenAdapter } from "../adapters/gearbox/GearboxTokenAdaptor.sol";
 
-import { IAlchemistV2 } from "../interfaces/IAlchemistV2.sol";
+import { IAlchemistV2 } from "../../src/interfaces/IAlchemistV2.sol";
 import { IWhitelist } from "../interfaces/IWhitelist.sol";
-import { IERC4626 } from "../../../lib/openzeppelin-contracts/contracts/interfaces/IERC4626.sol";
+import { IERC4626 } from "../../lib/openzeppelin-contracts/contracts/interfaces/IERC4626.sol";
 import { SafeERC20 } from "../libraries/SafeERC20.sol";
-import { IERC20 } from "../../../lib/openzeppelin-contracts/contracts/interfaces/IERC20.sol";
+import { IERC20 } from "../../lib/openzeppelin-contracts/contracts/interfaces/IERC20.sol";
 import { IAlchemistV2AdminActions } from "../interfaces/alchemist/IAlchemistV2AdminActions.sol";
-contract GearboxWETHAdaptorTest is DSTestPlus {
+contract GearboxTokenAdaptorTest is DSTestPlus {
 	uint256 constant BPS = 10000;
 	address constant admin = 0x886FF7a2d46dcc2276e2fD631957969441130847;
 	//todo
@@ -20,11 +21,11 @@ contract GearboxWETHAdaptorTest is DSTestPlus {
 	IAlchemistV2 constant alchemist = IAlchemistV2(0x654e16a0b161b150F5d1C8a5ba6E7A7B7760703A);
 	IERC20 constant WETH = IERC20(0x82aF49447D8a07e3bd95BD0d56f35241523fBab1);
 	IERC4626 constant dWETH = IERC4626(0x04419d3509f13054f60d253E0c79491d9E683399);
-
-	GearboxWETHAdaptor adapter;
+//todo need to go from weth -> dToken -> farming token, and then back to weth
+	GearboxTokenAdapter adapter;
 
 	function setUp() external {
-		adapter = new GearboxWETHAdaptor(address(dWETH), address(WETH));
+		adapter = new GearboxTokenAdaptor(address(dWETH), address(WETH));
 		IAlchemistV2.YieldTokenConfig memory ytc = IAlchemistV2AdminActions.YieldTokenConfig({
 			adapter: address(adapter),
 			maximumLoss: 1,

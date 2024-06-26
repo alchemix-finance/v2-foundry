@@ -5,7 +5,7 @@ import {TokenUtils} from "../../libraries/TokenUtils.sol";
 
 import {IAlchemistV2} from "../../interfaces/IAlchemistV2.sol";
 import {IStaticAToken} from "../../interfaces/external/aave/IStaticAToken.sol";
-//TODO find router for GEAR on arbitrum
+//TODO find router for ARB on arbitrum
 import {IVelodromeSwapRouter} from "../../interfaces/external/velodrome/IVelodromeSwapRouter.sol";
 import {Unauthorized, IllegalState, IllegalArgument} from "../../base/ErrorMessages.sol";
 //TODO import interface for gearbox reward controller
@@ -60,7 +60,7 @@ contract OptimismAaveRewardCollector is IRewardCollector {
         if (amountRewardToken == 0) return 0;
         //TODO alAsset arbitrum address
         if (debtToken == 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A) {
-            //TODO figure out a route on arbitrum GEAR -> ??? -> alUSD
+            //TODO figure out a route on arbitrum ARB -> ??? -> alUSD
             IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](2);
             routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x7F5c764cBc14f9669B88837ca1490cCa17c31607, false);
             routes[1] = IVelodromeSwapRouter.route(0x7F5c764cBc14f9669B88837ca1490cCa17c31607, 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A, true);
@@ -68,7 +68,7 @@ contract OptimismAaveRewardCollector is IRewardCollector {
             IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(amountRewardToken, minimumAmountOut, routes, address(this), block.timestamp);
         //TODO alAsset arbitrum address
         } else if (debtToken == 0x3E29D3A9316dAB217754d13b28646B76607c5f04) {
-            //TODO figure out a route on arbitrum GEAR -> ??? -> alETH
+            //TODO figure out a route on arbitrum ARB -> ??? -> alETH
             IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](1);
             routes[0] = IVelodromeSwapRouter.route(0x4200000000000000000000000000000000000042, 0x3E29D3A9316dAB217754d13b28646B76607c5f04, false);
             TokenUtils.safeApprove(rewardToken, swapRouter, amountRewardToken);
