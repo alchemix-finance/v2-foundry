@@ -18,5 +18,5 @@ make test_file_block_optimism FILE=YearnOptimism BLOCK=99207058;
 make test_file_block_optimism FILE=YTokenGateway BLOCK=99207058;
 make test_file_block_optimism FILE=AaveV3TokenAdapter BLOCK=81332054;
 make test_file_block FILE=IdleTrancheAdapter BLOCK=15783014;
-make test_file_block_optimism FILE=OptimismGrantDistribution BLOCK=119793126;
+make test_file_block_optimism FILE=OptimismGrantDistribution BLOCK=121995110;
 make test_file_block_arbitrum FILE=ArbitrumGrantDistribution BLOCK=223534546;

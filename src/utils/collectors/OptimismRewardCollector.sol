@@ -65,8 +65,8 @@ contract OptimismRewardCollector is IRewardCollector, Ownable {
         if (debtToken == 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A) {
             // Velodrome Swap Routes: OP -> USDC -> alUSD
             IVelodromeSwapRouter.Route[] memory routes = new IVelodromeSwapRouter.Route[](2);
-            routes[0] = IVelodromeSwapRouter.Route(0x4200000000000000000000000000000000000042, 0x7F5c764cBc14f9669B88837ca1490cCa17c31607, false, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
-            routes[1] = IVelodromeSwapRouter.Route(0x7F5c764cBc14f9669B88837ca1490cCa17c31607, 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A, true, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
+            routes[0] = IVelodromeSwapRouter.Route(0x4200000000000000000000000000000000000042, 0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85, false, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
+            routes[1] = IVelodromeSwapRouter.Route(0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85, 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A, true, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
             TokenUtils.safeApprove(rewardToken, swapRouter, amountRewardToken);
             IVelodromeSwapRouter(swapRouter).swapExactTokensForTokens(amountRewardToken, minimumAmountOut, routes, address(this), block.timestamp);
         } else if (debtToken == 0x3E29D3A9316dAB217754d13b28646B76607c5f04) {
@@ -96,7 +96,7 @@ contract OptimismRewardCollector is IRewardCollector, Ownable {
         if (debtToken == alUsdOptimism) {
             IERC20[] memory connectors = new IERC20[](3);
             connectors[0] = IERC20(0x4200000000000000000000000000000000000042);
-            connectors[1] = IERC20(0x7F5c764cBc14f9669B88837ca1490cCa17c31607);
+            connectors[1] = IERC20(0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85);
             connectors[2] = IERC20(0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A);
             uint256[] memory opToAlusd = IVeloOracle(0x395942C2049604a314d39F370Dfb8D87AAC89e16).getManyRatesWithConnectors(1, connectors);
             expectedExchange = totalToSwap * opToAlusd[0] / 1e18;
