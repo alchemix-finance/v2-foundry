@@ -11,7 +11,7 @@ import {SafeERC20} from "../../libraries/SafeERC20.sol";
 import {IChainlinkOracle} from "../../interfaces/external/chainlink/IChainlinkOracle.sol";
 import {ITokenAdapter} from "../../interfaces/ITokenAdapter.sol";
 import {IWETH9} from "../../interfaces/external/IWETH9.sol";
-import {IVelodromeSwapRouter} from "../../interfaces/external/velodrome/IVelodromeSwapRouter.sol";
+import {IVelodromeSwapRouterV2} from "../../interfaces/external/velodrome/IVelodromeSwapRouterV2.sol";
 import {IStETH} from "../../interfaces/external/lido/IStETH.sol";
 import {IWstETH} from "../../interfaces/external/lido/IWstETH.sol";
 
@@ -24,7 +24,6 @@ struct InitializationParams {
 }
 
 contract WstETHAdapterOptimism is ITokenAdapter, MutexLock {
-    uint256 public constant BPS = 10_000;
     string public override version = "1.1.0";
 
     address public immutable alchemist;
@@ -32,8 +31,6 @@ contract WstETHAdapterOptimism is ITokenAdapter, MutexLock {
     address public immutable override underlyingToken;
     address public immutable velodromeRouter;
     address public immutable oracleWstethEth;
-
-    uint256 public slippageBPS = 9500;
 
     constructor(InitializationParams memory params) {
         alchemist       = params.alchemist;
@@ -93,16 +90,14 @@ contract WstETHAdapterOptimism is ITokenAdapter, MutexLock {
 
         // Swap WETH to wstETH
         SafeERC20.safeApprove(underlyingToken, velodromeRouter, amount);
-        bytes[] memory inputs =  new bytes[](1);
-        inputs[0] = abi.encode(address(this), amount, uint256((amount * 1e18 / this.price()) * slippageBPS / BPS), abi.encodePacked(underlyingToken, uint24(1), token), true);
-        IVelodromeSwapRouter(velodromeRouter).execute(abi.encodePacked(uint8(0)), inputs);
+        IVelodromeSwapRouterV2.route[] memory routes = new IVelodromeSwapRouterV2.route[](1);
+        routes[0] = IVelodromeSwapRouterV2.route(underlyingToken, token, false, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
+        uint256[] memory amounts = IVelodromeSwapRouterV2(velodromeRouter).swapExactTokensForTokens(amount, 0, routes, address(this), block.timestamp);
 
-        uint256 returned = IERC20(token).balanceOf(address(this));
+        // Transfer the wstETH to the recipient.
+        SafeERC20.safeTransfer(token, recipient, amounts[1]);
 
-        // Transfer the tokens to the recipient.
-        SafeERC20.safeTransfer(token, recipient, returned);
-
-        return returned;
+        return amounts[1];
     }
 
     // @inheritdoc ITokenAdapter
@@ -114,16 +109,13 @@ contract WstETHAdapterOptimism is ITokenAdapter, MutexLock {
         SafeERC20.safeTransferFrom(token, msg.sender, address(this), amount);
 
         SafeERC20.safeApprove(token, velodromeRouter, amount);
-        bytes[] memory inputs =  new bytes[](1);
-        // Slippage for unwrap is handled upstream
-        inputs[0] = abi.encode(address(this), amount, uint256(0), abi.encodePacked(token, uint24(1), underlyingToken), true);
-        IVelodromeSwapRouter(velodromeRouter).execute(abi.encodePacked(uint8(0)), inputs);
-
-        uint256 returned = IERC20(underlyingToken).balanceOf(address(this));
+        IVelodromeSwapRouterV2.route[] memory routes = new IVelodromeSwapRouterV2.route[](1);
+        routes[0] = IVelodromeSwapRouterV2.route(token, underlyingToken, false, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
+        uint256[] memory amounts = IVelodromeSwapRouterV2(velodromeRouter).swapExactTokensForTokens(amount, 0, routes, address(this), block.timestamp);
 
         // Transfer the tokens to the recipient.
-        SafeERC20.safeTransfer(underlyingToken, recipient, returned);
+        SafeERC20.safeTransfer(underlyingToken, recipient, amounts[1]);
 
-        return returned;
+        return amounts[1];
     }
 }
