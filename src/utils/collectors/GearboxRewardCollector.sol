@@ -26,14 +26,14 @@ struct InitializationParams {
 /// @title  RewardCollectorOptimism
 /// @author Alchemix Finance
 contract OptimismAaveRewardCollector is IRewardCollector {
-    //TODO get address for gearbox rewards contract
-    address constant aaveIncentives = 0x929EC64c34a17401F460460D4B9390518E5B473e;
-    //TODOS get these addresses for arbitrum
+
+    address constant gearboxRewardDistributor =0xf3b7994e4dA53E04155057Fd61dc501599d57877;
+    //arb USDC rewards distributor address
+    // address constant gearboxRewardDistributor = 0xD0181a36B0566a8645B7eECFf2148adE7Ecf2BE9;
     address constant alUsdOptimism = 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A;
-    address constant alEthOptimism = 0x3E29D3A9316dAB217754d13b28646B76607c5f04;
-    //TODO get these addresses for gear to weth oracle
-    address constant opToUsdOracle = 0x0D276FC14719f9292D5C1eA2198673d1f4269246;
-    address constant ethToUsdOracle = 0x13e3Ee699D1909E989722E753853AE30b17e08c5;
+    address constant alEthArbitrum = 0x17573150d67d820542EFb24210371545a4868B03;
+    address constant arbToUsdOracle = 0xb2A824043730FE05F3DA2efaFa1CBbe83fa548D6;
+    address constant ethToUsdOracle = 0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612;
 
     uint256 constant FIXED_POINT_SCALAR = 1e18;
     uint256 constant BPS = 10000;
