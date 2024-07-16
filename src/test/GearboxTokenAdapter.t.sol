@@ -4,7 +4,7 @@ import "forge-std/Test.sol";
 import { DSTestPlus } from "./utils/DSTestPlus.sol";
 
 // Correct the import path or contract name as necessary
-import { GearboxTokenAdapter } from "../adapters/gearbox/GearboxTokenAdaptor.sol";
+import { GearboxTokenAdapter } from "../adapters/gearbox/GearboxTokenAdapter.sol";
 
 import { IAlchemistV2 } from "../../src/interfaces/IAlchemistV2.sol";
 import { IWhitelist } from "../interfaces/IWhitelist.sol";
@@ -25,7 +25,7 @@ contract GearboxTokenAdaptorTest is DSTestPlus {
 	GearboxTokenAdapter adapter;
 
 	function setUp() external {
-		adapter = new GearboxTokenAdaptor(address(dWETH), address(WETH));
+		adapter = new GearboxTokenAdapter(address(dWETH), address(WETH));
 		IAlchemistV2.YieldTokenConfig memory ytc = IAlchemistV2AdminActions.YieldTokenConfig({
 			adapter: address(adapter),
 			maximumLoss: 1,
