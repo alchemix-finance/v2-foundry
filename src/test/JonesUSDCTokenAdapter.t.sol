@@ -20,16 +20,16 @@ contract JonesUSDCAdapterTest is DSTestPlus {
     address constant alUSD = 0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A;
     address constant owner = 0x886FF7a2d46dcc2276e2fD631957969441130847;
     address constant whitelistUSD = 0xda94B6536E9958d63229Dc9bE4fa654Ad52921dB;
-    address constant jUSDC = 0xe66998533a1992ecE9eA99cDf47686F4fc8458E0;
-    address constant usdce = 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8;
-    address constant jonesWhitelist = 0x2ACc798DA9487fdD7F4F653e04D8E8411cd73e88;
+    address constant jUSDC = 0xB0BDE111812EAC913b392D80D51966eC977bE3A2;
+    address constant usdc = 0xaf88d065e77c8cC2239327C5EDb3A432268e5831;
+    address constant jonesWhitelist = 0xDe3476a7C0a408325385605203665A8836c2bcca;
     uint256 constant BPS = 10000;
     uint256 constant MAX_INT = 2**256 - 1;
 
     JonesUSDCAdapter adapter;
 
     function setUp() external {
-        adapter = new JonesUSDCAdapter(0x42EfE3E686808ccA051A49BCDE34C5CbA2EBEfc1, 0xEE5828181aFD52655457C2793833EbD7ccFE86Ac);
+        adapter = new JonesUSDCAdapter(0x9c895CcDd1da452eb390803d48155e38f9fC2e4d, usdc, jUSDC);
 
         hevm.startPrank(owner);
         IAlchemistV2.YieldTokenConfig memory ytc = IAlchemistV2AdminActions.YieldTokenConfig({
@@ -39,18 +39,6 @@ contract JonesUSDCAdapterTest is DSTestPlus {
             creditUnlockBlocks: 7200
         });
 
-        IAlchemistV2AdminActions.UnderlyingTokenConfig memory underlyingConfig = IAlchemistV2AdminActions.UnderlyingTokenConfig({
-			repayLimitMinimum: 1,
-			repayLimitMaximum: 1000,
-			repayLimitBlocks: 10,
-			liquidationLimitMinimum: 1,
-			liquidationLimitMaximum: 1000,
-			liquidationLimitBlocks: 7200
-		});
-
-        IAlchemistV2(alchemistUSD).addUnderlyingToken(usdce, underlyingConfig);
-        IAlchemistV2(alchemistUSD).setUnderlyingTokenEnabled(usdce, true);
-
         IAlchemistV2(alchemistUSD).addYieldToken(jUSDC, ytc);
         IAlchemistV2(alchemistUSD).setYieldTokenEnabled(jUSDC, true);
         IWhitelist(whitelistUSD).add(address(adapter));
@@ -59,23 +47,19 @@ contract JonesUSDCAdapterTest is DSTestPlus {
         IAlchemistV2(alchemistUSD).setTokenAdapter(address(jUSDC), address(adapter));
         hevm.stopPrank();
 
-        hevm.prank(0xc8ce0aC725f914dBf1D743D51B6e222b79F479f1);
-        IJonesWhitelist(jonesWhitelist).addToWhitelistContracts(address(adapter));
-
-    }
-
-    function testPrice() external {
-
+        hevm.startPrank(0xc8ce0aC725f914dBf1D743D51B6e222b79F479f1);
+        IJonesWhitelist(jonesWhitelist).addToWhitelist(address(adapter));
+        IJonesWhitelist(jonesWhitelist).createRole(bytes32("ALCHEMIX"), IJonesWhitelist.RoleInfo(true, 0));
+        IJonesWhitelist(jonesWhitelist).addToRole(bytes32("ALCHEMIX"), address(adapter));
+        hevm.stopPrank();
     }
 
     function testRoundTripUnderlying() external {
-        deal(address(usdce), address(this), 10e6);
+        deal(address(usdc), address(this), 10e6);
 
         // Deposit into position
-        SafeERC20.safeApprove(address(usdce), alchemistUSD, 10e6);
+        SafeERC20.safeApprove(address(usdc), alchemistUSD, 10e6);
         uint256 shares = IAlchemistV2(alchemistUSD).depositUnderlying(address(jUSDC), 10e6, address(this), 0);
-
-        
 
         // Withdraw and unwrap
         uint256 unwrapped = IAlchemistV2(alchemistUSD).withdrawUnderlying(address(jUSDC), shares, address(this), 0);

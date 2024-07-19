@@ -2,5 +2,5 @@
 pragma solidity 0.8.13;
 
 interface IJonesStableVault {
-    function convertToAsset(uint256 amount) external;
+    function convertToAssets(uint256 amount) external view returns (uint256);
 }
