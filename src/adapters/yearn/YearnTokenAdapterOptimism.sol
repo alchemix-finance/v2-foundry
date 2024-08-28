@@ -43,7 +43,7 @@ contract YearnTokenAdapterOptimism is ITokenAdapter {
 
         uint256 balanceBefore = TokenUtils.safeBalanceOf(token, address(this));
 
-        (, uint256 amountWithdrawn) = IYearnStakingToken(token).withdraw(recipient, amount, 1000, true);
+        (, uint256 amountWithdrawn) = IYearnStakingToken(token).withdraw(recipient, amount, MAXIMUM_SLIPPAGE, true);
 
         uint256 balanceAfter = TokenUtils.safeBalanceOf(token, address(this));
 
