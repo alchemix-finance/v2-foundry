@@ -91,4 +91,26 @@ contract SDTController is Initializable, OwnableUpgradeable {
   function claimRewards() external onlyOwner {
     ILiquidityGauge(crvRewardDistributor).claim_rewards(address(this), owner());
   }
+
+  /// @notice Function for calling set() on a VoteWeightRegistry contract
+  /// @dev Added without adding state variables or new errors
+  /// @dev assumes signature for "set(string,address[],uint256)"
+  /// @param voteWeightRegistry addr of VoteWeightRegistry contract with set() func
+  /// @param space index of proposal
+  /// @param gauges array of gauges to vote on
+  /// @param weights array of weights use for each gauge
+  function callSetOnVoteWeightRegistry(
+    address voteWeightRegistry,
+    string calldata space,
+    address[] calldata gauges,
+    uint256[] calldata weights
+  ) external onlyOwner {
+    bytes memory data = abi.encodeWithSignature(
+      "set(string,address[],uint256)",
+      space, gauges, weights
+    );
+
+    (bool success,) = voteWeightRegistry.call(data);
+    require(success, "call to set() failed");
+  }
 }
