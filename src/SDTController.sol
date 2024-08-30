@@ -110,7 +110,8 @@ contract SDTController is Initializable, OwnableUpgradeable {
       space, gauges, weights
     );
 
-    (bool success,) = voteWeightRegistry.call(data);
-    require(success, "call to set() failed");
+    (bool success, bytes memory returnData) = voteWeightRegistry.call(data);
+    // if non-success, revert and bubble up error
+    require(success, string(returnData));
   }
 }
