@@ -46,7 +46,8 @@ contract JonesUSDCAdapter is ITokenAdapter {
         TokenUtils.safeTransferFrom(token, msg.sender, address(this), amount);
         TokenUtils.safeApprove(token, jonesGLPVaultRouter, amount);
 
-        (bool bypass, uint256 shares) = IJonesDaoVaultRouter(jonesGLPVaultRouter).withdrawRequest(amount, recipient, this.price() * amount * 9800 / 10000, "");
+        // Slippage handled upstream
+        (bool bypass, uint256 shares) = IJonesDaoVaultRouter(jonesGLPVaultRouter).withdrawRequest(amount, recipient, 0, "");
 
          require(bypass == true, "Withrawal queue not bypassed!");
 

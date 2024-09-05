@@ -18,4 +18,4 @@ make test_file_block_optimism FILE=AaveV3TokenAdapter BLOCK=19744153;
 make test_file_block FILE=IdleTrancheAdapter BLOCK=15783014;
 make test_file_block FILE=TwoPoolAssetManager BLOCK=16435541;
 make test_file_block FILE=PoolAssetManager BLOCK=18418991;
-make test_file_block_arbitrum FILE=JonesUSDCTokenAdapter BLOCK=232866484;
+make test_file_block_arbitrum FILE=JonesUSDCTokenAdapter BLOCK=250235281;
