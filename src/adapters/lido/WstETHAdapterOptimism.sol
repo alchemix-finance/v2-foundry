@@ -11,7 +11,7 @@ import {SafeERC20} from "../../libraries/SafeERC20.sol";
 import {IChainlinkOracle} from "../../interfaces/external/chainlink/IChainlinkOracle.sol";
 import {ITokenAdapter} from "../../interfaces/ITokenAdapter.sol";
 import {IWETH9} from "../../interfaces/external/IWETH9.sol";
-import {IVelodromeSwapRouter} from "../../interfaces/external/velodrome/IVelodromeSwapRouter.sol";
+import {IVelodromeSwapRouterV2} from "../../interfaces/external/velodrome/IVelodromeSwapRouterV2.sol";
 import {IStETH} from "../../interfaces/external/lido/IStETH.sol";
 import {IWstETH} from "../../interfaces/external/lido/IWstETH.sol";
 
@@ -64,16 +64,12 @@ contract WstETHAdapterOptimism is ITokenAdapter, MutexLock {
             uint256 updateTime,
             uint80 answeredInRound
         ) = IChainlinkOracle(oracleWstethEth).latestRoundData();
-        require(
-            answeredInRound >= roundID,
-            "Chainlink Price Stale"
-        );
 
         require(wstethToEth > 0, "Chainlink Malfunction");
         require(updateTime != 0, "Incomplete round");
 
         if( updateTime < block.timestamp - 3600 seconds ) {
-            revert("Stale Price");
+            revert("Chainlink Malfunction");
         }
 
         // Note that an oracle attack could push the price of stETH over 1 ETH, which could lead to alETH minted at a LTV ratio > 50%. 
@@ -94,9 +90,9 @@ contract WstETHAdapterOptimism is ITokenAdapter, MutexLock {
 
         // Swap WETH to wstETH
         SafeERC20.safeApprove(underlyingToken, velodromeRouter, amount);
-        IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](1);
-        routes[0] = IVelodromeSwapRouter.route(underlyingToken, token, false);
-        uint256[] memory amounts = IVelodromeSwapRouter(velodromeRouter).swapExactTokensForTokens(amount, 0, routes, address(this), block.timestamp);
+        IVelodromeSwapRouterV2.route[] memory routes = new IVelodromeSwapRouterV2.route[](1);
+        routes[0] = IVelodromeSwapRouterV2.route(underlyingToken, token, false, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
+        uint256[] memory amounts = IVelodromeSwapRouterV2(velodromeRouter).swapExactTokensForTokens(amount, 0, routes, address(this), block.timestamp);
 
         // Transfer the wstETH to the recipient.
         SafeERC20.safeTransfer(token, recipient, amounts[1]);
@@ -113,9 +109,9 @@ contract WstETHAdapterOptimism is ITokenAdapter, MutexLock {
         SafeERC20.safeTransferFrom(token, msg.sender, address(this), amount);
 
         SafeERC20.safeApprove(token, velodromeRouter, amount);
-        IVelodromeSwapRouter.route[] memory routes = new IVelodromeSwapRouter.route[](1);
-        routes[0] = IVelodromeSwapRouter.route(token, underlyingToken, false);
-        uint256[] memory amounts = IVelodromeSwapRouter(velodromeRouter).swapExactTokensForTokens(amount, 0, routes, address(this), block.timestamp);
+        IVelodromeSwapRouterV2.route[] memory routes = new IVelodromeSwapRouterV2.route[](1);
+        routes[0] = IVelodromeSwapRouterV2.route(token, underlyingToken, false, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
+        uint256[] memory amounts = IVelodromeSwapRouterV2(velodromeRouter).swapExactTokensForTokens(amount, 0, routes, address(this), block.timestamp);
 
         // Transfer the tokens to the recipient.
         SafeERC20.safeTransfer(underlyingToken, recipient, amounts[1]);
