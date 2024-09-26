@@ -15,11 +15,12 @@ import {MutexLock} from "../../base/MutexLock.sol";
 import {SafeERC20} from "../../libraries/SafeERC20.sol";
 import {RocketPool} from "../../libraries/RocketPool.sol";
 
+import {IAsset} from "../../interfaces/external/balancer/IAsset.sol";
+import {IChainlinkOracle} from "../../interfaces/external/chainlink/IChainlinkOracle.sol";
 import {ITokenAdapter} from "../../interfaces/ITokenAdapter.sol";
 import {IWETH9} from "../../interfaces/external/IWETH9.sol";
-import {IRETH} from "../../interfaces/external/rocket/IRETH.sol";
 import {IRocketStorage} from "../../interfaces/external/rocket/IRocketStorage.sol";
-import {ISwapRouter} from "../../interfaces/external/uniswap/ISwapRouter.sol";
+import {IVault} from "../../interfaces/external/balancer/IVault.sol";
 
 struct InitializationParams {
     address alchemist;
@@ -30,9 +31,12 @@ struct InitializationParams {
 contract RETHAdapterV1 is ITokenAdapter, MutexLock {
     using RocketPool for IRocketStorage;
 
-    address constant uniswapRouterV3 = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
+    address constant chainlinkOracle = 0x536218f9E9Eb48863970252233c8F271f554C2d0;
+    address constant balancerVault = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
+    bytes32 constant balancerPoolId = 0x1e19cf2d73a72ef1332c882f20534b6519be0276000200000000000000000112;
+    uint256 constant deadline = 2000000000;
 
-    string public override version = "1.1.0";
+    string public override version = "1.2.0";
 
     address public immutable alchemist;
     address public immutable override token;
@@ -60,7 +64,23 @@ contract RETHAdapterV1 is ITokenAdapter, MutexLock {
 
     /// @inheritdoc ITokenAdapter
     function price() external view returns (uint256) {
-        return IRETH(token).getEthValue(10**SafeERC20.expectDecimals(token));
+        // Ensure that round is complete, otherwise price is stale.
+        (
+            uint80 roundID,
+            int256 rethToEth,
+            ,
+            uint256 updateTime,
+            uint80 answeredInRound
+        ) = IChainlinkOracle(chainlinkOracle).latestRoundData();
+        require(
+            answeredInRound >= roundID,
+            "Chainlink Price Stale"
+        );
+
+        require(rethToEth > 0, "Chainlink Malfunction");
+        require(updateTime != 0, "Incomplete round");
+
+        return uint256(rethToEth);
     }
 
     /// @inheritdoc ITokenAdapter
@@ -90,38 +110,31 @@ contract RETHAdapterV1 is ITokenAdapter, MutexLock {
         // Transfer the rETH from the message sender.
         SafeERC20.safeTransferFrom(token, msg.sender, address(this), amount);
 
-        uint256 receivedEth = 0;
+        // Swap for WETH on balancer
+        IVault.SingleSwap memory singleSwap =
+            IVault.SingleSwap({
+                poolId: balancerPoolId,
+                kind: IVault.SwapKind.GIVEN_IN,
+                assetIn: IAsset(token),
+                assetOut: IAsset(underlyingToken),
+                amount: amount,
+                userData: bytes("")
+            });
 
-        uint256 ethValue = IRETH(token).getEthValue(amount);
-        if (IRETH(token).getTotalCollateral() >= ethValue) {
-            // Burn the rETH to receive ETH.
-            uint256 startingEthBalance = address(this).balance;
-            IRETH(token).burn(amount);
-            receivedEth = address(this).balance - startingEthBalance;
+        IVault.FundManagement memory funds = 
+            IVault.FundManagement({
+                sender: address(this),
+                fromInternalBalance: false,
+                recipient: payable(address(this)),
+                toInternalBalance: false
+            });
 
-            // Wrap the ETH that we received from the burn.
-            IWETH9(underlyingToken).deposit{value: receivedEth}();
-        } else {
-            // Set up and execute uniswap exchange
-            SafeERC20.safeApprove(token, uniswapRouterV3, amount);
-            ISwapRouter.ExactInputSingleParams memory params =
-                ISwapRouter.ExactInputSingleParams({
-                    tokenIn: token,
-                    tokenOut: underlyingToken,
-                    fee: 3000,
-                    recipient: address(this),
-                    deadline: block.timestamp,
-                    amountIn: amount,
-                    amountOutMinimum: 0,
-                    sqrtPriceLimitX96: 0
-                });
-
-            receivedEth = ISwapRouter(uniswapRouterV3).exactInputSingle(params);
-        }
+        SafeERC20.safeApprove(token, balancerVault, amount);
+        uint256 receivedWeth = IVault(balancerVault).swap(singleSwap, funds, 0, deadline);
 
         // Transfer the tokens to the recipient.
-        SafeERC20.safeTransfer(underlyingToken, recipient, receivedEth);
+        SafeERC20.safeTransfer(underlyingToken, recipient, receivedWeth);
 
-        return receivedEth;
+        return receivedWeth;
     }
 }
