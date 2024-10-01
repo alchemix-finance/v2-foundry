@@ -109,8 +109,8 @@ contract MigrationTool is IMigrationTool, Multicall {
             true,
             "Migration is ready!",
             0,
-            params.newShares * 8500 / BPS,
-            params.underlyingValue * 8500 / BPS
+            params.newShares,
+            params.underlyingValue
         );
     }
     
