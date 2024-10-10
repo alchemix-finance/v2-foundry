@@ -78,6 +78,8 @@ contract GearboxTokenAdapter is ITokenAdapter {
 
     // Set new reward collector address
     function setRewardCollector(address _rewardCollector) external {
+        if (msg.sender != admin) revert("Not admin");
+
         rewardCollector = _rewardCollector;
     }
 
