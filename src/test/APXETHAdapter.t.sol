@@ -1,21 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity 0.8.13;
+pragma solidity ^0.8.13;
 
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 import "../../lib/forge-std/src/console.sol";
 
 import {
-    PirexEthAdapter
-} from "../adapters/pirex/PirexEthAdapter.sol";
+    apxETHAdapter
+} from "../adapters/dinero/apxETHAdapter.sol";
 
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IWhitelist} from "../interfaces/IWhitelist.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {IWETH9} from "../interfaces/external/IWETH9.sol";
 import {IPirexContract} from "../interfaces/external/pirex/IPirexContract.sol";
 import {IapxEthToken} from "../interfaces/external/pirex/IapxEthToken.sol";
-// Removed the Curve pool import
-// import {IStableSwap} from "../interfaces/external/curve/IStableSwap.sol";
 
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 
@@ -86,7 +84,7 @@ contract MockBalancerVault is IVault {
     receive() external payable {}
 }
 
-contract PirexEthAdapterTest is DSTestPlus {
+contract apxETHAdapterTest is DSTestPlus {
     // Addresses (Replace with actual addresses or mock addresses for testing)
     address constant admin = 0x8392F6669292fA56123F71949B52d883aE57e225;
     address constant alchemistETH = 0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c;
@@ -104,7 +102,7 @@ contract PirexEthAdapterTest is DSTestPlus {
     IVault balancerVault;
     bytes32 balancerPoolId = 0x88794c65550deb6b4087b7552ecf295113794410000000000000000000000648;
 
-    PirexEthAdapter adapter;
+    apxETHAdapter adapter;
 
     function setUp() external {
         // Deploy the mock Balancer Vault
@@ -112,7 +110,7 @@ contract PirexEthAdapterTest is DSTestPlus {
         balancerVault = IVault(address(mockBalancerVault));
 
         // Initialize the adapter with Balancer Vault and Pool ID
-        adapter = new PirexEthAdapter(
+        adapter = new apxETHAdapter(
             alchemistETH,
             address(apxETH),
             address(pxETH),

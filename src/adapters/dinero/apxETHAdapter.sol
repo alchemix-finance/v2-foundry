@@ -43,7 +43,7 @@ interface IVault {
     ) external payable returns (uint256 amountCalculated);
 }
 
-contract PirexEthAdapter is ITokenAdapter, MutexLock {
+contract apxETHAdapter is ITokenAdapter, MutexLock {
     string public constant override version = "1.0.0";
 
     address public immutable alchemist;
