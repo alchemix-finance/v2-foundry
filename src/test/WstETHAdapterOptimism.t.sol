@@ -37,22 +37,14 @@ contract WstETHAdapterOptimismTest is DSTestPlus {
             alchemist:       address(alchemist),
             token:           address(wstETH),
             underlyingToken: address(weth),
-            velodromeRouter: 0x9c12939390052919aF3155f41Bf4160Fd3666A6f,
-            oracleWstethEth:  address(oracleStethEth)
+            velodromeRouter: 0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858,
+            oracleWstethEth: address(oracleStethEth)
         }));
 
-        IAlchemistV2.YieldTokenConfig memory ytc = IAlchemistV2AdminActions.YieldTokenConfig({
-            adapter: address(adapter),
-            maximumLoss: 1,
-            maximumExpectedValue: 1000000 ether,
-            creditUnlockBlocks: 7200
-        });
-
         hevm.startPrank(admin);
-        alchemist.addYieldToken(address(wstETH), ytc);
+        alchemist.setTokenAdapter(address(wstETH), address(adapter));
         alchemist.setYieldTokenEnabled(address(wstETH), true);
         IWhitelist(whitelistETHAddress).add(address(this));
-        alchemist.setMaximumExpectedValue(address(wstETH), 1000000000e18);
         hevm.stopPrank();
     }
 

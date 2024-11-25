@@ -4,9 +4,9 @@ pragma solidity 0.8.13;
 import {DSTestPlus} from "./utils/DSTestPlus.sol";
 
 import {
-    WstETHAdapterV1,
+    WstETHAdapter,
     InitializationParams as AdapterInitializationParams
-} from "../adapters/lido/WstETHAdapterV1.sol";
+} from "../adapters/lido/WstETHAdapter.sol";
 
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IChainlinkOracle} from "../interfaces/external/chainlink/IChainlinkOracle.sol";
@@ -30,10 +30,10 @@ contract WstETHAdapterV1Test is DSTestPlus {
     IWETH9 constant weth = IWETH9(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
     IStableSwap2Pool constant curvePool = IStableSwap2Pool(0xDC24316b9AE028F1497c275EB9192a3Ea0f67022);
 
-    WstETHAdapterV1 adapter;
+    WstETHAdapter adapter;
 
     function setUp() external {
-        adapter = new WstETHAdapterV1(AdapterInitializationParams({
+        adapter = new WstETHAdapter(AdapterInitializationParams({
             alchemist:       address(alchemist),
             token:           address(wstETH),
             parentToken:     address(stETH),
