@@ -152,6 +152,31 @@ contract APXETHAdapterTest is DSTestPlus {
         assertEq(adapter.price(), IERC4626(apxETH).convertToAssets(1e18));
     }
 
+    function testRoundTrip() external {
+        // Step 1: Setup initial WETH and approve Alchemist
+        deal(address(wETH), address(this), 1e18);
+        // Step 2: Deposit WETH into Alchemist
+        uint256 startingBalance = IERC20(apxETH).balanceOf(address(alchemist));
+        // Step 3: Approve WETH for Alchemist
+        SafeERC20.safeApprove(address(wETH), address(alchemist), 1e18);
+        // Step 4: Deposit WETH into Alchemist
+        uint256 shares = IAlchemistV2(alchemist).depositUnderlying(address(apxETH), 1e18, address(this), 0);
+
+        // Test that price function retyrns value within 0.1% of actual value
+        uint underlyingValue = (shares * adapter.price()) / 10 ** SafeERC20.expectDecimals(address(apxETH));
+        assertGt(underlyingValue, (1e18 * 9990) / 10000);
+        // Withdraw with 0.1% slippage
+        uint256 unwrapped = IAlchemistV2(alchemist).withdrawUnderlying(address(apxETH), shares, address(this), (shares * 9900) / 10000);
+
+        // Test that the unwrapped amount is within 0.1% of the actual value
+        uint256 endBalance = IERC20(apxETH).balanceOf(address(alchemist));
+        assertEq(IERC20(wETH).balanceOf(address(this)), unwrapped);
+        assertEq(IERC20(apxETH).balanceOf(address(this)), 0);
+        assertEq(IERC20(apxETH).balanceOf(address(adapter)), 0);
+        assertEq(IERC20(apxETH).balanceOf(address(alchemist)), 0);
+        assertApproxEq(endBalance - startingBalance, 0, 10);
+    }
+
     // function testWrap() external {
     //     uint256 amountToWrap = 1e18;
 
