@@ -111,134 +111,45 @@ contract APXETHAdapterTest is DSTestPlus {
         assertApproxEq(endBalance - startingBalance, 0, 10);
     }
 
-    // function testWrap() external {
-    //     uint256 amountToWrap = 1e18;
+    function testHarvest() external {
+        deal(address(apxETH), address(this), 1e18);
 
-    //     // Step 1: Setup initial WETH and approve Alchemist
-    //     deal(address(weth), address(this), amountToWrap);
-    //     SafeERC20.safeApprove(address(weth), address(alchemist), amountToWrap);
+        SafeERC20.safeApprove(address(apxETH), address(alchemist), 1e18);
+        uint256 shares = IAlchemistV2(alchemist).deposit(address(apxETH), 1e18, address(this));
+        (int256 debtBefore, ) = IAlchemistV2(alchemist).accounts(address(this));
+        uint256 priceBefore = adapter.price();
 
-    //     // Step 2: Deposit WETH into Alchemist
-    //     IAlchemistV2(alchemist).depositUnderlying(
-    //         address(apxETH),
-    //         amountToWrap,
-    //         address(this),
-    //         0  // minimum amount to mint
-    //     );
+        //Roll ahead and harvest
+        hevm.roll(block.number + 1000);
+        hevm.warp(block.timestamp + 16000);
+        hevm.prank(owner);
+        IAlchemistV2(alchemist).harvest(address(apxETH), 0);
+        //Roll ahead one block then check credited amount
+        hevm.roll(block.number + 1);
+        uint256 priceAfter = adapter.price();
 
-    //     // Step 3: Try the wrap operation
-    //     hevm.startPrank(address(alchemist));
+        (int256 debtAfter, ) = IAlchemistV2(alchemist).accounts(address(this));
+        assertGt(debtBefore, debtAfter);
+    }
 
-    //     try adapter.wrap(amountToWrap, address(this)) returns (uint256 mintedShares) {
-    //         assertTrue(mintedShares > 0, "Wrap succeeded but no shares minted");
-    //     } catch Error(string memory reason) {
-    //         fail(string.concat("Wrap failed with reason: ", reason));
-    //     } catch (bytes memory) {
-    //         // Get the last revert data
-    //         hevm.expectRevert();
-    //         adapter.wrap(amountToWrap, address(this));
-    //         fail("Wrap failed with low level error - see revert data above");
-    //     }
+    function testLiquidate() external {
+        deal(address(apxETH), address(this), 1e18);
 
-    //     hevm.stopPrank();
-    // }
+		SafeERC20.safeApprove(address(apxETH), address(alchemist), 1e18);
+		uint256 shares = IAlchemistV2(alchemist).deposit(address(apxETH), 1e18, address(this));
+		uint256 pps = IAlchemistV2(alchemist).getUnderlyingTokensPerShare(address(apxETH));
+		uint256 mintAmt = (shares * pps) / 1e18 / 4;
+		alchemist.mint(mintAmt, address(this));
 
-//   function testRoundTrip() external {
-//         deal(address(wETH), address(this), 1e18);
-// 		uint256 startingBalance = IERC20(apxETH).balanceOf(address(alchemist));
+		(int256 debtBefore, ) = IAlchemistV2(alchemist).accounts(address(this));
 
-//         SafeERC20.safeApprove(address(wETH), address(alchemist), 1e18);
-//         uint256 wrapped = IAlchemistV2(alchemist).depositUnderlying(address(apxETH), 1e18, address(this), 0);
+		uint256 sharesLiquidated = IAlchemistV2(alchemist).liquidate(address(apxETH), shares / 4, (mintAmt * 97) / 100);
 
-//         uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(address(apxETH));
-//         assertGt(underlyingValue, 1e18 * (99/100) /* 1% slippage */);
+		(int256 debtAfter, ) = IAlchemistV2(alchemist).accounts(address(this));
 
-//         uint256 unwrapped = IAlchemistV2(alchemist).withdrawUnderlying(address(apxETH), wrapped, address(this), 0);
+		(uint256 sharesLeft, ) = IAlchemistV2(alchemist).positions(address(this), address(apxETH));
 
-//         assertGt(unwrapped, 1e18 * (99/100) /* 1% slippage */);
-//         assertEq(IERC4626(apxETH).balanceOf(address(this)), 0);
-//         assertApproxEq(IERC4626(apxETH).balanceOf(address(adapter)), 0, 10);
-//     }
-    // function testUnwrap() external {
-    //     uint256 amountToUnwrap = 1e18;
-
-    //     deal(address(apxETH), address(this), amountToUnwrap);
-    //     SafeERC20.safeApprove(address(apxETH), address(adapter), amountToUnwrap);
-
-    //     deal(address(weth), address(stable), amountToUnwrap);
-
-    //     hevm.prank(address(alchemist));
-    //     uint256 receivedWeth = adapter.unwrap(amountToUnwrap, address(this));
-
-    //     uint256 wethBalance = weth.balanceOf(address(this));
-    //     assertEq(wethBalance, receivedWeth);
-    //     assertEq(wethBalance, amountToUnwrap);
-    // }
-
-    // function testDepositAndWithdraw() external {
-    //     uint256 depositAmount = 1e18;
-    //     deal(address(weth), address(this), depositAmount);
-    //     SafeERC20.safeApprove(address(weth), address(alchemist), depositAmount);
-
-    //     // Store and use the shares
-    //     uint256 shares = IAlchemistV2(alchemist).deposit(address(apxETH), depositAmount, address(this));
-    //     assertGt(shares, 0); // Verify shares were received
-
-    //     uint256 unwrappedAmount = IAlchemistV2(alchemist).withdrawUnderlying(address(apxETH), shares, address(this), 0);
-
-    //     uint256 wethBalance = weth.balanceOf(address(this));
-    //     assertEq(wethBalance, unwrappedAmount);
-    // }
-
-    // function testHarvest() external {
-    //     uint256 depositAmount = 1e18;
-    //     deal(address(weth), address(this), depositAmount);
-    //     SafeERC20.safeApprove(address(weth), address(alchemist), depositAmount);
-
-    //     uint256 shares = IAlchemistV2(alchemist).deposit(address(apxETH), depositAmount, address(this));
-
-    //     hevm.warp(block.timestamp + 1 weeks);
-
-    //     hevm.prank(owner);
-    //     IAlchemistV2(alchemist).harvest(address(apxETH), 0);
-
-    //     (int256 debtBefore, ) = IAlchemistV2(alchemist).accounts(address(this));
-
-    //     hevm.warp(block.timestamp + 1 weeks);
-
-    //     hevm.prank(owner);
-    //     IAlchemistV2(alchemist).harvest(address(apxETH), 0);
-
-    //     (int256 debtAfter, ) = IAlchemistV2(alchemist).accounts(address(this));
-
-    //     assertGt(debtBefore, debtAfter);
-    // }
-
-    // function testLiquidate() external {
-    //     uint256 depositAmount = 10e18;
-    //     deal(address(weth), address(this), depositAmount);
-    //     SafeERC20.safeApprove(address(weth), address(alchemist), depositAmount);
-
-    //     uint256 shares = IAlchemistV2(alchemist).deposit(address(apxETH), depositAmount, address(this));
-
-    //     uint256 pps = IAlchemistV2(alchemist).getUnderlyingTokensPerShare(address(apxETH));
-    //     uint256 borrowAmount = (shares * pps) / 1e18 / 2;
-    //     IAlchemistV2(alchemist).mint(borrowAmount, address(this));
-
-    //     hevm.prank(owner);
-
-    //     uint256 collateralToLiquidate = shares / 2;
-    //     uint256 minDebtRepayment = borrowAmount / 2;
-    //     uint256 sharesLiquidated = IAlchemistV2(alchemist).liquidate(address(apxETH), collateralToLiquidate, minDebtRepayment);
-
-    //     (int256 debtAfter,) = IAlchemistV2(alchemist).accounts(address(this));
-    //     uint256 debtAfterUint = uint256(debtAfter);
-    //     assertEq(
-    //         debtAfterUint,
-    //         uint256(borrowAmount * 2 - minDebtRepayment)
-    //     );
-
-    //     (uint256 sharesLeft, ) = IAlchemistV2(alchemist).positions(address(this), address(apxETH));
-    //     assertEq(sharesLeft, shares - sharesLiquidated);
-    // }
+		assertApproxEq(0, uint256(debtAfter), mintAmt - (mintAmt * 97) / 100);
+		assertEq(shares - sharesLiquidated, sharesLeft);
+    }
 }
