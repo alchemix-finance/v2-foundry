@@ -17,73 +17,8 @@ import {IPirexContract} from "../interfaces/external/pirex/IPirexContract.sol";
 import {IapxEthToken} from "../interfaces/external/pirex/IapxEthToken.sol";
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 import {IERC4626} from "../../lib/openzeppelin-contracts/contracts/interfaces/IERC4626.sol";
+import {IStableSwapNGPool} from "../interfaces/external/curve/IStableSwapNGPool.sol";
 
-// Define the Balancer IVault interface
-interface IVault {
-    enum SwapKind { GIVEN_IN, GIVEN_OUT }
-
-    struct SingleSwap {
-        bytes32 poolId;
-        SwapKind kind;
-        address assetIn;
-        address assetOut;
-        uint256 amount;
-        bytes userData;
-    }
-
-    struct FundManagement {
-        address sender;
-        bool fromInternalBalance;
-        address payable recipient;
-        bool toInternalBalance;
-    }
-
-    function swap(
-        SingleSwap calldata singleSwap,
-        FundManagement calldata funds,
-        uint256 limit,
-        uint256 deadline
-    ) external payable returns (uint256 amountCalculated);
-}
-
-// Mock Balancer Vault for testing
-contract MockBalancerVault is IVault {
-    IERC20 public pxEthToken;
-    IWETH9 public weth;
-
-    constructor(address _pxEthToken, address _weth) {
-        pxEthToken = IERC20(_pxEthToken);
-        weth = IWETH9(_weth);
-    }
-
-    function swap(
-        SingleSwap calldata singleSwap,
-        FundManagement calldata funds,
-        uint256,
-        uint256
-    ) external payable override returns (uint256) {
-        // Simulate a 1:1 swap
-        require(singleSwap.assetIn == address(pxEthToken), "Invalid assetIn");
-        require(singleSwap.assetOut == address(weth), "Invalid assetOut");
-
-        // Transfer pxETH from sender to vault
-        require(
-            pxEthToken.transferFrom(funds.sender, address(this), singleSwap.amount),
-            "pxETH transfer failed"
-        );
-
-        // For testing, assume 1 pxETH = 1 WETH
-        uint256 amountOut = singleSwap.amount;
-
-        // Mint WETH to recipient (assuming the vault has enough WETH or we're simulating)
-        weth.deposit{value: amountOut}();
-        weth.transfer(funds.recipient, amountOut);
-
-        return amountOut;
-    }
-
-    receive() external payable {}
-}
 
 contract APXETHAdapterTest is DSTestPlus {
     // Addresses (Replace with actual addresses or mock addresses for testing)
@@ -98,9 +33,7 @@ contract APXETHAdapterTest is DSTestPlus {
     IERC4626 apxETH = IERC4626(0x9Ba021B0a9b958B5E75cE9f6dff97C7eE52cb3E6);
     IERC20 pxETH = IERC20(0x04C154b66CB340F3Ae24111CC767e0184Ed00Cc6);
     IPirexContract apxETHDepositContract = IPirexContract(0xD664b74274DfEB538d9baC494F3a4760828B02b0);
-    IVault balancerVault = IVault(0x88794C65550DeB6b4087B7552eCf295113794410);
-    bytes32 balancerPoolId = 0x88794c65550deb6b4087b7552ecf295113794410000000000000000000000648;
-
+    IStableSwapNGPool stableSwapNGPool = IStableSwapNGPool(0xC8Eb2Cf2f792F77AF0Cd9e203305a585E588179D);
     apxETHAdapter adapter;
 
     function setUp() external {
@@ -119,8 +52,7 @@ contract APXETHAdapterTest is DSTestPlus {
             address(alchemist),
             address(apxETH),
             address(weth),
-            address(balancerVault),
-            balancerPoolId,
+            address(stableSwapNGPool),
             address(pxETH),
             address(apxETHDepositContract)
         );
@@ -150,6 +82,7 @@ contract APXETHAdapterTest is DSTestPlus {
 
     function testPrice() external {
         assertEq(adapter.price(), IERC4626(apxETH).convertToAssets(1e18));
+        console.log("price", adapter.price());
     }
 
     function testRoundTrip() external {
@@ -166,8 +99,9 @@ contract APXETHAdapterTest is DSTestPlus {
         uint underlyingValue = (shares * adapter.price()) / 10 ** SafeERC20.expectDecimals(address(apxETH));
         assertGt(underlyingValue, (1e18 * 9990) / 10000);
         // Withdraw with 0.1% slippage
+        console.log("apxeth balance", IERC20(apxETH).balanceOf(address(alchemist)));
         uint256 unwrapped = IAlchemistV2(alchemist).withdrawUnderlying(address(apxETH), shares, address(this), (shares * 9900) / 10000);
-
+        console.log("unwrapped", unwrapped);
         // Test that the unwrapped amount is within 0.1% of the actual value
         uint256 endBalance = IERC20(apxETH).balanceOf(address(alchemist));
         assertEq(IERC20(wETH).balanceOf(address(this)), unwrapped);
@@ -231,7 +165,7 @@ contract APXETHAdapterTest is DSTestPlus {
     //     deal(address(apxETH), address(this), amountToUnwrap);
     //     SafeERC20.safeApprove(address(apxETH), address(adapter), amountToUnwrap);
 
-    //     deal(address(weth), address(balancerVault), amountToUnwrap);
+    //     deal(address(weth), address(stable), amountToUnwrap);
 
     //     hevm.prank(address(alchemist));
     //     uint256 receivedWeth = adapter.unwrap(amountToUnwrap, address(this));
