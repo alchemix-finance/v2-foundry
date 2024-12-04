@@ -8,47 +8,15 @@ import { IWETH9 } from "../../interfaces/external/IWETH9.sol";
 import { IERC20 } from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import { IERC4626 } from "../../../lib/openzeppelin-contracts/contracts/interfaces/IERC4626.sol";
 import { IStableSwapNGPool } from "../../interfaces/external/curve/IStableSwapNGPool.sol";
+import { IPirexContract } from "../../interfaces/external/pirex/IPirexContract.sol";
 import "forge-std/console.sol";
 
-interface IPirexContract {
-	function deposit(address receiver, bool isCompound) external payable returns (uint256, uint256);
-}
-
-interface IVault {
-	enum SwapKind {
-		GIVEN_IN,
-		GIVEN_OUT
-	}
-
-	struct SingleSwap {
-		bytes32 poolId;
-		SwapKind kind;
-		address assetIn;
-		address assetOut;
-		uint256 amount;
-		bytes userData;
-	}
-
-	struct FundManagement {
-		address sender;
-		bool fromInternalBalance;
-		address payable recipient;
-		bool toInternalBalance;
-	}
-
-	function swap(
-		SingleSwap memory singleSwap,
-		FundManagement memory funds,
-		uint256 limit,
-		uint256 deadline
-	) external payable returns (uint256 amountCalculated);
-}
-
 contract apxETHAdapter is ITokenAdapter {
+	// Maximum slippage for swaps
 	uint256 private constant MAXIMUM_SLIPPAGE = 10000;
-
+	// Version of the adapter
 	string public constant override version = "1.0.0";
-
+	// Contracts for the adapter
 	address public immutable alchemist;
 	address public immutable override token; // apxETH token address
 	address public immutable pxEthToken; // pxETH token address
@@ -87,28 +55,38 @@ contract apxETHAdapter is ITokenAdapter {
 	}
 
 	function wrap(uint256 amount, address recipient) external onlyAlchemist returns (uint256) {
+		// Transfer the underlying token from the sender to the adapter
 		TokenUtils.safeTransferFrom(underlyingToken, msg.sender, address(this), amount);
-		// TokenUtils.safeApprove(underlyingToken, address(wETH), amount);
+		// Unwrap WETH to ETH because IPirexContract requires ETH
 		IWETH9(underlyingToken).withdraw(amount);
+		// Deposit ETH into the apxETH deposit contract
 		IPirexContract(apxETHDepositContract).deposit{ value: amount }(address(this), true);
-        uint256 yieldTokens = TokenUtils.safeBalanceOf(token, address(this));
-        TokenUtils.safeTransfer(token, recipient, yieldTokens);
+		// Record the yield tokens because IPirexContract only returns amount of pxETH minted but not apxETH shares
+		uint256 yieldTokens = TokenUtils.safeBalanceOf(token, address(this));
+		// Transfer the yield tokens to the recipient
+		TokenUtils.safeTransfer(token, recipient, yieldTokens);
 		return yieldTokens;
 	}
 
 	function unwrap(uint256 amount, address recipient) external onlyAlchemist returns (uint256 receivedWeth) {
+		// Transfer the shares from the Alchemist to the Adapter
 		TokenUtils.safeTransferFrom(token, msg.sender, address(this), amount);
+		// Record the starting balance of pxETH in the adapter
 		uint256 startingPxEthBalance = IERC20(pxEthToken).balanceOf(address(this));
-
+		// Approve the token to be transferred to the redeem function
 		TokenUtils.safeApprove(token, address(token), amount);
+		// Redeem the shares to get pxETH
 		uint256 redeem = IERC4626(token).redeem(amount, address(this), address(this));
-        console.log("redeem", redeem);
+		// Record the amount of pxETH received
 		uint256 redeemedPxEth = IERC20(pxEthToken).balanceOf(address(this)) - startingPxEthBalance;
-
+		// Approve the pxETH to be transferred to the stableSwapNGPool
 		TokenUtils.safeApprove(pxEthToken, address(stableSwapNGPool), redeemedPxEth);
 		// definition of the swap to be executed
 		stableSwapNGPool.exchange(1, 0, redeemedPxEth, 0, address(this));
+		// Record the amount of WETH received
 		receivedWeth = IERC20(underlyingToken).balanceOf(address(this));
+		// Transfer the WETH to the recipient
 		TokenUtils.safeTransfer(underlyingToken, recipient, receivedWeth);
+		return receivedWeth;
 	}
 }
