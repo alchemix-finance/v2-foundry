@@ -28,6 +28,7 @@ contract APXETHAdapterTest is DSTestPlus {
     address constant owner = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
     address constant wETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address constant whitelistETH = 0xA3dfCcbad1333DC69997Da28C961FF8B2879e653;
+    address _admin = msg.sender;
     // Contracts
     IWETH9 weth = IWETH9(wETH);
     IERC4626 apxETH = IERC4626(0x9Ba021B0a9b958B5E75cE9f6dff97C7eE52cb3E6);
@@ -35,6 +36,7 @@ contract APXETHAdapterTest is DSTestPlus {
     IPirexContract apxETHDepositContract = IPirexContract(0xD664b74274DfEB538d9baC494F3a4760828B02b0);
     IStableSwapNGPool stableSwapNGPool = IStableSwapNGPool(0xC8Eb2Cf2f792F77AF0Cd9e203305a585E588179D);
     apxETHAdapter adapter;
+
 
     function setUp() external {
         // Deal some ETH to admin to ensure they can perform transactions
@@ -50,7 +52,8 @@ contract APXETHAdapterTest is DSTestPlus {
             address(weth),
             address(stableSwapNGPool),
             address(pxETH),
-            address(apxETHDepositContract)
+            address(apxETHDepositContract),
+            address(_admin)
         );
         // Register the token and adapter
         IAlchemistV2.YieldTokenConfig memory ytc = IAlchemistV2AdminActions.YieldTokenConfig({
@@ -77,16 +80,16 @@ contract APXETHAdapterTest is DSTestPlus {
     function testRoundTrip() external {
         // Step 1: Setup initial WETH and approve Alchemist
         deal(address(wETH), address(this), 1e18);
-        // Step 2: Deposit WETH into Alchemist
+        // Step 2: Check WETH starting balance
         uint256 startingBalance = IERC20(apxETH).balanceOf(address(alchemist));
         // Step 3: Approve WETH for Alchemist
         SafeERC20.safeApprove(address(wETH), address(alchemist), 1e18);
         // Step 4: Deposit WETH into Alchemist
         uint256 shares = IAlchemistV2(alchemist).depositUnderlying(address(apxETH), 1e18, address(this), 0);
-        // Test that price function retyrns value within 0.1% of actual value
+        // Test that price function returns value within 0.1% of actual value
         uint underlyingValue = (shares * adapter.price()) / 10 ** SafeERC20.expectDecimals(address(apxETH));
         assertGt(underlyingValue, (1e18 * 9990) / 10000);
-        // Withdraw with 0.1% slippage
+        // Withdraw with 1% slippage
         uint256 unwrapped = IAlchemistV2(alchemist).withdrawUnderlying(address(apxETH), shares, address(this), (shares * 9900) / 10000);
         // Test that the unwrapped amount is within 0.1% of the actual value
         uint256 endBalance = IERC20(apxETH).balanceOf(address(alchemist));

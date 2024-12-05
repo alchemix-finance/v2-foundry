@@ -9,7 +9,7 @@ import { IERC20 } from "../../../lib/openzeppelin-contracts/contracts/token/ERC2
 import { IERC4626 } from "../../../lib/openzeppelin-contracts/contracts/interfaces/IERC4626.sol";
 import { IStableSwapNGPool } from "../../interfaces/external/curve/IStableSwapNGPool.sol";
 import { IPirexContract } from "../../interfaces/external/pirex/IPirexContract.sol";
-import "forge-std/console.sol";
+
 
 contract apxETHAdapter is ITokenAdapter {
 	// Maximum slippage for swaps
@@ -30,7 +30,8 @@ contract apxETHAdapter is ITokenAdapter {
 		address _underlyingToken,
 		address _stableSwapNGPool,
 		address _pxEthToken,
-		address _apxETHDepositContract
+		address _apxETHDepositContract,
+		address _admin
 	) {
 		alchemist = _alchemist;
 		token = _token;
@@ -38,7 +39,7 @@ contract apxETHAdapter is ITokenAdapter {
 		stableSwapNGPool = IStableSwapNGPool(_stableSwapNGPool);
 		pxEthToken = _pxEthToken;
 		apxETHDepositContract = _apxETHDepositContract;
-		admin = msg.sender;
+		admin = _admin;
 	}
 
 	modifier onlyAlchemist() {
@@ -71,14 +72,12 @@ contract apxETHAdapter is ITokenAdapter {
 	function unwrap(uint256 amount, address recipient) external onlyAlchemist returns (uint256 receivedWeth) {
 		// Transfer the shares from the Alchemist to the Adapter
 		TokenUtils.safeTransferFrom(token, msg.sender, address(this), amount);
-		// Record the starting balance of pxETH in the adapter
-		uint256 startingPxEthBalance = IERC20(pxEthToken).balanceOf(address(this));
 		// Approve the token to be transferred to the redeem function
 		TokenUtils.safeApprove(token, address(token), amount);
 		// Redeem the shares to get pxETH
 		uint256 redeem = IERC4626(token).redeem(amount, address(this), address(this));
 		// Record the amount of pxETH received
-		uint256 redeemedPxEth = IERC20(pxEthToken).balanceOf(address(this)) - startingPxEthBalance;
+		uint256 redeemedPxEth = IERC20(pxEthToken).balanceOf(address(this));
 		// Approve the pxETH to be transferred to the stableSwapNGPool
 		TokenUtils.safeApprove(pxEthToken, address(stableSwapNGPool), redeemedPxEth);
 		// definition of the swap to be executed
