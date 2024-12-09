@@ -28,7 +28,6 @@ contract APXETHAdapterTest is DSTestPlus {
     address constant owner = 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9;
     address constant wETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address constant whitelistETH = 0xA3dfCcbad1333DC69997Da28C961FF8B2879e653;
-    address _admin = msg.sender;
     // Contracts
     IWETH9 weth = IWETH9(wETH);
     IERC4626 apxETH = IERC4626(0x9Ba021B0a9b958B5E75cE9f6dff97C7eE52cb3E6);
@@ -53,7 +52,6 @@ contract APXETHAdapterTest is DSTestPlus {
             address(stableSwapNGPool),
             address(pxETH),
             address(apxETHDepositContract),
-            address(_admin)
         );
         // Register the token and adapter
         IAlchemistV2.YieldTokenConfig memory ytc = IAlchemistV2AdminActions.YieldTokenConfig({
