@@ -51,7 +51,7 @@ contract APXETHAdapterTest is DSTestPlus {
             address(weth),
             address(stableSwapNGPool),
             address(pxETH),
-            address(apxETHDepositContract),
+            address(apxETHDepositContract)
         );
         // Register the token and adapter
         IAlchemistV2.YieldTokenConfig memory ytc = IAlchemistV2AdminActions.YieldTokenConfig({
