@@ -25,3 +25,4 @@ make test_file_block_optimism FILE=OptimismGrantDistribution BLOCK=119793126;
 make test_file_block_optimism FILE=ATokenGateway BLOCK=99207058;
 make test_file_block_optimism FILE=OptimismGrantDistribution BLOCK=121995110;
 make test_file_block_arbitrum FILE=ArbitrumGrantDistribution BLOCK=223534546;
+make test_file_block FILE=APXETHAdapter BLOCK=21362282;

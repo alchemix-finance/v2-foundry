@@ -68,7 +68,7 @@ contract YearnOptimismTest is DSTestPlus {
 
     function setUp() external {
         whitelist = IWhitelist(alchemistAlUSDWhitelist);
-        
+
 		alchemistUSD = IAlchemistV2(alchemistAlUSD);
 		alchemistETH = AlchemistV2(alchemistAlETH);
         RewardRouter router = new RewardRouter();
@@ -81,17 +81,6 @@ contract YearnOptimismTest is DSTestPlus {
             swapRouter:         velodromeRouter
         });
 
-        stakingToken = new YearnStakingToken(
-            stakingRewardsDai,
-            yvDAI,
-            dai,
-            rewardToken,
-            rewardVault,
-            address(this),
-            "yearnStakingDai",
-            "ySDai"
-        );
-
         rewardCollector = new OptimismYearnRewardCollector(rewardCollectorParams);
 
         rewardRouter = new RewardRouter();
@@ -102,7 +91,6 @@ contract YearnOptimismTest is DSTestPlus {
         whitelist.add(address(this));
         whitelist.add(address(rewardCollector));
         hevm.stopPrank();
-
 
         hevm.startPrank(alchemistAdmin);
         IAlchemicToken(alUSD).setWhitelist(address(this), true);
@@ -141,10 +129,10 @@ contract YearnOptimismTest is DSTestPlus {
 
         uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(address(stakingToken));
         assertGe(depositAmount, underlyingValue);
-        
+
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
-        
+
         assertEq(IERC20(dai).balanceOf(address(0xbeef)), unwrapped);
         assertEq(stakingToken.balanceOf(address(this)), 0);
         assertEq(stakingToken.balanceOf(address(adapter)), 0);
@@ -152,10 +140,10 @@ contract YearnOptimismTest is DSTestPlus {
 
     function testRoundTripFuzz(uint256 amount) external {
         hevm.assume(
-            amount >= 10**SafeERC20.expectDecimals(dai) && 
+            amount >= 10**SafeERC20.expectDecimals(dai) &&
             amount < 1000000e18
         );
-        
+
         deal(dai, address(this), amount);
 
         SafeERC20.safeApprove(dai, address(adapter), amount);
@@ -163,10 +151,10 @@ contract YearnOptimismTest is DSTestPlus {
 
         uint256 underlyingValue = wrapped * adapter.price() / 10**SafeERC20.expectDecimals(address(stakingToken));
         assertApproxEq(amount, underlyingValue, amount * 10000 / 1e18);
-        
+
         SafeERC20.safeApprove(adapter.token(), address(adapter), wrapped);
         uint256 unwrapped = adapter.unwrap(wrapped, address(0xbeef));
-        
+
         assertApproxEq(IERC20(dai).balanceOf(address(0xbeef)), unwrapped, 10000);
         assertEq(stakingToken.balanceOf(address(this)), 0);
         assertEq(stakingToken.balanceOf(address(adapter)), 0);
@@ -178,7 +166,7 @@ contract YearnOptimismTest is DSTestPlus {
         SafeERC20.safeApprove(dai, address(adapter), 1000e18);
         uint256 wrapped = adapter.wrap(1000e18, address(this));
         assertEq(IERC20(dai).balanceOf(address(this)), 0);
-        
+
         hevm.roll(block.number + 100000);
         hevm.warp(block.timestamp + 10000 days);
 
