@@ -12,26 +12,23 @@ import { IPirexContract } from "../../interfaces/external/pirex/IPirexContract.s
 
 
 contract apxETHAdapter is ITokenAdapter {
-	// Maximum slippage for swaps
 	uint256 private constant MAXIMUM_SLIPPAGE = 10000;
-	// Version of the adapter
 	string public constant override version = "1.0.0";
-	// Contracts for the adapter
+
 	address public immutable alchemist;
 	address public immutable override token; // apxETH token address
 	address public immutable pxEthToken; // pxETH token address
 	address public immutable override underlyingToken; // WETH address
 	IStableSwapNGPool public immutable stableSwapNGPool;
 	address public immutable apxETHDepositContract;
-	address public admin;
+	
 	constructor(
 		address _alchemist,
 		address _token,
 		address _underlyingToken,
 		address _stableSwapNGPool,
 		address _pxEthToken,
-		address _apxETHDepositContract,
-		address _admin
+		address _apxETHDepositContract
 	) {
 		alchemist = _alchemist;
 		token = _token;
@@ -39,7 +36,6 @@ contract apxETHAdapter is ITokenAdapter {
 		stableSwapNGPool = IStableSwapNGPool(_stableSwapNGPool);
 		pxEthToken = _pxEthToken;
 		apxETHDepositContract = _apxETHDepositContract;
-		admin = _admin;
 	}
 
 	modifier onlyAlchemist() {
