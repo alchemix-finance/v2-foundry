@@ -65,7 +65,7 @@ contract ATokenGateway is ITokenGateway, Ownable {
     function _onlyWhitelisted() internal view {
         // Check if the message sender is an EOA. In the future, this potentially may break. It is important that functions
         // which rely on the whitelist not be explicitly vulnerable in the situation where this no longer holds true.
-        if (tx.origin == msg.sender) {
+        if (tx.origin == msg.sender && address(msg.sender).code.length == 0) {
             return;
         }
 

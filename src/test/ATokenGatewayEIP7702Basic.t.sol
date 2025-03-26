@@ -23,6 +23,17 @@ import {ITestYieldToken} from "../interfaces/test/ITestYieldToken.sol";
 import {SafeERC20} from "../libraries/SafeERC20.sol";
 import {Unauthorized} from "../base/errors.sol";
 import {ECDSA} from "./../../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
+import {IERC20} from "./../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {
+    AAVETokenAdapter,
+    InitializationParams as AdapterInitializationParams
+} from "../adapters/aave/AAVETokenAdapter.sol";
+
+import {StaticAToken} from "../external/aave/StaticAToken.sol";
+import {ILendingPool} from "../interfaces/external/aave/ILendingPool.sol";
+import {ITokenGateway} from "../interfaces/ITokenGateway.sol";
+import {ATokenGateway} from "../adapters/aave/ATokenGateway.sol";
+
 
 
 
@@ -37,13 +48,12 @@ contract MockERC20 is ERC20 {
 // FOUNDRY_PROFILE=lite forge test --fork-url https://eth-sepolia.g.alchemy.com/v2/aOdjhvcm7-q8A0YTkfmWI5JfQIcGaP1h --match-path src/test/BatchCallAndSponsorTest.t.sol  -vvvv --evm-version prague --fork-block-number 7882137
 
 
-contract AlchemistV2EIP7702Basic is Test {
-    // The contract that Alice will delegate execution to.
+contract ATokenGatewayEIP7702Basic is Test {
+    // The contract that the user will delegate execution to.
     BatchCallAndSponsor public implementation;
 
     // ERC-20 token contract for minting test tokens.
     MockERC20 public token;
-
 
     // AlchemistV2
 
@@ -65,7 +75,6 @@ contract AlchemistV2EIP7702Basic is Test {
     TransmuterV2 transmuterLogic;
     TransmuterBuffer transmuterBufferLogic;
     AlchemicTokenV2 alToken;
-    TestYieldTokenAdapter tokenAdapter;
     Whitelist whitelist;
 
     // Token addresses
@@ -92,29 +101,21 @@ contract AlchemistV2EIP7702Basic is Test {
     // LTV
     uint256 public LTV = 11e17; // 1.1, prev = 2 * 1e18
 
-    // ----- Variables for deposits & withdrawals -----
-
-    // account funds to make deposits/test with
-    uint256 accountFunds = 20_000_000e18;
-
-    // amount of yield/underlying token to deposit
-    uint256 depositAmount = 100_000e18;
-
-    // minimum amount of yield/underlying token to deposit
-    uint256 minimumDeposit = 1000e18;
-
-    // minimum amount of yield/underlying token to deposit
-    uint256 minimumDepositOrWithdrawalLoss = 1e18;
-
-    // random EOA for testing
-    address externalUser = address(0x69E8cE9bFc01AA33cD2d02Ed91c72224481Fa420);
-
-    // another random EOA for testing
-    address externalUser2 = address(0x420Ab24368E5bA8b727E9B8aB967073Ff9316969);
-
+    
+    // AToken Gateway
+    uint256 constant BPS = 10000;
+    address constant dai = 0xFF34B3d4Aee8ddCd6F9AFFFB6Fe49bD371b8a357; //  Sepolia AAVE V3 DAI
+    address constant aToken = 0x29598b72eb5CeBd806C5dCD549490FdA35B13cD8;  // Sepolia AAVE V3 aDAI 
+    ILendingPool lendingPool = ILendingPool(0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951); // Sepolia Aave V3 Lending Pool
+    string wrappedTokenName = "staticAaveDai";
+    string wrappedTokenSymbol = "saDAI";
+    StaticAToken staticAToken;
+    AAVETokenAdapter tokenAdapter;
+    ITokenGateway gateway;
 
     event CallExecuted(address indexed to, uint256 value, bytes data);
     event BatchExecuted(uint256 indexed nonce, BatchCallAndSponsor.Call[] calls);
+
 
     function deployAlchemixV2Contracts() public {
 
@@ -129,20 +130,38 @@ contract AlchemistV2EIP7702Basic is Test {
         vm.assume(caller != proxyOwner);
         vm.startPrank(caller);
 
-        // Fake tokens
-        TestERC20 testToken = new TestERC20(0, 18);
-        fakeUnderlyingToken = address(testToken);
-        TestYieldToken testYieldToken = new TestYieldToken(fakeUnderlyingToken);
-        fakeYieldToken = address(testYieldToken);
+        // Test tokens
+        fakeUnderlyingToken = address(dai);
+        fakeYieldToken = address(aToken);
 
         // Contracts and logic contracts
         alOwner = caller;
         alToken = new AlchemicTokenV2(_name, _symbol, _flashFee);
-        tokenAdapter = new TestYieldTokenAdapter(fakeYieldToken);
         transmuterBufferLogic = new TransmuterBuffer();
         transmuterLogic = new TransmuterV2();
         alchemistLogic = new AlchemistV2();
         whitelist = new Whitelist();
+
+
+        staticAToken = new StaticAToken(
+            lendingPool,
+            aToken,
+            wrappedTokenName,
+            wrappedTokenSymbol
+        );
+        tokenAdapter = new AAVETokenAdapter(AdapterInitializationParams({
+            alchemist:       address(alchemist),
+            token:           address(staticAToken),
+            underlyingToken: address(dai)
+        }));
+
+        IAlchemistV2.YieldTokenConfig memory yieldTokenConfig = IAlchemistV2AdminActions.YieldTokenConfig({
+            adapter: address(tokenAdapter),
+            maximumLoss: 1,
+            maximumExpectedValue: 1000000 ether,
+            creditUnlockBlocks: 7200
+        });
+        
 
         // Proxy contracts
         // TransmuterBuffer proxy
@@ -177,6 +196,8 @@ contract AlchemistV2EIP7702Basic is Test {
         bytes memory alchemParams = abi.encodeWithSelector(AlchemistV2.initialize.selector, params);
         proxyAlchemist = new TransparentUpgradeableProxy(address(alchemistLogic), proxyOwner, alchemParams);
         alchemist = AlchemistV2(address(proxyAlchemist));
+        gateway = new ATokenGateway(address(whitelist), address(alchemist));
+
 
         // Whitelist alchemist proxy for minting tokens
         alToken.setWhitelist(address(proxyAlchemist), true);
@@ -194,14 +215,8 @@ contract AlchemistV2EIP7702Basic is Test {
         });
 
         alchemist.addUnderlyingToken(address(fakeUnderlyingToken), underlyingTokenConfig);
-
-        IAlchemistV2AdminActions.YieldTokenConfig memory yieldTokenConfig =
-            IAlchemistV2AdminActions.YieldTokenConfig({adapter: address(tokenAdapter), maximumLoss: 1, maximumExpectedValue: 1e50, creditUnlockBlocks: 1});
-
-        alchemist.addYieldToken(address(fakeYieldToken), yieldTokenConfig);
-
-        // Enable token adapters for both yeild and underlying tokens
-        alchemist.setYieldTokenEnabled(address(fakeYieldToken), true);
+        alchemist.addYieldToken(address(staticAToken), yieldTokenConfig);
+        alchemist.setYieldTokenEnabled(address(staticAToken), true);
         alchemist.setUnderlyingTokenEnabled(address(fakeUnderlyingToken), true);
 
         // Skipping all transmuter interaction until transmuter v2 is implemented
@@ -214,26 +229,7 @@ contract AlchemistV2EIP7702Basic is Test {
         alchemist.setKeeper(alOwner, true);
         // Set flow rate for transmuter buffer
         transmuterBuffer.setFlowRate(fakeUnderlyingToken, 325e18);
-        whitelist.add(address(0xbeef));
-        whitelist.add(externalUser);
-        whitelist.add(externalUser2);
-
-
-        vm.stopPrank();
-
-        // Add funds to test accounts
-        deal(address(fakeYieldToken), address(0xbeef), accountFunds + 100e18);
-        deal(address(fakeYieldToken), externalUser, accountFunds);
-        deal(address(fakeYieldToken), externalUser2, accountFunds);
-        vm.startPrank(externalUser2);
-        SafeERC20.safeApprove(address(fakeUnderlyingToken), address(fakeYieldToken), accountFunds);
-
-        // faking initial alchemist supply
-
-        deal(address(fakeYieldToken), address(externalUser2), 100_000_000e18);
-        vm.startPrank(externalUser2);
-        SafeERC20.safeApprove(address(fakeYieldToken), address(alchemist), 100_000_000e18);
-        alchemist.deposit(address(fakeYieldToken), 100_000_000e18, externalUser2);
+        whitelist.add(address(gateway));
         vm.stopPrank();
     }
 
@@ -245,42 +241,45 @@ contract AlchemistV2EIP7702Basic is Test {
         implementation = new BatchCallAndSponsor();
     }
 
-
+ 
     function testDepositWithFreshAddressPureEOA() public {
         // Generate a new private key and address
         uint256 freshPK = uint256(keccak256(abi.encodePacked("fresh", block.timestamp)));
         address freshAddress = vm.addr(freshPK);
         
-        require(address(freshAddress).code.length == 0, "There is code written to freshAddressA");
-        
+        require(address(freshAddress).code.length == 0, "There is no code written to freshAddress");
+        uint256 amount = 1000e18;
+
         // Fund the fresh address
-        deal(address(fakeYieldToken), freshAddress, accountFunds);        
+        deal(dai, freshAddress, amount);        
         // Test with the fresh address. Tx.origin will be freshAddress
         vm.startBroadcast(freshPK);
-        SafeERC20.safeApprove(address(fakeYieldToken), address(alchemist), accountFunds);
-
-        // Now, both msg.sender and tx.origin will be ALICE_ADDRESS.
-        alchemist.deposit(address(fakeYieldToken), depositAmount, freshAddress);
+        SafeERC20.safeApprove(address(dai), address(lendingPool), amount);
+       // Now, both msg.sender and tx.origin will be freshAddress.
+        lendingPool.deposit(dai, amount, freshAddress, 0);
+        uint256 startBal = IERC20(aToken).balanceOf(freshAddress);
+        SafeERC20.safeApprove(address(aToken), address(gateway), startBal);
+        uint256 price = alchemist.getUnderlyingTokensPerShare(address(staticAToken));
+        uint256 sharesIssued = gateway.deposit(address(staticAToken), startBal, freshAddress);
+        uint256 expectedValue = sharesIssued * price / 1e18;
         vm.stopBroadcast();
 
-           // Validate that the deposit occurred.
-        (uint256 shares, ) = alchemist.positions(freshAddress, address(fakeYieldToken)); 
-        uint256 totalValue = alchemist.totalValue(freshAddress);
+        // Validate that the deposit occurred.
+        assertApproxEqAbs(amount, expectedValue, 1e18);
 
-        assertEq(shares, depositAmount, "Expected EOA deposit to yield shares");
-        assertEq(totalValue, depositAmount, "Expected total value to be equal to the deposit amount");
-    } 
+    }  
 
-   function testDepositWithFreshAddressSponsoredTransaction() public {
-        
+
+    function testDepositWithFreshAddressSponsoredTransaction() public {
         // Generate a new private key and address
         uint256 freshPKA = uint256(keccak256(abi.encodePacked("freshA", block.timestamp)));
         address payable freshAddressA = payable(vm.addr(freshPKA));
         
         console2.log("Fresh address A code length:", address(freshAddressA).code.length);
         
+        uint256 amount = 1000e18;
         // Fund the fresh address
-        deal(address(fakeYieldToken), freshAddressA, accountFunds); 
+        deal(dai, freshAddressA, amount);        
 
 
          // Generate a new private key and address
@@ -290,27 +289,41 @@ contract AlchemistV2EIP7702Basic is Test {
         console2.log("Fresh address B code length:", address(freshAddressB).code.length);
         
         
-        // Setup the call to the Alchemist's deposit function
-        BatchCallAndSponsor.Call[] memory calls = new BatchCallAndSponsor.Call[](2);
+        // Setup the call to the ATokenGateway deposit function
+        BatchCallAndSponsor.Call[] memory calls = new BatchCallAndSponsor.Call[](4); 
         
-        // First approve the alchemist to spend Alice's tokens
+        // First approve the alchemist to spend freshAddressA tokens 
         calls[0] = BatchCallAndSponsor.Call({
-            to: address(fakeYieldToken), 
+            to: dai, 
             value: 0,
-            data: abi.encodeCall(ERC20.approve, (address(alchemist), depositAmount))
+            data: abi.encodeCall(ERC20.approve, (address(lendingPool), amount))
         });
         
-        // Then call deposit function on the alchemist
+        // Then call deposit function on the lending pool
         calls[1] = BatchCallAndSponsor.Call({
-            to: address(alchemist),
+            to: address(lendingPool),
             value: 0,
-            data: abi.encodeCall(AlchemistV2.deposit, (address(fakeYieldToken), depositAmount, freshAddressA))
+            data: abi.encodeCall(lendingPool.deposit, (dai, amount, freshAddressA, 0))
+        });
+
+        calls[2] = BatchCallAndSponsor.Call({
+            to: address(aToken), 
+            value: 0,
+            data: abi.encodeCall(ERC20.approve, (address(gateway), 100e18))
         });
         
-        // FreshAddressA signs a delegation allowing `implementation` to execute transactions on her behalf.
+        // Then call deposit function on the ATokenGateway 
+        calls[3] = BatchCallAndSponsor.Call({
+            to: address(gateway),
+            value: 0,
+            data: abi.encodeCall(ATokenGateway.deposit, (address(staticAToken), 100e18, freshAddressA))
+        });
+        
+        
+        // FreshAddressA signs a delegation allowing `implementation` to execute transactions on freshAddressA's behalf.
         VmSafe.SignedDelegation memory signedDelegation = vm.signDelegation(address(implementation), freshPKA); 
         
-        // Bob attaches the signed delegation from Alice and broadcasts it.
+        // FreshAddressB attaches the signed delegation from freshAddressA and broadcasts it.
         vm.startBroadcast(freshPKB);
         vm.attachDelegation(signedDelegation);
         
@@ -334,5 +347,8 @@ contract AlchemistV2EIP7702Basic is Test {
         BatchCallAndSponsor(freshAddressA).execute(calls, signature);   
         
         vm.stopBroadcast();
-    }
+    } 
+
+
+
 }
