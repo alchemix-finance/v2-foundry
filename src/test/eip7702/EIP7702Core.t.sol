@@ -5,7 +5,6 @@ import {VmSafe} from "../../../lib/forge-std/src/Vm.sol";
 import {BatchCallAndSponsor} from "../mocks/BatchCallAndSponsor.sol";
 import {ERC20} from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import { CheatCodes } from "../../test/utils/Cheatcodes.sol";
-import "../../../lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol"; 
 import { AlchemistV2 } from "../../AlchemistV2.sol";
 import { AlchemicTokenV2 } from "../../AlchemicTokenV2.sol";
 import { TransmuterV2 } from "../../TransmuterV2.sol";
@@ -18,13 +17,12 @@ import { IERC20Mintable } from "../../interfaces/IERC20Mintable.sol";
 import { ITokenAdapter } from "../../interfaces/ITokenAdapter.sol";
 import { IAlchemistV2AdminActions } from "../../interfaces/alchemist/IAlchemistV2AdminActions.sol";
 import { IAlchemistV2 } from "../../interfaces/IAlchemistV2.sol";  
-import "../../../lib/forge-std/src/Test.sol";
 import {ITestYieldToken} from "../../interfaces/test/ITestYieldToken.sol";
 import {SafeERC20} from "../../libraries/SafeERC20.sol";
 import {Unauthorized} from "../../base/errors.sol";    
 import {ECDSA} from "../../../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
-
-
+import "../../../lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol"; 
+import "../../../lib/forge-std/src/Test.sol";
 
 contract MockERC20 is ERC20 {
     constructor() ERC20("Mock Token", "MOCK") {}
@@ -117,7 +115,7 @@ contract EIP7702Core is Test {
 
     function deployAlchemixV2Contracts() public {
 
-         // Generate a new private key and address
+        // Generate a new private key and address
         uint256 adminAddressPK = uint256(keccak256(abi.encodePacked("masterAddress", block.timestamp)));
         address masterAddress = vm.addr(adminAddressPK);
         // test maniplulation for convenience
@@ -302,125 +300,9 @@ contract EIP7702Core is Test {
             data: abi.encodeCall(AlchemistV2.deposit, (address(fakeYieldToken), depositAmount, freshAddressA))
         });
         
-        // FreshAddressA signs a delegation allowing `implementation` to execute transactions on freshAddressA's behalf.
-        VmSafe.SignedDelegation memory signedDelegation = vm.signDelegation(address(implementation), freshPKA); 
-        
-        // FreshAddressB attaches the signed delegation from freshAddressA and broadcasts it.
-        vm.startBroadcast(freshPKB);
-        vm.attachDelegation(signedDelegation);
-        
-        // Verify that freshAddressA's account now temporarily behaves as a smart contract.
-        bytes memory code = address(freshAddressA).code;
-        require(code.length > 0, "no code written to freshAddressA");
-        
-        // Build the encoded call data for signature
-        bytes memory encodedCalls = "";
-        for (uint256 i = 0; i < calls.length; i++) {
-            encodedCalls = abi.encodePacked(encodedCalls, calls[i].to, calls[i].value, calls[i].data);
-        }
-        
-        bytes32 digest = keccak256(abi.encodePacked(BatchCallAndSponsor(freshAddressA).nonce(), encodedCalls));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(freshPKA, ECDSA.toEthSignedMessageHash(digest));
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        vm.expectRevert(abi.encodeWithSignature("Unauthorized()"));
-        
-        // As freshAddressB, execute the transaction via freshAddressA's temporarily assigned contract.
-        BatchCallAndSponsor(freshAddressA).execute(calls, signature);   
-        
-        vm.stopBroadcast();
+        bytes memory expectedRevert = abi.encodeWithSignature("Unauthorized()");
+        executeEIP7702Transaction(freshAddressA, freshPKA, freshPKB, calls, expectedRevert);
     } 
-
-    /*function testDepositWithFreshAddressPureEOA_Transmuter() public {
-        // Generate a new private key and address
-        uint256 freshPK = uint256(keccak256(abi.encodePacked("fresh", block.timestamp)));
-        address freshAddress = vm.addr(freshPK);
-        
-        require(address(freshAddress).code.length == 0, "There is no code written to freshAddress");
-        
-        // Fund the fresh address
-        deal(address(alToken), freshAddress, accountFunds);        
-        // Test with the fresh address. Tx.origin will be freshAddress
-        vm.startBroadcast(freshPK);
-        SafeERC20.safeApprove(address(alToken), address(transmuter), accountFunds);
-
-        // Now, both msg.sender and tx.origin will be freshAddress.
-        transmuter.deposit(depositAmount, freshAddress);
-        vm.stopBroadcast();
-
-        // Validate that the deposit occurred.
-        uint256 exchangedBalance = transmuter.getExchangedBalance(freshAddress);
-        uint256 unexchangedBalance = transmuter.getUnexchangedBalance(freshAddress);
-
-
-        assertEq(exchangedBalance, 0, "Expected exchanged balance to be equal to the deposit amount");
-        assertEq(unexchangedBalance, 100000000000000000000000, "Expected unexchanged balance to be 0");
-    } 
-
-    function testDepositWithFreshAddressSponsoredTransaction_Transmuter() public {
-        // Generate a new private key and address
-        uint256 freshPKA = uint256(keccak256(abi.encodePacked("freshA", block.timestamp)));
-        address payable freshAddressA = payable(vm.addr(freshPKA));
-        
-        console2.log("Fresh address A code length:", address(freshAddressA).code.length);
-        
-        // Fund the fresh address
-        deal(address(alToken), freshAddressA, accountFunds); 
-
-
-         // Generate a new private key and address
-        uint256 freshPKB = uint256(keccak256(abi.encodePacked("freshB", block.timestamp)));
-        address freshAddressB = vm.addr(freshPKB);
-        
-        console2.log("Fresh address B code length:", address(freshAddressB).code.length);
-        
-        
-        // Setup the call to the TransmuterV2's deposit function
-        BatchCallAndSponsor.Call[] memory calls = new BatchCallAndSponsor.Call[](2);
-        
-        // First approve the TransmuterV2 to spend freshAddressA tokens 
-        calls[0] = BatchCallAndSponsor.Call({
-            to: address(alToken), 
-            value: 0,
-            data: abi.encodeCall(ERC20.approve, (address(transmuter), depositAmount))
-        });
-        
-        // Then call deposit function on the TransmuterV2
-        calls[1] = BatchCallAndSponsor.Call({
-            to: address(transmuter),
-            value: 0,
-            data: abi.encodeCall(TransmuterV2.deposit, (depositAmount, freshAddressA))
-        });
-        
-        // FreshAddressA signs a delegation allowing `implementation` to execute transactions on freshAddressA's behalf.
-        VmSafe.SignedDelegation memory signedDelegation = vm.signDelegation(address(implementation), freshPKA); 
-        
-        // FreshAddressB attaches the signed delegation from freshAddressA and broadcasts it.
-        vm.startBroadcast(freshPKB);
-        vm.attachDelegation(signedDelegation);
-        
-        // Verify that freshAddressA's account now temporarily behaves as a smart contract.
-        bytes memory code = address(freshAddressA).code;
-        require(code.length > 0, "no code written to freshAddressA");
-        
-        // Build the encoded call data for signature
-        bytes memory encodedCalls = "";
-        for (uint256 i = 0; i < calls.length; i++) {
-            encodedCalls = abi.encodePacked(encodedCalls, calls[i].to, calls[i].value, calls[i].data);
-        }
-        
-        bytes32 digest = keccak256(abi.encodePacked(BatchCallAndSponsor(freshAddressA).nonce(), encodedCalls));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(freshPKA, ECDSA.toEthSignedMessageHash(digest));
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        vm.expectRevert(abi.encodeWithSignature("Unauthorized()"));
-        
-        // As freshAddressB, execute the transaction via freshAddressA's temporarily assigned contract.
-        BatchCallAndSponsor(freshAddressA).execute(calls, signature);   
-        
-        vm.stopBroadcast();
-    } */
-
 
     // 2. withdrawUnderlying
     function testWithdrawUnderlyingWithFreshAddressSponsoredTransaction() public {
@@ -448,29 +330,8 @@ contract EIP7702Core is Test {
             ))
         });
         
-        // Sign delegation and execute as in previous test
-        VmSafe.SignedDelegation memory signedDelegation = vm.signDelegation(address(implementation), freshPKA);
-        
-        vm.startBroadcast(freshPKB);
-        vm.attachDelegation(signedDelegation);
-              
-        // Verify that freshAddressA's account now temporarily behaves as a smart contract.
-        bytes memory code = address(freshAddressA).code;
-        require(code.length > 0, "no code written to freshAddressA");
-        
-        bytes memory encodedCalls = "";
-        for (uint256 i = 0; i < calls.length; i++) {
-            encodedCalls = abi.encodePacked(encodedCalls, calls[i].to, calls[i].value, calls[i].data);
-        }
-        
-        bytes32 digest = keccak256(abi.encodePacked(BatchCallAndSponsor(freshAddressA).nonce(), encodedCalls));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(freshPKA, ECDSA.toEthSignedMessageHash(digest));
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        vm.expectRevert(abi.encodeWithSignature("Unauthorized()"));
-        BatchCallAndSponsor(freshAddressA).execute(calls, signature);   
-        
-        vm.stopBroadcast();
+        bytes memory expectedRevert = abi.encodeWithSignature("Unauthorized()");
+        executeEIP7702Transaction(freshAddressA, freshPKA, freshPKB, calls, expectedRevert);
     }
  
     // 3. depositUnderlying
@@ -504,28 +365,8 @@ contract EIP7702Core is Test {
             ))
         });
         
-        VmSafe.SignedDelegation memory signedDelegation = vm.signDelegation(address(implementation), freshPKA);
-        
-        vm.startBroadcast(freshPKB);
-        vm.attachDelegation(signedDelegation);
-
-        // Verify that freshAddressA's account now temporarily behaves as a smart contract.
-        bytes memory code = address(freshAddressA).code;
-        require(code.length > 0, "no code written to freshAddressA");
-        
-        bytes memory encodedCalls = "";
-        for (uint256 i = 0; i < calls.length; i++) {
-            encodedCalls = abi.encodePacked(encodedCalls, calls[i].to, calls[i].value, calls[i].data);
-        }
-        
-        bytes32 digest = keccak256(abi.encodePacked(BatchCallAndSponsor(freshAddressA).nonce(), encodedCalls));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(freshPKA, ECDSA.toEthSignedMessageHash(digest));
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        vm.expectRevert(abi.encodeWithSignature("Unauthorized()"));
-        BatchCallAndSponsor(freshAddressA).execute(calls, signature);
-        
-        vm.stopBroadcast();
+        bytes memory expectedRevert = abi.encodeWithSignature("Unauthorized()");
+        executeEIP7702Transaction(freshAddressA, freshPKA, freshPKB, calls, expectedRevert);
     }
 
     // 4. withdraw
@@ -550,28 +391,8 @@ contract EIP7702Core is Test {
             ))
         });
         
-        VmSafe.SignedDelegation memory signedDelegation = vm.signDelegation(address(implementation), freshPKA);
-        
-        vm.startBroadcast(freshPKB);
-        vm.attachDelegation(signedDelegation);
-        
-        // Verify that freshAddressA's account now temporarily behaves as a smart contract.
-        bytes memory code = address(freshAddressA).code;
-        require(code.length > 0, "no code written to freshAddressA");
-        
-        bytes memory encodedCalls = "";
-        for (uint256 i = 0; i < calls.length; i++) {
-            encodedCalls = abi.encodePacked(encodedCalls, calls[i].to, calls[i].value, calls[i].data);
-        }
-        
-        bytes32 digest = keccak256(abi.encodePacked(BatchCallAndSponsor(freshAddressA).nonce(), encodedCalls));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(freshPKA, ECDSA.toEthSignedMessageHash(digest));
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        vm.expectRevert(abi.encodeWithSignature("Unauthorized()"));
-        BatchCallAndSponsor(freshAddressA).execute(calls, signature);
-        
-        vm.stopBroadcast();
+        bytes memory expectedRevert = abi.encodeWithSignature("Unauthorized()");
+        executeEIP7702Transaction(freshAddressA, freshPKA, freshPKB, calls, expectedRevert);
     }
 
     // 5. withdrawFrom
@@ -597,28 +418,8 @@ contract EIP7702Core is Test {
             ))
         });
         
-        VmSafe.SignedDelegation memory signedDelegation = vm.signDelegation(address(implementation), freshPKA);
-        
-        vm.startBroadcast(freshPKB);
-        vm.attachDelegation(signedDelegation);
-        
-        // Verify that freshAddressA's account now temporarily behaves as a smart contract.
-        bytes memory code = address(freshAddressA).code;
-        require(code.length > 0, "no code written to freshAddressA");
-        
-        bytes memory encodedCalls = "";
-        for (uint256 i = 0; i < calls.length; i++) {
-            encodedCalls = abi.encodePacked(encodedCalls, calls[i].to, calls[i].value, calls[i].data);
-        }
-        
-        bytes32 digest = keccak256(abi.encodePacked(BatchCallAndSponsor(freshAddressA).nonce(), encodedCalls));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(freshPKA, ECDSA.toEthSignedMessageHash(digest));
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        vm.expectRevert(abi.encodeWithSignature("Unauthorized()"));
-        BatchCallAndSponsor(freshAddressA).execute(calls, signature);
-        
-        vm.stopBroadcast();
+        bytes memory expectedRevert = abi.encodeWithSignature("Unauthorized()");
+        executeEIP7702Transaction(freshAddressA, freshPKA, freshPKB, calls, expectedRevert);
     }
 
     // 6. withdrawUnderlyingFrom
@@ -643,28 +444,8 @@ contract EIP7702Core is Test {
             ))
         });
         
-        VmSafe.SignedDelegation memory signedDelegation = vm.signDelegation(address(implementation), freshPKA);
-        
-        vm.startBroadcast(freshPKB);
-        vm.attachDelegation(signedDelegation);
-        
-        // Verify that freshAddressA's account now temporarily behaves as a smart contract.
-        bytes memory code = address(freshAddressA).code;
-        require(code.length > 0, "no code written to freshAddressA");
-        
-        bytes memory encodedCalls = "";
-        for (uint256 i = 0; i < calls.length; i++) {
-            encodedCalls = abi.encodePacked(encodedCalls, calls[i].to, calls[i].value, calls[i].data);
-        }
-        
-        bytes32 digest = keccak256(abi.encodePacked(BatchCallAndSponsor(freshAddressA).nonce(), encodedCalls));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(freshPKA, ECDSA.toEthSignedMessageHash(digest));
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        vm.expectRevert(abi.encodeWithSignature("Unauthorized()"));
-        BatchCallAndSponsor(freshAddressA).execute(calls, signature);
-        
-        vm.stopBroadcast();
+        bytes memory expectedRevert = abi.encodeWithSignature("Unauthorized()");
+        executeEIP7702Transaction(freshAddressA, freshPKA, freshPKB, calls, expectedRevert);
     }
 
     // 7. mint
@@ -686,28 +467,8 @@ contract EIP7702Core is Test {
             ))
         });
         
-        VmSafe.SignedDelegation memory signedDelegation = vm.signDelegation(address(implementation), freshPKA);
-        
-        vm.startBroadcast(freshPKB);
-        vm.attachDelegation(signedDelegation);
-                
-        // Verify that freshAddressA's account now temporarily behaves as a smart contract.
-        bytes memory code = address(freshAddressA).code;
-        require(code.length > 0, "no code written to freshAddressA");
-        
-        bytes memory encodedCalls = "";
-        for (uint256 i = 0; i < calls.length; i++) {
-            encodedCalls = abi.encodePacked(encodedCalls, calls[i].to, calls[i].value, calls[i].data);
-        }
-        
-        bytes32 digest = keccak256(abi.encodePacked(BatchCallAndSponsor(freshAddressA).nonce(), encodedCalls));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(freshPKA, ECDSA.toEthSignedMessageHash(digest));
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        vm.expectRevert(abi.encodeWithSignature("Unauthorized()"));
-        BatchCallAndSponsor(freshAddressA).execute(calls, signature);
-        
-        vm.stopBroadcast();
+        bytes memory expectedRevert = abi.encodeWithSignature("Unauthorized()");
+        executeEIP7702Transaction(freshAddressA, freshPKA, freshPKB, calls, expectedRevert);
     }
 
     // 8. mintFrom
@@ -732,28 +493,8 @@ contract EIP7702Core is Test {
             ))
         });
         
-        VmSafe.SignedDelegation memory signedDelegation = vm.signDelegation(address(implementation), freshPKA);
-        
-        vm.startBroadcast(freshPKB);
-        vm.attachDelegation(signedDelegation);
-                
-        // Verify that freshAddressA's account now temporarily behaves as a smart contract.
-        bytes memory code = address(freshAddressA).code;
-        require(code.length > 0, "no code written to freshAddressA");
-        
-        bytes memory encodedCalls = "";
-        for (uint256 i = 0; i < calls.length; i++) {
-            encodedCalls = abi.encodePacked(encodedCalls, calls[i].to, calls[i].value, calls[i].data);
-        }
-        
-        bytes32 digest = keccak256(abi.encodePacked(BatchCallAndSponsor(freshAddressA).nonce(), encodedCalls));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(freshPKA, ECDSA.toEthSignedMessageHash(digest));
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        vm.expectRevert(abi.encodeWithSignature("Unauthorized()"));
-        BatchCallAndSponsor(freshAddressA).execute(calls, signature);
-        
-        vm.stopBroadcast();
+        bytes memory expectedRevert = abi.encodeWithSignature("Unauthorized()");
+        executeEIP7702Transaction(freshAddressA, freshPKA, freshPKB, calls, expectedRevert);
     }
 
     // 9. burn
@@ -782,28 +523,8 @@ contract EIP7702Core is Test {
             ))
         });
         
-        VmSafe.SignedDelegation memory signedDelegation = vm.signDelegation(address(implementation), freshPKA);
-        
-        vm.startBroadcast(freshPKB);
-        vm.attachDelegation(signedDelegation);
-        
-        // Verify that freshAddressA's account now temporarily behaves as a smart contract.
-        bytes memory code = address(freshAddressA).code;
-        require(code.length > 0, "no code written to freshAddressA");
-        
-        bytes memory encodedCalls = "";
-        for (uint256 i = 0; i < calls.length; i++) {
-            encodedCalls = abi.encodePacked(encodedCalls, calls[i].to, calls[i].value, calls[i].data);
-        }
-        
-        bytes32 digest = keccak256(abi.encodePacked(BatchCallAndSponsor(freshAddressA).nonce(), encodedCalls));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(freshPKA, ECDSA.toEthSignedMessageHash(digest));
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        vm.expectRevert(abi.encodeWithSignature("Unauthorized()"));
-        BatchCallAndSponsor(freshAddressA).execute(calls, signature);
-        
-        vm.stopBroadcast();
+        bytes memory expectedRevert = abi.encodeWithSignature("Unauthorized()");
+        executeEIP7702Transaction(freshAddressA, freshPKA, freshPKB, calls, expectedRevert);
     }
 
     // 10. repay
@@ -834,28 +555,8 @@ contract EIP7702Core is Test {
             ))
         });
         
-        VmSafe.SignedDelegation memory signedDelegation = vm.signDelegation(address(implementation), freshPKA);
-        
-        vm.startBroadcast(freshPKB);
-        vm.attachDelegation(signedDelegation);
-        
-        // Verify that freshAddressA's account now temporarily behaves as a smart contract.
-        bytes memory code = address(freshAddressA).code;
-        require(code.length > 0, "no code written to freshAddressA");
-        
-        bytes memory encodedCalls = "";
-        for (uint256 i = 0; i < calls.length; i++) {
-            encodedCalls = abi.encodePacked(encodedCalls, calls[i].to, calls[i].value, calls[i].data);
-        }
-        
-        bytes32 digest = keccak256(abi.encodePacked(BatchCallAndSponsor(freshAddressA).nonce(), encodedCalls));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(freshPKA, ECDSA.toEthSignedMessageHash(digest));
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        vm.expectRevert(abi.encodeWithSignature("Unauthorized()"));
-        BatchCallAndSponsor(freshAddressA).execute(calls, signature);
-        
-        vm.stopBroadcast();
+        bytes memory expectedRevert = abi.encodeWithSignature("Unauthorized()");
+        executeEIP7702Transaction(freshAddressA, freshPKA, freshPKB, calls, expectedRevert);
     }
 
     // 11. liquidate
@@ -879,28 +580,8 @@ contract EIP7702Core is Test {
             ))
         });
         
-        VmSafe.SignedDelegation memory signedDelegation = vm.signDelegation(address(implementation), freshPKA);
-        
-        vm.startBroadcast(freshPKB);
-        vm.attachDelegation(signedDelegation);
-        
-        // Verify that freshAddressA's account now temporarily behaves as a smart contract.
-        bytes memory code = address(freshAddressA).code;
-        require(code.length > 0, "no code written to freshAddressA");
-        
-        bytes memory encodedCalls = "";
-        for (uint256 i = 0; i < calls.length; i++) {
-            encodedCalls = abi.encodePacked(encodedCalls, calls[i].to, calls[i].value, calls[i].data);
-        }
-        
-        bytes32 digest = keccak256(abi.encodePacked(BatchCallAndSponsor(freshAddressA).nonce(), encodedCalls));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(freshPKA, ECDSA.toEthSignedMessageHash(digest));
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        vm.expectRevert(abi.encodeWithSignature("Unauthorized()"));
-        BatchCallAndSponsor(freshAddressA).execute(calls, signature);
-        
-        vm.stopBroadcast();
+        bytes memory expectedRevert = abi.encodeWithSignature("Unauthorized()");
+        executeEIP7702Transaction(freshAddressA, freshPKA, freshPKB, calls, expectedRevert);
     }
 
     // 12. donate
@@ -930,28 +611,8 @@ contract EIP7702Core is Test {
             ))
         });
         
-        VmSafe.SignedDelegation memory signedDelegation = vm.signDelegation(address(implementation), freshPKA);
-        
-        vm.startBroadcast(freshPKB);
-        vm.attachDelegation(signedDelegation);
-                
-        // Verify that freshAddressA's account now temporarily behaves as a smart contract.
-        bytes memory code = address(freshAddressA).code;
-        require(code.length > 0, "no code written to freshAddressA");
-        
-        bytes memory encodedCalls = "";
-        for (uint256 i = 0; i < calls.length; i++) {
-            encodedCalls = abi.encodePacked(encodedCalls, calls[i].to, calls[i].value, calls[i].data);
-        }
-        
-        bytes32 digest = keccak256(abi.encodePacked(BatchCallAndSponsor(freshAddressA).nonce(), encodedCalls));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(freshPKA, ECDSA.toEthSignedMessageHash(digest));
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        vm.expectRevert(abi.encodeWithSignature("Unauthorized()"));
-        BatchCallAndSponsor(freshAddressA).execute(calls, signature);
-        
-        vm.stopBroadcast();
+        bytes memory expectedRevert = abi.encodeWithSignature("Unauthorized()");
+        executeEIP7702Transaction(freshAddressA, freshPKA, freshPKB, calls, expectedRevert);
     }
 
     // 13. approveMint
@@ -971,28 +632,8 @@ contract EIP7702Core is Test {
             ))
         });
         
-        VmSafe.SignedDelegation memory signedDelegation = vm.signDelegation(address(implementation), freshPKA);
-        
-        vm.startBroadcast(freshPKB);
-        vm.attachDelegation(signedDelegation);
-        
-        // Verify that freshAddressA's account now temporarily behaves as a smart contract.
-        bytes memory code = address(freshAddressA).code;
-        require(code.length > 0, "no code written to freshAddressA");
-        
-        bytes memory encodedCalls = "";
-        for (uint256 i = 0; i < calls.length; i++) {
-            encodedCalls = abi.encodePacked(encodedCalls, calls[i].to, calls[i].value, calls[i].data);
-        }
-        
-        bytes32 digest = keccak256(abi.encodePacked(BatchCallAndSponsor(freshAddressA).nonce(), encodedCalls));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(freshPKA, ECDSA.toEthSignedMessageHash(digest));
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        vm.expectRevert(abi.encodeWithSignature("Unauthorized()"));
-        BatchCallAndSponsor(freshAddressA).execute(calls, signature);
-        
-        vm.stopBroadcast();
+        bytes memory expectedRevert = abi.encodeWithSignature("Unauthorized()");
+        executeEIP7702Transaction(freshAddressA, freshPKA, freshPKB, calls, expectedRevert);
     }
 
     // 14. approveWithdraw
@@ -1013,28 +654,8 @@ contract EIP7702Core is Test {
             ))
         });
         
-        VmSafe.SignedDelegation memory signedDelegation = vm.signDelegation(address(implementation), freshPKA);
-        
-        vm.startBroadcast(freshPKB);
-        vm.attachDelegation(signedDelegation);
-        
-        // Verify that freshAddressA's account now temporarily behaves as a smart contract.
-        bytes memory code = address(freshAddressA).code;
-        require(code.length > 0, "no code written to freshAddressA");
-        
-        bytes memory encodedCalls = "";
-        for (uint256 i = 0; i < calls.length; i++) {
-            encodedCalls = abi.encodePacked(encodedCalls, calls[i].to, calls[i].value, calls[i].data);
-        }
-        
-        bytes32 digest = keccak256(abi.encodePacked(BatchCallAndSponsor(freshAddressA).nonce(), encodedCalls));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(freshPKA, ECDSA.toEthSignedMessageHash(digest));
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        vm.expectRevert(abi.encodeWithSignature("Unauthorized()"));
-        BatchCallAndSponsor(freshAddressA).execute(calls, signature);
-        
-        vm.stopBroadcast();
+        bytes memory expectedRevert = abi.encodeWithSignature("Unauthorized()");
+        executeEIP7702Transaction(freshAddressA, freshPKA, freshPKB, calls, expectedRevert);
     }
 
     // 15. poke
@@ -1055,28 +676,40 @@ contract EIP7702Core is Test {
                 address(fakeYieldToken)
             ))
         });
-        
+
+        bytes memory expectedRevert = abi.encodeWithSignature("Unauthorized()");
+        executeEIP7702Transaction(freshAddressA, freshPKA, freshPKB, calls, expectedRevert);
+    }
+
+    // Helper function to reduce stack depth
+    function executeEIP7702Transaction(
+        address payable freshAddressA,
+        uint256 freshPKA,
+        uint256 freshPKB,
+        BatchCallAndSponsor.Call[] memory calls,
+        bytes memory expectedRevert
+    ) private {
         VmSafe.SignedDelegation memory signedDelegation = vm.signDelegation(address(implementation), freshPKA);
         
-        vm.startBroadcast(freshPKB);
+        vm.startBroadcast(vm.addr(freshPKB));
         vm.attachDelegation(signedDelegation);
-
+        
         // Verify that freshAddressA's account now temporarily behaves as a smart contract.
         bytes memory code = address(freshAddressA).code;
         require(code.length > 0, "no code written to freshAddressA");
         
         bytes memory encodedCalls = "";
-        for (uint256 i = 0; i < calls.length; i++) {
+        for (uint256 i = 0; i < calls.length; i++) {    
             encodedCalls = abi.encodePacked(encodedCalls, calls[i].to, calls[i].value, calls[i].data);
         }
         
         bytes32 digest = keccak256(abi.encodePacked(BatchCallAndSponsor(freshAddressA).nonce(), encodedCalls));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(freshPKA, ECDSA.toEthSignedMessageHash(digest));
-        bytes memory signature = abi.encodePacked(r, s, v);
+        bytes memory signature = abi.encodePacked(r, s, v);         
 
-        vm.expectRevert(abi.encodeWithSignature("Unauthorized()"));
+        // Expect the same Unauthorized error 
+        vm.expectRevert(expectedRevert);
         BatchCallAndSponsor(freshAddressA).execute(calls, signature);
-        
         vm.stopBroadcast();
     }
 }
