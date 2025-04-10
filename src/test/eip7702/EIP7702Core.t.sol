@@ -250,7 +250,6 @@ contract EIP7702Core is Test {
         
         // Fund the fresh address
         deal(address(fakeYieldToken), freshAddress, accountFunds);        
-        // Test with the fresh address. Tx.origin will be freshAddress
         vm.startBroadcast(freshPK);
         SafeERC20.safeApprove(address(fakeYieldToken), address(alchemist), accountFunds);
 
@@ -435,7 +434,6 @@ contract EIP7702Core is Test {
         
         // Generate a sponsor address
         uint256 freshPKB = uint256(keccak256(abi.encodePacked("freshB", block.timestamp, "withdrawUnderlying")));
-        address freshAddressB = vm.addr(freshPKB);
         
         // Setup call for withdrawUnderlying
         BatchCallAndSponsor.Call[] memory calls = new BatchCallAndSponsor.Call[](1);
@@ -484,7 +482,6 @@ contract EIP7702Core is Test {
         deal(address(fakeUnderlyingToken), freshAddressA, accountFunds);
         
         uint256 freshPKB = uint256(keccak256(abi.encodePacked("freshB", block.timestamp, "depositUnderlying")));
-        address freshAddressB = vm.addr(freshPKB);
         
         BatchCallAndSponsor.Call[] memory calls = new BatchCallAndSponsor.Call[](2);
         
@@ -541,7 +538,6 @@ contract EIP7702Core is Test {
 
         
         uint256 freshPKB = uint256(keccak256(abi.encodePacked("freshB", block.timestamp, "withdraw")));
-        address freshAddressB = vm.addr(freshPKB);
         
         BatchCallAndSponsor.Call[] memory calls = new BatchCallAndSponsor.Call[](1);
         calls[0] = BatchCallAndSponsor.Call({
@@ -588,7 +584,6 @@ contract EIP7702Core is Test {
 
         
         uint256 freshPKB = uint256(keccak256(abi.encodePacked("freshB", block.timestamp, "withdrawFrom")));
-        address freshAddressB = vm.addr(freshPKB);
         
         BatchCallAndSponsor.Call[] memory calls = new BatchCallAndSponsor.Call[](1);
         calls[0] = BatchCallAndSponsor.Call({
@@ -634,7 +629,6 @@ contract EIP7702Core is Test {
         // Fund and deposit first
         deal(address(fakeYieldToken), freshAddressA, accountFunds);      
         uint256 freshPKB = uint256(keccak256(abi.encodePacked("freshB", block.timestamp, "withdrawUnderlyingFrom")));
-        address freshAddressB = vm.addr(freshPKB);
         
         BatchCallAndSponsor.Call[] memory calls = new BatchCallAndSponsor.Call[](1);
         calls[0] = BatchCallAndSponsor.Call({
@@ -681,7 +675,6 @@ contract EIP7702Core is Test {
         // Fund and deposit first to have collateral
         deal(address(fakeYieldToken), freshAddressA, accountFunds);
         uint256 freshPKB = uint256(keccak256(abi.encodePacked("freshB", block.timestamp, "mint")));
-        address freshAddressB = vm.addr(freshPKB);
         
         BatchCallAndSponsor.Call[] memory calls = new BatchCallAndSponsor.Call[](1);
         calls[0] = BatchCallAndSponsor.Call({
@@ -727,7 +720,6 @@ contract EIP7702Core is Test {
         vm.stopPrank();
         
         uint256 freshPKB = uint256(keccak256(abi.encodePacked("freshB", block.timestamp, "mintFrom")));
-        address freshAddressB = vm.addr(freshPKB);
         
         BatchCallAndSponsor.Call[] memory calls = new BatchCallAndSponsor.Call[](1);
         calls[0] = BatchCallAndSponsor.Call({
@@ -772,7 +764,6 @@ contract EIP7702Core is Test {
         // Fund and deposit, then mint tokens
         deal(address(fakeYieldToken), freshAddressA, accountFunds);      
         uint256 freshPKB = uint256(keccak256(abi.encodePacked("freshB", block.timestamp, "burn")));
-        address freshAddressB = vm.addr(freshPKB);
         
         BatchCallAndSponsor.Call[] memory calls = new BatchCallAndSponsor.Call[](2);
         // Approve alchemist to burn tokens
@@ -824,7 +815,6 @@ contract EIP7702Core is Test {
         deal(address(fakeYieldToken), freshAddressA, accountFunds);
         deal(address(fakeUnderlyingToken), freshAddressA, accountFunds);    
         uint256 freshPKB = uint256(keccak256(abi.encodePacked("freshB", block.timestamp, "repay")));
-        address freshAddressB = vm.addr(freshPKB);
         
         BatchCallAndSponsor.Call[] memory calls = new BatchCallAndSponsor.Call[](2);
         // Approve underlying token for repay
@@ -876,7 +866,6 @@ contract EIP7702Core is Test {
         // Fund and deposit, then mint tokens
         deal(address(fakeYieldToken), freshAddressA, accountFunds);        
         uint256 freshPKB = uint256(keccak256(abi.encodePacked("freshB", block.timestamp, "liquidate")));
-        address freshAddressB = vm.addr(freshPKB);
         
         BatchCallAndSponsor.Call[] memory calls = new BatchCallAndSponsor.Call[](1);
         // Liquidate yield tokens
@@ -923,7 +912,6 @@ contract EIP7702Core is Test {
         deal(address(alToken), freshAddressA, accountFunds);
         
         uint256 freshPKB = uint256(keccak256(abi.encodePacked("freshB", block.timestamp, "donate")));
-        address freshAddressB = vm.addr(freshPKB);
         
         BatchCallAndSponsor.Call[] memory calls = new BatchCallAndSponsor.Call[](2);
         // Approve debt token for donation
@@ -969,12 +957,8 @@ contract EIP7702Core is Test {
     // 13. approveMint
     function testApproveMintWithFreshAddressSponsoredTransaction() public {
         uint256 freshPKA = uint256(keccak256(abi.encodePacked("freshA", block.timestamp, "approveMint")));
-        address payable freshAddressA = payable(vm.addr(freshPKA));
-        
-        // No need to fund for approval functions
-        
+        address payable freshAddressA = payable(vm.addr(freshPKA));        
         uint256 freshPKB = uint256(keccak256(abi.encodePacked("freshB", block.timestamp, "approveMint")));
-        address freshAddressB = vm.addr(freshPKB);
         
         BatchCallAndSponsor.Call[] memory calls = new BatchCallAndSponsor.Call[](1);
         // Approve minting for another address
@@ -1015,12 +999,8 @@ contract EIP7702Core is Test {
     function testApproveWithdrawWithFreshAddressSponsoredTransaction() public {
         uint256 freshPKA = uint256(keccak256(abi.encodePacked("freshA", block.timestamp, "approveWithdraw")));
         address payable freshAddressA = payable(vm.addr(freshPKA));
-        
-        // No need to fund for approval functions
-        
         uint256 freshPKB = uint256(keccak256(abi.encodePacked("freshB", block.timestamp, "approveWithdraw")));
-        address freshAddressB = vm.addr(freshPKB);
-        
+
         BatchCallAndSponsor.Call[] memory calls = new BatchCallAndSponsor.Call[](1);
         // Approve withdrawals for another address
         calls[0] = BatchCallAndSponsor.Call({
@@ -1065,7 +1045,6 @@ contract EIP7702Core is Test {
         // Fund and deposit first
         deal(address(fakeYieldToken), freshAddressA, accountFunds);        
         uint256 freshPKB = uint256(keccak256(abi.encodePacked("freshB", block.timestamp, "poke")));
-        address freshAddressB = vm.addr(freshPKB);
         
         BatchCallAndSponsor.Call[] memory calls = new BatchCallAndSponsor.Call[](1);
         // Call poke function
