@@ -9,7 +9,7 @@ import {ECDSA} from "../../../lib/openzeppelin-contracts/contracts/utils/cryptog
  * When an EOA upgrades via EIP‑7702, it delegates to this implementation.
  * Off‑chain, the account signs a message authorizing a batch of calls. The message is the hash of:
  *    keccak256(abi.encodePacked(nonce, calls))
- * The signature must be generated with the EOA’s private key so that, once upgraded, the recovered signer equals the account’s own address (i.e. address(this)).
+ * The signature must be generated with the EOA's private key so that, once upgraded, the recovered signer equals the account's own address (i.e. address(this)).
  *
  * This contract provides two ways to execute a batch:
  * 1. With a signature: Any sponsor can submit the batch if it carries a valid signature.
@@ -41,7 +41,7 @@ contract BatchCallAndSponsor {
      * @param signature The ECDSA signature over the current nonce and the call data.
      *
      * The signature must be produced off–chain by signing:
-     * The signing key should be the account’s key (which becomes the smart account’s own identity after upgrade).
+     * The signing key should be the account's key (which becomes the smart account's own identity after upgrade).
      */
     function execute(Call[] calldata calls, bytes calldata signature) external payable {
         // Compute the digest that the account was expected to sign.
@@ -91,8 +91,20 @@ contract BatchCallAndSponsor {
      * @param callItem The Call struct containing destination, value, and calldata.
      */
     function _executeCall(Call calldata callItem) internal {
-        (bool success,) = callItem.to.call{value: callItem.value}(callItem.data);
-        require(success, "Call reverted");
+        (bool success, bytes memory returnData) = callItem.to.call{value: callItem.value}(callItem.data);
+        if (!success) {
+            // Extract and propagate the revert reason
+            if (returnData.length > 0) {
+                // First 4 bytes are the selector, the rest is the error data
+                // solhint-disable-next-line no-inline-assembly
+                assembly {
+                    let returnDataSize := mload(returnData)
+                    revert(add(32, returnData), returnDataSize)
+                }
+            } else {
+                revert("Call reverted with no reason");
+            }
+        }
         emit CallExecuted(msg.sender, callItem.to, callItem.value, callItem.data);
     }
 
