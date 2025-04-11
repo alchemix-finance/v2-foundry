@@ -19,7 +19,6 @@ import { IAlchemistV2AdminActions } from "../../interfaces/alchemist/IAlchemistV
 import { IAlchemistV2 } from "../../interfaces/IAlchemistV2.sol";  
 import {ITestYieldToken} from "../../interfaces/test/ITestYieldToken.sol";
 import {SafeERC20} from "../../libraries/SafeERC20.sol";
-import {Unauthorized} from "../../base/errors.sol";    
 import {ECDSA} from "../../../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
 import "../../../lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol"; 
 import "../../../lib/forge-std/src/Test.sol";

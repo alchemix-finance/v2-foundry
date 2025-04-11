@@ -21,7 +21,6 @@ import { IAlchemistV2 } from "../../interfaces/IAlchemistV2.sol";
 import "../../../lib/forge-std/src/Test.sol";
 import {ITestYieldToken} from "../../interfaces/test/ITestYieldToken.sol";
 import {SafeERC20} from "../../libraries/SafeERC20.sol";
-import {Unauthorized} from "../../base/errors.sol";
 import {ECDSA} from "../../../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
 import {IERC20} from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {
