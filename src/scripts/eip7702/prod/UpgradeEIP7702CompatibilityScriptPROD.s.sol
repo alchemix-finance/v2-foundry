@@ -13,9 +13,9 @@ import {ITransparentUpgradeableProxy} from "../../../../lib/openzeppelin-contrac
 import {IWhitelist} from "../../../interfaces/IWhitelist.sol";
 
 // Running the script
-// forge script script/UpgradeEIP7702Compatibility.s.sol:UpgradeEIP7702CompatibilityScript --rpc-url $RPC_URL --broadcast --verify
+// forge script script/UpgradeEIP7702Compatibility.s.sol:UpgradeEIP7702CompatibilityScriptPROD --rpc-url $RPC_URL --broadcast --verify
 
-contract UpgradeEIP7702CompatibilityScript is Script {
+contract UpgradeEIP7702CompatibilityScriptPROD is Script {
     // Addresses needed for the upgrade - to be filled before running the script
     address constant PROXY_ADMIN_ADDRESS = address(0xE0fC5CB7665041CdA26969A2D1ceb5cD5046347d);
     address constant PROXY_ADMIN_OWNER = address(0xE0fC5CB7665041CdA26969A2D1ceb5cD5046347d);
