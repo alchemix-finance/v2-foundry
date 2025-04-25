@@ -1,8 +1,8 @@
 # Alchemix EIP-7702 Compatibility Upgrade Scripts
 
-This repository contains scripts for upgrading the Alchemix protocol contracts to be compatible with [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702). The upgrade involves deploying new implementation contracts and updating various protocol components.
+Scripts for upgrading the Alchemix protocol contracts to be compatible with [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702). The upgrade involves deploying new implementation contracts and updating various protocol components.
 
-`Note`: Scripts are currently for ethereum mainnet and and mainnet forks. This may me uppdated to include other relevant networks.
+`Note`: Scripts are currently for ethereum mainnet and mainnet forks. This may me updated to include other relevant networks.
 
 ## Overview
 
@@ -18,8 +18,6 @@ The upgrade process includes:
 2. Upgrading proxies to point to new implementations
 3. Updating whitelists with the new contract addresses
 4. Removing old implementations from whitelists
-
-## Directory Structure 
 
 ## Prerequisites
 
@@ -85,7 +83,31 @@ Before using the revert script in production:
    - `NEW_ATOKEN_GATEWAY_ALUSD`
 
 2. These addresses should be the ones that were deployed during the upgrade process. 
+
 ## Verification
+
+Logs are printed to the console (or can be routed to a file e.g. with flag : > logs.txt).
+A successful run will print somthing like this : 
+   
+```bash
+  Starting EIP-7702 compatibility upgrade...
+  ProxyAdmin owner: 0x9e2b6378ee8ad2A4A95Fe481d63CAba8FB0EBBF9
+  New AlchemistV2 implementation deployed to: 0x7aCCb860799227e9b8de5e394B5be68800CDd6d6
+  New AutoleverageCurveMetapool deployed to: 0x57c4A600da7518Ce023bacc84EC958A6a8e77E51
+  New AutoleverageCurveFactoryethpool deployed to: 0xb0D1360179E7a644FB5213B0f7fBf423d529056f
+  New WETHGateway deployed to: 0x34697828E7fd72B24e4667b6d44bDf0AbD39f78e
+  New ATokenGateway for alETH deployed to: 0x8E2C1843Ec44E857765e43107b2d51dc83e30b1A
+  New ATokenGateway for alUSD deployed to: 0xBb3c85Deaf9a55446B3F41129B3BD7fac4dEfe89
+  All implementations deployed. Performing upgrades...
+  AlchemistV2 proxy upgraded
+  Updating ALETH whitelists...
+  Updating ALUSD whitelists...
+  Confirming whitelists...
+  All whitelists updated.
+  Removing old whitelisted addresses...
+  All old whitelisted addresses removed.
+  Upgrade complete!
+```
 
 
 ## Production Deployment
