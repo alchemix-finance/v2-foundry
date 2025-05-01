@@ -259,8 +259,6 @@ contract EIP7702Upgrade is Test {
         
         // 2. Deploy new implementation
         AlchemistV2 updatedAlchemist = new AlchemistV2();
-
-        address admin = proxyAdmin.getProxyAdmin(ITransparentUpgradeableProxy(address(proxyAlchemist))); 
         address owner = proxyAdmin.owner();
 
         // 3. Perform upgrade
@@ -281,7 +279,6 @@ contract EIP7702Upgrade is Test {
          // 1. Deploy new implementation
         AlchemistV2 updatedAlchemist = new AlchemistV2();
 
-        address admin = proxyAdmin.getProxyAdmin(ITransparentUpgradeableProxy(address(proxyAlchemist))); 
         address owner = proxyAdmin.owner();
 
         // 2. Perform upgrade
@@ -303,8 +300,6 @@ contract EIP7702Upgrade is Test {
     function testWithdrawfterUpgrade() public {        
         // 1. Deploy new implementation
         AlchemistV2 updatedAlchemist = new AlchemistV2();
-
-        address admin = proxyAdmin.getProxyAdmin(ITransparentUpgradeableProxy(address(proxyAlchemist))); 
         address owner = proxyAdmin.owner();
 
         // 2. Perform upgrade
@@ -326,8 +321,6 @@ contract EIP7702Upgrade is Test {
     function testMintAfterUpgrade() public {        
         // 1. Deploy new implementation
         AlchemistV2 updatedAlchemist = new AlchemistV2();
-
-        address admin = proxyAdmin.getProxyAdmin(ITransparentUpgradeableProxy(address(proxyAlchemist))); 
         address owner = proxyAdmin.owner();
 
         // 2. Perform upgrade
@@ -349,8 +342,6 @@ contract EIP7702Upgrade is Test {
     function testDepositAfterUpgrade() public {        
           // 1. Deploy new implementation
         AlchemistV2 updatedAlchemist = new AlchemistV2();
-
-        address admin = proxyAdmin.getProxyAdmin(ITransparentUpgradeableProxy(address(proxyAlchemist))); 
         address owner = proxyAdmin.owner();
 
         // 2. Perform upgrade
@@ -372,8 +363,6 @@ contract EIP7702Upgrade is Test {
     function testRepayAfterUpgrade() public {        
         // 1. Deploy new implementation
         AlchemistV2 updatedAlchemist = new AlchemistV2();
-
-        address admin = proxyAdmin.getProxyAdmin(ITransparentUpgradeableProxy(address(proxyAlchemist))); 
         address owner = proxyAdmin.owner();
 
         // 2. Perform upgrade
@@ -402,8 +391,6 @@ contract EIP7702Upgrade is Test {
     function testDonateAfterUpgrade() public {        
         // 1. Deploy new implementation
         AlchemistV2 updatedAlchemist = new AlchemistV2();
-
-        address admin = proxyAdmin.getProxyAdmin(ITransparentUpgradeableProxy(address(proxyAlchemist))); 
         address owner = proxyAdmin.owner();
 
         // 2. Perform upgrade
@@ -427,8 +414,6 @@ contract EIP7702Upgrade is Test {
     function testBurnAfterUpgrade() public {        
         // 1. Deploy new implementation
         AlchemistV2 updatedAlchemist = new AlchemistV2();
-
-        address admin = proxyAdmin.getProxyAdmin(ITransparentUpgradeableProxy(address(proxyAlchemist))); 
         address owner = proxyAdmin.owner();
 
         // 2. Perform upgrade
@@ -464,8 +449,6 @@ contract EIP7702Upgrade is Test {
         
         // 3. Deploy new implementation
         AlchemistV2 updatedAlchemist = new AlchemistV2();
-
-        address admin = proxyAdmin.getProxyAdmin(ITransparentUpgradeableProxy(address(proxyAlchemist))); 
         address owner = proxyAdmin.owner();
 
         // 4. Perform upgrade
@@ -485,8 +468,6 @@ contract EIP7702Upgrade is Test {
     function testDepositUnderlyingAfterUpgrade() public {        
          // 1. Deploy new implementation
         AlchemistV2 updatedAlchemist = new AlchemistV2();
-
-        address admin = proxyAdmin.getProxyAdmin(ITransparentUpgradeableProxy(address(proxyAlchemist))); 
         address owner = proxyAdmin.owner();
 
         // 2. Perform upgrade
@@ -508,8 +489,6 @@ contract EIP7702Upgrade is Test {
     function testWithdrawFromAfterUpgrade() public {        
         // 1. Deploy new implementation
         AlchemistV2 updatedAlchemist = new AlchemistV2();
-
-        address admin = proxyAdmin.getProxyAdmin(ITransparentUpgradeableProxy(address(proxyAlchemist))); 
         address owner = proxyAdmin.owner();
 
         // 2. Perform upgrade
@@ -543,8 +522,6 @@ contract EIP7702Upgrade is Test {
     function testMintFromAfterUpgrade() public {        
         // 1. Deploy new implementation
         AlchemistV2 updatedAlchemist = new AlchemistV2();
-
-        address admin = proxyAdmin.getProxyAdmin(ITransparentUpgradeableProxy(address(proxyAlchemist))); 
         address owner = proxyAdmin.owner();
 
         // 2. Perform upgrade
@@ -578,8 +555,6 @@ contract EIP7702Upgrade is Test {
     function doUpgradeHelper() public {
         // 1. Deploy new implementation
         AlchemistV2 updatedAlchemist = new AlchemistV2();
-
-        address admin = proxyAdmin.getProxyAdmin(ITransparentUpgradeableProxy(address(proxyAlchemist))); 
         address owner = proxyAdmin.owner();
 
         // 2. Perform upgrade
