@@ -23,6 +23,7 @@ import {ECDSA} from "../../../lib/openzeppelin-contracts/contracts/utils/cryptog
 import {TransparentUpgradeableProxy, ITransparentUpgradeableProxy} from "../../../lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol"; 
 import {ProxyAdmin} from "../../../lib/openzeppelin-contracts/contracts/proxy/transparent/ProxyAdmin.sol";
 import {AlchemistV2PreUpgrade} from "./AlchemistV2PreUpgrade.sol";
+import {IERC20} from "../../../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import "../../../lib/forge-std/src/Test.sol";
 
 /**
@@ -72,6 +73,7 @@ contract EIP7702UpgradeIntegrationTest is Test {
     address PROXY_WHITELIST_ADDRESS = address(0x78537a6CeBa16f412E123a90472C6E0e9A8F1132);
     address YIELD_TOKEN = address(0xdA816459F1AB5631232FE5e97a05BBBb94970c95);
     address ALCHEMIST_V2_ADDRESS = address(0x855EB163415A57Bd52E25882E9C449885Fa01f47);
+    address AL_TOKEN_ADDRESS = address(0xBC6DA0FE9aD5f3b0d58160288917AA56653660E9);
     //Contract variables
     Whitelist whitelist;
     // ProxyAdmin proxyAdmin;
@@ -79,9 +81,13 @@ contract EIP7702UpgradeIntegrationTest is Test {
     mapping(address => bool) users;
     // ----- Variables for deposits & withdrawals ----- //
     // real EOA for testing
-    address externalUser = address(0xcB971a5457cff604970af12fAf0aEc6DC6C36281);
+    address user1 = address(0xcB971a5457cff604970af12fAf0aEc6DC6C36281);
     // real EOA for testing
-    address externalUser2 = address(0x6800212FeF0f1729B96210e3Fdadf50FC21cF4e0);
+    address user2 = address(0x6800212FeF0f1729B96210e3Fdadf50FC21cF4e0);
+    // real EOA for testing
+    address user3 = address(0x2a6bf8a714AcDbe9d6e9dd1753Ca09b8e7D95328);
+    // real EOA for testing
+    address user4 = address(0x3382A350C1e1Db5c306E10B4D750BF4668c12c65);
 
     // Storage slot where the implementation address is stored in EIP-1967 proxies
     // keccak256("eip1967.proxy.implementation") - 1
@@ -102,8 +108,10 @@ contract EIP7702UpgradeIntegrationTest is Test {
 
     function testAccountActionsAfterUpgrade() public {
         // 1. Capture positions before upgrade
-        UserPositionData memory user1Before = captureUserPosition(externalUser);
-        UserPositionData memory user2Before = captureUserPosition(externalUser2);
+        UserPositionData memory user1Before = captureUserPosition(user1);
+        UserPositionData memory user2Before = captureUserPosition(user2);
+        UserPositionData memory user3Before = captureUserPosition(user3);
+        UserPositionData memory user4Before = captureUserPosition(user4);
         
         // 2. Deploy new implementation
         AlchemistV2 updatedAlchemist = new AlchemistV2();
@@ -112,22 +120,27 @@ contract EIP7702UpgradeIntegrationTest is Test {
 
         // 3. Perform upgrade
         vm.startPrank(owner);
-        whitelist.add(externalUser);
-        whitelist.add(externalUser2);
+        whitelist.add(user1);
         proxyAdmin.upgrade(ITransparentUpgradeableProxy(PROXY_ALCHEMIST_ADDRESS), address(updatedAlchemist));
         vm.stopPrank();
         
         // 4. Verify positions after upgrade
-        UserPositionData memory user1After = captureUserPosition(externalUser);
-        UserPositionData memory user2After = captureUserPosition(externalUser2);
-        
+        UserPositionData memory user1After = captureUserPosition(user1);
+        UserPositionData memory user2After = captureUserPosition(user2);
+        UserPositionData memory user3After = captureUserPosition(user3);
+        UserPositionData memory user4After = captureUserPosition(user4);
         // 5. Assert state preservation
         assertUserPositionUnchanged(user1Before, user1After, "User 1");
         assertUserPositionUnchanged(user2Before, user2After, "User 2");
+        assertUserPositionUnchanged(user3Before, user3After, "User 3");
+        assertUserPositionUnchanged(user4Before, user4After, "User 4");
         
         // 6. Verify functionality continues to work post-upgrade
-        vm.startPrank(externalUser);
-        alchemist.mint(100e18, externalUser); // Should still be able to mint
+        vm.startPrank(user1);
+        uint256 alTokenBalanceBefore = IERC20(AL_TOKEN_ADDRESS).balanceOf(user1);
+        alchemist.mint(100e18, user1); // Should still be able to mint
+        uint256 alTokenBalanceAfter = IERC20(AL_TOKEN_ADDRESS).balanceOf(user1);
+        assertGt(alTokenBalanceAfter, alTokenBalanceBefore, "User 1 should have received AL tokens after minting");
         vm.stopPrank();
     }
 
