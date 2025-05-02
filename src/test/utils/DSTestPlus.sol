@@ -2,13 +2,19 @@
 pragma solidity >=0.8.0;
 
 import {Test} from "../../../lib/forge-std/src/Test.sol";
-
+import {Vm} from "../../../lib/forge-std/src/Vm.sol";
 import {Hevm} from "./Hevm.sol";
 
 /// @notice Extended testing framework for DappTools projects.
 /// @author Solmate (https://github.com/Rari-Capital/solmate/blob/main/src/test/utils/DSTestPlus.sol)
 contract DSTestPlus is Test {
+
+    // @notice Ensuring compatibility with the new VM.sol interface,
+    // for tests that currently use DSTestPlus.
+    // will use the new `vm` object instaid of the `hevm` object for tests that need newer features
+    address public constant HEVM_ADDRESS = VM_ADDRESS;
     Hevm internal constant hevm = Hevm(HEVM_ADDRESS);
+
 
     address internal constant DEAD_ADDRESS = 0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF;
 

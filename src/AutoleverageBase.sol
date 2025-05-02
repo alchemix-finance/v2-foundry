@@ -83,8 +83,7 @@ abstract contract AutoleverageBase is IAaveFlashLoanReceiver {
         uint256 targetDebt
     ) external payable {
         // Gate on EOA or whitelisted
-        if (!(tx.origin == msg.sender || whitelist.isWhitelisted(msg.sender))) revert Unauthorized(msg.sender);
-
+        if (!((tx.origin == msg.sender && address(msg.sender).code.length == 0) || whitelist.isWhitelisted(msg.sender))) revert Unauthorized(msg.sender);
         // Get underlying token from alchemist
         address underlyingToken = IAlchemistV2(alchemist).getYieldTokenParameters(yieldToken).underlyingToken;
         if (underlyingToken == address(0)) revert UnsupportedYieldToken(yieldToken);

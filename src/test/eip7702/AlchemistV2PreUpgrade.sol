@@ -1,30 +1,30 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.13;
 
-import {Initializable} from "../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import {Initializable} from "../../../lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 
-import {Unauthorized, IllegalState, IllegalArgument} from "./base/Errors.sol";
+import {Unauthorized, IllegalState, IllegalArgument} from "../../base/Errors.sol";
 
-import "./base/Multicall.sol";
-import "./base/Mutex.sol";
+import "../../base/Multicall.sol";
+import "../../base/Mutex.sol";
 
-import "./interfaces/IAlchemistV2.sol";
-import "./interfaces/IERC20TokenReceiver.sol";
-import "./interfaces/ITokenAdapter.sol";
-import "./interfaces/IAlchemicToken.sol";
-import "./interfaces/IWhitelist.sol";
-import "./interfaces/IRewardCollector.sol";
-import "./interfaces/external/vesper/IVesperRewards.sol";
-import "./interfaces/external/vesper/IVesperPool.sol";
+import "../../interfaces/IAlchemistV2.sol";
+import "../../interfaces/IERC20TokenReceiver.sol";
+import "../../interfaces/ITokenAdapter.sol";
+import "../../interfaces/IAlchemicToken.sol";
+import "../../interfaces/IWhitelist.sol";
+import "../../interfaces/IRewardCollector.sol";
+import "../../interfaces/external/vesper/IVesperRewards.sol";
+import "../../interfaces/external/vesper/IVesperPool.sol";
 
-import "./libraries/SafeCast.sol";
-import "./libraries/Sets.sol";
-import "./libraries/TokenUtils.sol";
-import "./libraries/Limiters.sol";
+import "../../libraries/SafeCast.sol";
+import "../../libraries/Sets.sol";
+import "../../libraries/TokenUtils.sol";
+import "../../libraries/Limiters.sol";
 
 /// @title  AlchemistV2
 /// @author Alchemix Finance
-contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
+contract AlchemistV2PreUpgrade is IAlchemistV2, Initializable, Multicall, Mutex {
     using Limiters for Limiters.LinearGrowthLimiter;
     using Sets for Sets.AddressSet;
 
@@ -729,7 +729,6 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
 
         // Update the recipient's debt.
         _updateDebt(recipient, -SafeCast.toInt256(credit));
-
         // Burn the tokens from the message sender.
         TokenUtils.safeBurnFrom(debtToken, msg.sender, credit);
 
@@ -1721,7 +1720,7 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     function _onlyWhitelisted() internal view {
         // Check if the message sender is an EOA. In the future, this potentially may break. It is important that functions
         // which rely on the whitelist not be explicitly vulnerable in the situation where this no longer holds true.
-        if (tx.origin == msg.sender && address(msg.sender).code.length == 0) {
+        if (tx.origin == msg.sender) {
           return;
         }
         // Only check the whitelist for calls from contracts.

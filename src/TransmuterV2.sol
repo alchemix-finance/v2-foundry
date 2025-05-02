@@ -516,7 +516,7 @@ contract TransmuterV2 is ITransmuterV2, Initializable, ReentrancyGuardUpgradeabl
       account.occupiedTick = cache.currentTick;
     }
   }
-
+  
   /// @dev Checks the whitelist for msg.sender.
   ///
   /// @notice Reverts if msg.sender is not in the whitelist.
