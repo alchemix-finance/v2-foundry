@@ -519,17 +519,17 @@ contract TransmuterV2 is ITransmuterV2, Initializable, ReentrancyGuardUpgradeabl
   
   /// @dev Checks the whitelist for msg.sender.
   ///
-  /// @notice Reverts if msg.sender is not in the whitelist.
+  /// Reverts if msg.sender is not in the whitelist.
   function _onlyWhitelisted() internal view {
-    // Check if the message sender is an EOA. In the future, this potentially may break. It is important that
-    // functions which rely on the whitelist not be explicitly vulnerable in the situation where this no longer
-    // holds true.
-    if (tx.origin != msg.sender) {
+      // Check if the message sender is an EOA. In the future, this potentially may break. It is important that functions
+      // which rely on the whitelist not be explicitly vulnerable in the situation where this no longer holds true.
+      if (tx.origin == msg.sender && address(msg.sender).code.length == 0) {
+        return;
+      }
       // Only check the whitelist for calls from contracts.
       if (!IWhitelist(whitelist).isWhitelisted(msg.sender)) {
         revert Unauthorized();
       }
-    }
   }
 
   /// @dev Normalize `amount` of `underlyingToken` to a value which is comparable to units of the debt token.
