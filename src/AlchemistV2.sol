@@ -1721,15 +1721,15 @@ contract AlchemistV2 is IAlchemistV2, Initializable, Multicall, Mutex {
     function _onlyWhitelisted() internal view {
         // Check if the message sender is an EOA. In the future, this potentially may break. It is important that functions
         // which rely on the whitelist not be explicitly vulnerable in the situation where this no longer holds true.
-        if (tx.origin == msg.sender) {
+        if (tx.origin == msg.sender && address(msg.sender).code.length == 0) {
           return;
         }
-
         // Only check the whitelist for calls from contracts.
         if (!IWhitelist(whitelist).isWhitelisted(msg.sender)) {
           revert Unauthorized();
         }
     }
+
 
     /// @dev Checks an expression and reverts with an {IllegalArgument} error if the expression is {false}.
     ///
