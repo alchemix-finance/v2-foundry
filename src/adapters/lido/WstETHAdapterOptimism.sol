@@ -11,7 +11,7 @@ import {SafeERC20} from "../../libraries/SafeERC20.sol";
 import {IChainlinkOracle} from "../../interfaces/external/chainlink/IChainlinkOracle.sol";
 import {ITokenAdapter} from "../../interfaces/ITokenAdapter.sol";
 import {IWETH9} from "../../interfaces/external/IWETH9.sol";
-import {IVelodromeSwapRouterV2} from "../../interfaces/external/velodrome/IVelodromeSwapRouterV2.sol";
+import {IUniversalRouter} from "../../interfaces/external/velodrome/IUniversalRouter.sol";
 import {IStETH} from "../../interfaces/external/lido/IStETH.sol";
 import {IWstETH} from "../../interfaces/external/lido/IWstETH.sol";
 
@@ -90,14 +90,15 @@ contract WstETHAdapterOptimism is ITokenAdapter, MutexLock {
 
         // Swap WETH to wstETH
         SafeERC20.safeApprove(underlyingToken, velodromeRouter, amount);
-        IVelodromeSwapRouterV2.route[] memory routes = new IVelodromeSwapRouterV2.route[](1);
-        routes[0] = IVelodromeSwapRouterV2.route(underlyingToken, token, false, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
-        uint256[] memory amounts = IVelodromeSwapRouterV2(velodromeRouter).swapExactTokensForTokens(amount, 0, routes, address(this), block.timestamp);
+        bytes[] memory inputs =  new bytes[](1);
+        inputs[0] = abi.encode(address(this), amount, uint256(0), abi.encodePacked(underlyingToken, uint24(1), token), true);
+        IUniversalRouter(velodromeRouter).execute(abi.encodePacked(uint8(0)), inputs);
 
         // Transfer the wstETH to the recipient.
-        SafeERC20.safeTransfer(token, recipient, amounts[1]);
+        uint256 amount = IERC20(token).balanceOf(address(this));
+        SafeERC20.safeTransfer(token, recipient, amount);
 
-        return amounts[1];
+        return amount;
     }
 
     // @inheritdoc ITokenAdapter
@@ -109,13 +110,14 @@ contract WstETHAdapterOptimism is ITokenAdapter, MutexLock {
         SafeERC20.safeTransferFrom(token, msg.sender, address(this), amount);
 
         SafeERC20.safeApprove(token, velodromeRouter, amount);
-        IVelodromeSwapRouterV2.route[] memory routes = new IVelodromeSwapRouterV2.route[](1);
-        routes[0] = IVelodromeSwapRouterV2.route(token, underlyingToken, false, 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
-        uint256[] memory amounts = IVelodromeSwapRouterV2(velodromeRouter).swapExactTokensForTokens(amount, 0, routes, address(this), block.timestamp);
+        bytes[] memory inputs =  new bytes[](1);
+        inputs[0] = abi.encode(address(this), amount, uint256(0), abi.encodePacked(token, uint24(1), underlyingToken), true);
+        IUniversalRouter(velodromeRouter).execute(abi.encodePacked(uint8(0)), inputs);
 
         // Transfer the tokens to the recipient.
-        SafeERC20.safeTransfer(underlyingToken, recipient, amounts[1]);
+        uint256 amount = IERC20(underlyingToken).balanceOf(address(this));
+        SafeERC20.safeTransfer(underlyingToken, recipient, amount);
 
-        return amounts[1];
+        return amount;
     }
 }

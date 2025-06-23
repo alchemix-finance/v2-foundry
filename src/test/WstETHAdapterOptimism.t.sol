@@ -37,7 +37,7 @@ contract WstETHAdapterOptimismTest is DSTestPlus {
             alchemist:       address(alchemist),
             token:           address(wstETH),
             underlyingToken: address(weth),
-            velodromeRouter: 0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858,
+            velodromeRouter: 0x4bF3E32de155359D1D75e8B474b66848221142fc,
             oracleWstethEth: address(oracleStethEth)
         }));
 

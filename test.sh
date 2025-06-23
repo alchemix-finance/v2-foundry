@@ -9,7 +9,7 @@ make test_file_block FILE=TransmuterConduit;
 make test_file_block FILE=V2Migration BLOCK=15627050;
 make test_file_block FILE=VesperAdapterV1;
 make test_file_block FILE=WstETHAdapterV1 BLOCK=16839048;
-make test_file_block_optimism FILE=WstETHAdapterOptimism BLOCK=122126009;
+make test_file_block_optimism FILE=WstETHAdapterOptimism BLOCK=137551433;
 # run invariants locally and include test results on PR
 # make test_file_block FILE=InvariantsTests;
 make test_file_block FILE=AAVETokenAdapter;
@@ -21,7 +21,6 @@ make test_file_block_optimism FILE=XTokens BLOCK=118506023;
 make test_file_block FILE=SDT BLOCK=17000429;
 make test_file_block_optimism FILE=YearnOptimism BLOCK=99207058;
 make test_file_block_optimism FILE=YTokenGateway BLOCK=99207058;
-make test_file_block_optimism FILE=OptimismGrantDistribution BLOCK=119793126;
 make test_file_block_optimism FILE=ATokenGateway BLOCK=99207058;
 make test_file_block_optimism FILE=OptimismGrantDistribution BLOCK=121995110;
 make test_file_block_arbitrum FILE=ArbitrumGrantDistribution BLOCK=223534546;
