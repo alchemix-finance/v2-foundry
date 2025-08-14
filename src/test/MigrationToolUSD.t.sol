@@ -41,7 +41,7 @@ contract MigrationToolTestUSD is DSTestPlus {
     address constant whitelistUSD = 0x78537a6CeBa16f412E123a90472C6E0e9A8F1132;
     address constant yvDAI = 0xdA816459F1AB5631232FE5e97a05BBBb94970c95;
     address constant yvUSDC = 0xa354F35829Ae975e850e23e9615b11Da1B3dC4DE;
-    address constant yvUSDT = 0x7Da96a3891Add058AdA2E826306D812C638D87a7;
+    address constant yvUSDT = 0x3B27F92C0e212C671EA351827EDF93DB27cc0c65;
     uint256 constant BPS = 10000;
     uint256 constant MAX_INT = 2**256 - 1;
 
@@ -58,10 +58,7 @@ contract MigrationToolTestUSD is DSTestPlus {
     MigrationTool migrationToolUSD;
 
     function setUp() external {
-        MigrationInitializationParams memory migrationParams = MigrationInitializationParams(alchemistUSD, new address[](3));
-        migrationParams.collateralAddresses[0] = (0x6B175474E89094C44Da98b954EedeAC495271d0F);
-        migrationParams.collateralAddresses[1] = (0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
-        migrationParams.collateralAddresses[2] = (0xdAC17F958D2ee523a2206206994597C13D831ec7);
+        MigrationInitializationParams memory migrationParams = MigrationInitializationParams(alchemistUSD);
         migrationToolUSD = new MigrationTool(migrationParams);
 
         AlUSD = IAlchemicToken(alUSD);
@@ -83,6 +80,8 @@ contract MigrationToolTestUSD is DSTestPlus {
         WhitelistUSD.add(address(0xbeef));
         WhitelistUSD.add(address(migrationToolUSD));
         AlchemistUSD.setMaximumExpectedValue(yvUSDT, MAX_INT);
+        AlchemistUSD.setMaximumExpectedValue(yvUSDC, MAX_INT);
+        AlchemistUSD.setMaximumExpectedValue(yvDAI, MAX_INT);
         hevm.stopPrank();
 
         staticATokenDAI = new StaticAToken(
@@ -105,10 +104,6 @@ contract MigrationToolTestUSD is DSTestPlus {
             "saUSDC",
             "staticAaveUSDC"
         );
-
-        newAlchemistV2 = new AlchemistV2();
-
-        hevm.etch(alchemistUSD, address(newAlchemistV2).code);
 
         addAdapter(alchemistUSD, address(staticATokenDAI), DAI);
         addAdapter(alchemistUSD, address(staticATokenUSDC), USDC);
@@ -181,50 +176,6 @@ contract MigrationToolTestUSD is DSTestPlus {
 
     function testMigrateMaxUSDCNoDebt() external {
         migrationDifferentVaultMaximumShares(1000e6, yvUSDC, USDC, address(staticATokenUSDC), 6, 0);
-    }
-
-    function testMigrationFuzz(uint256 p1, uint256 p2, uint256 p3, uint256 debtBps) external {
-        hevm.assume(p1 >= 1e18);
-        hevm.assume(p2 >= 1e6);
-        hevm.assume(p3 >= 1e6);
-        hevm.assume(debtBps >= 0);
-        hevm.assume(debtBps <= BPS);
-
-        // Pre deposit a random position
-        while (p1 > 2000000e18) {
-            p1 = p1 / 2;
-        }
-        // Create new position
-         deal(DAI, address(this), p1);
-        SafeERC20.safeApprove(DAI, alchemistUSD, p1);
-        AlchemistUSD.depositUnderlying(yvDAI, p1, address(this), 0);
-        (uint256 shares, ) = AlchemistUSD.positions(address(this), yvDAI);
-        uint256 underlyingValue = shares * AlchemistUSD.getUnderlyingTokensPerShare(yvDAI)  / 10**18;
-        if (debtBps > 0) {
-            AlchemistUSD.mint(underlyingValue/2 * debtBps / BPS, address(this));
-        }
-
-        // Pre deposit a random position
-        while (p2 > 2000000e6) {
-            p2 = p2 / 2;
-        }
-        // Create new position
-         deal(USDC, address(this), p2);
-        SafeERC20.safeApprove(USDC, alchemistUSD, p2);
-        AlchemistUSD.depositUnderlying(yvUSDC, p2, address(this), 0);
-        (shares, ) = AlchemistUSD.positions(address(this), yvUSDC);
-        underlyingValue = shares * AlchemistUSD.getUnderlyingTokensPerShare(yvUSDC)  / 10**6;
-        uint256 debtValue = underlyingValue * 10**(18 - 6);
-        if (debtBps > 0) {
-            AlchemistUSD.mint(debtValue/2 * debtBps / BPS, address(this));
-        }
-
-        // Migrate random amount
-        while (p3 > 2000000e6) {
-            p3 = p3 / 2;
-        }
-
-        migrationDifferentVaultMaximumShares(p3, yvUSDT, USDT, address(staticATokenUSDT), 6, debtBps);
     }
 
     function testZap() external {

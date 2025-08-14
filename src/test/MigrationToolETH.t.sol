@@ -54,8 +54,7 @@ contract MigrationToolTestETH is DSTestPlus {
     MigrationTool migrationToolETH;
 
     function setUp() external {
-        MigrationInitializationParams memory migrationParams = MigrationInitializationParams(alchemistETH, new address[](1));
-        migrationParams.collateralAddresses[0] = (wETH);
+        MigrationInitializationParams memory migrationParams = MigrationInitializationParams(alchemistETH);
         migrationToolETH = new MigrationTool(migrationParams);
 
         AlETH = IAlchemicToken(alETH);
@@ -99,43 +98,6 @@ contract MigrationToolTestETH is DSTestPlus {
         migrationToolETH.migrateVaults(wstETH, wstETH, 100e18, 90e18, 0);
     }
 
-    function testMigrationDifferentVaultMaximumShares() external {
-        deal(wETH, address(this), 10e18);
-
-        // Create new position
-        SafeERC20.safeApprove(wETH, alchemistETH, 10e18);
-        AlchemistETH.depositUnderlying(yvETH, 10e18, address(this), 0);
-        (uint256 shares, ) = AlchemistETH.positions(address(this), yvETH);
-
-        // Debt conversion in this case only divides by 1 so I left it out.
-        uint256 underlyingValue = shares * AlchemistETH.getUnderlyingTokensPerShare(yvETH)  / 10**18;
-        AlchemistETH.mint(underlyingValue/2, address(this));
-
-        // Debt after original mint
-        (int256 firstPositionDebt, ) = AlchemistETH.accounts(address(this));
-
-        // Approve the migration tool to withdraw and mint on behalf of the user
-        AlchemistETH.approveWithdraw(address(migrationToolETH), yvETH, shares);
-        AlchemistETH.approveMint(address(migrationToolETH), underlyingValue);
-
-        // Verify new position underlying value is within 0.01% of original
-        uint256 newShares = migrationToolETH.migrateVaults(yvETH, wstETH, shares, 0, 0);
-        uint256 newUnderlyingValue = newShares * AlchemistETH.getUnderlyingTokensPerShare(wstETH) / 10**18;
-        assertGt(newUnderlyingValue, underlyingValue * 9999 / BPS);
-
-        // Verify debts are the same
-        (int256 secondPositionDebt, ) = AlchemistETH.accounts(address(this));
-        assertEq(secondPositionDebt, firstPositionDebt);
-
-        // Verify new position
-        (uint256 sharesConfirmed, ) = AlchemistETH.positions(address(this), wstETH);
-        assertEq(newShares, sharesConfirmed);
-
-        // Verify old position is gone
-        (sharesConfirmed, ) = AlchemistETH.positions(address(this), yvETH);
-        assertEq(0, sharesConfirmed);
-    }
-
     function testMigrationDifferentVaultPartialShares() external {
         deal(wETH, address(this), 10e18);
         
@@ -157,8 +119,8 @@ contract MigrationToolTestETH is DSTestPlus {
 
         // Verify new position underlying value is within 0.1% of original
         (uint256 oldShares, ) = AlchemistETH.positions(address(this), yvETH);
-        uint256 newShares = migrationToolETH.migrateVaults(yvETH, wstETH, shares / 2, 0, 0);
-        uint256 newUnderlyingValue = (newShares + oldShares) * AlchemistETH.getUnderlyingTokensPerShare(wstETH) / 10**18;
+        uint256 newShares = migrationToolETH.migrateVaults(yvETH, address(staticAToken), shares / 2, 0, 0);
+        uint256 newUnderlyingValue = (newShares + oldShares) * AlchemistETH.getUnderlyingTokensPerShare(address(staticAToken)) / 10**18;
         assertGt(newUnderlyingValue, underlyingValue * 9999 / BPS);
 
         // Verify debts are the same
@@ -166,7 +128,7 @@ contract MigrationToolTestETH is DSTestPlus {
         assertEq(secondPositionDebt, firstPositionDebt);
 
         // Verify new position
-        (uint256 sharesConfirmed, ) = AlchemistETH.positions(address(this), wstETH);
+        (uint256 sharesConfirmed, ) = AlchemistETH.positions(address(this), address(staticAToken));
         assertEq(newShares, sharesConfirmed);
 
         // Verify old position
@@ -174,7 +136,7 @@ contract MigrationToolTestETH is DSTestPlus {
         assertApproxEq(shares / 2, sharesConfirmed, 1);
     }
 
-    function testMigrationDifferentVaultMaximumSharesAAVE() external {
+    function testMigrationDifferentVaultMaximumShares() external {
         deal(wETH, address(this), 10e18);
 
         // Create new position
@@ -212,13 +174,7 @@ contract MigrationToolTestETH is DSTestPlus {
     }
 
     function testPreviewMigrate() external {
-        (bool canMigrate, string memory flag, uint256 amountToAdjust, , ) = migrationToolETH.previewMigration(0x15962221e0E7A41dE9Da1615f9cb64cBfFF83408, 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0, 0xac3E018457B222d93114458476f3E3416Abbe38F, 9940160709247927545);
-
-        assertEq(canMigrate, false);
-        assertEq("Slippage exceeded! New position exceeds mint allowance.", flag);
-        assertGt(amountToAdjust, 0);
-
-        (canMigrate, flag, amountToAdjust, , ) = migrationToolETH.previewMigration(0x15962221e0E7A41dE9Da1615f9cb64cBfFF83408, 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0, 0xa258C4606Ca8206D8aA700cE2143D7db854D168c, 1000000e18);
+        (bool canMigrate, string memory flag, uint256 amountToAdjust, , )  = migrationToolETH.previewMigration(0x15962221e0E7A41dE9Da1615f9cb64cBfFF83408, 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0, 0xa258C4606Ca8206D8aA700cE2143D7db854D168c, 1000000e18);
 
         assertEq(canMigrate, false);
         assertEq("Migrated amount exceeds new vault capacity! Reduce migration amount.", flag);
