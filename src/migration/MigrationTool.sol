@@ -14,16 +14,12 @@ import {Mutex} from "../base/Mutex.sol";
 
 import {TokenUtils} from "../libraries/TokenUtils.sol";
 
-import {IAlchemicToken} from "../interfaces/IAlchemicToken.sol";
+import {IAlchemicTokenV2} from "../interfaces/IAlchemicTokenV2.sol";
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
 import {IAlchemistV2State} from "../interfaces/alchemist/IAlchemistV2State.sol";
 import {IMigrationTool} from "../interfaces/IMigrationTool.sol";
 import {IWETH9} from "../interfaces/external/IWETH9.sol";
 import {SafeCast} from "../libraries/SafeCast.sol";
-
-struct InitializationParams {
-    address alchemist;
-}
 
 struct PreviewParams {
     IAlchemistV2State.YieldTokenParams startingParams;
@@ -42,11 +38,11 @@ contract MigrationTool is IMigrationTool, Multicall {
     uint256 public immutable BPS = 10000;
 
     IAlchemistV2 public immutable alchemist;
-    IAlchemicToken public immutable alchemicToken;
+    IAlchemicTokenV2 public immutable alchemicToken;
 
-    constructor(InitializationParams memory params) {
-        alchemist       = IAlchemistV2(params.alchemist);
-        alchemicToken   = IAlchemicToken(alchemist.debtToken());
+    constructor(address alchemistAddress) {
+        alchemist       = IAlchemistV2(alchemistAddress);
+        alchemicToken   = IAlchemicTokenV2(alchemist.debtToken());
     }
 
     /// @inheritdoc IMigrationTool
@@ -160,7 +156,7 @@ contract MigrationTool is IMigrationTool, Multicall {
         if (debt > 0) {
             // Mint al token which will be burned to fulfill flash loan requirements
             alchemist.mintFrom(msg.sender, amountBurned, address(this));
-            alchemicToken.burn(alchemicToken.balanceOf(address(this)));
+            alchemicToken.burnSelf(alchemicToken.balanceOf(address(this)));
         }
 
 	    return newPositionShares;

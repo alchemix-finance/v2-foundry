@@ -15,10 +15,7 @@ import {
     InitializationParams as AdapterInitializationParams
 } from "../adapters/aave/AAVETokenAdapter.sol";
 
-import {
-    MigrationTool,
-    InitializationParams as MigrationInitializationParams
-} from "../migration/MigrationTool.sol";
+import {MigrationTool} from "../migration/MigrationTool.sol";
 
 import {IAlchemicToken} from "../interfaces/IAlchemicToken.sol";
 import {IAlchemistV2} from "../interfaces/IAlchemistV2.sol";
@@ -58,8 +55,7 @@ contract MigrationToolTestUSD is DSTestPlus {
     MigrationTool migrationToolUSD;
 
     function setUp() external {
-        MigrationInitializationParams memory migrationParams = MigrationInitializationParams(alchemistUSD);
-        migrationToolUSD = new MigrationTool(migrationParams);
+        migrationToolUSD = new MigrationTool(alchemistUSD);
 
         AlUSD = IAlchemicToken(alUSD);
 
