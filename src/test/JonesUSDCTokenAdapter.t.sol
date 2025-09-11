@@ -129,6 +129,6 @@ contract JonesUSDCAdapterTest is DSTestPlus {
         // With adapter.price() hardcoded to 1, collateral value is effectively ~0
         // Attempt to mint a meaningful amount (1 alUSD) and expect Undercollateralized
         hevm.expectRevert(IAlchemistV2Errors.Undercollateralized.selector);
-        IAlchemistV2(alchemistUSD).mint(1e6, address(this));
+        IAlchemistV2(alchemistUSD).mint(1, address(this));
     }
 }
