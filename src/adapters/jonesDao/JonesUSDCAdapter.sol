@@ -28,14 +28,14 @@ contract JonesUSDCAdapter is ITokenAdapter {
 
     /// @inheritdoc ITokenAdapter
     function price() external view override returns (uint256) {
-        return IJonesStableVault(token).convertToAssets(1e18);
+        return 0;
     }
 
     /// @inheritdoc ITokenAdapter
     function wrap(uint256 amount, address recipient) external override returns (uint256) {
         TokenUtils.safeTransferFrom(underlyingToken, msg.sender, address(this), amount);
         TokenUtils.safeApprove(underlyingToken, jonesGLPVaultRouter, amount);
-                
+
         uint256 shares = IJonesDaoVaultRouter(jonesGLPVaultRouter).deposit(amount, recipient);
 
         return shares;
