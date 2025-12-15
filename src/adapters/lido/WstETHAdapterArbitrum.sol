@@ -13,14 +13,14 @@ import {ITokenAdapter} from "../../interfaces/ITokenAdapter.sol";
 import {IWETH9} from "../../interfaces/external/IWETH9.sol";
 import {IStETH} from "../../interfaces/external/lido/IStETH.sol";
 import {IWstETH} from "../../interfaces/external/lido/IWstETH.sol";
-import "../../interfaces/external/balancer/IBalancerSwap.sol";
+import {ISwapRouter} from "../../interfaces/external/uniswap/ISwapRouter.sol";
 
 struct InitializationParams {
     address alchemist;
     address token;
     address underlyingToken;
-    address balancerVault;
     address oracleWstethEth;
+    address router;
 }
 
 contract WstETHAdapterArbitrum is ITokenAdapter, MutexLock {
@@ -29,15 +29,15 @@ contract WstETHAdapterArbitrum is ITokenAdapter, MutexLock {
     address public immutable alchemist;
     address public immutable override token;
     address public immutable override underlyingToken;
-    address public immutable balancerVault;
     address public immutable oracleWstethEth;
+    address public immutable router;
 
     constructor(InitializationParams memory params) {
         alchemist       = params.alchemist;
         token           = params.token;
         underlyingToken = params.underlyingToken;
-        balancerVault   = params.balancerVault;
         oracleWstethEth = params.oracleWstethEth;
+        router          = params.router;
     }
 
     /// @dev Checks that the message sender is the alchemist that the adapter is bound to.
@@ -49,7 +49,7 @@ contract WstETHAdapterArbitrum is ITokenAdapter, MutexLock {
     }
 
     receive() external payable {
-        if (msg.sender != underlyingToken && msg.sender != balancerVault) {
+        if (msg.sender != underlyingToken && msg.sender != router) {
             revert Unauthorized("Payments only permitted from WETH or curve pool");
         }
     }
@@ -93,27 +93,23 @@ contract WstETHAdapterArbitrum is ITokenAdapter, MutexLock {
         SafeERC20.safeTransferFrom(underlyingToken, msg.sender, address(this), amount);
 
         // Swap WETH to wstETH
-        SafeERC20.safeApprove(underlyingToken, balancerVault, amount);
+        SafeERC20.safeApprove(underlyingToken, address(router), amount);
 
         uint256 balanceBefore = IERC20(token).balanceOf(address(this));
 
-        SingleSwap memory swapParams = SingleSwap(
-            0xfb5e6d0c1dfed2ba000fbc040ab8df3615ac329c000000000000000000000159,
-            SwapKind.GIVEN_IN,
-            IAsset(0x82aF49447D8a07e3bd95BD0d56f35241523fBab1),
-            IAsset(0x5979D7b546E38E414F7E9822514be443A4800529),
-            amount,
-            '0x'
-        );
+        ISwapRouter.ExactInputSingleParams memory params =
+            ISwapRouter.ExactInputSingleParams({
+                tokenIn: underlyingToken,
+                tokenOut: token,
+                fee: 100,
+                recipient: address(this),
+                deadline: block.timestamp,
+                amountIn: amount,
+                amountOutMinimum: 0,
+                sqrtPriceLimitX96: 0
+            });
 
-        FundManagement memory funds = FundManagement(
-            address(this),
-            false,
-            payable(address(this)),
-            false
-        );
-
-        IBalancerSwap(balancerVault).swap(swapParams, funds, 0, block.timestamp);
+        ISwapRouter(router).exactInputSingle(params);
 
         uint256 balanceAfter = IERC20(token).balanceOf(address(this));
 
@@ -130,27 +126,23 @@ contract WstETHAdapterArbitrum is ITokenAdapter, MutexLock {
         // Transfer the tokens from the message sender.
         SafeERC20.safeTransferFrom(token, msg.sender, address(this), amount);
 
-        SafeERC20.safeApprove(token, balancerVault, amount);
+        SafeERC20.safeApprove(token, address(router), amount);
 
         uint256 balanceBefore = IERC20(underlyingToken).balanceOf(address(this));
 
-        SingleSwap memory swapParams = SingleSwap(
-            0xfb5e6d0c1dfed2ba000fbc040ab8df3615ac329c000000000000000000000159,
-            SwapKind.GIVEN_IN,
-            IAsset(0x5979D7b546E38E414F7E9822514be443A4800529),
-            IAsset(0x82aF49447D8a07e3bd95BD0d56f35241523fBab1),
-            amount,
-            '0x'
-        );
+        ISwapRouter.ExactInputSingleParams memory params =
+            ISwapRouter.ExactInputSingleParams({
+                tokenIn: token,
+                tokenOut: underlyingToken,
+                fee: 100,
+                recipient: address(this),
+                deadline: block.timestamp,
+                amountIn: amount,
+                amountOutMinimum: 0,
+                sqrtPriceLimitX96: 0
+            });
 
-        FundManagement memory funds = FundManagement(
-            address(this),
-            false,
-            payable(address(this)),
-            false
-        );
-
-        IBalancerSwap(balancerVault).swap(swapParams, funds, 0, block.timestamp);
+        ISwapRouter(router).exactInputSingle(params);
 
         uint256 balanceAfter = IERC20(underlyingToken).balanceOf(address(this));
 

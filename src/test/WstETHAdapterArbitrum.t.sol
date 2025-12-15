@@ -22,7 +22,7 @@ import {console} from "../../lib/forge-std/src/console.sol";
 
 contract WstETHAdapterOptimismTest is DSTestPlus {
     uint256 constant BPS = 10000;
-    address constant admin = 0x886FF7a2d46dcc2276e2fD631957969441130847;
+    address constant admin = 0x7e108711771DfdB10743F016D46d75A9379cA043;
     address constant whitelistETHAddress = 0x6996b41c369D3175F18D16ba14952F8C89665710;
 
     IAlchemistV2 constant alchemist = IAlchemistV2(0x654e16a0b161b150F5d1C8a5ba6E7A7B7760703A);
@@ -37,8 +37,8 @@ contract WstETHAdapterOptimismTest is DSTestPlus {
             alchemist:       address(alchemist),
             token:           address(wstETH),
             underlyingToken: address(weth),
-            balancerVault:   0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            oracleWstethEth: address(oracleWStethEth)
+            oracleWstethEth: address(oracleWStethEth),
+            router:          0xE592427A0AEce92De3Edee1F18E0157C05861564
         }));
 
         IAlchemistV2.YieldTokenConfig memory ytc = IAlchemistV2AdminActions.YieldTokenConfig({
@@ -49,10 +49,8 @@ contract WstETHAdapterOptimismTest is DSTestPlus {
         });
 
         hevm.startPrank(admin);
-        alchemist.addYieldToken(address(wstETH), ytc);
-        alchemist.setYieldTokenEnabled(address(wstETH), true);
+        alchemist.setTokenAdapter(address(wstETH), address(adapter));
         IWhitelist(whitelistETHAddress).add(address(this));
-        alchemist.setMaximumExpectedValue(address(wstETH), 1000000000e18);
         hevm.stopPrank();
     }
 
