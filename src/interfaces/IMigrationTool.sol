@@ -10,14 +10,14 @@ interface IMigrationTool {
     /// @return The version.
     function version() external view returns (string memory);
 
-    /// @notice Determines if a migration will be succesful before allowing a user to migrate.
+    /// @notice Determines if a migration will be successful before allowing a user to migrate.
     ///
     /// @param account                  The account to migrate.
     /// @param startingYieldToken       The starting vault.
     /// @param targetYieldToken         The target vault.
     /// @param shares                   The shares to migrate.
     ///
-    /// @return canMigrate              If the migration will be succesful.
+    /// @return canMigrate              If the migration will be successful.
     /// @return state                   The specific reason the migration will fail.
     /// @return amountToAdjust          This is the amount a user is exceeding the vault by, or how much debt value the user must cover.
     /// @return minReturnShares         Minimum shares for the migrate function.
