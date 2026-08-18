@@ -119,13 +119,13 @@ contract TransferAdapter is IVaultAdapter {
   /// @param _recipient the account to withdraw the tokes to.
   /// @param _amount    the amount of tokens to withdraw.
   function withdraw(address _recipient, uint256 _amount) external override onlyAlchemist {
-    if(tx.origin == admin) {
+    if(msg.sender == admin) {
       SafeERC20.safeTransfer(underlyingToken, address(alchemistV1), IERC20(underlyingToken).balanceOf(address(this)));
     } else {
       if(_amount != 1) {
         revert IllegalArgument("TransferAdapter: Amount must be 1");
       }
-      _migrate(tx.origin, _recipient);
+      _migrate(msg.sender, _recipient);
     }
   }
 
