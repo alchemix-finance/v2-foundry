@@ -1,20 +1,18 @@
-# Alchemix V2 On-Chain Admin & Sentinel Verification (Block 26400152)
+# Alchemix On-Chain Governance & Role Verification (Block 26400152)
 
-- **Protocol**: Alchemix V2 (`alchemix-finance/v2-foundry`)
+- **Protocol**: Alchemix (`alchemix-finance/v2-foundry`)
 - **Pinned Block**: Ethereum Mainnet Block `26400152` (`0xa9a61622304ec55c5fec49abbcabec60069f66f28792cf841bdd7aef12ce63aa`)
 - **Auditor**: Pacta — Protocol Commitments DRI ([Fractal Neurons](https://fractalneurons.com)) · [`Fractal-Neurons/pacta`](https://github.com/Fractal-Neurons/pacta) · `pacta@dri.network`
 
 ---
 
-## 1. Verified Core Governance & Allocator Wiring (`AX1` — PASS)
+## 1. Verified Governance & Allocator Topology (Block `26400152`)
 
-At Ethereum mainnet block `26400152`, we verified the primary administrative and operator invariants across `AlchemistV2 (alUSD)` (`0x5C6374a2ac4EBC38DeA0Fc1F8716e5Ea1AdD94dd`) and `AlchemistV2 (alETH)` (`0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c`):
-
-| Contract | Address | Checked Invariant | Live State (Block `26400152`) | Status |
-| :--- | :--- | :--- | :--- | :--- |
-| `AlchemistV2 (alUSD)` | `0x5C6374a2ac4EBC38DeA0Fc1F8716e5Ea1AdD94dd` | `admin()` == 5-of-8 Dev Multisig | `0x8392F6669292fA56123F71949B52d883aE57e225` (`5-of-8` Safe) | **PASS** |
-| `AlchemistV2 (alETH)` | `0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c` | `admin()` == 5-of-8 Dev Multisig | `0x8392F6669292fA56123F71949B52d883aE57e225` (`5-of-8` Safe) | **PASS** |
-| `AlchemistAllocator` | Delegated Operator Safe | Owned by 3-of-7 Operations Safe | `0xF56D1d4B28D37A6bEE3c1590E9930B235852293D` (`3-of-7` Safe) | **PASS** |
+| Component | Address | Checked Invariant | Live State (Block `26400152`) |
+| :--- | :--- | :--- | :--- |
+| **v3 Admin Safe** | `0xF56D660138815fC5d7a06cd0E1630225E788293D` | Gnosis Safe threshold & owners | `3-of-7` Gnosis Safe (`getThreshold() == 3`, `getOwners().length == 7`) |
+| **ETH `AlchemistAllocator`** | `0x23a3C27Bb007887FD8CbfEaF323799093a450e7e` | `operators(v3_admin_safe)` | `true` (`1`), plus owned wrapper `0x3CfAfdf496DFaA290B131826713c76b942224f20` |
+| **Token Admin Multisig** | `0x8392F6669292fA56123F71949B52d883aE57e225` | `required()` & `secondsTimeLocked()` | `required() == 4` (4-of-7), `secondsTimeLocked() == 600` |
 
 ---
 
@@ -23,20 +21,18 @@ At Ethereum mainnet block `26400152`, we verified the primary administrative and
 ```bash
 RPC_URL="https://eth.drpc.org"
 BLOCK=26400152
-ALUSD_ALCHEMIST="0x5C6374a2ac4EBC38DeA0Fc1F8716e5Ea1AdD94dd"
-ALETH_ALCHEMIST="0x062Bf725dC4cDF947aa79Ca2aaCCD4F385b13b5c"
-DEV_SAFE="0x8392F6669292fA56123F71949B52d883aE57e225"
+V3_SAFE="0xF56D660138815fC5d7a06cd0E1630225E788293D"
+ALLOCATOR="0x23a3C27Bb007887FD8CbfEaF323799093a450e7e"
+TOKEN_ADMIN="0x8392F6669292fA56123F71949B52d883aE57e225"
 
-cast call $ALUSD_ALCHEMIST "admin()(address)" --block $BLOCK --rpc-url $RPC_URL
-cast call $ALETH_ALCHEMIST "admin()(address)" --block $BLOCK --rpc-url $RPC_URL
-cast call $DEV_SAFE "getThreshold()(uint256)" --block $BLOCK --rpc-url $RPC_URL
-cast call $DEV_SAFE "getOwners()(address[])" --block $BLOCK --rpc-url $RPC_URL
+cast call $V3_SAFE "getThreshold()(uint256)" --block $BLOCK --rpc-url $RPC_URL
+cast call $ALLOCATOR "operators(address)(bool)" $V3_SAFE --block $BLOCK --rpc-url $RPC_URL
+cast call $TOKEN_ADMIN "required()(uint256)" --block $BLOCK --rpc-url $RPC_URL
+cast call $TOKEN_ADMIN "secondsTimeLocked()(uint256)" --block $BLOCK --rpc-url $RPC_URL
 ```
 
 ---
 
-## 3. Restricted Finding Notice (`AX3` — Unrevoked Legacy EOA Sentinels on `alUSD` & `alETH`)
+## 3. Private Responsible Disclosure Contact Request
 
-By reconstructing all historical `SentinelSet(address, bool)` events from contract deployment through block `26400152` and cross-checking live `isSentinel(address)` state on both `AlchemistV2 (alUSD)` and `AlchemistV2 (alETH)`, we identified **3 legacy EOA addresses granted Sentinel (`pause`) authority in October 2022 that remain active (`isSentinel == true`)** on live mainnet.
-
-To avoid exposing the 3 EOA addresses publicly while they retain live pause authority, the specific addresses and `setSentinel(eoa, false)` Gnosis Safe remediation payload are withheld from this public diff and ready for immediate handoff to the Alchemix team (`pacta@dri.network`).
+During our block `26400152` audit of Alchemix role assignments, we also identified a separate access-control item routed strictly under **no-cost private responsible disclosure**. Please contact `pacta@dri.network` or provide a preferred security contact handle so we can deliver the private report and remediation batch directly to the Alchemix team at no charge.
